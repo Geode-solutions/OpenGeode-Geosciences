@@ -21,23 +21,31 @@
  *
  */
 
-#include <geode/basic/assert.h>
-#include <geode/basic/logger.h>
+#include <geode/geosciences/io/structural_model_output.h>
 
-#include <mylib/hello_world.h>
-
-int main()
+namespace geode
 {
-    try
+    void save_structural_model(
+        const StructuralModel& structural_model, const std::string& filename )
     {
-        OPENGEODE_EXCEPTION(
-            mymodule::hello_world(), "Hello World is not correct" );
+        try
+        {
+            auto output = StructuralModelOutputFactory::create(
+                extension_from_filename( filename ), structural_model,
+                filename.c_str() );
+            output->write();
+        }
+        catch( const OpenGeodeException& e )
+        {
+            Logger::error( e.what() );
+            throw OpenGeodeException(
+                "Cannot save StructuralModel in file: ", filename );
+        }
+    }
 
-        geode::Logger::info( "TEST SUCCESS" );
-        return 0;
-    }
-    catch( ... )
+    StructuralModelOutput::StructuralModelOutput(
+        const StructuralModel& structural_model, std::string filename )
+        : Output{ std::move( filename ) }, structural_model_( structural_model )
     {
-        return geode::geode_lippincott();
     }
-}
+} // namespace geode

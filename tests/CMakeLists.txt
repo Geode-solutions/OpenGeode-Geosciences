@@ -19,15 +19,20 @@
 # SOFTWARE.
 
 cmake_minimum_required(VERSION 3.7.2)
-    
-if(NOT TARGET MyModule::mylib)
-    project(MyModule CXX)
+
+if(NOT TARGET OpenGeode_Geosciences::geosciences)
+    project(OpenGeode_Geosciences CXX)
     find_package(OpenGeode REQUIRED CONFIG)
-    find_package(MyModule REQUIRED CONFIG)
+    find_package(OpenGeode_Geosciences REQUIRED CONFIG)
     enable_testing()
 endif()
 
 set(CTEST_OUTPUT_ON_FAILURE ON)
 
-add_subdirectory(mylib)
+set(TEST_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
+set(test_config_file_in ${CMAKE_CURRENT_LIST_DIR}/tests_config.h.in)
+set(test_config_file ${PROJECT_BINARY_DIR}/geode/tests_config.h)
+configure_file(${test_config_file_in} ${test_config_file})
+include_directories(${PROJECT_BINARY_DIR})
 
+add_subdirectory(geosciences)

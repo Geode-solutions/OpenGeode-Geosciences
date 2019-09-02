@@ -23,12 +23,28 @@
 
 #include <geode/basic/common.h>
 
+#include <geode/geosciences/io/detail/geode_structural_model_input.h>
+#include <geode/geosciences/io/detail/geode_structural_model_output.h>
+
 namespace
 {
-    OPENGEODE_LIBRARY_INITIALIZE( myLib )
+    void register_structural_model_input()
     {
-        /* Here the functions to call when initializing the library
-         * For exemple: registers, ...
-         */
+        geode::StructuralModelInputFactory::register_creator<
+            geode::OpenGeodeStructuralModelInput >(
+            geode::OpenGeodeStructuralModelOutput::extension() );
+    }
+
+    void register_structural_model_output()
+    {
+        geode::StructuralModelOutputFactory::register_creator<
+            geode::OpenGeodeStructuralModelOutput >(
+            geode::OpenGeodeStructuralModelOutput::extension() );
+    }
+
+    OPENGEODE_LIBRARY_INITIALIZE( geosciences )
+    {
+        register_structural_model_input();
+        register_structural_model_output();
     }
 } // namespace
