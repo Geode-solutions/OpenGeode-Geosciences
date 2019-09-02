@@ -8,7 +8,6 @@ set(sources
     "${lib_source_dir}/core/faults.cpp"
     "${lib_source_dir}/core/horizon.cpp"
     "${lib_source_dir}/core/horizons.cpp"
-    "${lib_source_dir}/core/structural_model.cpp"
     "${lib_source_dir}/io/structural_model_input.cpp"
     "${lib_source_dir}/io/structural_model_output.cpp"
 )
