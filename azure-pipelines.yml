@@ -1,0 +1,135 @@
+resources:
+  repositories:
+    - repository: templates
+      type: github
+      name: Geode-solutions/ci_tools
+      endpoint: Geode-solutions
+
+variables:
+- group: Tokens
+
+jobs:
+- template: clang-format.yml@templates
+
+- job: Test_Ubuntu
+  dependsOn: Format
+  pool:
+    vmImage: "ubuntu-16.04"
+  steps:
+    - template: get-release.yml@templates
+      parameters:
+        repo: OpenGeode
+        pattern: "*Linux*"
+    - template: unix-compilation.yml@templates
+      parameters:
+        type: "Debug"
+        cmakeArgs: "-DCMAKE_PREFIX_PATH=$(OPENGEODEPATH)"
+    - template: unix-testing.yml@templates
+      parameters:
+        type: "Debug"
+        cmakeArgs: "-DCMAKE_PREFIX_PATH=$(OPENGEODEPATH);$(Build.SourcesDirectory)/build"
+    - template: coverage.yml@templates
+      parameters:
+        directory: "$(Build.SourcesDirectory)/build/bin"
+
+- job: Test_Windows
+  dependsOn: Format
+  pool:
+    vmImage: "vs2017-win2016"
+  steps:
+    - template: get-release.yml@templates
+      parameters:
+        repo: OpenGeode
+        pattern: "*win64*"
+    - template: windows-compilation.yml@templates
+      parameters:
+        type: "Debug"
+        cmakeArgs: "-DCMAKE_PREFIX_PATH=$(OPENGEODEPATH)"
+    - template: windows-testing.yml@templates
+      parameters:
+        type: "Debug"
+
+- job: Test_Mac
+  dependsOn: Format
+  pool:
+    vmImage: "macOS-10.13"
+  steps:
+    - template: get-release.yml@templates
+      parameters:
+        repo: OpenGeode
+        pattern: "*Darwin*"
+    - template: unix-compilation.yml@templates
+      parameters:
+        type: "Debug"
+        cmakeArgs: "-DCMAKE_PREFIX_PATH=$(OPENGEODEPATH)"
+    - template: unix-testing.yml@templates
+      parameters:
+        type: "Debug"
+        cmakeArgs: "-DCMAKE_PREFIX_PATH=$(OPENGEODEPATH);$(Build.SourcesDirectory)/build"
+
+- template: semantic-release.yml@templates
+  parameters:
+    dependencies:
+      - Test_Ubuntu
+      - Test_Windows
+      - Test_Mac
+
+- job: Release_Ubuntu
+  dependsOn: Semantic_release
+  condition: eq(dependencies.Semantic_release.outputs['save.newRelease'], 'true')
+  pool:
+    vmImage: "ubuntu-16.04"
+  variables:
+    Version: $[ dependencies.Semantic_release.outputs['save.versionNumber'] ] 
+  steps:
+    - template: get-release.yml@templates
+      parameters:
+        repo: OpenGeode
+        pattern: "*Linux*"
+    - template: unix-compilation.yml@templates
+      parameters:
+        type: "Release"
+        cmakeArgs: "-DOPENGEODE_MYMODULE_WITH_TESTS:BOOL=OFF -DCPACK_PACKAGE_VERSION:STRING=$(Version) -DCMAKE_PREFIX_PATH=$(OPENGEODEPATH)"
+    - template: unix-release.yml@templates
+      parameters:
+        version: $(Version)
+
+- job: Release_Mac
+  dependsOn: Semantic_release
+  condition: eq(dependencies.Semantic_release.outputs['save.newRelease'], 'true')
+  pool:
+    vmImage: "macOS-10.13"
+  variables:
+    Version: $[ dependencies.Semantic_release.outputs['save.versionNumber'] ] 
+  steps:
+    - template: get-release.yml@templates
+      parameters:
+        repo: OpenGeode
+        pattern: "*Darwin*"
+    - template: unix-compilation.yml@templates
+      parameters:
+        type: "Release"
+        cmakeArgs: "-DOPENGEODE_MYMODULE_WITH_TESTS:BOOL=OFF -DCPACK_PACKAGE_VERSION:STRING=$(Version) -DCMAKE_PREFIX_PATH=$(OPENGEODEPATH)"
+    - template: unix-release.yml@templates
+      parameters:
+        version: $(Version)
+
+- job: Release_Windows
+  dependsOn: Semantic_release
+  condition: eq(dependencies.Semantic_release.outputs['save.newRelease'], 'true')
+  pool:
+    vmImage: "vs2017-win2016"
+  variables:
+    Version: $[ dependencies.Semantic_release.outputs['save.versionNumber'] ] 
+  steps:
+    - template: get-release.yml@templates
+      parameters:
+        repo: OpenGeode
+        pattern: "*win64*"    
+    - template: windows-compilation.yml@templates
+      parameters:
+        type: "Release"
+        cmakeArgs: "-DOPENGEODE_MYMODULE_WITH_TESTS:BOOL=OFF -DCPACK_PACKAGE_VERSION:STRING=$(Version) -DCMAKE_PREFIX_PATH=$(OPENGEODEPATH)"
+    - template: windows-release.yml@templates
+      parameters:
+        version: $(Version)
