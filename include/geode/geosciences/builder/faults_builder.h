@@ -23,9 +23,38 @@
 
 #pragma once
 
-#include <mylib/mymodule_mylib_export.h>
+#include <geode/geosciences/common.h>
 
-namespace mymodule
+namespace geode
 {
-    bool mymodule_mylib_api hello_world();
-} // namespace mymodule
+    FORWARD_DECLARATION_DIMENSION_CLASS( Fault );
+    FORWARD_DECLARATION_DIMENSION_CLASS( Faults );
+
+    struct uuid;
+} // namespace geode
+
+namespace geode
+{
+    template < index_t dimension >
+    class FaultsBuilder
+    {
+    public:
+        void load_faults( const std::string& directory );
+
+        void set_fault_type( const uuid& fault_id,
+            typename Fault< dimension >::FAULT_TYPE type );
+
+    protected:
+        FaultsBuilder( Faults< dimension >& faults ) : faults_( faults ) {}
+
+        const uuid& create_fault();
+
+        const uuid& create_fault(
+            typename Fault< dimension >::FAULT_TYPE type );
+
+        void delete_fault( const Fault< dimension >& fault );
+
+    private:
+        Faults< dimension >& faults_;
+    };
+} // namespace geode

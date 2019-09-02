@@ -21,15 +21,10 @@
  *
  */
 
-#include <mylib/hello_world.h>
+#include <geode/geosciences/core/structural_model.h>
 
 #include <geode/basic/logger.h>
 
-namespace mymodule
+namespace geode
 {
-    bool hello_world()
-    {
-        geode::Logger::info( "Hello Geode World!" );
-        return true;
-    }
-} // namespace mymodule
+} // namespace geode

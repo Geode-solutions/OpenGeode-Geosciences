@@ -89,7 +89,7 @@ jobs:
     - template: unix-compilation.yml@templates
       parameters:
         type: "Release"
-        cmakeArgs: "-DOPENGEODE_MYMODULE_WITH_TESTS:BOOL=OFF -DCPACK_PACKAGE_VERSION:STRING=$(Version) -DCMAKE_PREFIX_PATH=$(OPENGEODEPATH)"
+        cmakeArgs: "-DOPENGEODE_GEOSCIENCES_WITH_TESTS:BOOL=OFF -DCPACK_PACKAGE_VERSION:STRING=$(Version) -DCMAKE_PREFIX_PATH=$(OPENGEODEPATH)"
     - template: unix-release.yml@templates
       parameters:
         version: $(Version)
@@ -109,7 +109,7 @@ jobs:
     - template: unix-compilation.yml@templates
       parameters:
         type: "Release"
-        cmakeArgs: "-DOPENGEODE_MYMODULE_WITH_TESTS:BOOL=OFF -DCPACK_PACKAGE_VERSION:STRING=$(Version) -DCMAKE_PREFIX_PATH=$(OPENGEODEPATH)"
+        cmakeArgs: "-DOPENGEODE_GEOSCIENCES_WITH_TESTS:BOOL=OFF -DCPACK_PACKAGE_VERSION:STRING=$(Version) -DCMAKE_PREFIX_PATH=$(OPENGEODEPATH)"
     - template: unix-release.yml@templates
       parameters:
         version: $(Version)
@@ -129,7 +129,19 @@ jobs:
     - template: windows-compilation.yml@templates
       parameters:
         type: "Release"
-        cmakeArgs: "-DOPENGEODE_MYMODULE_WITH_TESTS:BOOL=OFF -DCPACK_PACKAGE_VERSION:STRING=$(Version) -DCMAKE_PREFIX_PATH=$(OPENGEODEPATH)"
+        cmakeArgs: "-DOPENGEODE_GEOSCIENCES_WITH_TESTS:BOOL=OFF -DCPACK_PACKAGE_VERSION:STRING=$(Version) -DCMAKE_PREFIX_PATH=$(OPENGEODEPATH)"
     - template: windows-release.yml@templates
       parameters:
         version: $(Version)
+
+- template: documentation.yml@templates
+  parameters:
+    dependencies:	
+    - Semantic_release
+    repo: "OpenGeode-Geosciences"
+    preCMake:
+    - template: get-release.yml
+      parameters:
+        repo: OpenGeode
+        pattern: "*Linux*"
+    cmakeArgs: "-DCMAKE_PREFIX_PATH=$(OPENGEODEPATH)"

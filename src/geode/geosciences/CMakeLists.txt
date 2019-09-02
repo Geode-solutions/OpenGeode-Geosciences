@@ -1,0 +1,38 @@
+
+set(sources
+    "${lib_source_dir}/builder/structural_model_builder.cpp"
+    "${lib_source_dir}/builder/faults_builder.cpp"
+    "${lib_source_dir}/builder/horizons_builder.cpp"
+    "${lib_source_dir}/core/bitsery_archive.cpp"
+    "${lib_source_dir}/core/fault.cpp"
+    "${lib_source_dir}/core/faults.cpp"
+    "${lib_source_dir}/core/horizon.cpp"
+    "${lib_source_dir}/core/horizons.cpp"
+    "${lib_source_dir}/core/structural_model.cpp"
+    "${lib_source_dir}/io/structural_model_input.cpp"
+    "${lib_source_dir}/io/structural_model_output.cpp"
+)
+set(public_headers
+    "${lib_include_dir}/common.h"
+    "${lib_include_dir}/builder/structural_model_builder.h"
+    "${lib_include_dir}/builder/faults_builder.h"
+    "${lib_include_dir}/builder/horizons_builder.h"
+    "${lib_include_dir}/core/bitsery_archive.h"
+    "${lib_include_dir}/core/fault.h"
+    "${lib_include_dir}/core/faults.h"
+    "${lib_include_dir}/core/horizon.h"
+    "${lib_include_dir}/core/horizons.h"
+    "${lib_include_dir}/core/structural_model.h"
+    "${lib_include_dir}/io/structural_model_input.h"
+    "${lib_include_dir}/io/structural_model_output.h"
+)
+set(advanced_headers
+    "${lib_include_dir}/core/detail/components_storage.h"
+    "${lib_include_dir}/io/detail/geode_structural_model_input.h"
+    "${lib_include_dir}/io/detail/geode_structural_model_output.h"
+)
+target_link_libraries(${target_name}
+    PRIVATE
+        OpenGeode::basic
+        OpenGeode::georepresentation
+)
