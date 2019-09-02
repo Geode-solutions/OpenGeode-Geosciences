@@ -19,7 +19,7 @@ jobs:
     - template: get-release.yml@templates
       parameters:
         repo: OpenGeode
-        pattern: "*Linux*"
+        pattern: "OpenGeode-*Linux*"
     - template: unix-compilation.yml@templates
       parameters:
         type: "Debug"
@@ -40,7 +40,7 @@ jobs:
     - template: get-release.yml@templates
       parameters:
         repo: OpenGeode
-        pattern: "*win64*"
+        pattern: "OpenGeode-*win64*"
     - template: windows-compilation.yml@templates
       parameters:
         type: "Debug"
@@ -57,7 +57,7 @@ jobs:
     - template: get-release.yml@templates
       parameters:
         repo: OpenGeode
-        pattern: "*Darwin*"
+        pattern: "OpenGeode-*Darwin*"
     - template: unix-compilation.yml@templates
       parameters:
         type: "Debug"
@@ -85,7 +85,7 @@ jobs:
     - template: get-release.yml@templates
       parameters:
         repo: OpenGeode
-        pattern: "*Linux*"
+        pattern: "OpenGeode-*Linux*"
     - template: unix-compilation.yml@templates
       parameters:
         type: "Release"
@@ -105,7 +105,7 @@ jobs:
     - template: get-release.yml@templates
       parameters:
         repo: OpenGeode
-        pattern: "*Darwin*"
+        pattern: "OpenGeode-*Darwin*"
     - template: unix-compilation.yml@templates
       parameters:
         type: "Release"
@@ -125,7 +125,7 @@ jobs:
     - template: get-release.yml@templates
       parameters:
         repo: OpenGeode
-        pattern: "*win64*"    
+        pattern: "OpenGeode-*win64*"    
     - template: windows-compilation.yml@templates
       parameters:
         type: "Release"
@@ -143,5 +143,5 @@ jobs:
     - template: get-release.yml
       parameters:
         repo: OpenGeode
-        pattern: "*Linux*"
+        pattern: "OpenGeode-*Linux*"
     cmakeArgs: "-DCMAKE_PREFIX_PATH=$(OPENGEODEPATH)"
