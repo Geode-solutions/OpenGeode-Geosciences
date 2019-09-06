@@ -31,10 +31,9 @@ namespace geode
         // methods
     };
 
-    class StructuralModel
-        : public BRep,
-          public Faults< 3 >,
-          public Horizons< 3 >
+    class StructuralModel : public BRep,
+                            public Faults< 3 >,
+                            public Horizons< 3 >
     {
         // methods
     };
