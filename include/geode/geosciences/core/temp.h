@@ -20,18 +20,21 @@ namespace geode
 namespace geode
 {
     template < index_t dimension, template < index_t > class... Components >
-    class GeoRepresentation : public Components< dimension >...
+    class AddComponents : public Components< dimension >...
     {
-        // methods
+    protected:
+        AddComponents() = default;
     };
-    class BRep : public GeoRepresentation< 3, Corners, Lines, Surfaces, Blocks >
+    class BRep : public Topology,
+                 public AddComponents< 3, Corners, Lines, Surfaces, Blocks >
     {
         // methods
     };
 
-    class StructuralModel : public BRep,
-                            public Faults< 3 >,
-                            public Horizons< 3 >
+    class StructuralModel
+        : public BRep,
+          public Faults< 3 >,
+          public Horizons< 3 >
     {
         // methods
     };
