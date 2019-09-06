@@ -28,7 +28,7 @@ option(OPENGEODE_GEOSCIENCES_WITH_TESTS "Compile test projects" ON)
 # Get OpenGeode_Geosciences dependencies
 find_package(OpenGeode REQUIRED)
 
-copy_windows_binaries(OpenGeode::georepresentation)
+copy_windows_binaries(OpenGeode::model)
 
 #------------------------------------------------------------------------------------------------
 # Configure the OpenGeode_Geosciences libraries

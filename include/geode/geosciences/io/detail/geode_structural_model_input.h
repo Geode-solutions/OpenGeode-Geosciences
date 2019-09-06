@@ -28,7 +28,7 @@
 #include <geode/basic/uuid.h>
 #include <geode/basic/zip_file.h>
 
-#include <geode/georepresentation/io/detail/geode_boundary_representation_input.h>
+#include <geode/model/representation/io/detail/geode_brep_input.h>
 
 #include <geode/geosciences/builder/structural_model_builder.h>
 #include <geode/geosciences/core/structural_model.h>

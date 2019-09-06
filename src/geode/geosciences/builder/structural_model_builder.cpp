@@ -23,8 +23,8 @@
 
 #include <geode/geosciences/builder/structural_model_builder.h>
 
-#include <geode/georepresentation/core/relationship_manager.h>
-#include <geode/georepresentation/core/surface.h>
+#include <geode/model/mixin/core/relationships.h>
+#include <geode/model/mixin/core/surface.h>
 
 #include <geode/geosciences/core/structural_model.h>
 
@@ -33,15 +33,14 @@ namespace geode
     StructuralModelBuilder::StructuralModelBuilder(
         StructuralModel& structural_model )
         : BRepBuilder( structural_model ),
-          FaultsBuilder< 3 >( structural_model ),
-          HorizonsBuilder< 3 >( structural_model )
+          AddComponentsBuilders< 3, Faults, Horizons >( structural_model )
     {
     }
 
     const uuid& StructuralModelBuilder::add_fault()
     {
         const auto& id = create_fault();
-        relationships().add_component( id );
+        register_component( id );
         return id;
     }
 
@@ -49,26 +48,26 @@ namespace geode
         typename Fault3D::FAULT_TYPE type )
     {
         const auto& id = create_fault( type );
-        relationships().add_component( id );
+        register_component( id );
         return id;
     }
 
     void StructuralModelBuilder::add_surface_in_fault(
         const Surface3D& surface, const Fault3D& fault )
     {
-        relationships().add_item_in_collection( surface.id(), fault.id() );
+        add_item_in_collection( surface.id(), fault.id() );
     }
 
     void StructuralModelBuilder::remove_fault( const Fault3D& fault )
     {
-        relationships().remove_component( fault.id() );
+        unregister_component( fault.id() );
         delete_fault( fault );
     }
 
     const uuid& StructuralModelBuilder::add_horizon()
     {
         const auto& id = create_horizon();
-        relationships().add_component( id );
+        register_component( id );
         return id;
     }
 
@@ -76,19 +75,19 @@ namespace geode
         typename Horizon3D::HORIZON_TYPE type )
     {
         const auto& id = create_horizon( type );
-        relationships().add_component( id );
+        register_component( id );
         return id;
     }
 
     void StructuralModelBuilder::add_surface_in_horizon(
         const Surface3D& surface, const Horizon3D& horizon )
     {
-        relationships().add_item_in_collection( surface.id(), horizon.id() );
+        add_item_in_collection( surface.id(), horizon.id() );
     }
 
     void StructuralModelBuilder::remove_horizon( const Horizon3D& horizon )
     {
-        relationships().remove_component( horizon.id() );
+        unregister_component( horizon.id() );
         delete_horizon( horizon );
     }
 

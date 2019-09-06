@@ -24,7 +24,7 @@
 #pragma once
 
 #include <geode/basic/factory.h>
-#include <geode/georepresentation/io/boundary_representation_input.h>
+#include <geode/model/representation/io/brep_input.h>
 
 #include <geode/geosciences/common.h>
 
