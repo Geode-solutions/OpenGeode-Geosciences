@@ -23,12 +23,15 @@
 
 #pragma once
 
+#include <geode/model/mixin/builder/add_components_builders.h>
 #include <geode/model/representation/builder/brep_builder.h>
 
 #include <geode/geosciences/builder/faults_builder.h>
 #include <geode/geosciences/builder/horizons_builder.h>
 #include <geode/geosciences/core/fault.h>
+#include <geode/geosciences/core/faults.h>
 #include <geode/geosciences/core/horizon.h>
+#include <geode/geosciences/core/horizons.h>
 
 namespace geode
 {
@@ -42,8 +45,7 @@ namespace geode
      */
     class opengeode_geosciences_geosciences_api StructuralModelBuilder
         : public BRepBuilder,
-          public FaultsBuilder< 3 >,
-          public HorizonsBuilder< 3 >
+          public AddComponentsBuilders< 3, Faults, Horizons >
     {
         OPENGEODE_DISABLE_COPY_AND_MOVE( StructuralModelBuilder );
 

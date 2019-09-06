@@ -36,8 +36,7 @@ namespace geode
      */
     class opengeode_geosciences_geosciences_api StructuralModel
         : public BRep,
-          public Faults< 3 >,
-          public Horizons< 3 >
+          public AddComponents< 3, Faults, Horizons >
     {
     public:
         static std::string native_extension_static()

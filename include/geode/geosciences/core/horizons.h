@@ -43,9 +43,11 @@ namespace geode
     class opengeode_geosciences_geosciences_api Horizons
     {
         OPENGEODE_DISABLE_COPY_AND_MOVE( Horizons );
-        friend class HorizonsBuilder< dimension >;
 
     public:
+        using Builder = HorizonsBuilder< dimension >;
+        friend Builder;
+
         class opengeode_geosciences_geosciences_api HorizonRangeBase
         {
         public:

@@ -33,8 +33,7 @@ namespace geode
     StructuralModelBuilder::StructuralModelBuilder(
         StructuralModel& structural_model )
         : BRepBuilder( structural_model ),
-          FaultsBuilder< 3 >( structural_model ),
-          HorizonsBuilder< 3 >( structural_model )
+          AddComponentsBuilders< 3, Faults, Horizons >( structural_model )
     {
     }
 

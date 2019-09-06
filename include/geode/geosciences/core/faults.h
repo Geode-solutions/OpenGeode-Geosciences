@@ -43,9 +43,11 @@ namespace geode
     class opengeode_geosciences_geosciences_api Faults
     {
         OPENGEODE_DISABLE_COPY_AND_MOVE( Faults );
-        friend class FaultsBuilder< dimension >;
 
     public:
+        using Builder = FaultsBuilder< dimension >;
+        friend Builder;
+        
         class opengeode_geosciences_geosciences_api FaultRangeBase
         {
         public:
