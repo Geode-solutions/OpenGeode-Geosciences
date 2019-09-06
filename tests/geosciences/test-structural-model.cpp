@@ -91,14 +91,11 @@ void do_checks( const geode::StructuralModel& model,
     OPENGEODE_EXCEPTION( model.nb_items( faults_uuids[1] ) == 2,
         "Number of items in fault_uuids[1] should be 2" );
 
-    OPENGEODE_EXCEPTION(
-        model.nb_items( horizons_uuids[0] ) == 1,
+    OPENGEODE_EXCEPTION( model.nb_items( horizons_uuids[0] ) == 1,
         "Number of items in horizons_uuids[0] should be 1" );
-    OPENGEODE_EXCEPTION(
-        model.nb_items( horizons_uuids[1] ) == 0,
+    OPENGEODE_EXCEPTION( model.nb_items( horizons_uuids[1] ) == 0,
         "Number of items in horizons_uuids[1] should be 0" );
-    OPENGEODE_EXCEPTION(
-        model.nb_items( horizons_uuids[2] ) == 3,
+    OPENGEODE_EXCEPTION( model.nb_items( horizons_uuids[2] ) == 3,
         "Number of items in horizons_uuids[2] should be 3" );
 
     for( auto i : geode::Range( 8 ) )
@@ -107,8 +104,7 @@ void do_checks( const geode::StructuralModel& model,
         {
             continue;
         }
-        OPENGEODE_EXCEPTION(
-            model.nb_collections( surface_uuids[i] ) == 1,
+        OPENGEODE_EXCEPTION( model.nb_collections( surface_uuids[i] ) == 1,
             "Number of collections in which surfaces_uuids["
                 + std::to_string( i ) + "] is should be 1" );
     }
