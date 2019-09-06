@@ -47,7 +47,7 @@ namespace geode
     public:
         using Builder = FaultsBuilder< dimension >;
         friend Builder;
-        
+
         class opengeode_geosciences_geosciences_api FaultRangeBase
         {
         public:
