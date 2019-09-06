@@ -21,6 +21,6 @@
 add_geode_test(test-structural-model.cpp 
     OpenGeode::basic
     OpenGeode::mesh
-    OpenGeode::georepresentation
+    OpenGeode::model
     ${PROJECT_NAME}::geosciences
 )
