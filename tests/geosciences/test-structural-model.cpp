@@ -25,7 +25,7 @@
 #include <geode/basic/logger.h>
 #include <geode/basic/range.h>
 
-#include <geode/georepresentation/core/surface.h>
+#include <geode/model/mixin/core/surface.h>
 
 #include <geode/geosciences/builder/structural_model_builder.h>
 #include <geode/geosciences/core/fault.h>

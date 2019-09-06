@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include <geode/georepresentation/core/boundary_representation.h>
+#include <geode/model/representation/core/brep.h>
 
 #include <geode/geosciences/core/faults.h>
 #include <geode/geosciences/core/horizons.h>
@@ -49,5 +49,23 @@ namespace geode
         {
             return native_extension_static();
         }
+
+        double epsilon() const
+        {
+            std::call_once( is_epsilon_initialized_,
+                &StructuralModel::compute_epsilon, this,
+                std::ref( epsilon_ ) );
+            return epsilon_;
+        }
+
+    private:
+        virtual void compute_epsilon( double& epsilon ) const = 0;
+
+    protected:
+        static constexpr double epsilon_scaling = 1e-7;
+
+    private:
+        mutable std::once_flag is_epsilon_initialized_;
+        mutable double epsilon_{ 0 };
     };
 } // namespace geode

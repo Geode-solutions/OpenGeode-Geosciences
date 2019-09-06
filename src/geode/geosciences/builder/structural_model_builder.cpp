@@ -23,8 +23,8 @@
 
 #include <geode/geosciences/builder/structural_model_builder.h>
 
-#include <geode/georepresentation/core/relationship_manager.h>
-#include <geode/georepresentation/core/surface.h>
+#include <geode/model/mixin/core/relationships.h>
+#include <geode/model/mixin/core/surface.h>
 
 #include <geode/geosciences/core/structural_model.h>
 
@@ -41,7 +41,7 @@ namespace geode
     const uuid& StructuralModelBuilder::add_fault()
     {
         const auto& id = create_fault();
-        relationships().add_component( id );
+        relationships().register_component( id );
         return id;
     }
 
@@ -49,7 +49,7 @@ namespace geode
         typename Fault3D::FAULT_TYPE type )
     {
         const auto& id = create_fault( type );
-        relationships().add_component( id );
+        relationships().register_component( id );
         return id;
     }
 
@@ -61,14 +61,14 @@ namespace geode
 
     void StructuralModelBuilder::remove_fault( const Fault3D& fault )
     {
-        relationships().remove_component( fault.id() );
+        relationships().unregister_component( fault.id() );
         delete_fault( fault );
     }
 
     const uuid& StructuralModelBuilder::add_horizon()
     {
         const auto& id = create_horizon();
-        relationships().add_component( id );
+        relationships().register_component( id );
         return id;
     }
 
@@ -76,7 +76,7 @@ namespace geode
         typename Horizon3D::HORIZON_TYPE type )
     {
         const auto& id = create_horizon( type );
-        relationships().add_component( id );
+        relationships().register_component( id );
         return id;
     }
 
@@ -88,7 +88,7 @@ namespace geode
 
     void StructuralModelBuilder::remove_horizon( const Horizon3D& horizon )
     {
-        relationships().remove_component( horizon.id() );
+        relationships().unregister_component( horizon.id() );
         delete_horizon( horizon );
     }
 

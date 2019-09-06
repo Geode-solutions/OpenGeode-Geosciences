@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include <geode/georepresentation/builder/boundary_representation_builder.h>
+#include <geode/model/representation/builder/brep_builder.h>
 
 #include <geode/geosciences/builder/faults_builder.h>
 #include <geode/geosciences/builder/horizons_builder.h>

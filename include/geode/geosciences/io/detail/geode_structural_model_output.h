@@ -27,7 +27,7 @@
 
 #include <geode/basic/uuid.h>
 
-#include <geode/georepresentation/io/detail/geode_boundary_representation_output.h>
+#include <geode/model/representation/io/detail/geode_brep_output.h>
 
 #include <geode/geosciences/core/structural_model.h>
 #include <geode/geosciences/io/structural_model_output.h>
