@@ -1,13 +1,13 @@
 #pragma once
 
+#include <geode/geosciences/core/faults.h>
+#include <geode/geosciences/core/horizons.h>
 #include <geode/model/common.h>
 #include <geode/model/mixin/core/blocks.h>
 #include <geode/model/mixin/core/corners.h>
-#include <geode/model/mixin/core/topology.h>
 #include <geode/model/mixin/core/lines.h>
 #include <geode/model/mixin/core/surfaces.h>
-#include <geode/geosciences/core/faults.h>
-#include <geode/geosciences/core/horizons.h>
+#include <geode/model/mixin/core/topology.h>
 namespace geode
 {
     FORWARD_DECLARATION_DIMENSION_CLASS( Components );
@@ -43,6 +43,5 @@ namespace geode
     {
         // methods
     };
-
 
 } // namespace geode
