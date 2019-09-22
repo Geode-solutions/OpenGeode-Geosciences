@@ -26,20 +26,22 @@
 #include <fstream>
 
 #include <geode/basic/uuid.h>
+#include <geode/basic/zip_file.h>
 
-#include <geode/model/representation/io/detail/geode_brep_output.h>
+#include <geode/model/representation/io/detail/geode_brep_input.h>
 
-#include <geode/geosciences/core/structural_model.h>
-#include <geode/geosciences/io/structural_model_output.h>
+#include <geode/geosciences/representation/builder/structural_model_builder.h>
+#include <geode/geosciences/representation/core/structural_model.h>
+#include <geode/geosciences/representation/io/structural_model_input.h>
 
 namespace geode
 {
-    class OpenGeodeStructuralModelOutput final : public StructuralModelOutput
+    class OpenGeodeStructuralModelInput final : public StructuralModelInput
     {
     public:
-        OpenGeodeStructuralModelOutput(
-            const StructuralModel& structural_model, std::string filename )
-            : StructuralModelOutput( structural_model, std::move( filename ) )
+        OpenGeodeStructuralModelInput(
+            StructuralModel& structural_model, std::string filename )
+            : StructuralModelInput{ structural_model, std::move( filename ) }
         {
         }
 
@@ -48,15 +50,16 @@ namespace geode
             return StructuralModel::native_extension_static();
         }
 
-        void write() const final
+        void read() final
         {
-            OpenGeodeBRepOutput brep_output{ structural_model(), filename() };
-            ZipFile zip_writer{ filename(), uuid{}.string() };
-            brep_output.archive_brep_files( zip_writer );
-            zip_writer.archive_files(
-                structural_model().save_faults( zip_writer.directory() ) );
-            zip_writer.archive_files(
-                structural_model().save_horizons( zip_writer.directory() ) );
+            OpenGeodeBRepInput brep_input{ structural_model(), filename() };
+            brep_input.read();
+
+            StructuralModelBuilder builder( structural_model() );
+            UnzipFile zip_reader{ filename(), uuid{}.string() };
+            zip_reader.extract_all();
+            builder.load_faults( zip_reader.directory() );
+            builder.load_horizons( zip_reader.directory() );
         }
     };
 } // namespace geode

@@ -21,31 +21,31 @@
  *
  */
 
-#include <geode/geosciences/io/structural_model_input.h>
+#include <geode/geosciences/representation/io/structural_model_output.h>
 
 namespace geode
 {
-    void load_structural_model(
-        StructuralModel& structural_model, const std::string& filename )
+    void save_structural_model(
+        const StructuralModel& structural_model, const std::string& filename )
     {
         try
         {
-            auto input = StructuralModelInputFactory::create(
+            auto output = StructuralModelOutputFactory::create(
                 extension_from_filename( filename ), structural_model,
-                filename );
-            input->read();
+                filename.c_str() );
+            output->write();
         }
         catch( const OpenGeodeException& e )
         {
             Logger::error( e.what() );
             throw OpenGeodeException(
-                "Cannot load StructuralModel from file: ", filename );
+                "Cannot save StructuralModel in file: ", filename );
         }
     }
 
-    StructuralModelInput::StructuralModelInput(
-        StructuralModel& structural_model, std::string filename )
-        : Input{ std::move( filename ) }, structural_model_( structural_model )
+    StructuralModelOutput::StructuralModelOutput(
+        const StructuralModel& structural_model, std::string filename )
+        : Output{ std::move( filename ) }, structural_model_( structural_model )
     {
     }
 } // namespace geode

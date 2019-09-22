@@ -27,12 +27,12 @@
 
 #include <geode/model/mixin/core/surface.h>
 
-#include <geode/geosciences/builder/structural_model_builder.h>
-#include <geode/geosciences/core/fault.h>
-#include <geode/geosciences/core/horizon.h>
-#include <geode/geosciences/core/structural_model.h>
-#include <geode/geosciences/io/structural_model_input.h>
-#include <geode/geosciences/io/structural_model_output.h>
+#include <geode/geosciences/mixin/core/fault.h>
+#include <geode/geosciences/mixin/core/horizon.h>
+#include <geode/geosciences/representation/builder/structural_model_builder.h>
+#include <geode/geosciences/representation/core/structural_model.h>
+#include <geode/geosciences/representation/io/structural_model_input.h>
+#include <geode/geosciences/representation/io/structural_model_output.h>
 
 void add_faults(
     geode::StructuralModel& model, geode::StructuralModelBuilder& builder )

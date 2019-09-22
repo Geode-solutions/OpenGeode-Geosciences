@@ -23,37 +23,30 @@
 
 #pragma once
 
-#include <geode/basic/logger.h>
-#include <geode/model/mixin/core/detail/components_storage.h>
+#include <geode/model/representation/core/brep.h>
 
-#include <geode/geosciences/core/bitsery_archive.h>
+#include <geode/geosciences/mixin/core/faults.h>
+#include <geode/geosciences/mixin/core/horizons.h>
 
 namespace geode
 {
-    namespace detail
+    /*!
+     * A Structural Model is a Boundary Representation composed of
+     * Faults and Horizons.
+     */
+    class opengeode_geosciences_geosciences_api StructuralModel
+        : public BRep,
+          public AddComponents< 3, Faults, Horizons >
     {
-        template < typename Component >
-        class GeologicalComponentsStorage
-            : public ComponentsStorage< Component >
+    public:
+        static std::string native_extension_static()
         {
-        public:
-            using baseclass = ComponentsStorage< Component >;
-            void register_librairies_in_serialize_pcontext(
-                TContext& context ) const override
-            {
-                baseclass::register_librairies_in_serialize_pcontext( context );
-                register_geosciences_serialize_pcontext(
-                    std::get< 0 >( context ) );
-            }
+            return "og_strm";
+        }
 
-            void register_librairies_in_deserialize_pcontext(
-                TContext& context ) const override
-            {
-                baseclass::register_librairies_in_deserialize_pcontext(
-                    context );
-                register_geosciences_deserialize_pcontext(
-                    std::get< 0 >( context ) );
-            }
-        };
-    } // namespace detail
+        std::string native_extension() const
+        {
+            return native_extension_static();
+        }
+    };
 } // namespace geode

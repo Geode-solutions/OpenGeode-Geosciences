@@ -21,12 +21,12 @@
  *
  */
 
-#include <geode/geosciences/builder/structural_model_builder.h>
+#include <geode/geosciences/representation/builder/structural_model_builder.h>
 
 #include <geode/model/mixin/core/relationships.h>
 #include <geode/model/mixin/core/surface.h>
 
-#include <geode/geosciences/core/structural_model.h>
+#include <geode/geosciences/representation/core/structural_model.h>
 
 namespace geode
 {

@@ -23,43 +23,37 @@
 
 #pragma once
 
-#include <fstream>
+#include <geode/basic/logger.h>
+#include <geode/model/mixin/core/detail/components_storage.h>
 
-#include <geode/basic/uuid.h>
-#include <geode/basic/zip_file.h>
-
-#include <geode/model/representation/io/detail/geode_brep_input.h>
-
-#include <geode/geosciences/builder/structural_model_builder.h>
-#include <geode/geosciences/core/structural_model.h>
-#include <geode/geosciences/io/structural_model_input.h>
+#include <geode/geosciences/mixin/core/bitsery_archive.h>
 
 namespace geode
 {
-    class OpenGeodeStructuralModelInput final : public StructuralModelInput
+    namespace detail
     {
-    public:
-        OpenGeodeStructuralModelInput(
-            StructuralModel& structural_model, std::string filename )
-            : StructuralModelInput{ structural_model, std::move( filename ) }
+        template < typename Component >
+        class GeologicalComponentsStorage
+            : public ComponentsStorage< Component >
         {
-        }
+        public:
+            using baseclass = ComponentsStorage< Component >;
+            void register_librairies_in_serialize_pcontext(
+                TContext& context ) const override
+            {
+                baseclass::register_librairies_in_serialize_pcontext( context );
+                register_geosciences_serialize_pcontext(
+                    std::get< 0 >( context ) );
+            }
 
-        static std::string extension()
-        {
-            return StructuralModel::native_extension_static();
-        }
-
-        void read() final
-        {
-            OpenGeodeBRepInput brep_input{ structural_model(), filename() };
-            brep_input.read();
-
-            StructuralModelBuilder builder( structural_model() );
-            UnzipFile zip_reader{ filename(), uuid{}.string() };
-            zip_reader.extract_all();
-            builder.load_faults( zip_reader.directory() );
-            builder.load_horizons( zip_reader.directory() );
-        }
-    };
+            void register_librairies_in_deserialize_pcontext(
+                TContext& context ) const override
+            {
+                baseclass::register_librairies_in_deserialize_pcontext(
+                    context );
+                register_geosciences_deserialize_pcontext(
+                    std::get< 0 >( context ) );
+            }
+        };
+    } // namespace detail
 } // namespace geode

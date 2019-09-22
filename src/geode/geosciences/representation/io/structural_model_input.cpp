@@ -21,32 +21,31 @@
  *
  */
 
-#pragma once
-
-#include <geode/model/representation/core/brep.h>
-
-#include <geode/geosciences/core/faults.h>
-#include <geode/geosciences/core/horizons.h>
+#include <geode/geosciences/representation/io/structural_model_input.h>
 
 namespace geode
 {
-    /*!
-     * A Structural Model is a Boundary Representation composed of
-     * Faults and Horizons.
-     */
-    class opengeode_geosciences_geosciences_api StructuralModel
-        : public BRep,
-          public AddComponents< 3, Faults, Horizons >
+    void load_structural_model(
+        StructuralModel& structural_model, const std::string& filename )
     {
-    public:
-        static std::string native_extension_static()
+        try
         {
-            return "og_strm";
+            auto input = StructuralModelInputFactory::create(
+                extension_from_filename( filename ), structural_model,
+                filename );
+            input->read();
         }
+        catch( const OpenGeodeException& e )
+        {
+            Logger::error( e.what() );
+            throw OpenGeodeException(
+                "Cannot load StructuralModel from file: ", filename );
+        }
+    }
 
-        std::string native_extension() const
-        {
-            return native_extension_static();
-        }
-    };
+    StructuralModelInput::StructuralModelInput(
+        StructuralModel& structural_model, std::string filename )
+        : Input{ std::move( filename ) }, structural_model_( structural_model )
+    {
+    }
 } // namespace geode
