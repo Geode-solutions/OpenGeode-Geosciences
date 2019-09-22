@@ -23,8 +23,8 @@
 
 #include <geode/basic/common.h>
 
-#include <geode/geosciences/io/detail/geode_structural_model_input.h>
-#include <geode/geosciences/io/detail/geode_structural_model_output.h>
+#include <geode/geosciences/representation/io/detail/geode_structural_model_input.h>
+#include <geode/geosciences/representation/io/detail/geode_structural_model_output.h>
 
 namespace
 {

@@ -21,10 +21,10 @@
  *
  */
 
-#include <geode/geosciences/core/bitsery_archive.h>
+#include <geode/geosciences/mixin/core/bitsery_archive.h>
 
-#include <geode/geosciences/core/fault.h>
-#include <geode/geosciences/core/horizon.h>
+#include <geode/geosciences/mixin/core/fault.h>
+#include <geode/geosciences/mixin/core/horizon.h>
 
 namespace bitsery
 {

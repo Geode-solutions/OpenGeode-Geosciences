@@ -21,7 +21,7 @@
  *
  */
 
-#include <geode/geosciences/core/fault.h>
+#include <geode/geosciences/mixin/core/fault.h>
 
 #include <geode/basic/bitsery_archive.h>
 #include <geode/basic/pimpl_impl.h>

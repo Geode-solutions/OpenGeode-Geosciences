@@ -26,13 +26,13 @@
 #include <geode/basic/pimpl.h>
 
 #include <geode/geosciences/common.h>
-#include <geode/geosciences/core/fault.h>
+#include <geode/geosciences/mixin/core/horizon.h>
 
 #include <geode/mesh/core/mesh_type.h>
 
 namespace geode
 {
-    FORWARD_DECLARATION_DIMENSION_CLASS( FaultsBuilder );
+    FORWARD_DECLARATION_DIMENSION_CLASS( HorizonsBuilder );
 
     struct uuid;
 } // namespace geode
@@ -40,102 +40,102 @@ namespace geode
 namespace geode
 {
     template < index_t dimension >
-    class opengeode_geosciences_geosciences_api Faults
+    class opengeode_geosciences_geosciences_api Horizons
     {
-        OPENGEODE_DISABLE_COPY_AND_MOVE( Faults );
+        OPENGEODE_DISABLE_COPY_AND_MOVE( Horizons );
 
     public:
-        using Builder = FaultsBuilder< dimension >;
+        using Builder = HorizonsBuilder< dimension >;
         friend Builder;
 
-        class opengeode_geosciences_geosciences_api FaultRangeBase
+        class opengeode_geosciences_geosciences_api HorizonRangeBase
         {
         public:
-            ~FaultRangeBase();
+            ~HorizonRangeBase();
 
-            bool operator!=( const FaultRangeBase& /*unused*/ ) const;
+            bool operator!=( const HorizonRangeBase& /*unused*/ ) const;
 
             void operator++();
 
         protected:
-            FaultRangeBase( const Faults& faults );
-            FaultRangeBase( FaultRangeBase&& other ) noexcept;
-            FaultRangeBase( const FaultRangeBase& other );
+            HorizonRangeBase( const Horizons& horizons );
+            HorizonRangeBase( HorizonRangeBase&& other ) noexcept;
+            HorizonRangeBase( const HorizonRangeBase& other );
 
         protected:
             IMPLEMENTATION_MEMBER( impl_ );
         };
 
-        class opengeode_geosciences_geosciences_api FaultRange
-            : public FaultRangeBase
+        class opengeode_geosciences_geosciences_api HorizonRange
+            : public HorizonRangeBase
         {
         public:
-            FaultRange( const Faults& faults );
+            HorizonRange( const Horizons& horizons );
 
-            const FaultRange& begin() const
+            const HorizonRange& begin() const
             {
                 return *this;
             }
 
-            const FaultRange& end() const
+            const HorizonRange& end() const
             {
                 return *this;
             }
 
-            const Fault< dimension >& operator*() const;
+            const Horizon< dimension >& operator*() const;
         };
 
     public:
-        ~Faults();
+        ~Horizons();
 
-        index_t nb_faults() const;
+        index_t nb_horizons() const;
 
-        const Fault< dimension >& fault( const uuid& id ) const;
+        const Horizon< dimension >& horizon( const uuid& id ) const;
 
-        FaultRange faults() const;
+        HorizonRange horizons() const;
 
-        std::vector< std::string > save_faults(
+        std::vector< std::string > save_horizons(
             const std::string& directory ) const;
 
     protected:
-        friend class FaultsBuilder< dimension >;
-        Faults();
+        friend class HorizonsBuilder< dimension >;
+        Horizons();
 
     private:
-        class ModifiableFaultRange : public FaultRangeBase
+        class ModifiableHorizonRange : public HorizonRangeBase
         {
         public:
-            ModifiableFaultRange( const Faults& faults );
+            ModifiableHorizonRange( const Horizons& horizons );
 
-            const ModifiableFaultRange& begin() const
+            const ModifiableHorizonRange& begin() const
             {
                 return *this;
             }
 
-            const ModifiableFaultRange& end() const
+            const ModifiableHorizonRange& end() const
             {
                 return *this;
             }
 
-            Fault< dimension >& operator*() const;
+            Horizon< dimension >& operator*() const;
         };
 
     private:
-        const uuid& create_fault();
+        const uuid& create_horizon();
 
-        const uuid& create_fault(
-            typename Fault< dimension >::FAULT_TYPE type );
+        const uuid& create_horizon(
+            typename Horizon< dimension >::HORIZON_TYPE type );
 
-        void delete_fault( const Fault< dimension >& fault );
+        void delete_horizon( const Horizon< dimension >& horizon );
 
-        void load_faults( const std::string& directory );
+        void load_horizons( const std::string& directory );
 
-        ModifiableFaultRange modifiable_faults();
+        ModifiableHorizonRange modifiable_horizons();
 
-        Fault< dimension >& modifiable_fault( const uuid& id );
+        Horizon< dimension >& modifiable_horizon( const uuid& id );
 
     private:
         IMPLEMENTATION_MEMBER( impl_ );
     };
-    ALIAS_2D_AND_3D( Faults );
+    ALIAS_2D_AND_3D( Horizons );
 } // namespace geode

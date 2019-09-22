@@ -21,13 +21,13 @@
  *
  */
 
-#include <geode/geosciences/core/horizons.h>
+#include <geode/geosciences/mixin/core/horizons.h>
 
 #include <geode/basic/pimpl_impl.h>
 #include <geode/basic/range.h>
 
-#include <geode/geosciences/core/detail/components_storage.h>
-#include <geode/geosciences/core/horizon.h>
+#include <geode/geosciences/mixin/core/detail/components_storage.h>
+#include <geode/geosciences/mixin/core/horizon.h>
 
 namespace geode
 {

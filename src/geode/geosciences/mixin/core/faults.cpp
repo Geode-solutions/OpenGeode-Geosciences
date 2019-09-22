@@ -21,13 +21,13 @@
  *
  */
 
-#include <geode/geosciences/core/faults.h>
+#include <geode/geosciences/mixin/core/faults.h>
 
 #include <geode/basic/pimpl_impl.h>
 #include <geode/basic/range.h>
 
-#include <geode/geosciences/core/detail/components_storage.h>
-#include <geode/geosciences/core/fault.h>
+#include <geode/geosciences/mixin/core/detail/components_storage.h>
+#include <geode/geosciences/mixin/core/fault.h>
 
 namespace geode
 {

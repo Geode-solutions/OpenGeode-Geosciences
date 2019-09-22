@@ -21,31 +21,42 @@
  *
  */
 
-#include <geode/geosciences/io/structural_model_output.h>
+#pragma once
+
+#include <fstream>
+
+#include <geode/basic/uuid.h>
+
+#include <geode/model/representation/io/detail/geode_brep_output.h>
+
+#include <geode/geosciences/representation/core/structural_model.h>
+#include <geode/geosciences/representation/io/structural_model_output.h>
 
 namespace geode
 {
-    void save_structural_model(
-        const StructuralModel& structural_model, const std::string& filename )
+    class OpenGeodeStructuralModelOutput final : public StructuralModelOutput
     {
-        try
+    public:
+        OpenGeodeStructuralModelOutput(
+            const StructuralModel& structural_model, std::string filename )
+            : StructuralModelOutput( structural_model, std::move( filename ) )
         {
-            auto output = StructuralModelOutputFactory::create(
-                extension_from_filename( filename ), structural_model,
-                filename.c_str() );
-            output->write();
         }
-        catch( const OpenGeodeException& e )
-        {
-            Logger::error( e.what() );
-            throw OpenGeodeException(
-                "Cannot save StructuralModel in file: ", filename );
-        }
-    }
 
-    StructuralModelOutput::StructuralModelOutput(
-        const StructuralModel& structural_model, std::string filename )
-        : Output{ std::move( filename ) }, structural_model_( structural_model )
-    {
-    }
+        static std::string extension()
+        {
+            return StructuralModel::native_extension_static();
+        }
+
+        void write() const final
+        {
+            OpenGeodeBRepOutput brep_output{ structural_model(), filename() };
+            ZipFile zip_writer{ filename(), uuid{}.string() };
+            brep_output.archive_brep_files( zip_writer );
+            zip_writer.archive_files(
+                structural_model().save_faults( zip_writer.directory() ) );
+            zip_writer.archive_files(
+                structural_model().save_horizons( zip_writer.directory() ) );
+        }
+    };
 } // namespace geode

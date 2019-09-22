@@ -21,10 +21,10 @@
  *
  */
 
-#include <geode/geosciences/builder/faults_builder.h>
+#include <geode/geosciences/mixin/builder/faults_builder.h>
 
-#include <geode/geosciences/core/fault.h>
-#include <geode/geosciences/core/faults.h>
+#include <geode/geosciences/mixin/core/fault.h>
+#include <geode/geosciences/mixin/core/faults.h>
 
 namespace geode
 {
