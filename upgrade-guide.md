@@ -4,7 +4,7 @@
 
 ### Motivations
 
-Following the same organization principle then OpenGeode v2.
+Following the same organization principle than OpenGeode v2.
 
 
 ### Breaking Changes
