@@ -30,8 +30,9 @@ namespace bitsery
 {
     namespace ext
     {
-        template<typename TBase>
-        struct GeosciencesHierarchy {
+        template < typename TBase >
+        struct GeosciencesHierarchy
+        {
             using Childs = PolymorphicClassesList<>;
         };
 
@@ -54,9 +55,11 @@ namespace
     template < typename Serializer >
     void register_pcontext( geode::PContext& context )
     {
-        context.registerBasesList< Serializer, bitsery::ext::GeosciencesHierarchy >(
+        context.registerBasesList< Serializer,
+            bitsery::ext::GeosciencesHierarchy >(
             bitsery::ext::PolymorphicClassesList< geode::Component2D >{} );
-        context.registerBasesList< Serializer, bitsery::ext::GeosciencesHierarchy >(
+        context.registerBasesList< Serializer,
+            bitsery::ext::GeosciencesHierarchy >(
             bitsery::ext::PolymorphicClassesList< geode::Component3D >{} );
     }
 } // namespace
