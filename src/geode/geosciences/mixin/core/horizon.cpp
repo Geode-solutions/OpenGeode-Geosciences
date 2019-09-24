@@ -42,6 +42,12 @@ namespace geode
             horizon_type_ = type;
         }
 
+        template < typename Archive >
+        void serialize( Archive& archive )
+        {
+            archive.value4b( horizon_type_ );
+        }
+
     private:
         HORIZON_TYPE horizon_type_{ HORIZON_TYPE::NO_TYPE };
     };
@@ -85,6 +91,7 @@ namespace geode
     template < typename Archive >
     void Horizon< dimension >::serialize( Archive& archive )
     {
+        archive.object( impl_ );
         archive.ext(
             *this, bitsery::ext::BaseClass< Component< dimension > >{} );
     }

@@ -23,7 +23,6 @@
 
 #pragma once
 
-#include <geode/basic/logger.h>
 #include <geode/model/mixin/core/detail/components_storage.h>
 
 #include <geode/geosciences/mixin/core/bitsery_archive.h>
