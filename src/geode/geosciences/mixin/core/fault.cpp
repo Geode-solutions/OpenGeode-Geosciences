@@ -42,6 +42,12 @@ namespace geode
             fault_type_ = type;
         }
 
+        template < typename Archive >
+        void serialize( Archive& archive )
+        {
+            archive.value4b( fault_type_ );
+        }
+
     private:
         FAULT_TYPE fault_type_{ FAULT_TYPE::NO_TYPE };
     };
@@ -84,6 +90,7 @@ namespace geode
     template < typename Archive >
     void Fault< dimension >::serialize( Archive& archive )
     {
+        archive.object( impl_ );
         archive.ext(
             *this, bitsery::ext::BaseClass< Component< dimension > >{} );
     }
