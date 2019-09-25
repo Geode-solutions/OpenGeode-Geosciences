@@ -66,7 +66,8 @@ namespace geode
     void HorizonsBuilder< dimension >::set_horizon_name(
         const uuid& id, std::string name )
     {
-        horizons_.modifiable_horizon( id ).set_horizon_name( std::move( name ) );
+        horizons_.modifiable_horizon( id ).set_horizon_name(
+            std::move( name ) );
     }
 
     template class opengeode_geosciences_geosciences_api HorizonsBuilder< 2 >;
