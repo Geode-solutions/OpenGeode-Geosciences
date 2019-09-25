@@ -44,6 +44,8 @@ namespace geode
         void set_horizon_type( const uuid& horizon_id,
             typename Horizon< dimension >::HORIZON_TYPE type );
 
+        void set_horizon_name( const uuid& id, std::string name );
+
     protected:
         HorizonsBuilder( Horizons< dimension >& horizons )
             : horizons_( horizons )

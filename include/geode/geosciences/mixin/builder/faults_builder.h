@@ -44,6 +44,8 @@ namespace geode
         void set_fault_type( const uuid& fault_id,
             typename Fault< dimension >::FAULT_TYPE type );
 
+        void set_fault_name( const uuid& id, std::string name );
+
     protected:
         FaultsBuilder( Faults< dimension >& faults ) : faults_( faults ) {}
 

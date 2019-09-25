@@ -46,7 +46,6 @@ namespace geode
     {
         OPENGEODE_DISABLE_COPY_AND_MOVE( Horizon );
         friend class Horizons< dimension >;
-        friend class HorizonsBuilder< dimension >;
 
     public:
         enum struct HORIZON_TYPE
@@ -90,7 +89,14 @@ namespace geode
         template < typename Archive >
         void serialize( Archive& archive );
 
+        friend class HorizonsBuilder< dimension >;
         void set_type( HORIZON_TYPE type );
+
+        friend class HorizonsBuilder< dimension >;
+        void set_horizon_name( std::string name )
+        {
+            this->set_name( std::move( name ) );
+        }
 
     private:
         IMPLEMENTATION_MEMBER( impl_ );

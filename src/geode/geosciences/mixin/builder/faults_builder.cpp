@@ -61,6 +61,13 @@ namespace geode
         faults_.modifiable_fault( fault_id ).set_type( type );
     }
 
+    template < index_t dimension >
+    void FaultsBuilder< dimension >::set_fault_name(
+        const uuid& id, std::string name )
+    {
+        faults_.modifiable_fault( id ).set_fault_name( std::move( name ) );
+    }
+
     template class opengeode_geosciences_geosciences_api FaultsBuilder< 2 >;
     template class opengeode_geosciences_geosciences_api FaultsBuilder< 3 >;
 } // namespace geode
