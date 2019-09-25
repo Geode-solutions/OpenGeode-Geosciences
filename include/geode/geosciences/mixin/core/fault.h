@@ -46,7 +46,6 @@ namespace geode
     {
         OPENGEODE_DISABLE_COPY_AND_MOVE( Fault );
         friend class Faults< dimension >;
-        friend class FaultsBuilder< dimension >;
 
     public:
         enum struct FAULT_TYPE
@@ -93,7 +92,14 @@ namespace geode
         template < typename Archive >
         void serialize( Archive& archive );
 
+        friend class FaultsBuilder< dimension >;
         void set_type( FAULT_TYPE type );
+
+        friend class FaultsBuilder< dimension >;
+        void set_fault_name( std::string name )
+        {
+            this->set_name( std::move( name ) );
+        }
 
     private:
         IMPLEMENTATION_MEMBER( impl_ );

@@ -62,6 +62,13 @@ namespace geode
         horizons_.modifiable_horizon( horizon_id ).set_type( type );
     }
 
+    template < index_t dimension >
+    void HorizonsBuilder< dimension >::set_horizon_name(
+        const uuid& id, std::string name )
+    {
+        horizons_.modifiable_horizon( id ).set_horizon_name( std::move( name ) );
+    }
+
     template class opengeode_geosciences_geosciences_api HorizonsBuilder< 2 >;
     template class opengeode_geosciences_geosciences_api HorizonsBuilder< 3 >;
 } // namespace geode
