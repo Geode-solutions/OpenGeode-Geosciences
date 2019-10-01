@@ -25,8 +25,8 @@
 
 #include <string>
 
-namespace mylib
+namespace geode
 {
     /* Absolute path to test source directory */
     static const std::string test_path = "@TEST_DIRECTORY@/";
-} // namespace mylib
+} // namespace geode
