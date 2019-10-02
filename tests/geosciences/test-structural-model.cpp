@@ -46,7 +46,8 @@ void add_faults(
     builder.set_fault_name( fault1, "fault1" );
     OPENGEODE_EXCEPTION(
         model.fault( fault1 ).type() == geode::Fault3D::FAULT_TYPE::REVERSE,
-        "[Test] Addition of a Fault in StructuralModel is not correct (wrong type)" );
+        "[Test] Addition of a Fault in StructuralModel is not correct (wrong "
+        "type)" );
     OPENGEODE_EXCEPTION( model.nb_faults() == 2,
         "[Test] Number of faults in StructuralModel should be 2" );
     OPENGEODE_EXCEPTION(
@@ -71,11 +72,12 @@ void add_horizons(
         builder.add_horizon( geode::Horizon3D::HORIZON_TYPE::NO_TYPE );
     builder.set_horizon_name( horizon2, "horizon2" );
     OPENGEODE_EXCEPTION( !model.horizon( horizon2 ).has_type(),
-        "[Test] Addition of a Horizon in StructuralModel is not correct (no type)" );
+        "[Test] Addition of a Horizon in StructuralModel is not correct (no "
+        "type)" );
     OPENGEODE_EXCEPTION( model.nb_horizons() == 3,
         "[Test] Number of horizons in StructuralModel should be 3" );
-    OPENGEODE_EXCEPTION(
-        model.horizon( horizon2 ).name() == "horizon2", "[Test] Wrong Horizon name" );
+    OPENGEODE_EXCEPTION( model.horizon( horizon2 ).name() == "horizon2",
+        "[Test] Wrong Horizon name" );
 }
 
 void add_surfaces( geode::StructuralModelBuilder& builder )
