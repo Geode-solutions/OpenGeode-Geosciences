@@ -39,18 +39,18 @@ void add_faults(
 {
     const auto& fault0 = builder.add_fault();
     OPENGEODE_EXCEPTION( !model.fault( fault0 ).has_type(),
-        "Addition of a Fault in StructuralModel is not correct" );
+        "[Test] Addition of a Fault in StructuralModel is not correct" );
 
     const auto& fault1 =
         builder.add_fault( geode::Fault3D::FAULT_TYPE::REVERSE );
     builder.set_fault_name( fault1, "fault1" );
     OPENGEODE_EXCEPTION(
         model.fault( fault1 ).type() == geode::Fault3D::FAULT_TYPE::REVERSE,
-        "Addition of a Fault in StructuralModel is not correct (wrong type)" );
+        "[Test] Addition of a Fault in StructuralModel is not correct (wrong type)" );
     OPENGEODE_EXCEPTION( model.nb_faults() == 2,
-        "Number of faults in StructuralModel should be 2" );
+        "[Test] Number of faults in StructuralModel should be 2" );
     OPENGEODE_EXCEPTION(
-        model.fault( fault1 ).name() == "fault1", "Wrong Fault name" );
+        model.fault( fault1 ).name() == "fault1", "[Test] Wrong Fault name" );
 }
 
 void add_horizons(
@@ -58,24 +58,24 @@ void add_horizons(
 {
     const auto& horizon0 = builder.add_horizon();
     OPENGEODE_EXCEPTION( !model.horizon( horizon0 ).has_type(),
-        "Addition of a Horizon in StructuralModel is not correct" );
+        "[Test] Addition of a Horizon in StructuralModel is not correct" );
 
     const auto& horizon1 =
         builder.add_horizon( geode::Horizon3D::HORIZON_TYPE::CONFORMAL );
     OPENGEODE_EXCEPTION( model.horizon( horizon1 ).type()
                              == geode::Horizon3D::HORIZON_TYPE::CONFORMAL,
-        "Addition of a Horizon in StructuralModel is not correct (wrong "
+        "[Test] Addition of a Horizon in StructuralModel is not correct (wrong "
         "type)" );
 
     const auto& horizon2 =
         builder.add_horizon( geode::Horizon3D::HORIZON_TYPE::NO_TYPE );
     builder.set_horizon_name( horizon2, "horizon2" );
     OPENGEODE_EXCEPTION( !model.horizon( horizon2 ).has_type(),
-        "Addition of a Horizon in StructuralModel is not correct (no type)" );
+        "[Test] Addition of a Horizon in StructuralModel is not correct (no type)" );
     OPENGEODE_EXCEPTION( model.nb_horizons() == 3,
-        "Number of horizons in StructuralModel should be 3" );
+        "[Test] Number of horizons in StructuralModel should be 3" );
     OPENGEODE_EXCEPTION(
-        model.horizon( horizon2 ).name() == "horizon2", "Wrong Horizon name" );
+        model.horizon( horizon2 ).name() == "horizon2", "[Test] Wrong Horizon name" );
 }
 
 void add_surfaces( geode::StructuralModelBuilder& builder )
@@ -93,16 +93,16 @@ void do_checks( const geode::StructuralModel& model,
     const std::vector< geode::uuid >& horizons_uuids )
 {
     OPENGEODE_EXCEPTION( model.nb_items( faults_uuids[0] ) == 3,
-        "Number of items in fault_uuids[0] should be 3" );
+        "[Test] Number of items in fault_uuids[0] should be 3" );
     OPENGEODE_EXCEPTION( model.nb_items( faults_uuids[1] ) == 2,
-        "Number of items in fault_uuids[1] should be 2" );
+        "[Test] Number of items in fault_uuids[1] should be 2" );
 
     OPENGEODE_EXCEPTION( model.nb_items( horizons_uuids[0] ) == 1,
-        "Number of items in horizons_uuids[0] should be 1" );
+        "[Test] Number of items in horizons_uuids[0] should be 1" );
     OPENGEODE_EXCEPTION( model.nb_items( horizons_uuids[1] ) == 0,
-        "Number of items in horizons_uuids[1] should be 0" );
+        "[Test] Number of items in horizons_uuids[1] should be 0" );
     OPENGEODE_EXCEPTION( model.nb_items( horizons_uuids[2] ) == 3,
-        "Number of items in horizons_uuids[2] should be 3" );
+        "[Test] Number of items in horizons_uuids[2] should be 3" );
 
     for( auto i : geode::Range( 8 ) )
     {
@@ -111,7 +111,7 @@ void do_checks( const geode::StructuralModel& model,
             continue;
         }
         OPENGEODE_EXCEPTION( model.nb_collections( surface_uuids[i] ) == 1,
-            "Number of collections in which surfaces_uuids["
+            "[Test] Number of collections in which surfaces_uuids["
                 + std::to_string( i ) + "] is should be 1" );
     }
 }
@@ -164,11 +164,11 @@ void build_relations_between_geometry_and_geology(
 void check_reloaded_model( const geode::StructuralModel& reloaded_model )
 {
     OPENGEODE_EXCEPTION( reloaded_model.nb_surfaces() == 8,
-        "Number of surfaces in reloaded model should be 8" );
+        "[Test] Number of surfaces in reloaded model should be 8" );
     OPENGEODE_EXCEPTION( reloaded_model.nb_horizons() == 3,
-        "Number of horizons in reloaded model should be 3" );
+        "[Test] Number of horizons in reloaded model should be 3" );
     OPENGEODE_EXCEPTION( reloaded_model.nb_faults() == 2,
-        "Number of faults in reloaded model should be 2" );
+        "[Test] Number of faults in reloaded model should be 2" );
 }
 
 void test_io( const geode::StructuralModel& model )
@@ -193,7 +193,7 @@ void modify_model(
                 fault.id(), geode::Fault3D::FAULT_TYPE::STRIKE_SLIP );
         }
         OPENGEODE_EXCEPTION(
-            fault.has_type(), "All faults should have a type" );
+            fault.has_type(), "[Test] All faults should have a type" );
     }
     for( const auto& horizon : model.horizons() )
     {
@@ -203,7 +203,7 @@ void modify_model(
                 horizon.id(), geode::Horizon3D::HORIZON_TYPE::NON_CONFORMAL );
         }
         OPENGEODE_EXCEPTION(
-            horizon.has_type(), "All horizons should have a type" );
+            horizon.has_type(), "[Test] All horizons should have a type" );
     }
 
     // Remove all horizons
@@ -222,9 +222,9 @@ void modify_model(
     auto temp_id = builder.add_fault();
     builder.remove_fault( model.fault( temp_id ) );
     OPENGEODE_EXCEPTION( model.nb_horizons() == 0,
-        "Number of horizons in modified model should be 0" );
+        "[Test] Number of horizons in modified model should be 0" );
     OPENGEODE_EXCEPTION( model.nb_faults() == 2,
-        "Number of faults in modified model should be 2" );
+        "[Test] Number of faults in modified model should be 2" );
 }
 
 int main()
