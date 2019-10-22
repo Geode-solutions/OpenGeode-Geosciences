@@ -2,9 +2,9 @@
 <h3 align="center">OpenGeode module for Geosciences</h3>
 
 <p align="center">
-  <img src="https://dev.azure.com/GeodeSolutions/Geode/_apis/build/status/Geode-solutions.OpenGeode-Geosciences?branchName=master" alt="Build Status">
-  <img src="https://img.shields.io/azure-devops/tests/GeodeSolutions/Geode/13/master.svg?compact_message" alt="Test Status">
-  <img src="https://img.shields.io/azure-devops/coverage/GeodeSolutions/Geode/13/master.svg" alt="Coverage Status">
+  <img src="https://github.com/Geode-solutions/OpenGeode-Geosciences/workflows/CI/badge.svg" alt="Build Status">
+  <img src="https://github.com/Geode-solutions/OpenGeode-Geosciences/workflows/CD/badge.svg" alt="Deploy Status">
+  <img src="https://codecov.io/gh/Geode-solutions/OpenGeode-Geosciences/branch/master/graph/badge.svg" alt="Coverage Status">
   <img src="https://img.shields.io/github/release/Geode-solutions/OpenGeode-Geosciences.svg" alt="Version">
 </p>
 
