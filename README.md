@@ -9,9 +9,9 @@
 </p>
 
 <p align="center">
-  <img src="https://dev.azure.com/GeodeSolutions/Geode/_apis/build/status/Geode-solutions.OpenGeode-Geosciences?branchName=master&jobName=Test_Windows&label=Windows" alt="Windows Build Status">
-  <img src="https://dev.azure.com/GeodeSolutions/Geode/_apis/build/status/Geode-solutions.OpenGeode-Geosciences?branchName=master&jobName=Test_Ubuntu&label=Linux" alt="Linux Build Status">
-  <img src="https://dev.azure.com/GeodeSolutions/Geode/_apis/build/status/Geode-solutions.OpenGeode-Geosciences?branchName=master&jobName=Test_Mac&label=macOS" alt="Apple Build Status">
+  <img src="https://img.shields.io/static/v1?label=Windows&logo=windows&logoColor=white&message=support&color=success" alt="Windows support">
+  <img src="https://img.shields.io/static/v1?label=Linux&logo=linux&logoColor=white&message=support&color=success" alt="Linux support">
+  <img src="https://img.shields.io/static/v1?label=macOS&logo=apple&logoColor=white&message=support&color=success" alt="macOS support">
 </p>
 
 <p align="center">
