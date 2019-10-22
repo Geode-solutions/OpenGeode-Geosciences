@@ -37,10 +37,9 @@ jobs:
       with:
         repository: OpenGeode
         file: '-Linux.tar.gz'
+        token: ${{ secrets.TOKEN }}
     - name: Compile
       run: |
-        echo ${{ steps.opengeode.outputs.path }}
-        ls
         mkdir -p build
         cd build
         cmake -DCMAKE_BUILD_TYPE=${{ matrix.config }} -DCMAKE_PREFIX_PATH:PATH=${{ steps.opengeode.outputs.path }} ..
@@ -89,6 +88,7 @@ jobs:
       with:
         repository: OpenGeode
         file: '-Darwin.tar.gz'
+        token: ${{ secrets.TOKEN }}
     - name: Compile & Test
       run: |
         mkdir -p build
@@ -118,6 +118,7 @@ jobs:
       with:
         repository: OpenGeode
         file: '-win64.zip'
+        token: ${{ secrets.TOKEN }}
     - name: Compile & Test
       run: |
         mkdir -p build
@@ -141,4 +142,3 @@ jobs:
     - run: npx semantic-release
       env:
         GITHUB_TOKEN: ${{ secrets.TOKEN }}
- 

@@ -15,6 +15,7 @@ jobs:
       with:
         repository: OpenGeode
         file: '-Linux.tar.gz'
+        token: ${{ secrets.TOKEN }}
     - name: Generate package
       id: package
       run: |
@@ -47,6 +48,7 @@ jobs:
       with:
         repository: OpenGeode
         file: '-Darwin.tar.gz'
+        token: ${{ secrets.TOKEN }}
     - name: Generate package
       id: package
       run: |
@@ -74,6 +76,7 @@ jobs:
       with:
         repository: OpenGeode
         file: '-win64.zip'
+        token: ${{ secrets.TOKEN }}
     - name: Generate package
       id: package
       run: |
