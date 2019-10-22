@@ -71,7 +71,7 @@ jobs:
         SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
       uses: pullreminders/slack-action@master
       with:
-        args: '{\"channel\":\"CLFD0SSG4\",\"text\":\"Compilation or Testing failed for OpenGeode-Geosciences on Ubuntu\"}'        
+        args: '{\"channel\":\"CMK88TT4Z\",\"text\":\"Compilation or Testing failed for OpenGeode-Geosciences on Ubuntu\"}'        
       
   build-mac:
     runs-on: macOS-10.14
@@ -102,7 +102,7 @@ jobs:
         SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
       uses: pullreminders/slack-action@master
       with:
-        args: '{\"channel\":\"CLFD0SSG4\",\"text\":\"Compilation or Testing failed for OpenGeode-Geosciences on macOS\"}' 
+        args: '{\"channel\":\"CMK88TT4Z\",\"text\":\"Compilation or Testing failed for OpenGeode-Geosciences on macOS\"}' 
 
   build-windows:
     runs-on: windows-2016
@@ -132,7 +132,7 @@ jobs:
         SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
       uses: pullreminders/slack-action@master
       with:
-        args: '{\"channel\":\"CLFD0SSG4\",\"text\":\"Compilation or Testing failed for OpenGeode-Geosciences on Windows\"}' 
+        args: '{\"channel\":\"CMK88TT4Z\",\"text\":\"Compilation or Testing failed for OpenGeode-Geosciences on Windows\"}' 
         
   semantic-release:
     runs-on: ubuntu-18.04
