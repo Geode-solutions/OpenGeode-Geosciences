@@ -23,11 +23,27 @@
 
 #include <geode/basic/common.h>
 
+#include <geode/geosciences/representation/io/detail/geode_cross_section_input.h>
+#include <geode/geosciences/representation/io/detail/geode_cross_section_output.h>
 #include <geode/geosciences/representation/io/detail/geode_structural_model_input.h>
 #include <geode/geosciences/representation/io/detail/geode_structural_model_output.h>
 
 namespace
 {
+    void register_cross_section_input()
+    {
+        geode::CrossSectionInputFactory::register_creator<
+            geode::OpenGeodeCrossSectionInput >(
+            geode::OpenGeodeCrossSectionOutput::extension() );
+    }
+
+    void register_cross_section_output()
+    {
+        geode::CrossSectionOutputFactory::register_creator<
+            geode::OpenGeodeCrossSectionOutput >(
+            geode::OpenGeodeCrossSectionOutput::extension() );
+    }
+
     void register_structural_model_input()
     {
         geode::StructuralModelInputFactory::register_creator<
@@ -44,6 +60,8 @@ namespace
 
     OPENGEODE_LIBRARY_INITIALIZE( geosciences )
     {
+        register_cross_section_input();
+        register_cross_section_output();
         register_structural_model_input();
         register_structural_model_output();
     }
