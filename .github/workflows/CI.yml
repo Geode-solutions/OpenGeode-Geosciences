@@ -94,7 +94,6 @@ jobs:
         cd build
         cmake -DCMAKE_BUILD_TYPE=${{ matrix.config }} -DCMAKE_PREFIX_PATH:PATH=${{ steps.opengeode.outputs.path }} ..
         cmake --build .
-        cd opengeode
         ctest --output-on-failure
     - name: Notify slack
       if: failure() && github.ref == 'refs/heads/master'
@@ -113,6 +112,12 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
+    - uses: Geode-solutions/actions/get-release@master
+      id: opengeode
+      with:
+        repository: OpenGeode
+        file: '-Darwin.tar.gz'
+        token: ${{ secrets.TOKEN }}
     - name: Compile & Test
       run: |
         mkdir -p build
