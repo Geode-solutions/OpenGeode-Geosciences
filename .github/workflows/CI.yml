@@ -78,7 +78,6 @@ jobs:
     needs: format
     strategy:
       matrix:
-        cmake_args: ['-DCMAKE_BUILD_TYPE=Debug', '-G "Xcode"']
         config: [Debug, Release]
 
     steps:
@@ -93,7 +92,32 @@ jobs:
       run: |
         mkdir -p build
         cd build
-        cmake ${{ matrix.cmake_args }} -DCMAKE_PREFIX_PATH:PATH=${{ steps.opengeode.outputs.path }} ..
+        cmake -DCMAKE_BUILD_TYPE=${{ matrix.config }} -DCMAKE_PREFIX_PATH:PATH=${{ steps.opengeode.outputs.path }} ..
+        cmake --build .
+        cd opengeode
+        ctest --output-on-failure
+    - name: Notify slack
+      if: failure() && github.ref == 'refs/heads/master'
+      env:
+        SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+      uses: pullreminders/slack-action@master
+      with:
+        args: '{\"channel\":\"CLJ1PS7UN\",\"text\":\"Compilation or Testing failed for OpenGeode on macOS\"}'   
+
+  build-mac-xcode:
+    runs-on: macOS-10.14
+    needs: format
+    strategy:
+      matrix:
+        config: [Debug, Release]
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Compile & Test
+      run: |
+        mkdir -p build
+        cd build
+        cmake -G "Xcode" -DCMAKE_PREFIX_PATH:PATH=${{ steps.opengeode.outputs.path }} ..
         cmake --build . --config ${{ matrix.config }}
         ctest -C ${{ matrix.config }} --output-on-failure
     - name: Notify slack
@@ -136,7 +160,7 @@ jobs:
         
   semantic-release:
     runs-on: ubuntu-18.04
-    needs: [build-ubuntu, build-mac, build-windows]
+    needs: [build-ubuntu, build-mac, build-mac-xcode, build-windows]
     steps:
     - uses: actions/checkout@v1
     - run: npx semantic-release
