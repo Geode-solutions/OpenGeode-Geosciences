@@ -163,6 +163,7 @@ void build_relations_between_geometry_and_geology(
     do_checks( model, surfaces_uuids, faults_uuids, horizons_uuids );
 }
 
+void check_reloaded_model( const geode::StructuralModel& reloaded_model )
 {
     OPENGEODE_EXCEPTION( reloaded_model.nb_surfaces() == 8,
         "[Test] Number of surfaces in reloaded model should be 8" );
