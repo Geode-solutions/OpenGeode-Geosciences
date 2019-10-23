@@ -102,7 +102,7 @@ jobs:
         SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
       uses: pullreminders/slack-action@master
       with:
-        args: '{\"channel\":\"CLJ1PS7UN\",\"text\":\"Compilation or Testing failed for OpenGeode on macOS\"}'   
+        args: '{\"channel\":\"CMK88TT4Z\",\"text\":\"Compilation or Testing failed for OpenGeode-Geosciences on macOS\"}' 
 
   build-mac-xcode:
     runs-on: macOS-10.14
