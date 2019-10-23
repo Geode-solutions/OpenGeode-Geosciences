@@ -151,14 +151,14 @@ void build_relations_between_geometry_and_geology(
     builder.add_line_in_fault(
         model.line( lines_uuids[3] ), model.fault( faults_uuids[1] ) );
 
-    builder.add_line_in_horizon( model.line( lines_uuids[4] ),
-        model.horizon( horizons_uuids[0] ) );
-    builder.add_line_in_horizon( model.line( lines_uuids[5] ),
-        model.horizon( horizons_uuids[2] ) );
-    builder.add_line_in_horizon( model.line( lines_uuids[6] ),
-        model.horizon( horizons_uuids[2] ) );
-    builder.add_line_in_horizon( model.line( lines_uuids[7] ),
-        model.horizon( horizons_uuids[2] ) );
+    builder.add_line_in_horizon(
+        model.line( lines_uuids[4] ), model.horizon( horizons_uuids[0] ) );
+    builder.add_line_in_horizon(
+        model.line( lines_uuids[5] ), model.horizon( horizons_uuids[2] ) );
+    builder.add_line_in_horizon(
+        model.line( lines_uuids[6] ), model.horizon( horizons_uuids[2] ) );
+    builder.add_line_in_horizon(
+        model.line( lines_uuids[7] ), model.horizon( horizons_uuids[2] ) );
 
     do_checks( model, lines_uuids, faults_uuids, horizons_uuids );
 }
