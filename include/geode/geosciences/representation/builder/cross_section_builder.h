@@ -56,8 +56,7 @@ namespace geode
 
         const uuid& add_fault( typename Fault2D::FAULT_TYPE type );
 
-        void add_line_in_fault(
-            const Line2D& line, const Fault2D& fault );
+        void add_line_in_fault( const Line2D& line, const Fault2D& fault );
 
         void remove_fault( const Fault2D& fault );
 

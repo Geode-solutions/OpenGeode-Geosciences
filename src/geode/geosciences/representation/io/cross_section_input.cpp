@@ -31,8 +31,7 @@ namespace geode
         try
         {
             auto input = CrossSectionInputFactory::create(
-                extension_from_filename( filename ), cross_section,
-                filename );
+                extension_from_filename( filename ), cross_section, filename );
             input->read();
         }
         catch( const OpenGeodeException& e )

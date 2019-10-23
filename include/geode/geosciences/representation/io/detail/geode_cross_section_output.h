@@ -50,7 +50,8 @@ namespace geode
 
         void write() const final
         {
-            OpenGeodeSectionOutput section_output{ cross_section(), filename() };
+            OpenGeodeSectionOutput section_output{ cross_section(),
+                filename() };
             ZipFile zip_writer{ filename(), uuid{}.string() };
             section_output.archive_section_files( zip_writer );
             zip_writer.archive_files(
