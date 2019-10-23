@@ -7,7 +7,10 @@ set(sources
     "${lib_source_dir}/mixin/core/faults.cpp"
     "${lib_source_dir}/mixin/core/horizon.cpp"
     "${lib_source_dir}/mixin/core/horizons.cpp"
+    "${lib_source_dir}/representation/builder/cross_section_builder.cpp"
     "${lib_source_dir}/representation/builder/structural_model_builder.cpp"
+    "${lib_source_dir}/representation/io/cross_section_input.cpp"
+    "${lib_source_dir}/representation/io/cross_section_output.cpp"
     "${lib_source_dir}/representation/io/structural_model_input.cpp"
     "${lib_source_dir}/representation/io/structural_model_output.cpp"
 )
@@ -20,18 +23,24 @@ set(public_headers
     "${lib_include_dir}/mixin/core/faults.h"
     "${lib_include_dir}/mixin/core/horizon.h"
     "${lib_include_dir}/mixin/core/horizons.h"
+    "${lib_include_dir}/representation/builder/cross_section_builder.h"
     "${lib_include_dir}/representation/builder/structural_model_builder.h"
+    "${lib_include_dir}/representation/core/cross_section.h"
     "${lib_include_dir}/representation/core/structural_model.h"
+    "${lib_include_dir}/representation/io/cross_section_input.h"
+    "${lib_include_dir}/representation/io/cross_section_output.h"
     "${lib_include_dir}/representation/io/structural_model_input.h"
     "${lib_include_dir}/representation/io/structural_model_output.h"
 )
 set(advanced_headers
     "${lib_include_dir}/mixin/core/detail/components_storage.h"
+    "${lib_include_dir}/representation/io/detail/geode_cross_section_input.h"
+    "${lib_include_dir}/representation/io/detail/geode_cross_section_output.h"
     "${lib_include_dir}/representation/io/detail/geode_structural_model_input.h"
     "${lib_include_dir}/representation/io/detail/geode_structural_model_output.h"
 )
 target_link_libraries(${target_name}
-    PRIVATE
+    PUBLIC
         OpenGeode::basic
         OpenGeode::model
 )

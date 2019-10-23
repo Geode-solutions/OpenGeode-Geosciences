@@ -20,7 +20,12 @@
 
 add_geode_test(test-structural-model.cpp 
     OpenGeode::basic
-    OpenGeode::mesh
+    OpenGeode::model
+    ${PROJECT_NAME}::geosciences
+)
+
+add_geode_test(test-cross-section.cpp 
+    OpenGeode::basic
     OpenGeode::model
     ${PROJECT_NAME}::geosciences
 )
