@@ -1,0 +1,95 @@
+name: CD
+
+on:
+  push:
+    tags: 'v*'
+
+jobs:      
+  release-ubuntu:
+    runs-on: ubuntu-18.04
+
+    steps:
+    - uses: actions/checkout@v1
+    - uses: Geode-solutions/actions/get-release@master
+      id: opengeode
+      with:
+        repository: OpenGeode
+        file: '-Linux.tar.gz'
+        token: ${{ secrets.TOKEN }}
+    - name: Generate package
+      id: package
+      run: |
+        sudo apt install doxygen
+        mkdir -p build
+        cd build
+        version="${GITHUB_REF##*/*/}"
+        echo ::set-output name=version::$version
+        cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH:PATH=${{ steps.opengeode.outputs.path }} -DOPENGEODE_WITH_TESTS:BOOL=OFF -DCPACK_PACKAGE_VERSION:STRING=$version ..
+        cmake --build . -- -j2
+        cmake --build . --target package
+    - name: Upload
+      uses: softprops/action-gh-release@v1
+      with:
+        files: "build/OpenGeode_Geosciences-${{ steps.package.outputs.version }}-Linux.tar.gz"
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Doc
+      run: curl -s https://raw.githubusercontent.com/Geode-solutions/actions/master/doc/doc.sh | bash -s -- ${GITHUB_WORKSPACE}/build
+      env:
+        GITHUB_TOKEN: ${{ secrets.TOKEN }}
+      
+  release-mac:
+    runs-on: macOS-10.14
+
+    steps:
+    - uses: actions/checkout@v1
+    - uses: Geode-solutions/actions/get-release@master
+      id: opengeode
+      with:
+        repository: OpenGeode
+        file: '-Darwin.tar.gz'
+        token: ${{ secrets.TOKEN }}
+    - name: Generate package
+      id: package
+      run: |
+        mkdir -p build
+        cd build
+        version="${GITHUB_REF##*/*/}"
+        echo ::set-output name=version::$version
+        cmake -G "Xcode" -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH:PATH=${{ steps.opengeode.outputs.path }} -DOPENGEODE_WITH_TESTS:BOOL=OFF -DCPACK_PACKAGE_VERSION:STRING=$version ..
+        cmake --build . --config Release
+        cmake --build . --target package --config Release
+    - name: Upload
+      uses: softprops/action-gh-release@v1
+      with:
+        files: "build/OpenGeode_Geosciences-${{ steps.package.outputs.version }}-Darwin.tar.gz"
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+  release-windows:
+    runs-on: windows-2016
+
+    steps:
+    - uses: actions/checkout@v1
+    - uses: Geode-solutions/actions/get-release@master
+      id: opengeode
+      with:
+        repository: OpenGeode
+        file: '-win64.zip'
+        token: ${{ secrets.TOKEN }}
+    - name: Generate package
+      id: package
+      run: |
+        mkdir -p build
+        cd build
+        set version=%GITHUB_REF:*tags/=%
+        echo ::set-output name=version::%version%
+        cmake -G "Visual Studio 15 2017 Win64" -DCMAKE_PREFIX_PATH:PATH=${{ steps.opengeode.outputs.path }} -DOPENGEODE_WITH_TESTS:BOOL=OFF -DCPACK_PACKAGE_VERSION:STRING=%version% ..
+        cmake --build . --config Release
+        cmake --build . --target PACKAGE --config Release
+    - name: Upload
+      uses: softprops/action-gh-release@v1
+      with:
+        files: "build/OpenGeode_Geosciences-${{ steps.package.outputs.version }}-win64.zip"
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}        

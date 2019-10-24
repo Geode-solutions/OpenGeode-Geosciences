@@ -1,0 +1,11 @@
+{
+    "C_Cpp.default.cppStandard": "c++11",
+    "C_Cpp.default.includePath": [
+        "${workspaceFolder}/include",
+        "${workspaceFolder}/build",
+        "${workspaceFolder:OpenGeode}/build/opengeode/install/include"
+    ],
+    "files.watcherExclude": {
+        "${workspaceFolder}/build/**": true
+    }
+}
