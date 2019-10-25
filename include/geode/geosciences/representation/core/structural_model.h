@@ -44,8 +44,8 @@ namespace geode
             : public Relationships::ItemRange
         {
         public:
-            HorizonItemRange(
-                const StructuralModel& structural_model, const Horizon3D& horizon );
+            HorizonItemRange( const StructuralModel& structural_model,
+                const Horizon3D& horizon );
 
             const HorizonItemRange& begin() const
             {
