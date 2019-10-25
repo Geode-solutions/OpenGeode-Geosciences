@@ -34,7 +34,8 @@ namespace geode
 
     const Surface3D& StructuralModel::HorizonItemRange::operator*() const
     {
-        return structural_model_.surface( Relationships::ItemRange::operator*() );
+        return structural_model_.surface(
+            Relationships::ItemRange::operator*() );
     }
 
     StructuralModel::HorizonItemRange StructuralModel::items(
@@ -52,7 +53,8 @@ namespace geode
 
     const Surface3D& StructuralModel::FaultItemRange::operator*() const
     {
-        return structural_model_.surface( Relationships::ItemRange::operator*() );
+        return structural_model_.surface(
+            Relationships::ItemRange::operator*() );
     }
 
     StructuralModel::FaultItemRange StructuralModel::items(
