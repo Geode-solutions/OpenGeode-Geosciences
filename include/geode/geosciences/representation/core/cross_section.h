@@ -38,6 +38,52 @@ namespace geode
           public AddComponents< 2, Faults, Horizons >
     {
     public:
+        class opengeode_model_api HorizonItemRange
+            : public Relationships::ItemRange
+        {
+        public:
+            HorizonItemRange(
+                const CrossSection& cross_section, const Horizon2D& horizon );
+
+            const HorizonItemRange& begin() const
+            {
+                return *this;
+            }
+
+            const HorizonItemRange& end() const
+            {
+                return *this;
+            }
+
+            const Line2D& operator*() const;
+
+        private:
+            const CrossSection& cross_section_;
+        };
+
+        class opengeode_model_api FaultItemRange
+            : public Relationships::ItemRange
+        {
+        public:
+            FaultItemRange(
+                const CrossSection& cross_section, const Fault2D& fault );
+
+            const FaultItemRange& begin() const
+            {
+                return *this;
+            }
+
+            const FaultItemRange& end() const
+            {
+                return *this;
+            }
+
+            const Line2D& operator*() const;
+
+        private:
+            const CrossSection& cross_section_;
+        };
+
         static std::string native_extension_static()
         {
             return "og_xsctn";
@@ -47,5 +93,9 @@ namespace geode
         {
             return native_extension_static();
         }
+
+        HorizonItemRange items( const Horizon2D& horizon ) const;
+
+        FaultItemRange items( const Fault2D& fault ) const;
     };
 } // namespace geode
