@@ -9,6 +9,8 @@ set(sources
     "${lib_source_dir}/mixin/core/horizons.cpp"
     "${lib_source_dir}/representation/builder/cross_section_builder.cpp"
     "${lib_source_dir}/representation/builder/structural_model_builder.cpp"
+    "${lib_source_dir}/representation/core/structural_model.cpp"
+    "${lib_source_dir}/representation/core/cross_section.cpp"
     "${lib_source_dir}/representation/io/cross_section_input.cpp"
     "${lib_source_dir}/representation/io/cross_section_output.cpp"
     "${lib_source_dir}/representation/io/structural_model_input.cpp"

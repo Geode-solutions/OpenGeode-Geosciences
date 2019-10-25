@@ -34,6 +34,19 @@
 #include <geode/geosciences/representation/io/structural_model_input.h>
 #include <geode/geosciences/representation/io/structural_model_output.h>
 
+template < class Feature >
+geode::index_t count_items(
+    const geode::StructuralModel& model, const Feature& feature )
+{
+    geode::index_t count{ 0 };
+    for( const auto& item : model.items( feature ) )
+    {
+        geode_unused( item );
+        count++;
+    }
+    return count;
+}
+
 void add_faults(
     geode::StructuralModel& model, geode::StructuralModelBuilder& builder )
 {
@@ -116,6 +129,15 @@ void do_checks( const geode::StructuralModel& model,
             "[Test] Number of collections in which surfaces_uuids["
                 + std::to_string( i ) + "] is should be 1" );
     }
+
+    OPENGEODE_EXCEPTION(
+        count_items( model, model.horizon( horizons_uuids[2] ) ) == 3,
+        "[Test] Number of iterations on items in "
+        "horizons_uuids[2] should be 3" );
+    OPENGEODE_EXCEPTION(
+        count_items( model, model.fault( faults_uuids[1] ) ) == 2,
+        "[Test] Number of iterations on items in "
+        "faults_uuids[1] should be 2" );
 }
 
 void build_relations_between_geometry_and_geology(
