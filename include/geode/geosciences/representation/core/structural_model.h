@@ -39,8 +39,7 @@ namespace geode
           public AddComponents< 3, Faults, Horizons >
     {
     public:
-    public:
-        class opengeode_model_api HorizonItemRange
+        class opengeode_geosciences_geosciences_api HorizonItemRange
             : public Relationships::ItemRange
         {
         public:
@@ -63,7 +62,7 @@ namespace geode
             const StructuralModel& structural_model_;
         };
 
-        class opengeode_model_api FaultItemRange
+        class opengeode_geosciences_geosciences_api FaultItemRange
             : public Relationships::ItemRange
         {
         public:
