@@ -38,7 +38,7 @@ namespace geode
           public AddComponents< 2, Faults, Horizons >
     {
     public:
-        class opengeode_model_api HorizonItemRange
+        class opengeode_geosciences_geosciences_api HorizonItemRange
             : public Relationships::ItemRange
         {
         public:
@@ -61,7 +61,7 @@ namespace geode
             const CrossSection& cross_section_;
         };
 
-        class opengeode_model_api FaultItemRange
+        class opengeode_geosciences_geosciences_api FaultItemRange
             : public Relationships::ItemRange
         {
         public:
