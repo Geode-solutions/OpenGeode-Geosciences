@@ -24,6 +24,7 @@
 #pragma once
 
 #include <geode/basic/factory.h>
+
 #include <geode/model/representation/io/section_input.h>
 
 #include <geode/geosciences/common.h>
