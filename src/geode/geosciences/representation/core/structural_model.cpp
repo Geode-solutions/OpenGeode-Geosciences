@@ -28,7 +28,7 @@ namespace geode
     StructuralModel::HorizonItemRange::HorizonItemRange(
         const StructuralModel& structural_model, const Horizon3D& horizon )
         : Relationships::ItemRangeIterator( structural_model, horizon.id() ),
-        BeginEnd< HorizonItemRange >( *this ),
+          BeginEnd< HorizonItemRange >( *this ),
           structural_model_( structural_model )
     {
     }
@@ -48,7 +48,7 @@ namespace geode
     StructuralModel::FaultItemRange::FaultItemRange(
         const StructuralModel& structural_model, const Fault3D& fault )
         : Relationships::ItemRangeIterator( structural_model, fault.id() ),
-        BeginEnd< FaultItemRange >( *this ),
+          BeginEnd< FaultItemRange >( *this ),
           structural_model_( structural_model )
     {
     }

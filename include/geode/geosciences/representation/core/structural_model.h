@@ -40,7 +40,8 @@ namespace geode
     {
     public:
         class opengeode_geosciences_geosciences_api HorizonItemRange
-            : public Relationships::ItemRangeIterator, public BeginEnd< HorizonItemRange >
+            : public Relationships::ItemRangeIterator,
+              public BeginEnd< HorizonItemRange >
         {
         public:
             HorizonItemRange( const StructuralModel& structural_model,
@@ -53,7 +54,8 @@ namespace geode
         };
 
         class opengeode_geosciences_geosciences_api FaultItemRange
-            : public Relationships::ItemRangeIterator, public BeginEnd< FaultItemRange >
+            : public Relationships::ItemRangeIterator,
+              public BeginEnd< FaultItemRange >
         {
         public:
             FaultItemRange(
