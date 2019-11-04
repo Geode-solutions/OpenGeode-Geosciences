@@ -69,5 +69,8 @@ namespace geode
             const Surface3D& surface, const Horizon3D& horizon );
 
         void remove_horizon( const Horizon3D& horizon );
+    
+    private:
+        StructuralModel& structural_model_;
     };
 } // namespace geode

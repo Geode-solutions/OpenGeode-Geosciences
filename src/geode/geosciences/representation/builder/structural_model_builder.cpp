@@ -33,14 +33,15 @@ namespace geode
     StructuralModelBuilder::StructuralModelBuilder(
         StructuralModel& structural_model )
         : BRepBuilder( structural_model ),
-          AddComponentsBuilders< 3, Faults, Horizons >( structural_model )
+          AddComponentsBuilders< 3, Faults, Horizons >( structural_model ),
+          structural_model_( structural_model )
     {
     }
 
     const uuid& StructuralModelBuilder::add_fault()
     {
         const auto& id = create_fault();
-        register_component( id );
+        register_component( structural_model_.fault( id ).component_id() );
         return id;
     }
 
@@ -48,7 +49,7 @@ namespace geode
         typename Fault3D::FAULT_TYPE type )
     {
         const auto& id = create_fault( type );
-        register_component( id );
+        register_component( structural_model_.fault( id ).component_id() );
         return id;
     }
 
@@ -67,7 +68,7 @@ namespace geode
     const uuid& StructuralModelBuilder::add_horizon()
     {
         const auto& id = create_horizon();
-        register_component( id );
+        register_component( structural_model_.horizon( id ).component_id() );
         return id;
     }
 
@@ -75,7 +76,7 @@ namespace geode
         typename Horizon3D::HORIZON_TYPE type )
     {
         const auto& id = create_horizon( type );
-        register_component( id );
+        register_component( structural_model_.horizon( id ).component_id() );
         return id;
     }
 

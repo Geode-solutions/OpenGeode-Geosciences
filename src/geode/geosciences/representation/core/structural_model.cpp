@@ -27,7 +27,8 @@ namespace geode
 {
     StructuralModel::HorizonItemRange::HorizonItemRange(
         const StructuralModel& structural_model, const Horizon3D& horizon )
-        : Relationships::ItemRange( structural_model, horizon.id() ),
+        : Relationships::ItemRangeIterator( structural_model, horizon.id() ),
+        BeginEnd< HorizonItemRange >( *this ),
           structural_model_( structural_model )
     {
     }
@@ -35,7 +36,7 @@ namespace geode
     const Surface3D& StructuralModel::HorizonItemRange::operator*() const
     {
         return structural_model_.surface(
-            Relationships::ItemRange::operator*() );
+            Relationships::ItemRangeIterator::operator*().id() );
     }
 
     StructuralModel::HorizonItemRange StructuralModel::items(
@@ -46,7 +47,8 @@ namespace geode
 
     StructuralModel::FaultItemRange::FaultItemRange(
         const StructuralModel& structural_model, const Fault3D& fault )
-        : Relationships::ItemRange( structural_model, fault.id() ),
+        : Relationships::ItemRangeIterator( structural_model, fault.id() ),
+        BeginEnd< FaultItemRange >( *this ),
           structural_model_( structural_model )
     {
     }
@@ -54,7 +56,7 @@ namespace geode
     const Surface3D& StructuralModel::FaultItemRange::operator*() const
     {
         return structural_model_.surface(
-            Relationships::ItemRange::operator*() );
+            Relationships::ItemRangeIterator::operator*().id() );
     }
 
     StructuralModel::FaultItemRange StructuralModel::items(

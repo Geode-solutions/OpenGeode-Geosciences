@@ -32,14 +32,15 @@ namespace geode
 {
     CrossSectionBuilder::CrossSectionBuilder( CrossSection& cross_section )
         : SectionBuilder( cross_section ),
-          AddComponentsBuilders< 2, Faults, Horizons >( cross_section )
+          AddComponentsBuilders< 2, Faults, Horizons >( cross_section ),
+          cross_section_( cross_section )
     {
     }
 
     const uuid& CrossSectionBuilder::add_fault()
     {
         const auto& id = create_fault();
-        register_component( id );
+        register_component( cross_section_.fault( id ).component_id() );
         return id;
     }
 
@@ -47,7 +48,7 @@ namespace geode
         typename Fault2D::FAULT_TYPE type )
     {
         const auto& id = create_fault( type );
-        register_component( id );
+        register_component( cross_section_.fault( id ).component_id() );
         return id;
     }
 
@@ -66,7 +67,7 @@ namespace geode
     const uuid& CrossSectionBuilder::add_horizon()
     {
         const auto& id = create_horizon();
-        register_component( id );
+        register_component( cross_section_.horizon( id ).component_id() );
         return id;
     }
 
@@ -74,7 +75,7 @@ namespace geode
         typename Horizon2D::HORIZON_TYPE type )
     {
         const auto& id = create_horizon( type );
-        register_component( id );
+        register_component( cross_section_.horizon( id ).component_id() );
         return id;
     }
 
