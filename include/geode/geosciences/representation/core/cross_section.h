@@ -39,12 +39,13 @@ namespace geode
     {
     public:
         class opengeode_geosciences_geosciences_api HorizonItemRange
-            : public Relationships::ItemRangeIterator, public BeginEnd< HorizonItemRange >
+            : public Relationships::ItemRangeIterator,
+              public BeginEnd< HorizonItemRange >
         {
         public:
             HorizonItemRange(
                 const CrossSection& cross_section, const Horizon2D& horizon );
-            
+
             const Line2D& operator*() const;
 
         private:
@@ -52,7 +53,8 @@ namespace geode
         };
 
         class opengeode_geosciences_geosciences_api FaultItemRange
-            : public Relationships::ItemRangeIterator, public BeginEnd< FaultItemRange >
+            : public Relationships::ItemRangeIterator,
+              public BeginEnd< FaultItemRange >
         {
         public:
             FaultItemRange(

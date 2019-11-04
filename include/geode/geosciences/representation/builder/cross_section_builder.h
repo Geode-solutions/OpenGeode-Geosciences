@@ -68,7 +68,7 @@ namespace geode
             const Line2D& line, const Horizon2D& horizon );
 
         void remove_horizon( const Horizon2D& horizon );
-    
+
     private:
         CrossSection& cross_section_;
     };
