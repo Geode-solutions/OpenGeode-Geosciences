@@ -27,14 +27,15 @@ namespace geode
 {
     CrossSection::HorizonItemRange::HorizonItemRange(
         const CrossSection& cross_section, const Horizon2D& horizon )
-        : Relationships::ItemRange( cross_section, horizon.id() ),
+        : Relationships::ItemRangeIterator( cross_section, horizon.id() ),
+        BeginEnd< HorizonItemRange >( *this ),
           cross_section_( cross_section )
     {
     }
 
     const Line2D& CrossSection::HorizonItemRange::operator*() const
     {
-        return cross_section_.line( Relationships::ItemRange::operator*() );
+        return cross_section_.line( Relationships::ItemRangeIterator::operator*().id() );
     }
 
     CrossSection::HorizonItemRange CrossSection::items(
@@ -43,16 +44,18 @@ namespace geode
         return { *this, horizon };
     }
 
-    CrossSection::FaultItemRange::FaultItemRange(
+    CrossSection::FaultItemRange::
+    FaultItemRange(
         const CrossSection& cross_section, const Fault2D& fault )
-        : Relationships::ItemRange( cross_section, fault.id() ),
+        : Relationships::ItemRangeIterator( cross_section, fault.id() ),
+        BeginEnd< FaultItemRange >( *this ),
           cross_section_( cross_section )
     {
     }
 
     const Line2D& CrossSection::FaultItemRange::operator*() const
     {
-        return cross_section_.line( Relationships::ItemRange::operator*() );
+        return cross_section_.line( Relationships::ItemRangeIterator::operator*().id() );
     }
 
     CrossSection::FaultItemRange CrossSection::items(

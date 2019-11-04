@@ -40,21 +40,11 @@ namespace geode
     {
     public:
         class opengeode_geosciences_geosciences_api HorizonItemRange
-            : public Relationships::ItemRange
+            : public Relationships::ItemRangeIterator, public BeginEnd< HorizonItemRange >
         {
         public:
             HorizonItemRange( const StructuralModel& structural_model,
                 const Horizon3D& horizon );
-
-            const HorizonItemRange& begin() const
-            {
-                return *this;
-            }
-
-            const HorizonItemRange& end() const
-            {
-                return *this;
-            }
 
             const Surface3D& operator*() const;
 
@@ -63,21 +53,11 @@ namespace geode
         };
 
         class opengeode_geosciences_geosciences_api FaultItemRange
-            : public Relationships::ItemRange
+            : public Relationships::ItemRangeIterator, public BeginEnd< FaultItemRange >
         {
         public:
             FaultItemRange(
                 const StructuralModel& structural_model, const Fault3D& fault );
-
-            const FaultItemRange& begin() const
-            {
-                return *this;
-            }
-
-            const FaultItemRange& end() const
-            {
-                return *this;
-            }
 
             const Surface3D& operator*() const;
 
