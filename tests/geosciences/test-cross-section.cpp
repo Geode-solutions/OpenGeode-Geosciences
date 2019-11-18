@@ -95,7 +95,7 @@ void add_horizons(
 
 void add_lines( geode::CrossSectionBuilder& builder )
 {
-    for( auto i : geode::Range{ 8 } )
+    for( const auto i : geode::Range{ 8 } )
     {
         geode_unused( i );
         builder.add_line();
@@ -119,7 +119,7 @@ void do_checks( const geode::CrossSection& model,
     OPENGEODE_EXCEPTION( model.nb_items( horizons_uuids[2] ) == 3,
         "[Test] Number of items in horizons_uuids[2] should be 3" );
 
-    for( auto i : geode::Range{ 8 } )
+    for( const auto i : geode::Range{ 8 } )
     {
         if( i == 2 )
         {
@@ -197,7 +197,7 @@ void check_reloaded_model( const geode::CrossSection& reloaded_model )
 
 void test_io( const geode::CrossSection& model )
 {
-    std::string file_io{ "test." + model.native_extension() };
+    const std::string file_io{ "test." + model.native_extension() };
     save_cross_section( model, file_io );
 
     geode::CrossSection reloaded_model;
@@ -243,7 +243,7 @@ void modify_model(
     }
 
     // Add a new fault and remove it
-    auto temp_id = builder.add_fault();
+    const auto temp_id = builder.add_fault();
     builder.remove_fault( model.fault( temp_id ) );
     OPENGEODE_EXCEPTION( model.nb_horizons() == 0,
         "[Test] Number of horizons in modified model should be 0" );
