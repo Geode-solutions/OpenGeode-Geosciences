@@ -52,7 +52,7 @@ namespace geode
         {
             OpenGeodeSectionOutput section_output{ cross_section(),
                 filename() };
-            ZipFile zip_writer{ filename(), uuid{}.string() };
+            const ZipFile zip_writer{ filename(), uuid{}.string() };
             section_output.archive_section_files( zip_writer );
             zip_writer.archive_files(
                 cross_section().save_faults( zip_writer.directory() ) );

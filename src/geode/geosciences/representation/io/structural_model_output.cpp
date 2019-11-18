@@ -30,7 +30,7 @@ namespace geode
     {
         try
         {
-            auto output = StructuralModelOutputFactory::create(
+            const auto output = StructuralModelOutputFactory::create(
                 extension_from_filename( filename ), structural_model,
                 filename.c_str() );
             output->write();
@@ -38,8 +38,8 @@ namespace geode
         catch( const OpenGeodeException& e )
         {
             Logger::error( e.what() );
-            throw OpenGeodeException(
-                "Cannot save StructuralModel in file: ", filename );
+            throw OpenGeodeException{ "Cannot save StructuralModel in file: ",
+                filename };
         }
     }
 

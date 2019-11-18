@@ -30,7 +30,7 @@ namespace geode
     {
         try
         {
-            auto output = CrossSectionOutputFactory::create(
+            const auto output = CrossSectionOutputFactory::create(
                 extension_from_filename( filename ), cross_section,
                 filename.c_str() );
             output->write();
@@ -38,8 +38,8 @@ namespace geode
         catch( const OpenGeodeException& e )
         {
             Logger::error( e.what() );
-            throw OpenGeodeException(
-                "Cannot save CrossSection in file: ", filename );
+            throw OpenGeodeException{ "Cannot save CrossSection in file: ",
+                filename };
         }
     }
 

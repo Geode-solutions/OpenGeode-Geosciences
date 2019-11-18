@@ -56,7 +56,7 @@ namespace geode
             brep_input.read();
 
             StructuralModelBuilder builder( structural_model() );
-            UnzipFile zip_reader{ filename(), uuid{}.string() };
+            const UnzipFile zip_reader{ filename(), uuid{}.string() };
             zip_reader.extract_all();
             builder.load_faults( zip_reader.directory() );
             builder.load_horizons( zip_reader.directory() );
