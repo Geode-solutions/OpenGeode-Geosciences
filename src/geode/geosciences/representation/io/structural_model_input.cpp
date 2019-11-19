@@ -38,7 +38,7 @@ namespace geode
         catch( const OpenGeodeException& e )
         {
             Logger::error( e.what() );
-            throw OpenGeodeException{ "Cannot load StructuralModel from file: ",
+            throw OpenGeodeException{ "[load_structural_model] Cannot load StructuralModel from file: ",
                 filename };
         }
     }
