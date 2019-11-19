@@ -38,8 +38,10 @@ namespace geode
         catch( const OpenGeodeException& e )
         {
             Logger::error( e.what() );
-            throw OpenGeodeException{ "[save_structural_model] Cannot save StructuralModel in file: ",
-                filename };
+            throw OpenGeodeException{
+                "[save_structural_model] Cannot save StructuralModel in file: ",
+                filename
+            };
         }
     }
 
