@@ -38,7 +38,7 @@ namespace geode
         catch( const OpenGeodeException& e )
         {
             Logger::error( e.what() );
-            throw OpenGeodeException{ "Cannot save CrossSection in file: ",
+            throw OpenGeodeException{ "[load_cross_section] Cannot save CrossSection in file: ",
                 filename };
         }
     }

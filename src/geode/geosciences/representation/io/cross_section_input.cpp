@@ -37,7 +37,7 @@ namespace geode
         catch( const OpenGeodeException& e )
         {
             Logger::error( e.what() );
-            throw OpenGeodeException{ "Cannot load CrossSection from file: ",
+            throw OpenGeodeException{ "[load_cross_section] Cannot load CrossSection from file: ",
                 filename };
         }
     }
