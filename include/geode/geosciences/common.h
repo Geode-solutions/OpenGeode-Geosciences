@@ -24,4 +24,4 @@
 #pragma once
 
 #include <geode/basic/common.h>
-#include <geode/geosciences/opengeode_geosciences_geosciences_export.h>
+#include <geode/geosciences/opengeode-geosciences_geosciences_export.h>
