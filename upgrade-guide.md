@@ -21,3 +21,4 @@ Following the same organization principle than OpenGeode v2.
 ### Breaking Changes
 
 - Files have been reorganized by adding two folders: mixin and representation.
+
