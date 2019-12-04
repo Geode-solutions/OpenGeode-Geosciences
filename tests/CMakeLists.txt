@@ -20,10 +20,10 @@
 
 cmake_minimum_required(VERSION 3.7.2)
 
-if(NOT TARGET OpenGeode_Geosciences::geosciences)
-    project(OpenGeode_Geosciences CXX)
+if(NOT TARGET OpenGeode-Geosciences::geosciences)
+    project(OpenGeode-Geosciences CXX)
     find_package(OpenGeode REQUIRED CONFIG)
-    find_package(OpenGeode_Geosciences REQUIRED CONFIG)
+    find_package(OpenGeode-Geosciences REQUIRED CONFIG)
     enable_testing()
 endif()
 

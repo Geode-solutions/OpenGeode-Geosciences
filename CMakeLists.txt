@@ -21,17 +21,17 @@
 cmake_minimum_required(VERSION 3.7.2)
 
 # Define the project
-project(OpenGeode_Geosciences CXX)
+project(OpenGeode-Geosciences CXX)
 
 option(OPENGEODE_GEOSCIENCES_WITH_TESTS "Compile test projects" ON)
 
-# Get OpenGeode_Geosciences dependencies
+# Get OpenGeode-Geosciences dependencies
 find_package(OpenGeode REQUIRED)
 
 copy_windows_binaries(OpenGeode::model)
 
 #------------------------------------------------------------------------------------------------
-# Configure the OpenGeode_Geosciences libraries
+# Configure the OpenGeode-Geosciences libraries
 add_geode_library(geode/geosciences)
 
 #------------------------------------------------------------------------------------------------
@@ -39,7 +39,7 @@ add_geode_library(geode/geosciences)
 if(OPENGEODE_GEOSCIENCES_WITH_TESTS)
     # Enable testing with CTest
     enable_testing()
-    message(STATUS "Configuring OpenGeode_Geosciences with tests")
+    message(STATUS "Configuring OpenGeode-Geosciences with tests")
     add_subdirectory(tests)
 endif()
 
