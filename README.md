@@ -32,7 +32,7 @@ OpenGeode-Geosciences is a module of [OpenGeode] provides data structures for ge
 
 ## Documentation
 
-To check out our live documentation, visit https://docs.geode-solutions.com/opengeode-geosciences.
+To check out our live documentation, visit [docs.geode-solutions.com](https://docs.geode-solutions.com).
 
 
 ## Questions
