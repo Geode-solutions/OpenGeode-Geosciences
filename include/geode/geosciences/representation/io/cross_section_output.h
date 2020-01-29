@@ -43,7 +43,7 @@ namespace geode
      * @param[in] filename Path to the file where save the CrossSection.
      */
     void opengeode_geosciences_geosciences_api save_cross_section(
-        const CrossSection& cross_section, const std::string& filename );
+        const CrossSection& cross_section, absl::string_view filename );
 
     class opengeode_geosciences_geosciences_api CrossSectionOutput
         : public Output
@@ -53,7 +53,7 @@ namespace geode
 
     protected:
         CrossSectionOutput(
-            const CrossSection& cross_section, std::string filename );
+            const CrossSection& cross_section, absl::string_view filename );
 
         const CrossSection& cross_section() const
         {
@@ -67,5 +67,5 @@ namespace geode
     using CrossSectionOutputFactory = Factory< std::string,
         CrossSectionOutput,
         const CrossSection&,
-        std::string >;
+        absl::string_view >;
 } // namespace geode

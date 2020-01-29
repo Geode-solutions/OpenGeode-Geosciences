@@ -26,12 +26,13 @@
 namespace geode
 {
     void load_cross_section(
-        CrossSection& cross_section, const std::string& filename )
+        CrossSection& cross_section, absl::string_view filename )
     {
         try
         {
             auto input = CrossSectionInputFactory::create(
-                extension_from_filename( filename ), cross_section, filename );
+                extension_from_filename( filename ).data(), cross_section,
+                filename );
             input->read();
         }
         catch( const OpenGeodeException& e )
@@ -45,8 +46,8 @@ namespace geode
     }
 
     CrossSectionInput::CrossSectionInput(
-        CrossSection& cross_section, std::string filename )
-        : Input{ std::move( filename ) }, cross_section_( cross_section )
+        CrossSection& cross_section, absl::string_view filename )
+        : Input{ filename }, cross_section_( cross_section )
     {
     }
 } // namespace geode

@@ -44,7 +44,7 @@ namespace geode
      * @param[in] filename Path to the file to load.
      */
     void opengeode_geosciences_geosciences_api load_structural_model(
-        StructuralModel& structural_model, const std::string& filename );
+        StructuralModel& structural_model, absl::string_view filename );
 
     class opengeode_geosciences_geosciences_api StructuralModelInput
         : public Input
@@ -54,7 +54,7 @@ namespace geode
 
     protected:
         StructuralModelInput(
-            StructuralModel& structural_model, std::string filename );
+            StructuralModel& structural_model, absl::string_view filename );
 
         StructuralModel& structural_model()
         {
@@ -68,5 +68,5 @@ namespace geode
     using StructuralModelInputFactory = Factory< std::string,
         StructuralModelInput,
         StructuralModel&,
-        std::string >;
+        absl::string_view >;
 } // namespace geode

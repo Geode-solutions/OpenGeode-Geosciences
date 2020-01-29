@@ -26,12 +26,12 @@
 namespace geode
 {
     void load_structural_model(
-        StructuralModel& structural_model, const std::string& filename )
+        StructuralModel& structural_model, absl::string_view filename )
     {
         try
         {
             auto input = StructuralModelInputFactory::create(
-                extension_from_filename( filename ), structural_model,
+                extension_from_filename( filename ).data(), structural_model,
                 filename );
             input->read();
         }
@@ -45,8 +45,8 @@ namespace geode
     }
 
     StructuralModelInput::StructuralModelInput(
-        StructuralModel& structural_model, std::string filename )
-        : Input{ std::move( filename ) }, structural_model_( structural_model )
+        StructuralModel& structural_model, absl::string_view filename )
+        : Input{ filename }, structural_model_( structural_model )
     {
     }
 } // namespace geode
