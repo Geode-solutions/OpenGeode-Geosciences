@@ -93,9 +93,9 @@ namespace geode
         void set_type( HORIZON_TYPE type );
 
         friend class HorizonsBuilder< dimension >;
-        void set_horizon_name( std::string name )
+        void set_horizon_name( absl::string_view name )
         {
-            this->set_name( std::move( name ) );
+            this->set_name( name );
         }
 
     private:

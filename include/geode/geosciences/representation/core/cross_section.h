@@ -66,12 +66,13 @@ namespace geode
             const CrossSection& cross_section_;
         };
 
-        static std::string native_extension_static()
+        static absl::string_view native_extension_static()
         {
-            return "og_xsctn";
+            static constexpr auto ext = "og_xsctn";
+            return ext;
         }
 
-        std::string native_extension() const
+        absl::string_view native_extension() const
         {
             return native_extension_static();
         }

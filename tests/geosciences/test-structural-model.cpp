@@ -126,8 +126,8 @@ void do_checks( const geode::StructuralModel& model,
             continue;
         }
         OPENGEODE_EXCEPTION( model.nb_collections( surface_uuids[i] ) == 1,
-            "[Test] Number of collections in which surfaces_uuids["
-                + std::to_string( i ) + "] is should be 1" );
+            "[Test] Number of collections in which surfaces_uuids[", i,
+            "] is should be 1" );
     }
 
     OPENGEODE_EXCEPTION(
@@ -197,7 +197,7 @@ void check_reloaded_model( const geode::StructuralModel& reloaded_model )
 
 void test_io( const geode::StructuralModel& model )
 {
-    const std::string file_io{ "test." + model.native_extension() };
+    const auto file_io = absl::StrCat( "test.", model.native_extension() );
     save_structural_model( model, file_io );
 
     geode::StructuralModel reloaded_model;

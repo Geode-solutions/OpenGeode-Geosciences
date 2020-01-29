@@ -34,28 +34,28 @@ namespace
     {
         geode::CrossSectionInputFactory::register_creator<
             geode::OpenGeodeCrossSectionInput >(
-            geode::OpenGeodeCrossSectionOutput::extension() );
+            geode::OpenGeodeCrossSectionInput::extension().data() );
     }
 
     void register_cross_section_output()
     {
         geode::CrossSectionOutputFactory::register_creator<
             geode::OpenGeodeCrossSectionOutput >(
-            geode::OpenGeodeCrossSectionOutput::extension() );
+            geode::OpenGeodeCrossSectionOutput::extension().data() );
     }
 
     void register_structural_model_input()
     {
         geode::StructuralModelInputFactory::register_creator<
             geode::OpenGeodeStructuralModelInput >(
-            geode::OpenGeodeStructuralModelOutput::extension() );
+            geode::OpenGeodeStructuralModelInput::extension().data() );
     }
 
     void register_structural_model_output()
     {
         geode::StructuralModelOutputFactory::register_creator<
             geode::OpenGeodeStructuralModelOutput >(
-            geode::OpenGeodeStructuralModelOutput::extension() );
+            geode::OpenGeodeStructuralModelOutput::extension().data() );
     }
 
     OPENGEODE_LIBRARY_INITIALIZE( geosciences )

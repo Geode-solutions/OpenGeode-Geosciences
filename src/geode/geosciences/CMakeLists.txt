@@ -22,6 +22,7 @@ add_geode_library(
     NAME geosciences
     FOLDER "geode/geosciences"
     SOURCES
+        "common.cpp"
         "mixin/builder/faults_builder.cpp"
         "mixin/builder/horizons_builder.cpp"
         "mixin/core/bitsery_archive.cpp"

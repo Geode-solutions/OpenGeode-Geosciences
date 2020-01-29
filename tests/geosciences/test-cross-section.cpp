@@ -126,8 +126,8 @@ void do_checks( const geode::CrossSection& model,
             continue;
         }
         OPENGEODE_EXCEPTION( model.nb_collections( line_uuids[i] ) == 1,
-            "[Test] Number of collections in which line_uuids["
-                + std::to_string( i ) + "] is should be 1" );
+            "[Test] Number of collections in which line_uuids[", i,
+            "] is should be 1" );
     }
 
     OPENGEODE_EXCEPTION(
@@ -197,7 +197,7 @@ void check_reloaded_model( const geode::CrossSection& reloaded_model )
 
 void test_io( const geode::CrossSection& model )
 {
-    const std::string file_io{ "test." + model.native_extension() };
+    const auto file_io = absl::StrCat( "test.", model.native_extension() );
     save_cross_section( model, file_io );
 
     geode::CrossSection reloaded_model;

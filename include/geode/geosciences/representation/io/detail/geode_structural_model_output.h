@@ -37,13 +37,13 @@ namespace geode
     class OpenGeodeStructuralModelOutput final : public StructuralModelOutput
     {
     public:
-        OpenGeodeStructuralModelOutput(
-            const StructuralModel& structural_model, std::string filename )
-            : StructuralModelOutput( structural_model, std::move( filename ) )
+        OpenGeodeStructuralModelOutput( const StructuralModel& structural_model,
+            absl::string_view filename )
+            : StructuralModelOutput( structural_model, filename )
         {
         }
 
-        static std::string extension()
+        static absl::string_view extension()
         {
             return StructuralModel::native_extension_static();
         }
@@ -52,11 +52,9 @@ namespace geode
         {
             OpenGeodeBRepOutput brep_output{ structural_model(), filename() };
             const ZipFile zip_writer{ filename(), uuid{}.string() };
+            structural_model().save_faults( zip_writer.directory() );
+            structural_model().save_horizons( zip_writer.directory() );
             brep_output.archive_brep_files( zip_writer );
-            zip_writer.archive_files(
-                structural_model().save_faults( zip_writer.directory() ) );
-            zip_writer.archive_files(
-                structural_model().save_horizons( zip_writer.directory() ) );
         }
     };
 } // namespace geode

@@ -49,7 +49,7 @@ namespace geode
     }
 
     template < index_t dimension >
-    void FaultsBuilder< dimension >::load_faults( const std::string& directory )
+    void FaultsBuilder< dimension >::load_faults( absl::string_view directory )
     {
         return faults_.load_faults( directory );
     }
@@ -63,9 +63,9 @@ namespace geode
 
     template < index_t dimension >
     void FaultsBuilder< dimension >::set_fault_name(
-        const uuid& id, std::string name )
+        const uuid& id, absl::string_view name )
     {
-        faults_.modifiable_fault( id ).set_fault_name( std::move( name ) );
+        faults_.modifiable_fault( id ).set_fault_name( name );
     }
 
     template class opengeode_geosciences_geosciences_api FaultsBuilder< 2 >;

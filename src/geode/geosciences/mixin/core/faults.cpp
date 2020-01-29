@@ -66,19 +66,15 @@ namespace geode
     }
 
     template < index_t dimension >
-    std::vector< std::string > Faults< dimension >::save_faults(
-        const std::string& directory ) const
+    void Faults< dimension >::save_faults( absl::string_view directory ) const
     {
-        std::vector< std::string > files;
-        files.emplace_back( directory + "/faults" );
-        impl_->save_components( files.back() );
-        return files;
+        impl_->save_components( absl::StrCat( directory, "/faults" ) );
     }
 
     template < index_t dimension >
-    void Faults< dimension >::load_faults( const std::string& directory )
+    void Faults< dimension >::load_faults( absl::string_view directory )
     {
-        impl_->load_components( directory + "/faults" );
+        impl_->load_components( absl::StrCat( directory, "/faults" ) );
     }
 
     template < index_t dimension >
