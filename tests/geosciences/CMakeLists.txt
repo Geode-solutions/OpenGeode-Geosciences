@@ -18,14 +18,18 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-add_geode_test(test-structural-model.cpp 
-    OpenGeode::basic
-    OpenGeode::model
-    ${PROJECT_NAME}::geosciences
+add_geode_test(
+    SOURCE "test-structural-model.cpp"
+    DEPENDENCIES
+        OpenGeode::basic
+        OpenGeode::model
+        ${PROJECT_NAME}::geosciences
 )
 
-add_geode_test(test-cross-section.cpp 
-    OpenGeode::basic
-    OpenGeode::model
-    ${PROJECT_NAME}::geosciences
+add_geode_test(
+    SOURCE "test-cross-section.cpp"
+    DEPENDENCIES
+        OpenGeode::basic
+        OpenGeode::model
+        ${PROJECT_NAME}::geosciences
 )

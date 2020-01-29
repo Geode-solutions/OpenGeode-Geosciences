@@ -26,13 +26,13 @@
 namespace geode
 {
     void save_structural_model(
-        const StructuralModel& structural_model, const std::string& filename )
+        const StructuralModel& structural_model, absl::string_view filename )
     {
         try
         {
             const auto output = StructuralModelOutputFactory::create(
-                extension_from_filename( filename ), structural_model,
-                filename.c_str() );
+                extension_from_filename( filename ).data(), structural_model,
+                filename );
             output->write();
         }
         catch( const OpenGeodeException& e )
@@ -46,8 +46,8 @@ namespace geode
     }
 
     StructuralModelOutput::StructuralModelOutput(
-        const StructuralModel& structural_model, std::string filename )
-        : Output{ std::move( filename ) }, structural_model_( structural_model )
+        const StructuralModel& structural_model, absl::string_view filename )
+        : Output{ filename }, structural_model_( structural_model )
     {
     }
 } // namespace geode

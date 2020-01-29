@@ -44,7 +44,7 @@ namespace geode
      * @param[in] filename Path to the file to load.
      */
     void opengeode_geosciences_geosciences_api load_cross_section(
-        CrossSection& cross_section, const std::string& filename );
+        CrossSection& cross_section, absl::string_view filename );
 
     class opengeode_geosciences_geosciences_api CrossSectionInput : public Input
     {
@@ -52,7 +52,8 @@ namespace geode
         virtual ~CrossSectionInput() = default;
 
     protected:
-        CrossSectionInput( CrossSection& cross_section, std::string filename );
+        CrossSectionInput(
+            CrossSection& cross_section, absl::string_view filename );
 
         CrossSection& cross_section()
         {
@@ -63,6 +64,8 @@ namespace geode
         CrossSection& cross_section_;
     };
 
-    using CrossSectionInputFactory =
-        Factory< std::string, CrossSectionInput, CrossSection&, std::string >;
+    using CrossSectionInputFactory = Factory< std::string,
+        CrossSectionInput,
+        CrossSection&,
+        absl::string_view >;
 } // namespace geode

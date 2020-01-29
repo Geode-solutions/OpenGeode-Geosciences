@@ -26,13 +26,13 @@
 namespace geode
 {
     void save_cross_section(
-        const CrossSection& cross_section, const std::string& filename )
+        const CrossSection& cross_section, absl::string_view filename )
     {
         try
         {
             const auto output = CrossSectionOutputFactory::create(
-                extension_from_filename( filename ), cross_section,
-                filename.c_str() );
+                extension_from_filename( filename ).data(), cross_section,
+                filename );
             output->write();
         }
         catch( const OpenGeodeException& e )
@@ -46,8 +46,8 @@ namespace geode
     }
 
     CrossSectionOutput::CrossSectionOutput(
-        const CrossSection& cross_section, std::string filename )
-        : Output{ std::move( filename ) }, cross_section_( cross_section )
+        const CrossSection& cross_section, absl::string_view filename )
+        : Output{ filename }, cross_section_( cross_section )
     {
     }
 } // namespace geode

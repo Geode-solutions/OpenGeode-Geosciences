@@ -18,36 +18,4 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-cmake_minimum_required(VERSION 3.7.2)
-
-# Define the project
-project(OpenGeode-Geosciences CXX)
-
-option(OPENGEODE_GEOSCIENCES_WITH_TESTS "Compile test projects" ON)
-
-# Get OpenGeode-Geosciences dependencies
-find_package(OpenGeode REQUIRED)
-
-#------------------------------------------------------------------------------------------------
-# Configure the OpenGeode-Geosciences libraries
-add_subdirectory(src/geode)
-
-#------------------------------------------------------------------------------------------------
-# Optional modules configuration
-if(OPENGEODE_GEOSCIENCES_WITH_TESTS)
-    # Enable testing with CTest
-    enable_testing()
-    message(STATUS "Configuring OpenGeode-Geosciences with tests")
-    add_subdirectory(tests)
-endif()
-
-#------------------------------------------------------------------------------------------------
-# Configure CPacks
-if(WIN32)
-    set(CPACK_GENERATOR "ZIP")
-else()
-    set(CPACK_GENERATOR "TGZ")
-endif()
-
-# This must always be last!
-include(CPack)
+add_subdirectory(geosciences)
