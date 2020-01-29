@@ -68,19 +68,16 @@ namespace geode
     }
 
     template < index_t dimension >
-    std::vector< std::string > Horizons< dimension >::save_horizons(
-        const std::string& directory ) const
+    void Horizons< dimension >::save_horizons(
+        absl::string_view directory ) const
     {
-        std::vector< std::string > files;
-        files.emplace_back( directory + "/horizons" );
-        impl_->save_components( files.back() );
-        return files;
+        impl_->save_components( absl::StrCat( directory, "/horizons" ) );
     }
 
     template < index_t dimension >
-    void Horizons< dimension >::load_horizons( const std::string& directory )
+    void Horizons< dimension >::load_horizons( absl::string_view directory )
     {
-        impl_->load_components( directory + "/horizons" );
+        impl_->load_components( absl::StrCat( directory, "/horizons" ) );
     }
 
     template < index_t dimension >

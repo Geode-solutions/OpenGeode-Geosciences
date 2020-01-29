@@ -50,7 +50,7 @@ namespace geode
 
     template < index_t dimension >
     void HorizonsBuilder< dimension >::load_horizons(
-        const std::string& directory )
+        absl::string_view directory )
     {
         return horizons_.load_horizons( directory );
     }
@@ -64,10 +64,9 @@ namespace geode
 
     template < index_t dimension >
     void HorizonsBuilder< dimension >::set_horizon_name(
-        const uuid& id, std::string name )
+        const uuid& id, absl::string_view name )
     {
-        horizons_.modifiable_horizon( id ).set_horizon_name(
-            std::move( name ) );
+        horizons_.modifiable_horizon( id ).set_horizon_name( name );
     }
 
     template class opengeode_geosciences_geosciences_api HorizonsBuilder< 2 >;

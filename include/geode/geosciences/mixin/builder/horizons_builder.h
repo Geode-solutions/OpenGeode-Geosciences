@@ -39,12 +39,12 @@ namespace geode
     class HorizonsBuilder
     {
     public:
-        void load_horizons( const std::string& directory );
+        void load_horizons( absl::string_view directory );
 
         void set_horizon_type( const uuid& horizon_id,
             typename Horizon< dimension >::HORIZON_TYPE type );
 
-        void set_horizon_name( const uuid& id, std::string name );
+        void set_horizon_name( const uuid& id, absl::string_view name );
 
     protected:
         HorizonsBuilder( Horizons< dimension >& horizons )

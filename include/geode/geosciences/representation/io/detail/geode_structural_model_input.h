@@ -40,12 +40,12 @@ namespace geode
     {
     public:
         OpenGeodeStructuralModelInput(
-            StructuralModel& structural_model, std::string filename )
-            : StructuralModelInput{ structural_model, std::move( filename ) }
+            StructuralModel& structural_model, absl::string_view filename )
+            : StructuralModelInput{ structural_model, filename }
         {
         }
 
-        static std::string extension()
+        static absl::string_view extension()
         {
             return StructuralModel::native_extension_static();
         }

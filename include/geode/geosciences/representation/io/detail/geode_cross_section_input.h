@@ -40,12 +40,12 @@ namespace geode
     {
     public:
         OpenGeodeCrossSectionInput(
-            CrossSection& cross_section, std::string filename )
-            : CrossSectionInput{ cross_section, std::move( filename ) }
+            CrossSection& cross_section, absl::string_view filename )
+            : CrossSectionInput{ cross_section, filename }
         {
         }
 
-        static std::string extension()
+        static absl::string_view extension()
         {
             return CrossSection::native_extension_static();
         }

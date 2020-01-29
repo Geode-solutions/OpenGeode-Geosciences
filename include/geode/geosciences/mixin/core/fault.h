@@ -96,9 +96,9 @@ namespace geode
         void set_type( FAULT_TYPE type );
 
         friend class FaultsBuilder< dimension >;
-        void set_fault_name( std::string name )
+        void set_fault_name( absl::string_view name )
         {
-            this->set_name( std::move( name ) );
+            this->set_name( name );
         }
 
     private:

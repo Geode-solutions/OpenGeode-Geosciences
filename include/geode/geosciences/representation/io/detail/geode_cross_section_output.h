@@ -38,12 +38,12 @@ namespace geode
     {
     public:
         OpenGeodeCrossSectionOutput(
-            const CrossSection& cross_section, std::string filename )
-            : CrossSectionOutput( cross_section, std::move( filename ) )
+            const CrossSection& cross_section, absl::string_view filename )
+            : CrossSectionOutput( cross_section, filename )
         {
         }
 
-        static std::string extension()
+        static absl::string_view extension()
         {
             return CrossSection::native_extension_static();
         }
@@ -53,11 +53,9 @@ namespace geode
             OpenGeodeSectionOutput section_output{ cross_section(),
                 filename() };
             const ZipFile zip_writer{ filename(), uuid{}.string() };
+            cross_section().save_faults( zip_writer.directory() );
+            cross_section().save_horizons( zip_writer.directory() );
             section_output.archive_section_files( zip_writer );
-            zip_writer.archive_files(
-                cross_section().save_faults( zip_writer.directory() ) );
-            zip_writer.archive_files(
-                cross_section().save_horizons( zip_writer.directory() ) );
         }
     };
 } // namespace geode
