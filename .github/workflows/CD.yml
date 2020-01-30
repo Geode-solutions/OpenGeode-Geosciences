@@ -11,8 +11,8 @@ jobs:
     strategy:
       matrix:
         config:
-        - {container: "geodesolutions/ubuntu", system: "ubuntu"}
-        - {container: "geodesolutions/centos", system: "rhel"}
+        - {container: "geodesolutions/ubuntu", system: "ubuntu", doc: true}
+        - {container: "geodesolutions/centos", system: "rhel", doc: false}
 
     steps:
     - uses: actions/checkout@v1
@@ -39,6 +39,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Doc
+      if: matrix.config.doc
       run: curl -s https://raw.githubusercontent.com/Geode-solutions/actions/master/doc/doc.sh | bash -s -- ${GITHUB_WORKSPACE}/build
       env:
         GITHUB_TOKEN: ${{ secrets.TOKEN }}
