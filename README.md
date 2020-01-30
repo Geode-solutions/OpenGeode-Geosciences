@@ -19,7 +19,12 @@
   <img src="https://img.shields.io/badge/C%2B%2B-11-blue.svg" alt="Language">
   <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License">
   <img src="https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg" alt="Semantic-release">
-  <a href="https://slackin-opengeode.herokuapp.com"><img src="https://slackin-opengeode.herokuapp.com/badge.svg" alt="Slack invite"></a>
+  <a href="https://slackin-opengeode.herokuapp.com">
+    <img src="https://slackin-opengeode.herokuapp.com/badge.svg" alt="Slack invite">
+  </a>
+  <a href="https://doi.org/10.5281/zenodo.3610370">
+    <img src="https://zenodo.org/badge/DOI/10.5281/zenodo.3610370.svg" alt="DOI">
+  </a>
 </p>
 
 ---

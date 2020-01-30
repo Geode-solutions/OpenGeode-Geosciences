@@ -16,17 +16,17 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.TOKEN }}
       
-  build-ubuntu:
+  build-linux:
     runs-on: ubuntu-18.04
     container: ${{ matrix.config.container }}
     needs: format
     strategy:
       matrix:
         config:
-        - {container: "geodesolutions/ubuntu", cmake_args: "-DCMAKE_BUILD_TYPE=Debug", coverage: true}
-        - {container: "geodesolutions/ubuntu", cmake_args: "-DCMAKE_BUILD_TYPE=Release -DUSE_BENCHMARK=ON", coverage: false}
-        - {container: "geodesolutions/centos", cmake_args: "-DCMAKE_BUILD_TYPE=Debug", coverage: false}
-        - {container: "geodesolutions/centos", cmake_args: "-DCMAKE_BUILD_TYPE=Release", coverage: false}
+        - {container: "geodesolutions/ubuntu", cmake_args: "-DCMAKE_BUILD_TYPE=Debug"}
+        - {container: "geodesolutions/ubuntu", cmake_args: "-DCMAKE_BUILD_TYPE=Release -DUSE_BENCHMARK=ON"}
+        - {container: "geodesolutions/centos", cmake_args: "-DCMAKE_BUILD_TYPE=Debug"}
+        - {container: "geodesolutions/centos", cmake_args: "-DCMAKE_BUILD_TYPE=Release"}
 
 
     steps:
@@ -50,11 +50,38 @@ jobs:
         cmake ${{ matrix.config.cmake_args }} -DCMAKE_PREFIX_PATH:PATH="$GITHUB_WORKSPACE/build;$GITHUB_WORKSPACE/${{ steps.opengeode.outputs.path }}" ../tests
         cmake --build . -- -j2
         ctest --output-on-failure
+    - name: Notify slack
+      if: failure() && github.ref == 'refs/heads/master'
+      uses: 8398a7/action-slack@v2
+      with:
+        status: failure
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}        
+      
+  coverage:
+    runs-on: ubuntu-18.04
+    needs: format
+    if: (github.event_name == 'pull_request' || github.ref == 'refs/heads/master')
+
+
+    steps:
+    - uses: actions/checkout@v1
+    - uses: Geode-solutions/actions/get-release@master
+      id: opengeode
+      with:
+        repository: OpenGeode
+        file: '-ubuntu.tar.gz'
+        token: ${{ secrets.TOKEN }}
+    - name: Compile
+      run: |
+        mkdir -p build
+        cd build
+        cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_PREFIX_PATH:PATH=${{ steps.opengeode.outputs.path }} ..
+        cmake --build . -- -j2
     - name: Kcov
       run: curl -s https://raw.githubusercontent.com/Geode-solutions/actions/master/kcov.sh | bash -s -- ${GITHUB_WORKSPACE}/build/bin
-      if: matrix.config.coverage && (github.event_name == 'pull_request' || github.ref == 'refs/heads/master')
     - uses: codecov/codecov-action@v1.0.2
-      if: matrix.config.coverage && (github.event_name == 'pull_request' || github.ref == 'refs/heads/master')
       with: 
         token: ${{ secrets.CODECOV_TOKEN }}
         file: kcov/kcov-merged/cobertura.xml
@@ -67,37 +94,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}        
       
-  build-mac:
-    runs-on: macos-latest
-    needs: format
-    strategy:
-      matrix:
-        config: [Debug, Release]
-
-    steps:
-    - uses: actions/checkout@v1
-    - uses: Geode-solutions/actions/get-release@master
-      id: opengeode
-      with:
-        repository: OpenGeode
-        file: '-Darwin.tar.gz'
-        token: ${{ secrets.TOKEN }}
-    - name: Compile & Test
-      run: |
-        mkdir -p build
-        cd build
-        cmake -DCMAKE_BUILD_TYPE=${{ matrix.config }} -DCMAKE_PREFIX_PATH:PATH=${{ steps.opengeode.outputs.path }} ..
-        cmake --build .
-        ctest --output-on-failure
-    - name: Notify slack
-      if: failure() && github.ref == 'refs/heads/master'
-      uses: 8398a7/action-slack@v2
-      with:
-        status: failure
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} 
-
   build-mac-xcode:
     runs-on: macos-latest
     needs: format
@@ -111,7 +107,7 @@ jobs:
       id: opengeode
       with:
         repository: OpenGeode
-        file: '-Darwin.tar.gz'
+        file: '-darwin.tar.gz'
         token: ${{ secrets.TOKEN }}
     - name: Compile & Test
       run: |
@@ -162,7 +158,7 @@ jobs:
         
   semantic-release:
     runs-on: ubuntu-18.04
-    needs: [build-ubuntu, build-mac, build-mac-xcode, build-windows]
+    needs: [build-linux, coverage, build-mac-xcode, build-windows]
     steps:
     - uses: actions/checkout@v1
     - run: npx semantic-release
