@@ -53,6 +53,7 @@ namespace geode
             OpenGeodeSectionOutput section_output{ cross_section(),
                 filename() };
             const ZipFile zip_writer{ filename(), uuid{}.string() };
+            section_output.save_section_files( zip_writer.directory() );
             cross_section().save_faults( zip_writer.directory() );
             cross_section().save_horizons( zip_writer.directory() );
             section_output.archive_section_files( zip_writer );
