@@ -12,7 +12,7 @@ jobs:
       matrix:
         config:
         - {container: "geodesolutions/ubuntu", system: "ubuntu"}
-        - {container: "geodesolutions/centos", system: "RHEL"}
+        - {container: "geodesolutions/centos", system: "rhel"}
 
     steps:
     - uses: actions/checkout@v1
