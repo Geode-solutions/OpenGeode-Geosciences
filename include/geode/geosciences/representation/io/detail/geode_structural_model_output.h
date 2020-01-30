@@ -52,6 +52,7 @@ namespace geode
         {
             OpenGeodeBRepOutput brep_output{ structural_model(), filename() };
             const ZipFile zip_writer{ filename(), uuid{}.string() };
+            brep_output.save_brep_files( zip_writer.directory() );
             structural_model().save_faults( zip_writer.directory() );
             structural_model().save_horizons( zip_writer.directory() );
             brep_output.archive_brep_files( zip_writer );

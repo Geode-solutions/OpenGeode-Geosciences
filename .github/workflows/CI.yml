@@ -35,7 +35,7 @@ jobs:
       id: opengeode
       with:
         repository: OpenGeode
-        file: '-Linux.tar.gz'
+        file: '-${{ matrix.config.system }}.tar.gz'
         token: ${{ secrets.TOKEN }}
     - name: Compile
       run: |
