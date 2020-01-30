@@ -5,7 +5,7 @@ on:
     tags: 'v*'
 
 jobs:      
-  release-ubuntu:
+  release-linux:
     runs-on: ubuntu-18.04
     container: ${{ matrix.config.container }}
     strategy:
@@ -20,12 +20,11 @@ jobs:
       id: opengeode
       with:
         repository: OpenGeode
-        file: '-Linux.tar.gz'
+        file: '-${{ matrix.config.system }}.tar.gz'
         token: ${{ secrets.TOKEN }}
     - name: Generate package
       id: package
       run: |
-        sudo apt install doxygen
         mkdir -p build
         cd build
         version="${GITHUB_REF##*/*/}"
@@ -61,7 +60,7 @@ jobs:
       id: opengeode
       with:
         repository: OpenGeode
-        file: '-Darwin.tar.gz'
+        file: '-darwin.tar.gz'
         token: ${{ secrets.TOKEN }}
     - name: Generate package
       id: package
@@ -70,13 +69,13 @@ jobs:
         cd build
         version="${GITHUB_REF##*/*/}"
         echo ::set-output name=version::$version
-        cmake -G "Xcode" -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH:PATH=${{ steps.opengeode.outputs.path }} -DOPENGEODE_GEOSCIENCES_WITH_TESTS:BOOL=OFF -DCPACK_PACKAGE_VERSION:STRING=$version ..
+        cmake -G "Xcode" -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH:PATH=${{ steps.opengeode.outputs.path }} -DOPENGEODE_GEOSCIENCES_WITH_TESTS:BOOL=OFF -DCPACK_PACKAGE_VERSION:STRING=$version -DCPACK_SYSTEM_NAME:STRING=darwin ..
         cmake --build . --config Release
         cmake --build . --target package --config Release
     - name: Upload
       uses: softprops/action-gh-release@v1
       with:
-        files: "build/OpenGeode-Geosciences-${{ steps.package.outputs.version }}-Darwin.tar.gz"
+        files: "build/OpenGeode-Geosciences-${{ steps.package.outputs.version }}-darwin.tar.gz"
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Notify slack
@@ -106,7 +105,7 @@ jobs:
         cd build
         version="${GITHUB_REF##*/*/}"
         echo ::set-output name=version::$version
-        cmake -G "Visual Studio 15 2017 Win64" -DCMAKE_PREFIX_PATH:PATH=${{ steps.opengeode.outputs.path }} -DOPENGEODE_GEOSCIENCES_WITH_TESTS:BOOL=OFF -DCPACK_PACKAGE_VERSION:STRING=$version ..
+        cmake -G "Visual Studio 15 2017 Win64" -DCMAKE_PREFIX_PATH:PATH=${{ steps.opengeode.outputs.path }} -DOPENGEODE_GEOSCIENCES_WITH_TESTS:BOOL=OFF -DCPACK_PACKAGE_VERSION:STRING=$version -DCPACK_SYSTEM_NAME:STRING=win64 ..
         cmake --build . --config Release
         cmake --build . --target PACKAGE --config Release
       shell: bash
