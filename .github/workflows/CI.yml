@@ -23,10 +23,10 @@ jobs:
     strategy:
       matrix:
         config:
-        - {container: "geodesolutions/ubuntu", cmake_args: "-DCMAKE_BUILD_TYPE=Debug"}
-        - {container: "geodesolutions/ubuntu", cmake_args: "-DCMAKE_BUILD_TYPE=Release -DUSE_BENCHMARK=ON"}
-        - {container: "geodesolutions/centos", cmake_args: "-DCMAKE_BUILD_TYPE=Debug"}
-        - {container: "geodesolutions/centos", cmake_args: "-DCMAKE_BUILD_TYPE=Release"}
+        - {container: "geodesolutions/ubuntu", cmake_args: "-DCMAKE_BUILD_TYPE=Debug", system: ubuntu}
+        - {container: "geodesolutions/ubuntu", cmake_args: "-DCMAKE_BUILD_TYPE=Release -DUSE_BENCHMARK=ON", system: ubuntu}
+        - {container: "geodesolutions/centos", cmake_args: "-DCMAKE_BUILD_TYPE=Debug", system: rhel}
+        - {container: "geodesolutions/centos", cmake_args: "-DCMAKE_BUILD_TYPE=Release", system: rhel}
 
 
     steps:
