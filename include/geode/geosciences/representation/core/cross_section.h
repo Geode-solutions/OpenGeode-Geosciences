@@ -66,10 +66,9 @@ namespace geode
             const CrossSection& cross_section_;
         };
 
-        static absl::string_view native_extension_static()
+        static constexpr absl::string_view native_extension_static()
         {
-            static constexpr auto ext = "og_xsctn";
-            return ext;
+            return "og_xsctn";
         }
 
         absl::string_view native_extension() const

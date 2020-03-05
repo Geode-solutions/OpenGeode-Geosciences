@@ -67,10 +67,9 @@ namespace geode
             const StructuralModel& structural_model_;
         };
 
-        static absl::string_view native_extension_static()
+        static constexpr absl::string_view native_extension_static()
         {
-            static constexpr auto ext = "og_strm";
-            return ext;
+            return "og_strm";
         }
 
         absl::string_view native_extension() const
