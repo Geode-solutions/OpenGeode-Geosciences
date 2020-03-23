@@ -103,9 +103,9 @@ void add_surfaces( geode::StructuralModelBuilder& builder )
 }
 
 void do_checks( const geode::StructuralModel& model,
-    const std::vector< geode::uuid >& surface_uuids,
-    const std::vector< geode::uuid >& faults_uuids,
-    const std::vector< geode::uuid >& horizons_uuids )
+    absl::Span< const geode::uuid > surface_uuids,
+    absl::Span< const geode::uuid > faults_uuids,
+    absl::Span< const geode::uuid > horizons_uuids )
 {
     OPENGEODE_EXCEPTION( model.nb_items( faults_uuids[0] ) == 3,
         "[Test] Number of items in fault_uuids[0] should be 3" );
@@ -150,7 +150,7 @@ void build_relations_between_geometry_and_geology(
         surfaces_uuids.push_back( surface.id() );
     }
     std::vector< geode::uuid > faults_uuids;
-    surfaces_uuids.reserve( model.nb_faults() );
+    faults_uuids.reserve( model.nb_faults() );
     for( const auto& fault : model.faults() )
     {
         faults_uuids.push_back( fault.id() );
