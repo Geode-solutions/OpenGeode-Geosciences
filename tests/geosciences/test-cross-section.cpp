@@ -103,9 +103,9 @@ void add_lines( geode::CrossSectionBuilder& builder )
 }
 
 void do_checks( const geode::CrossSection& model,
-    const std::vector< geode::uuid >& line_uuids,
-    const std::vector< geode::uuid >& faults_uuids,
-    const std::vector< geode::uuid >& horizons_uuids )
+    absl::Span< const geode::uuid > line_uuids,
+    absl::Span< const geode::uuid > faults_uuids,
+    absl::Span< const geode::uuid > horizons_uuids )
 {
     OPENGEODE_EXCEPTION( model.nb_items( faults_uuids[0] ) == 3,
         "[Test] Number of items in fault_uuids[0] should be 3" );
@@ -143,14 +143,14 @@ void do_checks( const geode::CrossSection& model,
 void build_relations_between_geometry_and_geology(
     geode::CrossSection& model, geode::CrossSectionBuilder& builder )
 {
-    std::vector< geode::uuid > lines_uuids;
-    lines_uuids.reserve( model.nb_lines() );
+    absl::FixedArray< geode::uuid > lines_uuids( model.nb_lines() );
+    geode::index_t l{ 0 };
     for( const auto& line : model.lines() )
     {
-        lines_uuids.push_back( line.id() );
+        lines_uuids[l++] = line.id();
     }
     std::vector< geode::uuid > faults_uuids;
-    lines_uuids.reserve( model.nb_faults() );
+    faults_uuids.reserve( model.nb_faults() );
     for( const auto& fault : model.faults() )
     {
         faults_uuids.push_back( fault.id() );
