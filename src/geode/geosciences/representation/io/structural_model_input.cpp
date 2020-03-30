@@ -23,6 +23,8 @@
 
 #include <geode/geosciences/representation/io/structural_model_input.h>
 
+#include <geode/geosciences/representation/core/structural_model.h>
+
 namespace geode
 {
     void load_structural_model(
@@ -34,6 +36,13 @@ namespace geode
                 extension_from_filename( filename ).data(), structural_model,
                 filename );
             input->read();
+            Logger::info( "StructuralModel loaded from ", filename );
+            Logger::info( "StructuralModel has: ", structural_model.nb_blocks(),
+                " Blocks, ", structural_model.nb_surfaces(), " Surfaces, ",
+                structural_model.nb_lines(), " Lines, ",
+                structural_model.nb_corners(), " Corners, ",
+                structural_model.nb_faults(), " Faults and ",
+                structural_model.nb_horizons(), " Horizons" );
         }
         catch( const OpenGeodeException& e )
         {

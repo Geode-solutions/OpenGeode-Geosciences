@@ -23,6 +23,8 @@
 
 #include <geode/geosciences/representation/io/cross_section_input.h>
 
+#include <geode/geosciences/representation/core/cross_section.h>
+
 namespace geode
 {
     void load_cross_section(
@@ -34,6 +36,12 @@ namespace geode
                 extension_from_filename( filename ).data(), cross_section,
                 filename );
             input->read();
+            Logger::info( "CrossSection loaded from ", filename );
+            Logger::info( "CrossSection has: ", cross_section.nb_surfaces(),
+                " Surfaces, ", cross_section.nb_lines(), " Lines, ",
+                cross_section.nb_corners(), " Corners, ",
+                cross_section.nb_faults(), " Faults and ",
+                cross_section.nb_horizons(), " Horizons" );
         }
         catch( const OpenGeodeException& e )
         {

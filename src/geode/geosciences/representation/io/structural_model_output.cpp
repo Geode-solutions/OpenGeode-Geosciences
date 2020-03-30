@@ -34,6 +34,7 @@ namespace geode
                 extension_from_filename( filename ).data(), structural_model,
                 filename );
             output->write();
+            Logger::info( "StructuralModel saved in ", filename );
         }
         catch( const OpenGeodeException& e )
         {
