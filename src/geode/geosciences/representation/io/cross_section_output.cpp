@@ -34,6 +34,7 @@ namespace geode
                 extension_from_filename( filename ).data(), cross_section,
                 filename );
             output->write();
+            Logger::info( "CrossSection saved in ", filename );
         }
         catch( const OpenGeodeException& e )
         {
