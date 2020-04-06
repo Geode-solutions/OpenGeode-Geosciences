@@ -24,7 +24,9 @@
 #include <geode/geosciences/mixin/core/bitsery_archive.h>
 
 #include <geode/geosciences/mixin/core/fault.h>
+#include <geode/geosciences/mixin/core/fault_block.h>
 #include <geode/geosciences/mixin/core/horizon.h>
+#include <geode/geosciences/mixin/core/layer.h>
 
 namespace bitsery
 {
@@ -38,13 +40,19 @@ namespace bitsery
 
         template <>
         struct GeosciencesHierarchy< geode::Component2D >
-            : PolymorphicDerivedClasses< geode::Fault2D, geode::Horizon2D >
+            : PolymorphicDerivedClasses< geode::Fault2D,
+                  geode::Horizon2D,
+                  geode::FaultBlock2D,
+                  geode::Layer2D >
         {
         };
 
         template <>
         struct GeosciencesHierarchy< geode::Component3D >
-            : PolymorphicDerivedClasses< geode::Fault3D, geode::Horizon3D >
+            : PolymorphicDerivedClasses< geode::Fault3D,
+                  geode::Horizon3D,
+                  geode::FaultBlock3D,
+                  geode::Layer3D >
         {
         };
     } // namespace ext

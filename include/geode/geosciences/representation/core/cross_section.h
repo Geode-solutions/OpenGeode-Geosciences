@@ -25,17 +25,20 @@
 
 #include <geode/model/representation/core/section.h>
 
+#include <geode/geosciences/mixin/core/fault_blocks.h>
 #include <geode/geosciences/mixin/core/faults.h>
 #include <geode/geosciences/mixin/core/horizons.h>
+#include <geode/geosciences/mixin/core/layers.h>
 
 namespace geode
 {
     /*!
-     * A Cross Section is a Section composed of Faults and Horizons.
+     * A Cross Section is a Section composed of Faults and Horizons (as Lines)
+     * and FaultBlocks and Layers (as Surfaces).
      */
     class opengeode_geosciences_geosciences_api CrossSection
         : public Section,
-          public AddComponents< 2, Faults, Horizons >
+          public AddComponents< 2, Faults, Horizons, FaultBlocks, Layers >
     {
     public:
         class opengeode_geosciences_geosciences_api HorizonItemRange
@@ -66,6 +69,34 @@ namespace geode
             const CrossSection& cross_section_;
         };
 
+        class opengeode_geosciences_geosciences_api FaultBlockItemRange
+            : public Relationships::ItemRangeIterator,
+              public BeginEnd< FaultBlockItemRange >
+        {
+        public:
+            FaultBlockItemRange( const CrossSection& cross_section,
+                const FaultBlock2D& fault_block );
+
+            const Surface2D& operator*() const;
+
+        private:
+            const CrossSection& cross_section_;
+        };
+
+        class opengeode_geosciences_geosciences_api LayerItemRange
+            : public Relationships::ItemRangeIterator,
+              public BeginEnd< LayerItemRange >
+        {
+        public:
+            LayerItemRange( const CrossSection& cross_section,
+                const Layer2D& layer );
+
+            const Surface2D& operator*() const;
+
+        private:
+            const CrossSection& cross_section_;
+        };
+
         static constexpr absl::string_view native_extension_static()
         {
             return "og_xsctn";
@@ -79,5 +110,9 @@ namespace geode
         HorizonItemRange items( const Horizon2D& horizon ) const;
 
         FaultItemRange items( const Fault2D& fault ) const;
+
+        FaultBlockItemRange items( const FaultBlock2D& fault_block ) const;
+
+        LayerItemRange items( const Layer2D& layer ) const;
     };
 } // namespace geode

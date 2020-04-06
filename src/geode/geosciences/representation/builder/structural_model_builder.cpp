@@ -23,6 +23,7 @@
 
 #include <geode/geosciences/representation/builder/structural_model_builder.h>
 
+#include <geode/model/mixin/core/block.h>
 #include <geode/model/mixin/core/relationships.h>
 #include <geode/model/mixin/core/surface.h>
 
@@ -33,7 +34,8 @@ namespace geode
     StructuralModelBuilder::StructuralModelBuilder(
         StructuralModel& structural_model )
         : BRepBuilder( structural_model ),
-          AddComponentsBuilders< 3, Faults, Horizons >( structural_model ),
+          AddComponentsBuilders< 3, Faults, Horizons, FaultBlocks, Layers >(
+              structural_model ),
           structural_model_( structural_model )
     {
     }
@@ -90,6 +92,46 @@ namespace geode
     {
         unregister_component( horizon.id() );
         delete_horizon( horizon );
+    }
+
+    const uuid& StructuralModelBuilder::add_fault_block()
+    {
+        const auto& id = create_fault_block();
+        register_component(
+            structural_model_.fault_block( id ).component_id() );
+        return id;
+    }
+
+    void StructuralModelBuilder::add_block_in_fault_block(
+        const Block3D& block, const FaultBlock3D& fault_block )
+    {
+        add_item_in_collection( block.id(), fault_block.id() );
+    }
+
+    void StructuralModelBuilder::remove_fault_block(
+        const FaultBlock3D& fault_block )
+    {
+        unregister_component( fault_block.id() );
+        delete_fault_block( fault_block );
+    }
+
+    const uuid& StructuralModelBuilder::add_layer()
+    {
+        const auto& id = create_layer();
+        register_component( structural_model_.layer( id ).component_id() );
+        return id;
+    }
+
+    void StructuralModelBuilder::add_block_in_layer(
+        const Block3D& block, const Layer3D& layer )
+    {
+        add_item_in_collection( block.id(), layer.id() );
+    }
+
+    void StructuralModelBuilder::remove_layer( const Layer3D& layer )
+    {
+        unregister_component( layer.id() );
+        delete_layer( layer );
     }
 
 } // namespace geode

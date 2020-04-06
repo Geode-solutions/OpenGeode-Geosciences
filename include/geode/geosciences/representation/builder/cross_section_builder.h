@@ -26,12 +26,18 @@
 #include <geode/model/mixin/builder/add_components_builders.h>
 #include <geode/model/representation/builder/section_builder.h>
 
+#include <geode/geosciences/mixin/builder/fault_blocks_builder.h>
 #include <geode/geosciences/mixin/builder/faults_builder.h>
 #include <geode/geosciences/mixin/builder/horizons_builder.h>
+#include <geode/geosciences/mixin/builder/layers_builder.h>
 #include <geode/geosciences/mixin/core/fault.h>
+#include <geode/geosciences/mixin/core/fault_block.h>
+#include <geode/geosciences/mixin/core/fault_blocks.h>
 #include <geode/geosciences/mixin/core/faults.h>
 #include <geode/geosciences/mixin/core/horizon.h>
 #include <geode/geosciences/mixin/core/horizons.h>
+#include <geode/geosciences/mixin/core/layer.h>
+#include <geode/geosciences/mixin/core/layers.h>
 
 namespace geode
 {
@@ -45,7 +51,11 @@ namespace geode
      */
     class opengeode_geosciences_geosciences_api CrossSectionBuilder
         : public SectionBuilder,
-          public AddComponentsBuilders< 2, Faults, Horizons >
+          public AddComponentsBuilders< 2,
+              Faults,
+              Horizons,
+              FaultBlocks,
+              Layers >
     {
         OPENGEODE_DISABLE_COPY_AND_MOVE( CrossSectionBuilder );
 
@@ -68,6 +78,20 @@ namespace geode
             const Line2D& line, const Horizon2D& horizon );
 
         void remove_horizon( const Horizon2D& horizon );
+
+        const uuid& add_fault_block();
+
+        void add_surface_in_fault_block(
+            const Surface2D& surface, const FaultBlock2D& fault_block );
+
+        void remove_fault_block( const FaultBlock2D& fault_block );
+
+        const uuid& add_layer();
+
+        void add_surface_in_layer(
+            const Surface2D& surface, const Layer2D& layer );
+
+        void remove_layer( const Layer2D& layer );
 
     private:
         CrossSection& cross_section_;

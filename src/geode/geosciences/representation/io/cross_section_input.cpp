@@ -40,8 +40,10 @@ namespace geode
             Logger::info( "CrossSection has: ", cross_section.nb_surfaces(),
                 " Surfaces, ", cross_section.nb_lines(), " Lines, ",
                 cross_section.nb_corners(), " Corners, ",
-                cross_section.nb_faults(), " Faults and ",
-                cross_section.nb_horizons(), " Horizons" );
+                cross_section.nb_faults(), " Faults, ",
+                cross_section.nb_horizons(), " Horizons, ",
+                cross_section.nb_fault_blocks(), " FaultBlocks and ",
+                cross_section.nb_layers(), " Layers" );
         }
         catch( const OpenGeodeException& e )
         {

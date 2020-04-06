@@ -42,7 +42,9 @@ namespace geode
                 structural_model.nb_lines(), " Lines, ",
                 structural_model.nb_corners(), " Corners, ",
                 structural_model.nb_faults(), " Faults and ",
-                structural_model.nb_horizons(), " Horizons" );
+                structural_model.nb_horizons(), " Horizons and ",
+                structural_model.nb_fault_blocks(), " FaultBlocks and ",
+                structural_model.nb_layers(), " Layers" );
         }
         catch( const OpenGeodeException& e )
         {

@@ -64,4 +64,46 @@ namespace geode
     {
         return { *this, fault };
     }
+
+    StructuralModel::FaultBlockItemRange::FaultBlockItemRange(
+        const StructuralModel& structural_model,
+        const FaultBlock3D& fault_block )
+        : Relationships::ItemRangeIterator(
+            structural_model, fault_block.id() ),
+          BeginEnd< FaultBlockItemRange >( *this ),
+          structural_model_( structural_model )
+    {
+    }
+
+    const Block3D& StructuralModel::FaultBlockItemRange::operator*() const
+    {
+        return structural_model_.block(
+            Relationships::ItemRangeIterator::operator*().id() );
+    }
+
+    StructuralModel::FaultBlockItemRange StructuralModel::items(
+        const FaultBlock3D& fault_block ) const
+    {
+        return { *this, fault_block };
+    }
+
+    StructuralModel::LayerItemRange::LayerItemRange(
+        const StructuralModel& structural_model, const Layer3D& layer )
+        : Relationships::ItemRangeIterator( structural_model, layer.id() ),
+          BeginEnd< LayerItemRange >( *this ),
+          structural_model_( structural_model )
+    {
+    }
+
+    const Block3D& StructuralModel::LayerItemRange::operator*() const
+    {
+        return structural_model_.block(
+            Relationships::ItemRangeIterator::operator*().id() );
+    }
+
+    StructuralModel::LayerItemRange StructuralModel::items(
+        const Layer3D& layer ) const
+    {
+        return { *this, layer };
+    }
 } // namespace geode

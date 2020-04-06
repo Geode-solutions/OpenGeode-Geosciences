@@ -60,6 +60,8 @@ namespace geode
             zip_reader.extract_all();
             builder.load_faults( zip_reader.directory() );
             builder.load_horizons( zip_reader.directory() );
+            builder.load_fault_blocks( zip_reader.directory() );
+            builder.load_layers( zip_reader.directory() );
         }
     };
 } // namespace geode

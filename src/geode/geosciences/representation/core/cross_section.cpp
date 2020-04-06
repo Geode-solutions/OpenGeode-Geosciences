@@ -64,4 +64,44 @@ namespace geode
     {
         return { *this, fault };
     }
+
+    CrossSection::FaultBlockItemRange::FaultBlockItemRange(
+        const CrossSection& cross_section, const FaultBlock2D& fault_block )
+        : Relationships::ItemRangeIterator( cross_section, fault_block.id() ),
+          BeginEnd< FaultBlockItemRange >( *this ),
+          cross_section_( cross_section )
+    {
+    }
+
+    const Surface2D& CrossSection::FaultBlockItemRange::operator*() const
+    {
+        return cross_section_.surface(
+            Relationships::ItemRangeIterator::operator*().id() );
+    }
+
+    CrossSection::FaultBlockItemRange CrossSection::items(
+        const FaultBlock2D& fault_block ) const
+    {
+        return { *this, fault_block };
+    }
+
+    CrossSection::LayerItemRange::LayerItemRange(
+        const CrossSection& cross_section, const Layer2D& layer )
+        : Relationships::ItemRangeIterator( cross_section, layer.id() ),
+          BeginEnd< LayerItemRange >( *this ),
+          cross_section_( cross_section )
+    {
+    }
+
+    const Surface2D& CrossSection::LayerItemRange::operator*() const
+    {
+        return cross_section_.surface(
+            Relationships::ItemRangeIterator::operator*().id() );
+    }
+
+    CrossSection::LayerItemRange CrossSection::items(
+        const Layer2D& layer ) const
+    {
+        return { *this, layer };
+    }
 } // namespace geode
