@@ -88,8 +88,8 @@ namespace geode
               public BeginEnd< LayerItemRange >
         {
         public:
-            LayerItemRange( const CrossSection& cross_section,
-                const Layer2D& layer );
+            LayerItemRange(
+                const CrossSection& cross_section, const Layer2D& layer );
 
             const Surface2D& operator*() const;
 

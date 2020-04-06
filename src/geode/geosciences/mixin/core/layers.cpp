@@ -183,8 +183,8 @@ namespace geode
     }
 
     template < index_t dimension >
-    Layer< dimension >&
-        Layers< dimension >::ModifiableLayerRange::operator*() const
+    Layer< dimension >& Layers< dimension >::ModifiableLayerRange::
+        operator*() const
     {
         return this->impl_->layer();
     }
