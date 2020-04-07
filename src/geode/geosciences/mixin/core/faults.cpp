@@ -195,8 +195,8 @@ namespace geode
     }
 
     template < index_t dimension >
-    Fault< dimension >&
-        Faults< dimension >::ModifiableFaultRange::operator*() const
+    Fault< dimension >& Faults< dimension >::ModifiableFaultRange::
+        operator*() const
     {
         return this->impl_->fault();
     }
