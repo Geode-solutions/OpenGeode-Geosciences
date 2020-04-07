@@ -65,6 +65,19 @@ void add_faults(
         "[Test] Number of faults in StructuralModel should be 2" );
     OPENGEODE_EXCEPTION(
         model.fault( fault1 ).name() == "fault1", "[Test] Wrong Fault name" );
+
+    for( auto& fault : model.faults() )
+    {
+        if( fault.name() != "unknown" )
+        {
+            builder.set_fault_name(
+                fault.id(), absl::StrCat( "new_", fault.name() ) );
+        }
+        OPENGEODE_EXCEPTION( fault.component_type().get() == "Fault",
+            "[Test] Wrong Fault component type" );
+    }
+    OPENGEODE_EXCEPTION( model.fault( fault1 ).name() == "new_fault1",
+        "[Test] Wrong modified Fault name" );
 }
 
 void add_horizons(
@@ -91,6 +104,19 @@ void add_horizons(
         "[Test] Number of horizons in StructuralModel should be 3" );
     OPENGEODE_EXCEPTION( model.horizon( horizon2 ).name() == "horizon2",
         "[Test] Wrong Horizon name" );
+
+    for( auto& horizon : model.horizons() )
+    {
+        if( horizon.name() != "unknown" )
+        {
+            builder.set_horizon_name(
+                horizon.id(), absl::StrCat( "new_", horizon.name() ) );
+        }
+        OPENGEODE_EXCEPTION( horizon.component_type().get() == "Horizon",
+            "[Test] Wrong Horizon component type" );
+    }
+    OPENGEODE_EXCEPTION( model.horizon( horizon2 ).name() == "new_horizon2",
+        "[Test] Wrong modified Horizon name" );
 }
 
 void add_surfaces( geode::StructuralModelBuilder& builder )
