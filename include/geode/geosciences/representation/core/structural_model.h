@@ -28,17 +28,22 @@
 #include <geode/geosciences/mixin/core/fault_blocks.h>
 #include <geode/geosciences/mixin/core/faults.h>
 #include <geode/geosciences/mixin/core/horizons.h>
-#include <geode/geosciences/mixin/core/layers.h>
+#include <geode/geosciences/mixin/core/stratigraphic_units.h>
 
 namespace geode
 {
     /*!
      * A Structural Model is a Boundary Representation composed of
-     * Faults and Horizons (as Surfaces) and FaultBlocks and Layers (as Blocks).
+     * Faults and Horizons (as Surfaces) and FaultBlocks and StratigraphicUnits
+     * (as Blocks).
      */
     class opengeode_geosciences_geosciences_api StructuralModel
         : public BRep,
-          public AddComponents< 3, Faults, Horizons, FaultBlocks, Layers >
+          public AddComponents< 3,
+              Faults,
+              Horizons,
+              FaultBlocks,
+              StratigraphicUnits >
     {
     public:
         class opengeode_geosciences_geosciences_api HorizonItemRange
@@ -83,13 +88,13 @@ namespace geode
             const StructuralModel& structural_model_;
         };
 
-        class opengeode_geosciences_geosciences_api LayerItemRange
+        class opengeode_geosciences_geosciences_api StratigraphicUnitItemRange
             : public Relationships::ItemRangeIterator,
-              public BeginEnd< LayerItemRange >
+              public BeginEnd< StratigraphicUnitItemRange >
         {
         public:
-            LayerItemRange(
-                const StructuralModel& structural_model, const Layer3D& layer );
+            StratigraphicUnitItemRange( const StructuralModel& structural_model,
+                const StratigraphicUnit3D& stratigraphic_unit );
 
             const Block3D& operator*() const;
 
@@ -113,6 +118,7 @@ namespace geode
 
         FaultBlockItemRange items( const FaultBlock3D& fault_block ) const;
 
-        LayerItemRange items( const Layer3D& layer ) const;
+        StratigraphicUnitItemRange items(
+            const StratigraphicUnit3D& stratigraphic_unit ) const;
     };
 } // namespace geode

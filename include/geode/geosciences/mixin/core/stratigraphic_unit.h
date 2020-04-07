@@ -31,27 +31,27 @@
 
 namespace geode
 {
-    FORWARD_DECLARATION_DIMENSION_CLASS( Layers );
-    FORWARD_DECLARATION_DIMENSION_CLASS( LayersBuilder );
+    FORWARD_DECLARATION_DIMENSION_CLASS( StratigraphicUnits );
+    FORWARD_DECLARATION_DIMENSION_CLASS( StratigraphicUnitsBuilder );
 } // namespace geode
 
 namespace geode
 {
     /*!
-     * Geological component describing a Layer.
+     * Geological component describing a StratigraphicUnit.
      */
     template < index_t dimension >
-    class Layer final : public Component< dimension >
+    class StratigraphicUnit final : public Component< dimension >
     {
-        OPENGEODE_DISABLE_COPY_AND_MOVE( Layer );
-        friend class Layers< dimension >;
+        OPENGEODE_DISABLE_COPY_AND_MOVE( StratigraphicUnit );
+        friend class StratigraphicUnits< dimension >;
 
     public:
-        ~Layer();
+        ~StratigraphicUnit();
 
         static ComponentType component_type_static()
         {
-            return ComponentType{ "Layer" };
+            return ComponentType{ "StratigraphicUnit" };
         }
 
         ComponentType component_type() const final
@@ -66,15 +66,15 @@ namespace geode
 
     protected:
         friend class bitsery::Access;
-        Layer();
+        StratigraphicUnit();
 
     private:
         friend class bitsery::Access;
         template < typename Archive >
         void serialize( Archive& archive );
 
-        friend class LayersBuilder< dimension >;
-        void set_layer_name( absl::string_view name )
+        friend class StratigraphicUnitsBuilder< dimension >;
+        void set_stratigraphic_unit_name( absl::string_view name )
         {
             this->set_name( name );
         }
@@ -82,5 +82,5 @@ namespace geode
     private:
         IMPLEMENTATION_MEMBER( impl_ );
     };
-    ALIAS_2D_AND_3D( Layer );
+    ALIAS_2D_AND_3D( StratigraphicUnit );
 } // namespace geode

@@ -44,7 +44,8 @@ namespace geode
                 structural_model.nb_faults(), " Faults and ",
                 structural_model.nb_horizons(), " Horizons and ",
                 structural_model.nb_fault_blocks(), " FaultBlocks and ",
-                structural_model.nb_layers(), " Layers" );
+                structural_model.nb_stratigraphic_units(),
+                " StratigraphicUnits" );
         }
         catch( const OpenGeodeException& e )
         {

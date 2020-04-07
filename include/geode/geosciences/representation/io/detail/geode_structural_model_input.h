@@ -61,7 +61,7 @@ namespace geode
             builder.load_faults( zip_reader.directory() );
             builder.load_horizons( zip_reader.directory() );
             builder.load_fault_blocks( zip_reader.directory() );
-            builder.load_layers( zip_reader.directory() );
+            builder.load_stratigraphic_units( zip_reader.directory() );
         }
     };
 } // namespace geode

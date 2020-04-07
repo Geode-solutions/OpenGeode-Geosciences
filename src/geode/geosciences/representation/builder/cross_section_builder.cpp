@@ -33,8 +33,11 @@ namespace geode
 {
     CrossSectionBuilder::CrossSectionBuilder( CrossSection& cross_section )
         : SectionBuilder( cross_section ),
-          AddComponentsBuilders< 2, Faults, Horizons, FaultBlocks, Layers >(
-              cross_section ),
+          AddComponentsBuilders< 2,
+              Faults,
+              Horizons,
+              FaultBlocks,
+              StratigraphicUnits >( cross_section ),
           cross_section_( cross_section )
     {
     }
@@ -113,23 +116,26 @@ namespace geode
         delete_fault_block( fault_block );
     }
 
-    const uuid& CrossSectionBuilder::add_layer()
+    const uuid& CrossSectionBuilder::add_stratigraphic_unit()
     {
-        const auto& id = create_layer();
-        register_component( cross_section_.layer( id ).component_id() );
+        const auto& id = create_stratigraphic_unit();
+        register_component(
+            cross_section_.stratigraphic_unit( id ).component_id() );
         return id;
     }
 
-    void CrossSectionBuilder::add_surface_in_layer(
-        const Surface2D& surface, const Layer2D& layer )
+    void CrossSectionBuilder::add_surface_in_stratigraphic_unit(
+        const Surface2D& surface,
+        const StratigraphicUnit2D& stratigraphic_unit )
     {
-        add_item_in_collection( surface.id(), layer.id() );
+        add_item_in_collection( surface.id(), stratigraphic_unit.id() );
     }
 
-    void CrossSectionBuilder::remove_layer( const Layer2D& layer )
+    void CrossSectionBuilder::remove_stratigraphic_unit(
+        const StratigraphicUnit2D& stratigraphic_unit )
     {
-        unregister_component( layer.id() );
-        delete_layer( layer );
+        unregister_component( stratigraphic_unit.id() );
+        delete_stratigraphic_unit( stratigraphic_unit );
     }
 
 } // namespace geode

@@ -21,36 +21,47 @@
  *
  */
 
-#pragma once
+#include <geode/geosciences/mixin/core/stratigraphic_unit.h>
 
-#include <geode/geosciences/common.h>
-
-namespace geode
-{
-    FORWARD_DECLARATION_DIMENSION_CLASS( Layer );
-    FORWARD_DECLARATION_DIMENSION_CLASS( Layers );
-
-    struct uuid;
-} // namespace geode
+#include <geode/basic/bitsery_archive.h>
+#include <geode/basic/pimpl_impl.h>
 
 namespace geode
 {
     template < index_t dimension >
-    class LayersBuilder
+    class StratigraphicUnit< dimension >::Impl
     {
     public:
-        void load_layers( absl::string_view directory );
-
-        void set_layer_name( const uuid& id, absl::string_view name );
-
-    protected:
-        LayersBuilder( Layers< dimension >& layers ) : layers_( layers ) {}
-
-        const uuid& create_layer();
-
-        void delete_layer( const Layer< dimension >& layer );
-
-    private:
-        Layers< dimension >& layers_;
+        template < typename Archive >
+        void serialize( Archive& /*unused*/ )
+        {
+        }
     };
+
+    template < index_t dimension >
+    StratigraphicUnit< dimension >::StratigraphicUnit() // NOLINT
+    {
+    }
+
+    template < index_t dimension >
+    StratigraphicUnit< dimension >::~StratigraphicUnit() // NOLINT
+    {
+    }
+
+    template < index_t dimension >
+    template < typename Archive >
+    void StratigraphicUnit< dimension >::serialize( Archive& archive )
+    {
+        archive.object( impl_ );
+        archive.ext(
+            *this, bitsery::ext::BaseClass< Component< dimension > >{} );
+    }
+
+    template class opengeode_geosciences_geosciences_api StratigraphicUnit< 2 >;
+    template class opengeode_geosciences_geosciences_api StratigraphicUnit< 3 >;
+
+    SERIALIZE_BITSERY_ARCHIVE(
+        opengeode_geosciences_geosciences_api, StratigraphicUnit< 2 > );
+    SERIALIZE_BITSERY_ARCHIVE(
+        opengeode_geosciences_geosciences_api, StratigraphicUnit< 3 > );
 } // namespace geode

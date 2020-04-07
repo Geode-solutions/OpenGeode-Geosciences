@@ -43,7 +43,7 @@ namespace geode
                 cross_section.nb_faults(), " Faults, ",
                 cross_section.nb_horizons(), " Horizons, ",
                 cross_section.nb_fault_blocks(), " FaultBlocks and ",
-                cross_section.nb_layers(), " Layers" );
+                cross_section.nb_stratigraphic_units(), " StratigraphicUnits" );
         }
         catch( const OpenGeodeException& e )
         {

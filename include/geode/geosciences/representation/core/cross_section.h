@@ -28,17 +28,21 @@
 #include <geode/geosciences/mixin/core/fault_blocks.h>
 #include <geode/geosciences/mixin/core/faults.h>
 #include <geode/geosciences/mixin/core/horizons.h>
-#include <geode/geosciences/mixin/core/layers.h>
+#include <geode/geosciences/mixin/core/stratigraphic_units.h>
 
 namespace geode
 {
     /*!
      * A Cross Section is a Section composed of Faults and Horizons (as Lines)
-     * and FaultBlocks and Layers (as Surfaces).
+     * and FaultBlocks and StratigraphicUnits (as Surfaces).
      */
     class opengeode_geosciences_geosciences_api CrossSection
         : public Section,
-          public AddComponents< 2, Faults, Horizons, FaultBlocks, Layers >
+          public AddComponents< 2,
+              Faults,
+              Horizons,
+              FaultBlocks,
+              StratigraphicUnits >
     {
     public:
         class opengeode_geosciences_geosciences_api HorizonItemRange
@@ -83,13 +87,13 @@ namespace geode
             const CrossSection& cross_section_;
         };
 
-        class opengeode_geosciences_geosciences_api LayerItemRange
+        class opengeode_geosciences_geosciences_api StratigraphicUnitItemRange
             : public Relationships::ItemRangeIterator,
-              public BeginEnd< LayerItemRange >
+              public BeginEnd< StratigraphicUnitItemRange >
         {
         public:
-            LayerItemRange(
-                const CrossSection& cross_section, const Layer2D& layer );
+            StratigraphicUnitItemRange( const CrossSection& cross_section,
+                const StratigraphicUnit2D& stratigraphic_unit );
 
             const Surface2D& operator*() const;
 
@@ -113,6 +117,7 @@ namespace geode
 
         FaultBlockItemRange items( const FaultBlock2D& fault_block ) const;
 
-        LayerItemRange items( const Layer2D& layer ) const;
+        StratigraphicUnitItemRange items(
+            const StratigraphicUnit2D& stratigraphic_unit ) const;
     };
 } // namespace geode

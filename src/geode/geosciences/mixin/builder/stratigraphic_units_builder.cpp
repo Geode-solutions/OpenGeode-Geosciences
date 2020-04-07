@@ -21,47 +21,44 @@
  *
  */
 
-#include <geode/geosciences/mixin/core/layer.h>
+#include <geode/geosciences/mixin/builder/stratigraphic_units_builder.h>
 
-#include <geode/basic/bitsery_archive.h>
-#include <geode/basic/pimpl_impl.h>
+#include <geode/geosciences/mixin/core/stratigraphic_unit.h>
+#include <geode/geosciences/mixin/core/stratigraphic_units.h>
 
 namespace geode
 {
     template < index_t dimension >
-    class Layer< dimension >::Impl
+    const uuid&
+        StratigraphicUnitsBuilder< dimension >::create_stratigraphic_unit()
     {
-    public:
-        template < typename Archive >
-        void serialize( Archive& archive )
-        {
-        }
-    };
-
-    template < index_t dimension >
-    Layer< dimension >::Layer() // NOLINT
-    {
+        return stratigraphic_units_.create_stratigraphic_unit();
     }
 
     template < index_t dimension >
-    Layer< dimension >::~Layer() // NOLINT
+    void StratigraphicUnitsBuilder< dimension >::delete_stratigraphic_unit(
+        const StratigraphicUnit< dimension >& stratigraphic_unit )
     {
+        stratigraphic_units_.delete_stratigraphic_unit( stratigraphic_unit );
     }
 
     template < index_t dimension >
-    template < typename Archive >
-    void Layer< dimension >::serialize( Archive& archive )
+    void StratigraphicUnitsBuilder< dimension >::load_stratigraphic_units(
+        absl::string_view directory )
     {
-        archive.object( impl_ );
-        archive.ext(
-            *this, bitsery::ext::BaseClass< Component< dimension > >{} );
+        return stratigraphic_units_.load_stratigraphic_units( directory );
     }
 
-    template class opengeode_geosciences_geosciences_api Layer< 2 >;
-    template class opengeode_geosciences_geosciences_api Layer< 3 >;
+    template < index_t dimension >
+    void StratigraphicUnitsBuilder< dimension >::set_stratigraphic_unit_name(
+        const uuid& id, absl::string_view name )
+    {
+        stratigraphic_units_.modifiable_stratigraphic_unit( id )
+            .set_stratigraphic_unit_name( name );
+    }
 
-    SERIALIZE_BITSERY_ARCHIVE(
-        opengeode_geosciences_geosciences_api, Layer< 2 > );
-    SERIALIZE_BITSERY_ARCHIVE(
-        opengeode_geosciences_geosciences_api, Layer< 3 > );
+    template class opengeode_geosciences_geosciences_api
+        StratigraphicUnitsBuilder< 2 >;
+    template class opengeode_geosciences_geosciences_api
+        StratigraphicUnitsBuilder< 3 >;
 } // namespace geode

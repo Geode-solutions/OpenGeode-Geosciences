@@ -21,39 +21,42 @@
  *
  */
 
-#include <geode/geosciences/mixin/builder/layers_builder.h>
+#pragma once
 
-#include <geode/geosciences/mixin/core/layer.h>
-#include <geode/geosciences/mixin/core/layers.h>
+#include <geode/geosciences/common.h>
+
+namespace geode
+{
+    FORWARD_DECLARATION_DIMENSION_CLASS( StratigraphicUnit );
+    FORWARD_DECLARATION_DIMENSION_CLASS( StratigraphicUnits );
+
+    struct uuid;
+} // namespace geode
 
 namespace geode
 {
     template < index_t dimension >
-    const uuid& LayersBuilder< dimension >::create_layer()
+    class StratigraphicUnitsBuilder
     {
-        return layers_.create_layer();
-    }
+    public:
+        void load_stratigraphic_units( absl::string_view directory );
 
-    template < index_t dimension >
-    void LayersBuilder< dimension >::delete_layer(
-        const Layer< dimension >& layer )
-    {
-        layers_.delete_layer( layer );
-    }
+        void set_stratigraphic_unit_name(
+            const uuid& id, absl::string_view name );
 
-    template < index_t dimension >
-    void LayersBuilder< dimension >::load_layers( absl::string_view directory )
-    {
-        return layers_.load_layers( directory );
-    }
+    protected:
+        StratigraphicUnitsBuilder(
+            StratigraphicUnits< dimension >& stratigraphic_units )
+            : stratigraphic_units_( stratigraphic_units )
+        {
+        }
 
-    template < index_t dimension >
-    void LayersBuilder< dimension >::set_layer_name(
-        const uuid& id, absl::string_view name )
-    {
-        layers_.modifiable_layer( id ).set_layer_name( name );
-    }
+        const uuid& create_stratigraphic_unit();
 
-    template class opengeode_geosciences_geosciences_api LayersBuilder< 2 >;
-    template class opengeode_geosciences_geosciences_api LayersBuilder< 3 >;
+        void delete_stratigraphic_unit(
+            const StratigraphicUnit< dimension >& stratigraphic_unit );
+
+    private:
+        StratigraphicUnits< dimension >& stratigraphic_units_;
+    };
 } // namespace geode

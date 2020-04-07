@@ -29,15 +29,15 @@
 #include <geode/geosciences/mixin/builder/fault_blocks_builder.h>
 #include <geode/geosciences/mixin/builder/faults_builder.h>
 #include <geode/geosciences/mixin/builder/horizons_builder.h>
-#include <geode/geosciences/mixin/builder/layers_builder.h>
+#include <geode/geosciences/mixin/builder/stratigraphic_units_builder.h>
 #include <geode/geosciences/mixin/core/fault.h>
 #include <geode/geosciences/mixin/core/fault_block.h>
 #include <geode/geosciences/mixin/core/fault_blocks.h>
 #include <geode/geosciences/mixin/core/faults.h>
 #include <geode/geosciences/mixin/core/horizon.h>
 #include <geode/geosciences/mixin/core/horizons.h>
-#include <geode/geosciences/mixin/core/layer.h>
-#include <geode/geosciences/mixin/core/layers.h>
+#include <geode/geosciences/mixin/core/stratigraphic_unit.h>
+#include <geode/geosciences/mixin/core/stratigraphic_units.h>
 
 namespace geode
 {
@@ -55,7 +55,7 @@ namespace geode
               Faults,
               Horizons,
               FaultBlocks,
-              Layers >
+              StratigraphicUnits >
     {
         OPENGEODE_DISABLE_COPY_AND_MOVE( CrossSectionBuilder );
 
@@ -86,12 +86,13 @@ namespace geode
 
         void remove_fault_block( const FaultBlock2D& fault_block );
 
-        const uuid& add_layer();
+        const uuid& add_stratigraphic_unit();
 
-        void add_surface_in_layer(
-            const Surface2D& surface, const Layer2D& layer );
+        void add_surface_in_stratigraphic_unit( const Surface2D& surface,
+            const StratigraphicUnit2D& stratigraphic_unit );
 
-        void remove_layer( const Layer2D& layer );
+        void remove_stratigraphic_unit(
+            const StratigraphicUnit2D& stratigraphic_unit );
 
     private:
         CrossSection& cross_section_;

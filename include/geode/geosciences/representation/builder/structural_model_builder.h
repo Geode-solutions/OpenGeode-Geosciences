@@ -29,15 +29,15 @@
 #include <geode/geosciences/mixin/builder/fault_blocks_builder.h>
 #include <geode/geosciences/mixin/builder/faults_builder.h>
 #include <geode/geosciences/mixin/builder/horizons_builder.h>
-#include <geode/geosciences/mixin/builder/layers_builder.h>
+#include <geode/geosciences/mixin/builder/stratigraphic_units_builder.h>
 #include <geode/geosciences/mixin/core/fault.h>
 #include <geode/geosciences/mixin/core/fault_block.h>
 #include <geode/geosciences/mixin/core/fault_blocks.h>
 #include <geode/geosciences/mixin/core/faults.h>
 #include <geode/geosciences/mixin/core/horizon.h>
 #include <geode/geosciences/mixin/core/horizons.h>
-#include <geode/geosciences/mixin/core/layer.h>
-#include <geode/geosciences/mixin/core/layers.h>
+#include <geode/geosciences/mixin/core/stratigraphic_unit.h>
+#include <geode/geosciences/mixin/core/stratigraphic_units.h>
 
 namespace geode
 {
@@ -55,7 +55,7 @@ namespace geode
               Faults,
               Horizons,
               FaultBlocks,
-              Layers >
+              StratigraphicUnits >
     {
         OPENGEODE_DISABLE_COPY_AND_MOVE( StructuralModelBuilder );
 
@@ -87,11 +87,13 @@ namespace geode
 
         void remove_fault_block( const FaultBlock3D& fault_block );
 
-        const uuid& add_layer();
+        const uuid& add_stratigraphic_unit();
 
-        void add_block_in_layer( const Block3D& block, const Layer3D& layer );
+        void add_block_in_stratigraphic_unit( const Block3D& block,
+            const StratigraphicUnit3D& stratigraphic_unit );
 
-        void remove_layer( const Layer3D& layer );
+        void remove_stratigraphic_unit(
+            const StratigraphicUnit3D& stratigraphic_unit );
 
     private:
         StructuralModel& structural_model_;

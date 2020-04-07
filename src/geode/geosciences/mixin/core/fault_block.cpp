@@ -33,7 +33,7 @@ namespace geode
     {
     public:
         template < typename Archive >
-        void serialize( Archive& archive )
+        void serialize( Archive& /*unused*/ )
         {
         }
     };

@@ -85,23 +85,25 @@ namespace geode
         return { *this, fault_block };
     }
 
-    CrossSection::LayerItemRange::LayerItemRange(
-        const CrossSection& cross_section, const Layer2D& layer )
-        : Relationships::ItemRangeIterator( cross_section, layer.id() ),
-          BeginEnd< LayerItemRange >( *this ),
+    CrossSection::StratigraphicUnitItemRange::StratigraphicUnitItemRange(
+        const CrossSection& cross_section,
+        const StratigraphicUnit2D& stratigraphic_unit )
+        : Relationships::ItemRangeIterator(
+            cross_section, stratigraphic_unit.id() ),
+          BeginEnd< StratigraphicUnitItemRange >( *this ),
           cross_section_( cross_section )
     {
     }
 
-    const Surface2D& CrossSection::LayerItemRange::operator*() const
+    const Surface2D& CrossSection::StratigraphicUnitItemRange::operator*() const
     {
         return cross_section_.surface(
             Relationships::ItemRangeIterator::operator*().id() );
     }
 
-    CrossSection::LayerItemRange CrossSection::items(
-        const Layer2D& layer ) const
+    CrossSection::StratigraphicUnitItemRange CrossSection::items(
+        const StratigraphicUnit2D& stratigraphic_unit ) const
     {
-        return { *this, layer };
+        return { *this, stratigraphic_unit };
     }
 } // namespace geode

@@ -26,7 +26,7 @@
 #include <geode/geosciences/mixin/core/fault.h>
 #include <geode/geosciences/mixin/core/fault_block.h>
 #include <geode/geosciences/mixin/core/horizon.h>
-#include <geode/geosciences/mixin/core/layer.h>
+#include <geode/geosciences/mixin/core/stratigraphic_unit.h>
 
 namespace bitsery
 {
@@ -43,7 +43,7 @@ namespace bitsery
             : PolymorphicDerivedClasses< geode::Fault2D,
                   geode::Horizon2D,
                   geode::FaultBlock2D,
-                  geode::Layer2D >
+                  geode::StratigraphicUnit2D >
         {
         };
 
@@ -52,7 +52,7 @@ namespace bitsery
             : PolymorphicDerivedClasses< geode::Fault3D,
                   geode::Horizon3D,
                   geode::FaultBlock3D,
-                  geode::Layer3D >
+                  geode::StratigraphicUnit3D >
         {
         };
     } // namespace ext

@@ -87,23 +87,26 @@ namespace geode
         return { *this, fault_block };
     }
 
-    StructuralModel::LayerItemRange::LayerItemRange(
-        const StructuralModel& structural_model, const Layer3D& layer )
-        : Relationships::ItemRangeIterator( structural_model, layer.id() ),
-          BeginEnd< LayerItemRange >( *this ),
+    StructuralModel::StratigraphicUnitItemRange::StratigraphicUnitItemRange(
+        const StructuralModel& structural_model,
+        const StratigraphicUnit3D& stratigraphic_unit )
+        : Relationships::ItemRangeIterator(
+            structural_model, stratigraphic_unit.id() ),
+          BeginEnd< StratigraphicUnitItemRange >( *this ),
           structural_model_( structural_model )
     {
     }
 
-    const Block3D& StructuralModel::LayerItemRange::operator*() const
+    const Block3D&
+        StructuralModel::StratigraphicUnitItemRange::operator*() const
     {
         return structural_model_.block(
             Relationships::ItemRangeIterator::operator*().id() );
     }
 
-    StructuralModel::LayerItemRange StructuralModel::items(
-        const Layer3D& layer ) const
+    StructuralModel::StratigraphicUnitItemRange StructuralModel::items(
+        const StratigraphicUnit3D& stratigraphic_unit ) const
     {
-        return { *this, layer };
+        return { *this, stratigraphic_unit };
     }
 } // namespace geode
