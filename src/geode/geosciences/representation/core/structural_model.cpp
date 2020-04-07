@@ -97,8 +97,8 @@ namespace geode
     {
     }
 
-    const Block3D&
-        StructuralModel::StratigraphicUnitItemRange::operator*() const
+    const Block3D& StructuralModel::StratigraphicUnitItemRange::
+        operator*() const
     {
         return structural_model_.block(
             Relationships::ItemRangeIterator::operator*().id() );
