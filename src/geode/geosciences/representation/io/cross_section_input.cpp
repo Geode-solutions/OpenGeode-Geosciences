@@ -25,6 +25,19 @@
 
 #include <geode/geosciences/representation/core/cross_section.h>
 
+namespace
+{
+    void add_to_message( std::string& message,
+        geode::index_t nb_components,
+        absl::string_view component_text )
+    {
+        if( nb_components > 0 )
+        {
+            message = absl::StrCat( message, nb_components, component_text );
+        }
+    }
+} // namespace
+
 namespace geode
 {
     void load_cross_section(
@@ -37,13 +50,18 @@ namespace geode
                 filename );
             input->read();
             Logger::info( "CrossSection loaded from ", filename );
-            Logger::info( "CrossSection has: ", cross_section.nb_surfaces(),
-                " Surfaces, ", cross_section.nb_lines(), " Lines, ",
-                cross_section.nb_corners(), " Corners, ",
-                cross_section.nb_faults(), " Faults, ",
-                cross_section.nb_horizons(), " Horizons, ",
-                cross_section.nb_fault_blocks(), " FaultBlocks and ",
-                cross_section.nb_stratigraphic_units(), " StratigraphicUnits" );
+            std::string message{ "CrossSection has: " };
+            add_to_message(
+                message, cross_section.nb_surfaces(), " Surfaces, " );
+            add_to_message( message, cross_section.nb_lines(), " Lines, " );
+            add_to_message( message, cross_section.nb_faults(), " Faults, " );
+            add_to_message(
+                message, cross_section.nb_horizons(), " Horizons, " );
+            add_to_message(
+                message, cross_section.nb_fault_blocks(), " FaultBlocks, " );
+            add_to_message( message, cross_section.nb_stratigraphic_units(),
+                " StratigraphicUnits" );
+            Logger::info( message );
         }
         catch( const OpenGeodeException& e )
         {
