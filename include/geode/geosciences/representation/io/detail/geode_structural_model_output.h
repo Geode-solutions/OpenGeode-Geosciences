@@ -55,6 +55,9 @@ namespace geode
             brep_output.save_brep_files( zip_writer.directory() );
             structural_model().save_faults( zip_writer.directory() );
             structural_model().save_horizons( zip_writer.directory() );
+            structural_model().save_fault_blocks( zip_writer.directory() );
+            structural_model().save_stratigraphic_units(
+                zip_writer.directory() );
             brep_output.archive_brep_files( zip_writer );
         }
     };

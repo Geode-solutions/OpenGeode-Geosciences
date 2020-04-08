@@ -25,6 +25,7 @@
 
 #include <geode/model/mixin/core/line.h>
 #include <geode/model/mixin/core/relationships.h>
+#include <geode/model/mixin/core/surface.h>
 
 #include <geode/geosciences/representation/core/cross_section.h>
 
@@ -32,7 +33,11 @@ namespace geode
 {
     CrossSectionBuilder::CrossSectionBuilder( CrossSection& cross_section )
         : SectionBuilder( cross_section ),
-          AddComponentsBuilders< 2, Faults, Horizons >( cross_section ),
+          AddComponentsBuilders< 2,
+              Faults,
+              Horizons,
+              FaultBlocks,
+              StratigraphicUnits >( cross_section ),
           cross_section_( cross_section )
     {
     }
@@ -89,6 +94,48 @@ namespace geode
     {
         unregister_component( horizon.id() );
         delete_horizon( horizon );
+    }
+
+    const uuid& CrossSectionBuilder::add_fault_block()
+    {
+        const auto& id = create_fault_block();
+        register_component( cross_section_.fault_block( id ).component_id() );
+        return id;
+    }
+
+    void CrossSectionBuilder::add_surface_in_fault_block(
+        const Surface2D& surface, const FaultBlock2D& fault_block )
+    {
+        add_item_in_collection( surface.id(), fault_block.id() );
+    }
+
+    void CrossSectionBuilder::remove_fault_block(
+        const FaultBlock2D& fault_block )
+    {
+        unregister_component( fault_block.id() );
+        delete_fault_block( fault_block );
+    }
+
+    const uuid& CrossSectionBuilder::add_stratigraphic_unit()
+    {
+        const auto& id = create_stratigraphic_unit();
+        register_component(
+            cross_section_.stratigraphic_unit( id ).component_id() );
+        return id;
+    }
+
+    void CrossSectionBuilder::add_surface_in_stratigraphic_unit(
+        const Surface2D& surface,
+        const StratigraphicUnit2D& stratigraphic_unit )
+    {
+        add_item_in_collection( surface.id(), stratigraphic_unit.id() );
+    }
+
+    void CrossSectionBuilder::remove_stratigraphic_unit(
+        const StratigraphicUnit2D& stratigraphic_unit )
+    {
+        unregister_component( stratigraphic_unit.id() );
+        delete_stratigraphic_unit( stratigraphic_unit );
     }
 
 } // namespace geode

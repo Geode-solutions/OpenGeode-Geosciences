@@ -64,4 +64,49 @@ namespace geode
     {
         return { *this, fault };
     }
+
+    StructuralModel::FaultBlockItemRange::FaultBlockItemRange(
+        const StructuralModel& structural_model,
+        const FaultBlock3D& fault_block )
+        : Relationships::ItemRangeIterator(
+            structural_model, fault_block.id() ),
+          BeginEnd< FaultBlockItemRange >( *this ),
+          structural_model_( structural_model )
+    {
+    }
+
+    const Block3D& StructuralModel::FaultBlockItemRange::operator*() const
+    {
+        return structural_model_.block(
+            Relationships::ItemRangeIterator::operator*().id() );
+    }
+
+    StructuralModel::FaultBlockItemRange StructuralModel::items(
+        const FaultBlock3D& fault_block ) const
+    {
+        return { *this, fault_block };
+    }
+
+    StructuralModel::StratigraphicUnitItemRange::StratigraphicUnitItemRange(
+        const StructuralModel& structural_model,
+        const StratigraphicUnit3D& stratigraphic_unit )
+        : Relationships::ItemRangeIterator(
+            structural_model, stratigraphic_unit.id() ),
+          BeginEnd< StratigraphicUnitItemRange >( *this ),
+          structural_model_( structural_model )
+    {
+    }
+
+    const Block3D& StructuralModel::StratigraphicUnitItemRange::
+        operator*() const
+    {
+        return structural_model_.block(
+            Relationships::ItemRangeIterator::operator*().id() );
+    }
+
+    StructuralModel::StratigraphicUnitItemRange StructuralModel::items(
+        const StratigraphicUnit3D& stratigraphic_unit ) const
+    {
+        return { *this, stratigraphic_unit };
+    }
 } // namespace geode

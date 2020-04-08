@@ -56,6 +56,8 @@ namespace geode
             section_output.save_section_files( zip_writer.directory() );
             cross_section().save_faults( zip_writer.directory() );
             cross_section().save_horizons( zip_writer.directory() );
+            cross_section().save_fault_blocks( zip_writer.directory() );
+            cross_section().save_stratigraphic_units( zip_writer.directory() );
             section_output.archive_section_files( zip_writer );
         }
     };

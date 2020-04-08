@@ -23,6 +23,7 @@
 
 #include <geode/geosciences/representation/builder/structural_model_builder.h>
 
+#include <geode/model/mixin/core/block.h>
 #include <geode/model/mixin/core/relationships.h>
 #include <geode/model/mixin/core/surface.h>
 
@@ -33,7 +34,11 @@ namespace geode
     StructuralModelBuilder::StructuralModelBuilder(
         StructuralModel& structural_model )
         : BRepBuilder( structural_model ),
-          AddComponentsBuilders< 3, Faults, Horizons >( structural_model ),
+          AddComponentsBuilders< 3,
+              Faults,
+              Horizons,
+              FaultBlocks,
+              StratigraphicUnits >( structural_model ),
           structural_model_( structural_model )
     {
     }
@@ -90,6 +95,48 @@ namespace geode
     {
         unregister_component( horizon.id() );
         delete_horizon( horizon );
+    }
+
+    const uuid& StructuralModelBuilder::add_fault_block()
+    {
+        const auto& id = create_fault_block();
+        register_component(
+            structural_model_.fault_block( id ).component_id() );
+        return id;
+    }
+
+    void StructuralModelBuilder::add_block_in_fault_block(
+        const Block3D& block, const FaultBlock3D& fault_block )
+    {
+        add_item_in_collection( block.id(), fault_block.id() );
+    }
+
+    void StructuralModelBuilder::remove_fault_block(
+        const FaultBlock3D& fault_block )
+    {
+        unregister_component( fault_block.id() );
+        delete_fault_block( fault_block );
+    }
+
+    const uuid& StructuralModelBuilder::add_stratigraphic_unit()
+    {
+        const auto& id = create_stratigraphic_unit();
+        register_component(
+            structural_model_.stratigraphic_unit( id ).component_id() );
+        return id;
+    }
+
+    void StructuralModelBuilder::add_block_in_stratigraphic_unit(
+        const Block3D& block, const StratigraphicUnit3D& stratigraphic_unit )
+    {
+        add_item_in_collection( block.id(), stratigraphic_unit.id() );
+    }
+
+    void StructuralModelBuilder::remove_stratigraphic_unit(
+        const StratigraphicUnit3D& stratigraphic_unit )
+    {
+        unregister_component( stratigraphic_unit.id() );
+        delete_stratigraphic_unit( stratigraphic_unit );
     }
 
 } // namespace geode

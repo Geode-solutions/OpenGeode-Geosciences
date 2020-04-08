@@ -26,12 +26,18 @@
 #include <geode/model/mixin/builder/add_components_builders.h>
 #include <geode/model/representation/builder/brep_builder.h>
 
+#include <geode/geosciences/mixin/builder/fault_blocks_builder.h>
 #include <geode/geosciences/mixin/builder/faults_builder.h>
 #include <geode/geosciences/mixin/builder/horizons_builder.h>
+#include <geode/geosciences/mixin/builder/stratigraphic_units_builder.h>
 #include <geode/geosciences/mixin/core/fault.h>
+#include <geode/geosciences/mixin/core/fault_block.h>
+#include <geode/geosciences/mixin/core/fault_blocks.h>
 #include <geode/geosciences/mixin/core/faults.h>
 #include <geode/geosciences/mixin/core/horizon.h>
 #include <geode/geosciences/mixin/core/horizons.h>
+#include <geode/geosciences/mixin/core/stratigraphic_unit.h>
+#include <geode/geosciences/mixin/core/stratigraphic_units.h>
 
 namespace geode
 {
@@ -45,7 +51,11 @@ namespace geode
      */
     class opengeode_geosciences_geosciences_api StructuralModelBuilder
         : public BRepBuilder,
-          public AddComponentsBuilders< 3, Faults, Horizons >
+          public AddComponentsBuilders< 3,
+              Faults,
+              Horizons,
+              FaultBlocks,
+              StratigraphicUnits >
     {
         OPENGEODE_DISABLE_COPY_AND_MOVE( StructuralModelBuilder );
 
@@ -69,6 +79,21 @@ namespace geode
             const Surface3D& surface, const Horizon3D& horizon );
 
         void remove_horizon( const Horizon3D& horizon );
+
+        const uuid& add_fault_block();
+
+        void add_block_in_fault_block(
+            const Block3D& block, const FaultBlock3D& fault_block );
+
+        void remove_fault_block( const FaultBlock3D& fault_block );
+
+        const uuid& add_stratigraphic_unit();
+
+        void add_block_in_stratigraphic_unit( const Block3D& block,
+            const StratigraphicUnit3D& stratigraphic_unit );
+
+        void remove_stratigraphic_unit(
+            const StratigraphicUnit3D& stratigraphic_unit );
 
     private:
         StructuralModel& structural_model_;

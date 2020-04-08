@@ -25,6 +25,19 @@
 
 #include <geode/geosciences/representation/core/structural_model.h>
 
+namespace
+{
+    void add_to_message( std::string& message,
+        geode::index_t nb_components,
+        absl::string_view component_text )
+    {
+        if( nb_components > 0 )
+        {
+            absl::StrAppend( &message, nb_components, component_text );
+        }
+    }
+} // namespace
+
 namespace geode
 {
     void load_structural_model(
@@ -37,12 +50,19 @@ namespace geode
                 filename );
             input->read();
             Logger::info( "StructuralModel loaded from ", filename );
-            Logger::info( "StructuralModel has: ", structural_model.nb_blocks(),
-                " Blocks, ", structural_model.nb_surfaces(), " Surfaces, ",
-                structural_model.nb_lines(), " Lines, ",
-                structural_model.nb_corners(), " Corners, ",
-                structural_model.nb_faults(), " Faults and ",
-                structural_model.nb_horizons(), " Horizons" );
+            std::string message{ "StructuralModel has: " };
+            add_to_message(
+                message, structural_model.nb_surfaces(), " Surfaces, " );
+            add_to_message( message, structural_model.nb_lines(), " Lines, " );
+            add_to_message(
+                message, structural_model.nb_faults(), " Faults, " );
+            add_to_message(
+                message, structural_model.nb_horizons(), " Horizons, " );
+            add_to_message(
+                message, structural_model.nb_fault_blocks(), " FaultBlocks, " );
+            add_to_message( message, structural_model.nb_stratigraphic_units(),
+                " StratigraphicUnits" );
+            Logger::info( message );
         }
         catch( const OpenGeodeException& e )
         {

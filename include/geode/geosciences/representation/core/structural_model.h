@@ -25,18 +25,25 @@
 
 #include <geode/model/representation/core/brep.h>
 
+#include <geode/geosciences/mixin/core/fault_blocks.h>
 #include <geode/geosciences/mixin/core/faults.h>
 #include <geode/geosciences/mixin/core/horizons.h>
+#include <geode/geosciences/mixin/core/stratigraphic_units.h>
 
 namespace geode
 {
     /*!
      * A Structural Model is a Boundary Representation composed of
-     * Faults and Horizons.
+     * Faults and Horizons (as Surfaces) and FaultBlocks and StratigraphicUnits
+     * (as Blocks).
      */
     class opengeode_geosciences_geosciences_api StructuralModel
         : public BRep,
-          public AddComponents< 3, Faults, Horizons >
+          public AddComponents< 3,
+              Faults,
+              Horizons,
+              FaultBlocks,
+              StratigraphicUnits >
     {
     public:
         class opengeode_geosciences_geosciences_api HorizonItemRange
@@ -67,6 +74,34 @@ namespace geode
             const StructuralModel& structural_model_;
         };
 
+        class opengeode_geosciences_geosciences_api FaultBlockItemRange
+            : public Relationships::ItemRangeIterator,
+              public BeginEnd< FaultBlockItemRange >
+        {
+        public:
+            FaultBlockItemRange( const StructuralModel& structural_model,
+                const FaultBlock3D& fault_block );
+
+            const Block3D& operator*() const;
+
+        private:
+            const StructuralModel& structural_model_;
+        };
+
+        class opengeode_geosciences_geosciences_api StratigraphicUnitItemRange
+            : public Relationships::ItemRangeIterator,
+              public BeginEnd< StratigraphicUnitItemRange >
+        {
+        public:
+            StratigraphicUnitItemRange( const StructuralModel& structural_model,
+                const StratigraphicUnit3D& stratigraphic_unit );
+
+            const Block3D& operator*() const;
+
+        private:
+            const StructuralModel& structural_model_;
+        };
+
         static constexpr absl::string_view native_extension_static()
         {
             return "og_strm";
@@ -80,5 +115,10 @@ namespace geode
         HorizonItemRange items( const Horizon3D& horizon ) const;
 
         FaultItemRange items( const Fault3D& fault ) const;
+
+        FaultBlockItemRange items( const FaultBlock3D& fault_block ) const;
+
+        StratigraphicUnitItemRange items(
+            const StratigraphicUnit3D& stratigraphic_unit ) const;
     };
 } // namespace geode
