@@ -52,8 +52,12 @@ namespace geode
             Logger::info( "StructuralModel loaded from ", filename );
             std::string message{ "StructuralModel has: " };
             add_to_message(
+                message, structural_model.nb_blocks(), " Blocks, " );
+            add_to_message(
                 message, structural_model.nb_surfaces(), " Surfaces, " );
             add_to_message( message, structural_model.nb_lines(), " Lines, " );
+            add_to_message(
+                message, structural_model.nb_corners(), " Corners, " );
             add_to_message(
                 message, structural_model.nb_faults(), " Faults, " );
             add_to_message(
