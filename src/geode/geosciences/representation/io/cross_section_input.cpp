@@ -33,7 +33,7 @@ namespace
     {
         if( nb_components > 0 )
         {
-            message = absl::StrCat( message, nb_components, component_text );
+            absl::StrAppend( &message, nb_components, component_text );
         }
     }
 } // namespace
