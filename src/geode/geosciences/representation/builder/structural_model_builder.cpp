@@ -43,6 +43,30 @@ namespace geode
     {
     }
 
+    void StructuralModelBuilder::copy( const StructuralModel& structural_model )
+    {
+        auto mapping = copy_components( structural_model );
+        copy_collections( mapping, structural_model );
+    }
+
+    void StructuralModelBuilder::copy_collections(
+        ComponentMapping& mapping, const StructuralModel& structural_model )
+    {
+        const auto faults_mapping = copy_faults( structural_model );
+        for( const auto& map : faults_mapping.get() )
+        {
+            mapping.collections.map( map.first, map.second );
+            register_component(
+                structural_model_.fault( map.second ).component_id() );
+            for( const auto& item :
+                structural_model.items( structural_model.fault( map.first ) ) )
+            {
+                add_item_in_collection(
+                    mapping.surfaces.in2out( item.id() ), map.second );
+            }
+        }
+    }
+
     const uuid& StructuralModelBuilder::add_fault()
     {
         const auto& id = create_fault();
