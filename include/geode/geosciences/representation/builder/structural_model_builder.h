@@ -62,6 +62,20 @@ namespace geode
     public:
         StructuralModelBuilder( StructuralModel& structural_model );
 
+        void copy( const StructuralModel& structural_model );
+
+        // ComponentMapping copy_components(
+        //     const StructuralModel& structural_model );
+
+        // void copy_component_relationships( const ComponentMapping& mapping,
+        //     const StructuralModel& structural_model );
+
+        void copy_collections( ComponentMapping& mapping,
+            const StructuralModel& structural_model );
+
+        // void copy_component_geometry( const ComponentMapping& mapping,
+        //     const StructuralModel& structural_model );
+
         const uuid& add_fault();
 
         const uuid& add_fault( typename Fault3D::FAULT_TYPE type );

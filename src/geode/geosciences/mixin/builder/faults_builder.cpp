@@ -49,6 +49,29 @@ namespace geode
     }
 
     template < index_t dimension >
+    UUIDMapping FaultsBuilder< dimension >::copy_faults(
+        const Faults< dimension >& faults )
+    {
+        UUIDMapping mapping;
+        mapping.reserve( faults.nb_faults() );
+        for( const auto& fault : faults.faults() )
+        {
+            const auto& fault_id = copy_fault( fault );
+            mapping.map( fault.id(), fault_id );
+        }
+        return mapping;
+    }
+
+    template < index_t dimension >
+    const uuid& FaultsBuilder< dimension >::copy_fault(
+        const Fault< dimension >& fault )
+    {
+        const auto& fault_id = create_fault( fault.type() );
+        set_fault_name( fault_id, fault.name() );
+        return fault_id;
+    }
+
+    template < index_t dimension >
     void FaultsBuilder< dimension >::load_faults( absl::string_view directory )
     {
         return faults_.load_faults( directory );

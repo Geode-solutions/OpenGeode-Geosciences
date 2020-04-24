@@ -231,6 +231,22 @@ void test_io( const geode::StructuralModel& model )
     check_reloaded_model( reloaded_model );
 }
 
+void test_copy( const geode::StructuralModel& model )
+{
+    geode::StructuralModel copy;
+    geode::StructuralModelBuilder copier( copy );
+    copier.copy( model );
+    DEBUG( copy.nb_surfaces() );
+    DEBUG( copy.nb_horizons() );
+    DEBUG( copy.nb_faults() );
+    OPENGEODE_EXCEPTION( copy.nb_surfaces() == 8,
+        "[Test] Number of surfaces in copied model should be 8" );
+    OPENGEODE_EXCEPTION( copy.nb_horizons() == 3,
+        "[Test] Number of horizons in copied model should be 3" );
+    OPENGEODE_EXCEPTION( copy.nb_faults() == 2,
+        "[Test] Number of faults in copied model should be 2" );
+}
+
 void modify_model(
     geode::StructuralModel& model, geode::StructuralModelBuilder& builder )
 {
@@ -291,6 +307,7 @@ int main()
         build_relations_between_geometry_and_geology( model, builder );
 
         test_io( model );
+        test_copy( model );
         modify_model( model, builder );
 
         geode::Logger::info( "TEST SUCCESS" );
