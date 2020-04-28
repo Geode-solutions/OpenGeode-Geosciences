@@ -236,15 +236,28 @@ void test_copy( const geode::StructuralModel& model )
     geode::StructuralModel copy;
     geode::StructuralModelBuilder copier( copy );
     copier.copy( model );
-    DEBUG( copy.nb_surfaces() );
-    DEBUG( copy.nb_horizons() );
-    DEBUG( copy.nb_faults() );
     OPENGEODE_EXCEPTION( copy.nb_surfaces() == 8,
         "[Test] Number of surfaces in copied model should be 8" );
     OPENGEODE_EXCEPTION( copy.nb_horizons() == 3,
         "[Test] Number of horizons in copied model should be 3" );
     OPENGEODE_EXCEPTION( copy.nb_faults() == 2,
         "[Test] Number of faults in copied model should be 2" );
+    OPENGEODE_EXCEPTION( copy.nb_fault_blocks() == 0,
+        "[Test] Number of fault blocks in copied model should be 0" );
+    geode::index_t nb_fault_items{ 0 };
+    for( const auto& fault : copy.faults() )
+    {
+        nb_fault_items += count_items( copy, fault );
+    }
+    OPENGEODE_EXCEPTION( nb_fault_items == 5,
+        "[Test] Number of items in faults in copied model should be 5" );
+    geode::index_t nb_horizon_items{ 0 };
+    for( const auto& horizon : copy.horizons() )
+    {
+        nb_horizon_items += count_items( copy, horizon );
+    }
+    OPENGEODE_EXCEPTION( nb_horizon_items == 4,
+        "[Test] Number of items in horizons in copied model should be 4" );
 }
 
 void modify_model(

@@ -37,8 +37,6 @@ namespace geode
 
 namespace geode
 {
-    using UUIDMapping = BijectiveMapping< uuid >;
-
     template < index_t dimension >
     class FaultsBuilder
     {
@@ -49,10 +47,6 @@ namespace geode
             typename Fault< dimension >::FAULT_TYPE type );
 
         void set_fault_name( const uuid& id, absl::string_view name );
-
-        UUIDMapping copy_faults( const Faults< dimension >& faults );
-
-        const uuid& copy_fault( const Fault< dimension >& fault );
 
     protected:
         FaultsBuilder( Faults< dimension >& faults ) : faults_( faults ) {}
