@@ -23,8 +23,6 @@
 
 #pragma once
 
-#include <geode/basic/mapping.h>
-
 #include <geode/geosciences/common.h>
 
 namespace geode
