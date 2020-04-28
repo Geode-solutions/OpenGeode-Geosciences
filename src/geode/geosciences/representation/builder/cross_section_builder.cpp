@@ -26,7 +26,9 @@
 #include <geode/model/mixin/core/line.h>
 #include <geode/model/mixin/core/relationships.h>
 #include <geode/model/mixin/core/surface.h>
+#include <geode/model/representation/builder/detail/copy.h>
 
+#include <geode/geosciences/representation/builder/detail/copy.h>
 #include <geode/geosciences/representation/core/cross_section.h>
 
 namespace geode
@@ -40,6 +42,48 @@ namespace geode
               StratigraphicUnits >( cross_section ),
           cross_section_( cross_section )
     {
+    }
+
+    void CrossSectionBuilder::copy( const CrossSection& cross_section )
+    {
+        auto mappings = copy_components( cross_section );
+        copy_geological_components( mappings, cross_section );
+    }
+
+    void CrossSectionBuilder::copy_geological_components(
+        detail::ModelCopyMapping& mappings, const CrossSection& cross_section )
+    {
+        mappings.emplace( Fault2D::component_type_static(),
+            detail::copy_faults( cross_section, cross_section_, *this ) );
+        mappings.emplace( Horizon2D::component_type_static(),
+            detail::copy_horizons( cross_section, cross_section_, *this ) );
+        mappings.emplace( FaultBlock2D::component_type_static(),
+            detail::copy_fault_blocks( cross_section, cross_section_, *this ) );
+        mappings.emplace( StratigraphicUnit2D::component_type_static(),
+            detail::copy_stratigraphic_units(
+                cross_section, cross_section_, *this ) );
+        const auto& fault_mapping =
+            mappings.at( Fault2D::component_type_static() );
+        const auto& horizon_mapping =
+            mappings.at( Horizon2D::component_type_static() );
+        const auto& fault_block_mapping =
+            mappings.at( FaultBlock2D::component_type_static() );
+        const auto& stratigraphic_unit_mapping =
+            mappings.at( StratigraphicUnit3D::component_type_static() );
+        const auto& line_mapping =
+            mappings.at( Line2D::component_type_static() );
+        const auto& surface_mapping =
+            mappings.at( Surface2D::component_type_static() );
+        detail::copy_collection_item_relationships( cross_section,
+            cross_section.faults(), fault_mapping, line_mapping, *this );
+        detail::copy_collection_item_relationships( cross_section,
+            cross_section.horizons(), horizon_mapping, line_mapping, *this );
+        detail::copy_collection_item_relationships( cross_section,
+            cross_section.fault_blocks(), fault_block_mapping, surface_mapping,
+            *this );
+        detail::copy_collection_item_relationships( cross_section,
+            cross_section.stratigraphic_units(), stratigraphic_unit_mapping,
+            surface_mapping, *this );
     }
 
     const uuid& CrossSectionBuilder::add_fault()

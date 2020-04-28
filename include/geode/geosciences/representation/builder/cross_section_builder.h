@@ -62,6 +62,11 @@ namespace geode
     public:
         CrossSectionBuilder( CrossSection& cross_section );
 
+        void copy( const CrossSection& cross_section );
+
+        void copy_geological_components( detail::ModelCopyMapping& mapping,
+            const CrossSection& cross_section );
+
         const uuid& add_fault();
 
         const uuid& add_fault( typename Fault2D::FAULT_TYPE type );

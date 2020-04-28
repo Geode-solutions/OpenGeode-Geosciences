@@ -23,8 +23,6 @@
 
 #include <geode/geosciences/mixin/builder/faults_builder.h>
 
-#include <geode/basic/logger.h>
-
 #include <geode/geosciences/mixin/core/fault.h>
 #include <geode/geosciences/mixin/core/faults.h>
 
