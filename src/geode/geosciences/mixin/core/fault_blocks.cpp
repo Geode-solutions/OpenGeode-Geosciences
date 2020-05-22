@@ -179,8 +179,8 @@ namespace geode
     }
 
     template < index_t dimension >
-    const FaultBlock< dimension >& FaultBlocks< dimension >::FaultBlockRange::
-        operator*() const
+    const FaultBlock< dimension >&
+        FaultBlocks< dimension >::FaultBlockRange::operator*() const
     {
         return this->impl_->fault_block();
     }
