@@ -35,7 +35,7 @@ jobs:
         cd build
         version="${GITHUB_REF##*/*/}"
         echo ::set-output name=version::$version
-        cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH:PATH=${GITHUB_WORKSPACE}/${{ steps.opengeode.outputs.path }} -DOPENGEODE_GEOSCIENCES_WITH_TESTS:BOOL=OFF -DOPENGEODE_IO_WITH_TESTS:BOOL=OFF -DOPENGEODE_GEOSCIENCES_WITH_PYTHON:BOOL=ON -DPYTHON_VERSION:STRING=${{ matrix.config.python }} -DCPACK_PACKAGE_VERSION:STRING=$version-python${{ matrix.config.python }} -DCPACK_SYSTEM_NAME:STRING=${{ matrix.config.system }} ..
+        cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH:PATH=${GITHUB_WORKSPACE}/${{ steps.opengeode.outputs.path }} -DOPENGEODE_GEOSCIENCES_WITH_TESTS:BOOL=OFF -DOPENGEODE_GEOSCIENCES_WITH_PYTHON:BOOL=ON -DPYTHON_VERSION:STRING=${{ matrix.config.python }} -DCPACK_PACKAGE_VERSION:STRING=$version-python${{ matrix.config.python }} -DCPACK_SYSTEM_NAME:STRING=${{ matrix.config.system }} ..
         cmake --build . -- -j2
         cmake --build . --target package
     - name: Upload
