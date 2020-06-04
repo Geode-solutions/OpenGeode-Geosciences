@@ -32,7 +32,8 @@ namespace geode
         pybind11::class_< StructuralModel, BRep, Faults3D, Horizons3D,
             FaultBlocks3D, StratigraphicUnits3D >( module, "StructuralModel" )
             .def( pybind11::init<>() )
-            .def( "horizon_items",
+            .def(
+                "horizon_items",
                 []( const StructuralModel& structural_model,
                     const Horizon3D& horizon ) {
                     std::vector< const Surface3D* > components;
@@ -44,7 +45,8 @@ namespace geode
                     return components;
                 },
                 pybind11::return_value_policy::reference )
-            .def( "fault_items",
+            .def(
+                "fault_items",
                 []( const StructuralModel& structural_model,
                     const Fault3D& fault ) {
                     std::vector< const Surface3D* > components;
@@ -56,7 +58,8 @@ namespace geode
                     return components;
                 },
                 pybind11::return_value_policy::reference )
-            .def( "fault_block_items",
+            .def(
+                "fault_block_items",
                 []( const StructuralModel& structural_model,
                     const FaultBlock3D& fault_block ) {
                     std::vector< const Block3D* > components;
@@ -68,7 +71,8 @@ namespace geode
                     return components;
                 },
                 pybind11::return_value_policy::reference )
-            .def( "stratigraphic_unit_items",
+            .def(
+                "stratigraphic_unit_items",
                 []( const StructuralModel& structural_model,
                     const StratigraphicUnit3D& stratigraphic_unit ) {
                     std::vector< const Block3D* > components;

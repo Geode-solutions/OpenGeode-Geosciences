@@ -32,7 +32,8 @@
         .def( "nb_horizons", &Horizons##dimension##D::nb_horizons )            \
         .def( "horizon", &Horizons##dimension##D::horizon,                     \
             pybind11::return_value_policy::reference )                         \
-        .def( "horizons",                                                      \
+        .def(                                                                  \
+            "horizons",                                                        \
             []( const Horizons##dimension##D& self ) {                         \
                 std::vector< const Horizon##dimension##D* > components;        \
                 for( const auto& component : self.horizons() )                 \
