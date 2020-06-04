@@ -32,7 +32,8 @@
         .def( "nb_fault_blocks", &FaultBlocks##dimension##D::nb_fault_blocks ) \
         .def( "fault_block", &FaultBlocks##dimension##D::fault_block,          \
             pybind11::return_value_policy::reference )                         \
-        .def( "fault_blocks",                                                  \
+        .def(                                                                  \
+            "fault_blocks",                                                    \
             []( const FaultBlocks##dimension##D& self ) {                      \
                 std::vector< const FaultBlock##dimension##D* > components;     \
                 for( const auto& component : self.fault_blocks() )             \

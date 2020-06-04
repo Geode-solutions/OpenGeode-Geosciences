@@ -32,7 +32,8 @@ namespace geode
         pybind11::class_< CrossSection, Section, Faults2D, Horizons2D,
             FaultBlocks2D, StratigraphicUnits2D >( module, "CrossSection" )
             .def( pybind11::init<>() )
-            .def( "horizon_items",
+            .def(
+                "horizon_items",
                 []( const CrossSection& cross_section,
                     const Horizon2D& horizon ) {
                     std::vector< const Line2D* > components;
@@ -44,7 +45,8 @@ namespace geode
                     return components;
                 },
                 pybind11::return_value_policy::reference )
-            .def( "fault_items",
+            .def(
+                "fault_items",
                 []( const CrossSection& cross_section, const Fault2D& fault ) {
                     std::vector< const Line2D* > components;
                     for( const auto& component : cross_section.items( fault ) )
@@ -54,7 +56,8 @@ namespace geode
                     return components;
                 },
                 pybind11::return_value_policy::reference )
-            .def( "fault_block_items",
+            .def(
+                "fault_block_items",
                 []( const CrossSection& cross_section,
                     const FaultBlock2D& fault_block ) {
                     std::vector< const Surface2D* > components;
@@ -66,7 +69,8 @@ namespace geode
                     return components;
                 },
                 pybind11::return_value_policy::reference )
-            .def( "stratigraphic_unit_items",
+            .def(
+                "stratigraphic_unit_items",
                 []( const CrossSection& cross_section,
                     const StratigraphicUnit2D& stratigraphic_unit ) {
                     std::vector< const Surface2D* > components;
