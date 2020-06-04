@@ -21,43 +21,14 @@
  *
  */
 
-#pragma once
-
-#include <geode/geosciences/common.h>
-
-namespace geode
-{
-    FORWARD_DECLARATION_DIMENSION_CLASS( Fault );
-    FORWARD_DECLARATION_DIMENSION_CLASS( Faults );
-
-    struct uuid;
-} // namespace geode
+#include <geode/geosciences/representation/io/cross_section_input.h>
+#include <geode/geosciences/representation/io/cross_section_output.h>
 
 namespace geode
 {
-    template < index_t dimension >
-    class FaultsBuilder
+    void define_cross_section_io( pybind11::module& module )
     {
-    public:
-        void load_faults( absl::string_view directory );
-
-        void set_fault_type( const uuid& fault_id,
-            typename Fault< dimension >::FAULT_TYPE type );
-
-        void set_fault_name( const uuid& id, absl::string_view name );
-
-    protected:
-        FaultsBuilder( Faults< dimension >& faults ) : faults_( faults ) {}
-
-        const uuid& create_fault();
-
-        const uuid& create_fault(
-            typename Fault< dimension >::FAULT_TYPE type );
-
-        void delete_fault( const Fault< dimension >& fault );
-
-    private:
-        Faults< dimension >& faults_;
-    };
-    ALIAS_2D_AND_3D( FaultsBuilder );
+        module.def( "save_cross_section", &save_cross_section );
+        module.def( "load_cross_section", &load_cross_section );
+    }
 } // namespace geode
