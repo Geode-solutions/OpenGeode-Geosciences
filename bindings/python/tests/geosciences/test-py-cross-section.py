@@ -72,7 +72,7 @@ def add_stratigraphic_units( model, builder ):
     builder.set_stratigraphic_unit_name( stratigraphic_unit1, "cretaceous")
     if model.nb_stratigraphic_units() != 3:
         raise ValueError("[Test] Number of stratigraphic_units in CrossSection should be 3")
-    builder.remove_stratigraphic_unit(     model.stratigraphic_unit( stratigraphic_unit0 ) )
+    builder.remove_stratigraphic_unit( model.stratigraphic_unit( stratigraphic_unit0 ) )
     if model.stratigraphic_unit( stratigraphic_unit1 ).name() != "cretaceous":
         raise ValueError("[Test] Wrong StratigraphicUnit name")
     if model.nb_stratigraphic_units() != 2:
