@@ -48,6 +48,12 @@ namespace geode
     }
 
     template < index_t dimension >
+    Horizons< dimension >::Horizons( Horizons&& other )
+        : impl_( std::move( other.impl_ ) )
+    {
+    }
+
+    template < index_t dimension >
     index_t Horizons< dimension >::nb_horizons() const
     {
         return impl_->nb_components();

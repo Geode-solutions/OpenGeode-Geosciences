@@ -48,6 +48,12 @@ namespace geode
     }
 
     template < index_t dimension >
+    Faults< dimension >::Faults( Faults&& other )
+        : impl_( std::move( other.impl_ ) )
+    {
+    }
+
+    template < index_t dimension >
     index_t Faults< dimension >::nb_faults() const
     {
         return impl_->nb_components();

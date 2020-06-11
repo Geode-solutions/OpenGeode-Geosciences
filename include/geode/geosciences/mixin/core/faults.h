@@ -25,8 +25,6 @@
 
 #include <geode/basic/pimpl.h>
 
-#include <geode/mesh/core/mesh_type.h>
-
 #include <geode/geosciences/common.h>
 #include <geode/geosciences/mixin/core/fault.h>
 
@@ -42,7 +40,7 @@ namespace geode
     template < index_t dimension >
     class opengeode_geosciences_geosciences_api Faults
     {
-        OPENGEODE_DISABLE_COPY_AND_MOVE( Faults );
+        OPENGEODE_DISABLE_COPY( Faults );
 
     public:
         using Builder = FaultsBuilder< dimension >;
@@ -99,6 +97,7 @@ namespace geode
     protected:
         friend class FaultsBuilder< dimension >;
         Faults();
+        Faults( Faults&& );
 
     private:
         class ModifiableFaultRange : public FaultRangeBase

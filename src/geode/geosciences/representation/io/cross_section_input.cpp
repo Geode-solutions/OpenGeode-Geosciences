@@ -40,11 +40,11 @@ namespace
 
 namespace geode
 {
-    void load_cross_section(
-        CrossSection& cross_section, absl::string_view filename )
+    CrossSection load_cross_section( absl::string_view filename )
     {
         try
         {
+            CrossSection cross_section;
             auto input = CrossSectionInputFactory::create(
                 extension_from_filename( filename ).data(), cross_section,
                 filename );
@@ -62,6 +62,7 @@ namespace geode
             add_to_message( message, cross_section.nb_stratigraphic_units(),
                 " StratigraphicUnits" );
             Logger::info( message );
+            return cross_section;
         }
         catch( const OpenGeodeException& e )
         {

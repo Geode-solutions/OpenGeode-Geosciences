@@ -40,11 +40,11 @@ namespace
 
 namespace geode
 {
-    void load_structural_model(
-        StructuralModel& structural_model, absl::string_view filename )
+    StructuralModel load_structural_model( absl::string_view filename )
     {
         try
         {
+            StructuralModel structural_model;
             auto input = StructuralModelInputFactory::create(
                 extension_from_filename( filename ).data(), structural_model,
                 filename );
@@ -67,6 +67,7 @@ namespace geode
             add_to_message( message, structural_model.nb_stratigraphic_units(),
                 " StratigraphicUnits" );
             Logger::info( message );
+            return structural_model;
         }
         catch( const OpenGeodeException& e )
         {

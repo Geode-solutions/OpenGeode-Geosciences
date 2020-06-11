@@ -40,11 +40,10 @@ namespace geode
     /*!
      * API function for loading a CrossSection.
      * The adequate loader is called depending on the filename extension.
-     * @param[out] cross_section Loaded CrossSection.
      * @param[in] filename Path to the file to load.
      */
-    void opengeode_geosciences_geosciences_api load_cross_section(
-        CrossSection& cross_section, absl::string_view filename );
+    CrossSection opengeode_geosciences_geosciences_api load_cross_section(
+        absl::string_view filename );
 
     class opengeode_geosciences_geosciences_api CrossSectionInput : public Input
     {
