@@ -195,8 +195,8 @@ namespace geode
     }
 
     template < index_t dimension >
-    const Horizon< dimension >& Horizons< dimension >::HorizonRange::
-        operator*() const
+    const Horizon< dimension >&
+        Horizons< dimension >::HorizonRange::operator*() const
     {
         return this->impl_->horizon();
     }
@@ -209,8 +209,8 @@ namespace geode
     }
 
     template < index_t dimension >
-    Horizon< dimension >& Horizons< dimension >::ModifiableHorizonRange::
-        operator*() const
+    Horizon< dimension >&
+        Horizons< dimension >::ModifiableHorizonRange::operator*() const
     {
         return this->impl_->horizon();
     }
