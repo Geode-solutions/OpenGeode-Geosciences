@@ -49,6 +49,13 @@ namespace geode
     }
 
     template < index_t dimension >
+    StratigraphicUnits< dimension >::StratigraphicUnits(
+        StratigraphicUnits&& other )
+        : impl_( std::move( other.impl_ ) )
+    {
+    }
+
+    template < index_t dimension >
     index_t StratigraphicUnits< dimension >::nb_stratigraphic_units() const
     {
         return impl_->nb_components();
@@ -142,7 +149,7 @@ namespace geode
         StratigraphicUnitRangeBase(
             const StratigraphicUnits& stratigraphic_units )
         : impl_( stratigraphic_units.impl_->begin(),
-            stratigraphic_units.impl_->end() )
+              stratigraphic_units.impl_->end() )
     {
     }
 

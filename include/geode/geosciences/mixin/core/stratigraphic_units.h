@@ -25,8 +25,6 @@
 
 #include <geode/basic/pimpl.h>
 
-#include <geode/mesh/core/mesh_type.h>
-
 #include <geode/geosciences/common.h>
 #include <geode/geosciences/mixin/core/stratigraphic_unit.h>
 
@@ -42,7 +40,7 @@ namespace geode
     template < index_t dimension >
     class opengeode_geosciences_geosciences_api StratigraphicUnits
     {
-        OPENGEODE_DISABLE_COPY_AND_MOVE( StratigraphicUnits );
+        OPENGEODE_DISABLE_COPY( StratigraphicUnits );
 
     public:
         using Builder = StratigraphicUnitsBuilder< dimension >;
@@ -105,6 +103,7 @@ namespace geode
     protected:
         friend class StratigraphicUnitsBuilder< dimension >;
         StratigraphicUnits();
+        StratigraphicUnits( StratigraphicUnits&& );
 
     private:
         class ModifiableStratigraphicUnitRange

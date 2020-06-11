@@ -224,10 +224,10 @@ void check_reloaded_model( const geode::StructuralModel& reloaded_model )
 void test_io( const geode::StructuralModel& model )
 {
     const auto file_io = absl::StrCat( "test.", model.native_extension() );
-    save_structural_model( model, file_io );
+    geode::save_structural_model( model, file_io );
 
-    geode::StructuralModel reloaded_model;
-    load_structural_model( reloaded_model, file_io );
+    geode::StructuralModel reloaded_model =
+        geode::load_structural_model( file_io );
     check_reloaded_model( reloaded_model );
 }
 
