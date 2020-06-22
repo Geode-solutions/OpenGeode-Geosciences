@@ -59,4 +59,5 @@ namespace geode
     private:
         StratigraphicUnits< dimension >& stratigraphic_units_;
     };
+    ALIAS_2D_AND_3D( StratigraphicUnitsBuilder );
 } // namespace geode

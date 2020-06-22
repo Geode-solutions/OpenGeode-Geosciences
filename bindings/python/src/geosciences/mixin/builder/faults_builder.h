@@ -21,43 +21,23 @@
  *
  */
 
-#pragma once
+#include <geode/geosciences/mixin/core/fault.h>
 
-#include <geode/geosciences/common.h>
+#include <geode/geosciences/mixin/builder/faults_builder.h>
+
+#define PYTHON_FAULTS_BUILDER( dimension )                                     \
+    const auto name##dimension =                                               \
+        "FaultsBuilder" + std::to_string( dimension ) + "D";                   \
+    pybind11::class_< FaultsBuilder##dimension##D >(                           \
+        module, name##dimension.c_str() )                                      \
+        .def( "set_fault_type", &FaultsBuilder##dimension##D::set_fault_type ) \
+        .def( "set_fault_name", &FaultsBuilder##dimension##D::set_fault_name )
 
 namespace geode
 {
-    FORWARD_DECLARATION_DIMENSION_CLASS( Fault );
-    FORWARD_DECLARATION_DIMENSION_CLASS( Faults );
-
-    struct uuid;
-} // namespace geode
-
-namespace geode
-{
-    template < index_t dimension >
-    class FaultsBuilder
+    void define_faults_builder( pybind11::module& module )
     {
-    public:
-        void load_faults( absl::string_view directory );
-
-        void set_fault_type( const uuid& fault_id,
-            typename Fault< dimension >::FAULT_TYPE type );
-
-        void set_fault_name( const uuid& id, absl::string_view name );
-
-    protected:
-        FaultsBuilder( Faults< dimension >& faults ) : faults_( faults ) {}
-
-        const uuid& create_fault();
-
-        const uuid& create_fault(
-            typename Fault< dimension >::FAULT_TYPE type );
-
-        void delete_fault( const Fault< dimension >& fault );
-
-    private:
-        Faults< dimension >& faults_;
-    };
-    ALIAS_2D_AND_3D( FaultsBuilder );
+        PYTHON_FAULTS_BUILDER( 2 );
+        PYTHON_FAULTS_BUILDER( 3 );
+    }
 } // namespace geode

@@ -21,43 +21,20 @@
  *
  */
 
-#pragma once
+#include <geode/geosciences/mixin/core/stratigraphic_unit.h>
 
-#include <geode/geosciences/common.h>
-
-namespace geode
-{
-    FORWARD_DECLARATION_DIMENSION_CLASS( Fault );
-    FORWARD_DECLARATION_DIMENSION_CLASS( Faults );
-
-    struct uuid;
-} // namespace geode
+#define PYTHON_STRATIGRAPHIC_UNIT( dimension )                                 \
+    const auto name##dimension =                                               \
+        "StratigraphicUnit" + std::to_string( dimension ) + "D";               \
+    pybind11::class_< StratigraphicUnit##dimension##D,                         \
+        Component##dimension##D >( module, name##dimension.c_str() )           \
+        .def( "component_id", &StratigraphicUnit##dimension##D::component_id )
 
 namespace geode
 {
-    template < index_t dimension >
-    class FaultsBuilder
+    void define_stratigraphic_unit( pybind11::module& module )
     {
-    public:
-        void load_faults( absl::string_view directory );
-
-        void set_fault_type( const uuid& fault_id,
-            typename Fault< dimension >::FAULT_TYPE type );
-
-        void set_fault_name( const uuid& id, absl::string_view name );
-
-    protected:
-        FaultsBuilder( Faults< dimension >& faults ) : faults_( faults ) {}
-
-        const uuid& create_fault();
-
-        const uuid& create_fault(
-            typename Fault< dimension >::FAULT_TYPE type );
-
-        void delete_fault( const Fault< dimension >& fault );
-
-    private:
-        Faults< dimension >& faults_;
-    };
-    ALIAS_2D_AND_3D( FaultsBuilder );
+        PYTHON_STRATIGRAPHIC_UNIT( 2 );
+        PYTHON_STRATIGRAPHIC_UNIT( 3 );
+    }
 } // namespace geode
