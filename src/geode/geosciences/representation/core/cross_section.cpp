@@ -39,7 +39,7 @@ namespace geode
             Relationships::ItemRangeIterator::operator*().id() );
     }
 
-    CrossSection::HorizonItemRange CrossSection::items(
+    CrossSection::HorizonItemRange CrossSection::horizon_items(
         const Horizon2D& horizon ) const
     {
         return { *this, horizon };
@@ -59,7 +59,7 @@ namespace geode
             Relationships::ItemRangeIterator::operator*().id() );
     }
 
-    CrossSection::FaultItemRange CrossSection::items(
+    CrossSection::FaultItemRange CrossSection::fault_items(
         const Fault2D& fault ) const
     {
         return { *this, fault };
@@ -79,7 +79,7 @@ namespace geode
             Relationships::ItemRangeIterator::operator*().id() );
     }
 
-    CrossSection::FaultBlockItemRange CrossSection::items(
+    CrossSection::FaultBlockItemRange CrossSection::fault_block_items(
         const FaultBlock2D& fault_block ) const
     {
         return { *this, fault_block };
@@ -101,8 +101,9 @@ namespace geode
             Relationships::ItemRangeIterator::operator*().id() );
     }
 
-    CrossSection::StratigraphicUnitItemRange CrossSection::items(
-        const StratigraphicUnit2D& stratigraphic_unit ) const
+    CrossSection::StratigraphicUnitItemRange
+        CrossSection::stratigraphic_unit_items(
+            const StratigraphicUnit2D& stratigraphic_unit ) const
     {
         return { *this, stratigraphic_unit };
     }

@@ -37,12 +37,11 @@
 #include <geode/geosciences/representation/io/cross_section_input.h>
 #include <geode/geosciences/representation/io/cross_section_output.h>
 
-template < class Feature >
-geode::index_t count_items(
-    const geode::CrossSection& model, const Feature& feature )
+template < class ItemRange >
+geode::index_t count_items( ItemRange items )
 {
     geode::index_t count{ 0 };
-    for( const auto& item : model.items( feature ) )
+    for( const auto& item : items )
     {
         geode_unused( item );
         count++;
@@ -198,20 +197,22 @@ void do_checks( const geode::CrossSection& model,
     }
 
     OPENGEODE_EXCEPTION(
-        count_items( model, model.horizon( horizons_uuids[2] ) ) == 3,
+        count_items( model.horizon_items( model.horizon( horizons_uuids[2] ) ) )
+            == 3,
         "[Test] Number of iterations on items in "
         "horizons_uuids[2] should be 3" );
     OPENGEODE_EXCEPTION(
-        count_items( model, model.fault( faults_uuids[1] ) ) == 2,
+        count_items( model.fault_items( model.fault( faults_uuids[1] ) ) ) == 2,
         "[Test] Number of iterations on items in "
         "faults_uuids[1] should be 2" );
-    OPENGEODE_EXCEPTION(
-        count_items( model, model.fault_block( fault_blocks_uuids[0] ) ) == 2,
+    OPENGEODE_EXCEPTION( count_items( model.fault_block_items(
+                             model.fault_block( fault_blocks_uuids[0] ) ) )
+                             == 2,
         "[Test] Number of iterations on items in "
         "fault_blocks_uuids[0] should be 2" );
     OPENGEODE_EXCEPTION(
-        count_items(
-            model, model.stratigraphic_unit( stratigraphic_units_uuids[0] ) )
+        count_items( model.stratigraphic_unit_items(
+            model.stratigraphic_unit( stratigraphic_units_uuids[0] ) ) )
             == 2,
         "[Test] Number of iterations on items in "
         "stratigraphic_units_uuids[0] should be 2" );

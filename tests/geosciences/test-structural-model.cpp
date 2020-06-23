@@ -34,12 +34,11 @@
 #include <geode/geosciences/representation/io/structural_model_input.h>
 #include <geode/geosciences/representation/io/structural_model_output.h>
 
-template < class Feature >
-geode::index_t count_items(
-    const geode::StructuralModel& model, const Feature& feature )
+template < class ItemRange >
+geode::index_t count_items( ItemRange items )
 {
     geode::index_t count{ 0 };
-    for( const auto& item : model.items( feature ) )
+    for( const auto& item : items )
     {
         geode_unused( item );
         count++;
@@ -157,11 +156,12 @@ void do_checks( const geode::StructuralModel& model,
     }
 
     OPENGEODE_EXCEPTION(
-        count_items( model, model.horizon( horizons_uuids[2] ) ) == 3,
+        count_items( model.horizon_items( model.horizon( horizons_uuids[2] ) ) )
+            == 3,
         "[Test] Number of iterations on items in "
         "horizons_uuids[2] should be 3" );
     OPENGEODE_EXCEPTION(
-        count_items( model, model.fault( faults_uuids[1] ) ) == 2,
+        count_items( model.fault_items( model.fault( faults_uuids[1] ) ) ) == 2,
         "[Test] Number of iterations on items in "
         "faults_uuids[1] should be 2" );
 }
