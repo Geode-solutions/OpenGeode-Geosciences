@@ -116,7 +116,8 @@ namespace geode
 
         FaultItemRange fault_items( const Fault3D& fault ) const;
 
-        FaultBlockItemRange fault_block_items( const FaultBlock3D& fault_block ) const;
+        FaultBlockItemRange fault_block_items(
+            const FaultBlock3D& fault_block ) const;
 
         StratigraphicUnitItemRange stratigraphic_unit_items(
             const StratigraphicUnit3D& stratigraphic_unit ) const;
