@@ -38,7 +38,7 @@ namespace geode
                     const Horizon2D& horizon ) {
                     std::vector< const Line2D* > components;
                     for( const auto& component :
-                        cross_section.items( horizon ) )
+                        cross_section.horizon_items( horizon ) )
                     {
                         components.push_back( &component );
                     }
@@ -49,7 +49,8 @@ namespace geode
                 "fault_items",
                 []( const CrossSection& cross_section, const Fault2D& fault ) {
                     std::vector< const Line2D* > components;
-                    for( const auto& component : cross_section.items( fault ) )
+                    for( const auto& component :
+                        cross_section.fault_items( fault ) )
                     {
                         components.push_back( &component );
                     }
@@ -62,7 +63,7 @@ namespace geode
                     const FaultBlock2D& fault_block ) {
                     std::vector< const Surface2D* > components;
                     for( const auto& component :
-                        cross_section.items( fault_block ) )
+                        cross_section.fault_block_items( fault_block ) )
                     {
                         components.push_back( &component );
                     }
@@ -75,7 +76,8 @@ namespace geode
                     const StratigraphicUnit2D& stratigraphic_unit ) {
                     std::vector< const Surface2D* > components;
                     for( const auto& component :
-                        cross_section.items( stratigraphic_unit ) )
+                        cross_section.stratigraphic_unit_items(
+                            stratigraphic_unit ) )
                     {
                         components.push_back( &component );
                     }

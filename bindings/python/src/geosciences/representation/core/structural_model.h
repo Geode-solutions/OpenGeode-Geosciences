@@ -38,7 +38,7 @@ namespace geode
                     const Horizon3D& horizon ) {
                     std::vector< const Surface3D* > components;
                     for( const auto& component :
-                        structural_model.items( horizon ) )
+                        structural_model.horizon_items( horizon ) )
                     {
                         components.push_back( &component );
                     }
@@ -51,7 +51,7 @@ namespace geode
                     const Fault3D& fault ) {
                     std::vector< const Surface3D* > components;
                     for( const auto& component :
-                        structural_model.items( fault ) )
+                        structural_model.fault_items( fault ) )
                     {
                         components.push_back( &component );
                     }
@@ -64,7 +64,7 @@ namespace geode
                     const FaultBlock3D& fault_block ) {
                     std::vector< const Block3D* > components;
                     for( const auto& component :
-                        structural_model.items( fault_block ) )
+                        structural_model.fault_block_items( fault_block ) )
                     {
                         components.push_back( &component );
                     }
@@ -77,7 +77,8 @@ namespace geode
                     const StratigraphicUnit3D& stratigraphic_unit ) {
                     std::vector< const Block3D* > components;
                     for( const auto& component :
-                        structural_model.items( stratigraphic_unit ) )
+                        structural_model.stratigraphic_unit_items(
+                            stratigraphic_unit ) )
                     {
                         components.push_back( &component );
                     }
