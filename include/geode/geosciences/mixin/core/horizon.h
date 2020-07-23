@@ -53,7 +53,9 @@ namespace geode
             /// Default value - No horizon type defined
             NO_TYPE,
             CONFORMAL,
-            NON_CONFORMAL
+            NON_CONFORMAL,
+            TOPOGRAPHY,
+            INTRUSION
         };
 
     public:
