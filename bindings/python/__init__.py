@@ -18,13 +18,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-add_geode_python_test(
-    SOURCE "test-py-cross-section.py"
-    DEPENDENCIES
-        ${PROJECT_NAME}::py_geosciences
-)
-add_geode_python_test(
-    SOURCE "test-py-structural-model.py"
-    DEPENDENCIES
-        ${PROJECT_NAME}::py_geosciences
-)
+import opengeode
+
+from .opengeode_geosciences_py_geosciences import *
