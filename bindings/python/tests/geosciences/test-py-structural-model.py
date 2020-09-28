@@ -21,10 +21,7 @@
 
 import os 
 
-import opengeode_py_basic
-import opengeode_py_geometry as geom
-import opengeode_py_mesh as mesh
-import opengeode_py_model as model
+import opengeode
 import opengeode_geosciences_py_geosciences as geosciences
 
 def add_faults( model, builder ):

@@ -23,33 +23,24 @@ jobs:
     strategy:
       matrix:
         config:
-        - {container: "geodesolutions/ubuntu", build_type: "Debug", system: ubuntu, python: 3.6}
-        - {container: "geodesolutions/ubuntu", build_type: "Release", system: ubuntu, python: 3.6}
-        - {container: "geodesolutions/ubuntu", build_type: "Debug", system: ubuntu, python: 3.7}
-        - {container: "geodesolutions/ubuntu", build_type: "Release", system: ubuntu, python: 3.7}
-        - {container: "geodesolutions/ubuntu", build_type: "Debug", system: ubuntu, python: 3.8}
-        - {container: "geodesolutions/ubuntu", build_type: "Release", system: ubuntu, python: 3.8}
-        - {container: "geodesolutions/centos", build_type: "Debug", system: rhel, python: 2.7}
-        - {container: "geodesolutions/centos", build_type: "Release", system: rhel, python: 2.7}
-
+        - {container: "geodesolutions/ubuntu", build_type: "Debug", system: ubuntu}
+        - {container: "geodesolutions/ubuntu", build_type: "Release", system: ubuntu}
+        - {container: "geodesolutions/centos", build_type: "Debug", system: rhel}
+        - {container: "geodesolutions/centos", build_type: "Release", system: rhel}
 
     steps:
     - uses: actions/checkout@v1
-    - name: Set up Python ${{ matrix.config.python }}
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.config.python }}
     - uses: Geode-solutions/actions/get-release@master
       id: opengeode
       with:
         repository: OpenGeode
-        file: '${{ matrix.config.python }}-${{ matrix.config.system }}.tar.gz'
+        file: '${{ matrix.config.system }}.tar.gz'
         token: ${{ secrets.TOKEN }}
     - name: Compile
       run: |
         mkdir -p build
         cd build
-        cmake -DCMAKE_BUILD_TYPE=${{ matrix.config.build_type }} -DCMAKE_PREFIX_PATH:PATH=$GITHUB_WORKSPACE/${{ steps.opengeode.outputs.path }} -DOPENGEODE_GEOSCIENCES_WITH_PYTHON:BOOL=ON -DPYTHON_VERSION:STRING=${{ matrix.config.python }} ..
+        cmake -DCMAKE_BUILD_TYPE=${{ matrix.config.build_type }} -DCMAKE_PREFIX_PATH:PATH=$GITHUB_WORKSPACE/${{ steps.opengeode.outputs.path }} ..
         cmake --build . -- -j2
     - name: Test
       run: |
@@ -58,6 +49,42 @@ jobs:
         cmake -DCMAKE_BUILD_TYPE=${{ matrix.config.build_type }} -DCMAKE_PREFIX_PATH:PATH="$GITHUB_WORKSPACE/build;$GITHUB_WORKSPACE/${{ steps.opengeode.outputs.path }}" ../tests
         cmake --build . -- -j2
         ctest --output-on-failure
+    - name: Notify slack
+      if: failure() && github.ref == 'refs/heads/master'
+      uses: 8398a7/action-slack@v2
+      with:
+        status: failure
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}        
+      
+  build-linux-wheel:
+    runs-on: ubuntu-18.04
+    container: "dockcross/manylinux2014-x64"
+    needs: format
+    strategy:
+      matrix:
+        config:
+        - {python: 3.6, tag: "cp36-cp36m"}
+        - {python: 3.7, tag: "cp37-cp37m"}
+        - {python: 3.8, tag: "cp38-cp38"}
+
+    steps:
+    - uses: actions/checkout@v1
+    - uses: Geode-solutions/actions/get-release@master
+      id: opengeode
+      with:
+        repository: OpenGeode
+        file: 'rhel.tar.gz'
+        token: ${{ secrets.TOKEN }}
+    - name: Compile
+      run: |
+        export PATH=/opt/python/${{ matrix.config.tag }}/bin:$PATH
+        mkdir -p build
+        cd build
+        cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_PREFIX_PATH:PATH=$GITHUB_WORKSPACE/${{ steps.opengeode.outputs.path }} -DOPENGEODE_GEOSCIENCES_WITH_PYTHON:BOOL=ON -DPYTHON_VERSION:STRING=${{ matrix.config.python }} ..
+        cmake --build . -- -j2
+        cmake --build . --target wheel --config Debug
     - name: Notify slack
       if: failure() && github.ref == 'refs/heads/master'
       uses: 8398a7/action-slack@v2
@@ -120,15 +147,17 @@ jobs:
       id: opengeode
       with:
         repository: OpenGeode
-        file: '${{ matrix.python }}-darwin.tar.gz'
+        file: '-darwin.tar.gz'
         token: ${{ secrets.TOKEN }}
     - name: Compile & Test
       run: |
+        pip install wheel
         mkdir -p build
         cd build
         cmake -G "Xcode" -DCMAKE_PREFIX_PATH:PATH=${GITHUB_WORKSPACE}/${{ steps.opengeode.outputs.path }} -DOPENGEODE_GEOSCIENCES_WITH_PYTHON:BOOL=ON -DPYTHON_VERSION:STRING=${{ matrix.python }} ..
         cmake --build . --config ${{ matrix.config }}
         ctest -C ${{ matrix.config }} --output-on-failure
+        cmake --build . --target wheel --config ${{ matrix.config }}
     - name: Notify slack
       if: failure() && github.ref == 'refs/heads/master'
       uses: 8398a7/action-slack@v2
@@ -156,15 +185,17 @@ jobs:
       id: opengeode
       with:
         repository: OpenGeode
-        file: '${{ matrix.python }}-win64.zip'
+        file: '-win64.zip'
         token: ${{ secrets.TOKEN }}
     - name: Compile & Test
       run: |
+        pip install wheel
         mkdir -p build
         cd build
         cmake -G "Visual Studio 15 2017 Win64" -DCMAKE_PREFIX_PATH:PATH=${env:GITHUB_WORKSPACE}/${{ steps.opengeode.outputs.path }} -DOPENGEODE_GEOSCIENCES_WITH_PYTHON:BOOL=ON -DPYTHON_VERSION:STRING=${{ matrix.python }} ..
         cmake --build . --config ${{ matrix.config }}
         ctest -C ${{ matrix.config }} --output-on-failure
+        cmake --build . --target wheel --config ${{ matrix.config }}
     - name: Notify slack
       if: failure() && github.ref == 'refs/heads/master'
       uses: 8398a7/action-slack@v2
@@ -176,7 +207,7 @@ jobs:
         
   semantic-release:
     runs-on: ubuntu-18.04
-    needs: [build-linux, coverage, build-mac-xcode, build-windows]
+    needs: [build-linux, build-linux-wheel, coverage, build-mac-xcode, build-windows]
     steps:
     - uses: actions/checkout@v1
     - run: npx semantic-release
