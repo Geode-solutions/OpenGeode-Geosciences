@@ -1,6 +1,6 @@
 # Upgrade Guide
 
-## Upgrading from OpenGeode v3.x.x to v4.0.0
+## Upgrading from OpenGeode-Geosciences v3.x.x to v4.0.0
 
 ### Motivations
 
@@ -32,4 +32,3 @@ Following the same organization principle than OpenGeode v2.
 ### Breaking Changes
 
 - Files have been reorganized by adding two folders: mixin and representation.
-
