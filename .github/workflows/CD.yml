@@ -54,7 +54,7 @@ jobs:
       
   release-linux-wheel:
     runs-on: ubuntu-18.04
-    container: "dockcross/manylinux2014-x64"
+    container: "geodesolutions/centos8"
     strategy:
       matrix:
         config:
@@ -68,7 +68,7 @@ jobs:
       id: opengeode
       with:
         repository: OpenGeode
-        file: '-rhel.tar.gz'
+        file: '-ubuntu.tar.gz'
         token: ${{ secrets.TOKEN }}
     - name: Generate package
       id: package
@@ -235,6 +235,7 @@ jobs:
         config:
         - {python: 3.6, tag: "cp36-cp36m"}
         - {python: 3.7, tag: "cp37-cp37m"}
+        - {python: 3.8, tag: "cp38-cp38"}
 
     steps:
     - uses: actions/checkout@v1
