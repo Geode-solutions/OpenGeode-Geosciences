@@ -48,6 +48,12 @@ namespace geode
     }
 
     template < index_t dimension >
+    Horizons< dimension >::Horizons( Horizons&& other )
+        : impl_( std::move( other.impl_ ) )
+    {
+    }
+
+    template < index_t dimension >
     index_t Horizons< dimension >::nb_horizons() const
     {
         return impl_->nb_components();
@@ -189,8 +195,8 @@ namespace geode
     }
 
     template < index_t dimension >
-    const Horizon< dimension >& Horizons< dimension >::HorizonRange::
-        operator*() const
+    const Horizon< dimension >&
+        Horizons< dimension >::HorizonRange::operator*() const
     {
         return this->impl_->horizon();
     }
@@ -203,8 +209,8 @@ namespace geode
     }
 
     template < index_t dimension >
-    Horizon< dimension >& Horizons< dimension >::ModifiableHorizonRange::
-        operator*() const
+    Horizon< dimension >&
+        Horizons< dimension >::ModifiableHorizonRange::operator*() const
     {
         return this->impl_->horizon();
     }

@@ -48,6 +48,7 @@ namespace geode
     void StructuralModelBuilder::copy( const StructuralModel& structural_model )
     {
         auto mappings = copy_components( structural_model );
+        copy_component_relationships( mappings, structural_model );
         copy_geological_components( mappings, structural_model );
     }
 

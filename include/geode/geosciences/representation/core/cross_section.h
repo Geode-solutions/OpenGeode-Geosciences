@@ -111,13 +111,14 @@ namespace geode
             return native_extension_static();
         }
 
-        HorizonItemRange items( const Horizon2D& horizon ) const;
+        HorizonItemRange horizon_items( const Horizon2D& horizon ) const;
 
-        FaultItemRange items( const Fault2D& fault ) const;
+        FaultItemRange fault_items( const Fault2D& fault ) const;
 
-        FaultBlockItemRange items( const FaultBlock2D& fault_block ) const;
+        FaultBlockItemRange fault_block_items(
+            const FaultBlock2D& fault_block ) const;
 
-        StratigraphicUnitItemRange items(
+        StratigraphicUnitItemRange stratigraphic_unit_items(
             const StratigraphicUnit2D& stratigraphic_unit ) const;
     };
 } // namespace geode

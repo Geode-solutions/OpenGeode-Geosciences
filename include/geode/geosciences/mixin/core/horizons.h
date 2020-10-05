@@ -25,8 +25,6 @@
 
 #include <geode/basic/pimpl.h>
 
-#include <geode/mesh/core/mesh_id.h>
-
 #include <geode/geosciences/common.h>
 #include <geode/geosciences/mixin/core/horizon.h>
 
@@ -42,7 +40,7 @@ namespace geode
     template < index_t dimension >
     class opengeode_geosciences_geosciences_api Horizons
     {
-        OPENGEODE_DISABLE_COPY_AND_MOVE( Horizons );
+        OPENGEODE_DISABLE_COPY( Horizons );
 
     public:
         using Builder = HorizonsBuilder< dimension >;
@@ -99,6 +97,7 @@ namespace geode
     protected:
         friend class HorizonsBuilder< dimension >;
         Horizons();
+        Horizons( Horizons&& );
 
     private:
         class ModifiableHorizonRange : public HorizonRangeBase

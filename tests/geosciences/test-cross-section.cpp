@@ -37,12 +37,11 @@
 #include <geode/geosciences/representation/io/cross_section_input.h>
 #include <geode/geosciences/representation/io/cross_section_output.h>
 
-template < class Feature >
-geode::index_t count_items(
-    const geode::CrossSection& model, const Feature& feature )
+template < class ItemRange >
+geode::index_t count_items( ItemRange items )
 {
     geode::index_t count{ 0 };
-    for( const auto& item : model.items( feature ) )
+    for( const auto& item : items )
     {
         geode_unused( item );
         count++;
@@ -198,20 +197,22 @@ void do_checks( const geode::CrossSection& model,
     }
 
     OPENGEODE_EXCEPTION(
-        count_items( model, model.horizon( horizons_uuids[2] ) ) == 3,
+        count_items( model.horizon_items( model.horizon( horizons_uuids[2] ) ) )
+            == 3,
         "[Test] Number of iterations on items in "
         "horizons_uuids[2] should be 3" );
     OPENGEODE_EXCEPTION(
-        count_items( model, model.fault( faults_uuids[1] ) ) == 2,
+        count_items( model.fault_items( model.fault( faults_uuids[1] ) ) ) == 2,
         "[Test] Number of iterations on items in "
         "faults_uuids[1] should be 2" );
-    OPENGEODE_EXCEPTION(
-        count_items( model, model.fault_block( fault_blocks_uuids[0] ) ) == 2,
+    OPENGEODE_EXCEPTION( count_items( model.fault_block_items(
+                             model.fault_block( fault_blocks_uuids[0] ) ) )
+                             == 2,
         "[Test] Number of iterations on items in "
         "fault_blocks_uuids[0] should be 2" );
     OPENGEODE_EXCEPTION(
-        count_items(
-            model, model.stratigraphic_unit( stratigraphic_units_uuids[0] ) )
+        count_items( model.stratigraphic_unit_items(
+            model.stratigraphic_unit( stratigraphic_units_uuids[0] ) ) )
             == 2,
         "[Test] Number of iterations on items in "
         "stratigraphic_units_uuids[0] should be 2" );
@@ -264,6 +265,8 @@ void build_relations_between_geometry_and_geology(
     for( const auto& surface : model.surfaces() )
     {
         surfaces_uuids[s++] = surface.id();
+        builder.add_line_surface_boundary_relationship(
+            model.line( lines_uuids.front() ), surface );
     }
 
     std::vector< geode::uuid > fault_blocks_uuids;
@@ -321,10 +324,9 @@ void check_reloaded_model( const geode::CrossSection& reloaded_model )
 void test_io( const geode::CrossSection& model )
 {
     const auto file_io = absl::StrCat( "test.", model.native_extension() );
-    save_cross_section( model, file_io );
+    geode::save_cross_section( model, file_io );
 
-    geode::CrossSection reloaded_model;
-    load_cross_section( reloaded_model, file_io );
+    geode::CrossSection reloaded_model = geode::load_cross_section( file_io );
     check_reloaded_model( reloaded_model );
 }
 
@@ -345,17 +347,25 @@ void test_copy( const geode::CrossSection& model )
         "[Test] Number of fault blocks in copied model should be 2" );
     OPENGEODE_EXCEPTION( copy.nb_stratigraphic_units() == 2,
         "[Test] Number of stratigraphic units in copied model should be 2" );
+    geode::index_t nb_surface_boundaries{ 0 };
+    for( const auto& surface : copy.surfaces() )
+    {
+        nb_surface_boundaries += count_items( copy.boundaries( surface ) );
+    }
+    OPENGEODE_EXCEPTION( nb_surface_boundaries == 4,
+        "[Test] Number of boundaries of Surfaces in copied model should be 4" );
+
     geode::index_t nb_fault_items{ 0 };
     for( const auto& fault : copy.faults() )
     {
-        nb_fault_items += count_items( copy, fault );
+        nb_fault_items += count_items( copy.fault_items( fault ) );
     }
     OPENGEODE_EXCEPTION( nb_fault_items == 5,
         "[Test] Number of items in faults in copied model should be 5" );
     geode::index_t nb_horizon_items{ 0 };
     for( const auto& horizon : copy.horizons() )
     {
-        nb_horizon_items += count_items( copy, horizon );
+        nb_horizon_items += count_items( copy.horizon_items( horizon ) );
     }
     OPENGEODE_EXCEPTION( nb_horizon_items == 4,
         "[Test] Number of items in stratigraphic_units "
@@ -363,14 +373,16 @@ void test_copy( const geode::CrossSection& model )
     geode::index_t nb_fault_block_items{ 0 };
     for( const auto& fault_block : copy.fault_blocks() )
     {
-        nb_fault_block_items += count_items( copy, fault_block );
+        nb_fault_block_items +=
+            count_items( copy.fault_block_items( fault_block ) );
     }
     OPENGEODE_EXCEPTION( nb_fault_block_items == 4,
         "[Test] Number of items in fault_blocks in copied model should be 4" );
     geode::index_t nb_stratigraphic_unit_items{ 0 };
     for( const auto& stratigraphic_unit : copy.stratigraphic_units() )
     {
-        nb_stratigraphic_unit_items += count_items( copy, stratigraphic_unit );
+        nb_stratigraphic_unit_items +=
+            count_items( copy.stratigraphic_unit_items( stratigraphic_unit ) );
     }
     OPENGEODE_EXCEPTION( nb_stratigraphic_unit_items == 4,
         "[Test] Number of items in stratigraphic_units in copied model should "

@@ -25,6 +25,7 @@
 #include <geode/basic/logger.h>
 #include <geode/basic/range.h>
 
+#include <geode/model/mixin/core/line.h>
 #include <geode/model/mixin/core/surface.h>
 
 #include <geode/geosciences/mixin/core/fault.h>
@@ -34,12 +35,11 @@
 #include <geode/geosciences/representation/io/structural_model_input.h>
 #include <geode/geosciences/representation/io/structural_model_output.h>
 
-template < class Feature >
-geode::index_t count_items(
-    const geode::StructuralModel& model, const Feature& feature )
+template < class ItemRange >
+geode::index_t count_items( ItemRange items )
 {
     geode::index_t count{ 0 };
-    for( const auto& item : model.items( feature ) )
+    for( const auto& item : items )
     {
         geode_unused( item );
         count++;
@@ -119,6 +119,15 @@ void add_horizons(
         "[Test] Wrong modified Horizon name" );
 }
 
+void add_lines( geode::StructuralModelBuilder& builder )
+{
+    for( const auto i : geode::Range{ 8 } )
+    {
+        geode_unused( i );
+        builder.add_line();
+    }
+}
+
 void add_surfaces( geode::StructuralModelBuilder& builder )
 {
     for( const auto i : geode::Range{ 8 } )
@@ -157,11 +166,12 @@ void do_checks( const geode::StructuralModel& model,
     }
 
     OPENGEODE_EXCEPTION(
-        count_items( model, model.horizon( horizons_uuids[2] ) ) == 3,
+        count_items( model.horizon_items( model.horizon( horizons_uuids[2] ) ) )
+            == 3,
         "[Test] Number of iterations on items in "
         "horizons_uuids[2] should be 3" );
     OPENGEODE_EXCEPTION(
-        count_items( model, model.fault( faults_uuids[1] ) ) == 2,
+        count_items( model.fault_items( model.fault( faults_uuids[1] ) ) ) == 2,
         "[Test] Number of iterations on items in "
         "faults_uuids[1] should be 2" );
 }
@@ -174,6 +184,8 @@ void build_relations_between_geometry_and_geology(
     for( const auto& surface : model.surfaces() )
     {
         surfaces_uuids.push_back( surface.id() );
+        builder.add_line_surface_boundary_relationship(
+            ( *model.lines().begin() ), surface );
     }
     std::vector< geode::uuid > faults_uuids;
     faults_uuids.reserve( model.nb_faults() );
@@ -224,10 +236,10 @@ void check_reloaded_model( const geode::StructuralModel& reloaded_model )
 void test_io( const geode::StructuralModel& model )
 {
     const auto file_io = absl::StrCat( "test.", model.native_extension() );
-    save_structural_model( model, file_io );
+    geode::save_structural_model( model, file_io );
 
-    geode::StructuralModel reloaded_model;
-    load_structural_model( reloaded_model, file_io );
+    geode::StructuralModel reloaded_model =
+        geode::load_structural_model( file_io );
     check_reloaded_model( reloaded_model );
 }
 
@@ -244,17 +256,24 @@ void test_copy( const geode::StructuralModel& model )
         "[Test] Number of faults in copied model should be 2" );
     OPENGEODE_EXCEPTION( copy.nb_fault_blocks() == 0,
         "[Test] Number of fault blocks in copied model should be 0" );
+    geode::index_t nb_surface_boundaries{ 0 };
+    for( const auto& surface : copy.surfaces() )
+    {
+        nb_surface_boundaries += count_items( copy.boundaries( surface ) );
+    }
+    OPENGEODE_EXCEPTION( nb_surface_boundaries == 8,
+        "[Test] Number of boundaries of Surfaces in copied model should be 8" );
     geode::index_t nb_fault_items{ 0 };
     for( const auto& fault : copy.faults() )
     {
-        nb_fault_items += count_items( copy, fault );
+        nb_fault_items += count_items( copy.fault_items( fault ) );
     }
     OPENGEODE_EXCEPTION( nb_fault_items == 5,
         "[Test] Number of items in faults in copied model should be 5" );
     geode::index_t nb_horizon_items{ 0 };
     for( const auto& horizon : copy.horizons() )
     {
-        nb_horizon_items += count_items( copy, horizon );
+        nb_horizon_items += count_items( copy.horizon_items( horizon ) );
     }
     OPENGEODE_EXCEPTION( nb_horizon_items == 4,
         "[Test] Number of items in horizons in copied model should be 4" );
@@ -317,6 +336,7 @@ int main()
         add_faults( model, builder );
         add_horizons( model, builder );
         add_surfaces( builder );
+        add_lines( builder );
         build_relations_between_geometry_and_geology( model, builder );
 
         test_io( model );

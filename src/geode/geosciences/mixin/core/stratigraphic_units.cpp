@@ -49,6 +49,13 @@ namespace geode
     }
 
     template < index_t dimension >
+    StratigraphicUnits< dimension >::StratigraphicUnits(
+        StratigraphicUnits&& other )
+        : impl_( std::move( other.impl_ ) )
+    {
+    }
+
+    template < index_t dimension >
     index_t StratigraphicUnits< dimension >::nb_stratigraphic_units() const
     {
         return impl_->nb_components();
@@ -168,15 +175,16 @@ namespace geode
     }
 
     template < index_t dimension >
-    bool StratigraphicUnits< dimension >::StratigraphicUnitRangeBase::
-        operator!=( const StratigraphicUnitRangeBase& /*unused*/ ) const
+    bool
+        StratigraphicUnits< dimension >::StratigraphicUnitRangeBase::operator!=(
+            const StratigraphicUnitRangeBase& /*unused*/ ) const
     {
         return impl_->operator!=( *impl_ );
     }
 
     template < index_t dimension >
-    void StratigraphicUnits< dimension >::StratigraphicUnitRangeBase::
-        operator++()
+    void StratigraphicUnits<
+        dimension >::StratigraphicUnitRangeBase::operator++()
     {
         return impl_->operator++();
     }
@@ -190,8 +198,8 @@ namespace geode
 
     template < index_t dimension >
     const StratigraphicUnit< dimension >&
-        StratigraphicUnits< dimension >::StratigraphicUnitRange::
-            operator*() const
+        StratigraphicUnits< dimension >::StratigraphicUnitRange::operator*()
+            const
     {
         return this->impl_->stratigraphic_unit();
     }
@@ -205,9 +213,8 @@ namespace geode
     }
 
     template < index_t dimension >
-    StratigraphicUnit< dimension >&
-        StratigraphicUnits< dimension >::ModifiableStratigraphicUnitRange::
-            operator*() const
+    StratigraphicUnit< dimension >& StratigraphicUnits<
+        dimension >::ModifiableStratigraphicUnitRange::operator*() const
     {
         return this->impl_->stratigraphic_unit();
     }

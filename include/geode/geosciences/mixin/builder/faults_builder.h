@@ -59,4 +59,5 @@ namespace geode
     private:
         Faults< dimension >& faults_;
     };
+    ALIAS_2D_AND_3D( FaultsBuilder );
 } // namespace geode

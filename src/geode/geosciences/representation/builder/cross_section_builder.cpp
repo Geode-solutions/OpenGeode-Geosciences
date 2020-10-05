@@ -47,6 +47,7 @@ namespace geode
     void CrossSectionBuilder::copy( const CrossSection& cross_section )
     {
         auto mappings = copy_components( cross_section );
+        copy_component_relationships( mappings, cross_section );
         copy_geological_components( mappings, cross_section );
     }
 

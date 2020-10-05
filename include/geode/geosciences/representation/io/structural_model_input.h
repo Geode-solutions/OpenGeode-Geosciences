@@ -40,11 +40,10 @@ namespace geode
     /*!
      * API function for loading a StructuralModel.
      * The adequate loader is called depending on the filename extension.
-     * @param[out] structural_model Loaded StructuralModel.
      * @param[in] filename Path to the file to load.
      */
-    void opengeode_geosciences_geosciences_api load_structural_model(
-        StructuralModel& structural_model, absl::string_view filename );
+    StructuralModel opengeode_geosciences_geosciences_api load_structural_model(
+        absl::string_view filename );
 
     class opengeode_geosciences_geosciences_api StructuralModelInput
         : public Input

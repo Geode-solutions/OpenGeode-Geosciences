@@ -122,7 +122,8 @@ namespace geode
             {
                 const auto& collection_to_id =
                     collection_mapping.in2out( collection_from.id() );
-                for( const auto& item_from : from.items( collection_from ) )
+                for( const auto& item_from :
+                    from.items( collection_from.id() ) )
                 {
                     builder_to.add_item_in_collection(
                         item_mapping.in2out( item_from.id() ),
