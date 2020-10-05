@@ -265,6 +265,8 @@ void build_relations_between_geometry_and_geology(
     for( const auto& surface : model.surfaces() )
     {
         surfaces_uuids[s++] = surface.id();
+        builder.add_line_surface_boundary_relationship(
+            model.line( lines_uuids.front() ), surface );
     }
 
     std::vector< geode::uuid > fault_blocks_uuids;
@@ -326,6 +328,65 @@ void test_io( const geode::CrossSection& model )
 
     geode::CrossSection reloaded_model = geode::load_cross_section( file_io );
     check_reloaded_model( reloaded_model );
+}
+
+void test_copy( const geode::CrossSection& model )
+{
+    geode::CrossSection copy;
+    geode::CrossSectionBuilder copier( copy );
+    copier.copy( model );
+    OPENGEODE_EXCEPTION( copy.nb_surfaces() == 4,
+        "[Test] Number of surfaces in copied model should be 4" );
+    OPENGEODE_EXCEPTION( copy.nb_lines() == 8,
+        "[Test] Number of lines in copied model should be 8" );
+    OPENGEODE_EXCEPTION( copy.nb_horizons() == 3,
+        "[Test] Number of horizons in copied model should be 3" );
+    OPENGEODE_EXCEPTION( copy.nb_faults() == 2,
+        "[Test] Number of faults in copied model should be 2" );
+    OPENGEODE_EXCEPTION( copy.nb_fault_blocks() == 2,
+        "[Test] Number of fault blocks in copied model should be 2" );
+    OPENGEODE_EXCEPTION( copy.nb_stratigraphic_units() == 2,
+        "[Test] Number of stratigraphic units in copied model should be 2" );
+    geode::index_t nb_surface_boundaries{ 0 };
+    for( const auto& surface : copy.surfaces() )
+    {
+        nb_surface_boundaries += count_items( copy.boundaries( surface ) );
+    }
+    OPENGEODE_EXCEPTION( nb_surface_boundaries == 4,
+        "[Test] Number of boundaries of Surfaces in copied model should be 4" );
+
+    geode::index_t nb_fault_items{ 0 };
+    for( const auto& fault : copy.faults() )
+    {
+        nb_fault_items += count_items( copy.fault_items( fault ) );
+    }
+    OPENGEODE_EXCEPTION( nb_fault_items == 5,
+        "[Test] Number of items in faults in copied model should be 5" );
+    geode::index_t nb_horizon_items{ 0 };
+    for( const auto& horizon : copy.horizons() )
+    {
+        nb_horizon_items += count_items( copy.horizon_items( horizon ) );
+    }
+    OPENGEODE_EXCEPTION( nb_horizon_items == 4,
+        "[Test] Number of items in stratigraphic_units "
+        "in copied model should be 4" );
+    geode::index_t nb_fault_block_items{ 0 };
+    for( const auto& fault_block : copy.fault_blocks() )
+    {
+        nb_fault_block_items +=
+            count_items( copy.fault_block_items( fault_block ) );
+    }
+    OPENGEODE_EXCEPTION( nb_fault_block_items == 4,
+        "[Test] Number of items in fault_blocks in copied model should be 4" );
+    geode::index_t nb_stratigraphic_unit_items{ 0 };
+    for( const auto& stratigraphic_unit : copy.stratigraphic_units() )
+    {
+        nb_stratigraphic_unit_items +=
+            count_items( copy.stratigraphic_unit_items( stratigraphic_unit ) );
+    }
+    OPENGEODE_EXCEPTION( nb_stratigraphic_unit_items == 4,
+        "[Test] Number of items in stratigraphic_units in copied model should "
+        "be 4" );
 }
 
 void modify_model(
@@ -391,6 +452,7 @@ int main()
         build_relations_between_geometry_and_geology( model, builder );
 
         test_io( model );
+        test_copy( model );
         modify_model( model, builder );
 
         geode::Logger::info( "TEST SUCCESS" );

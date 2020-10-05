@@ -25,6 +25,7 @@
 #include <geode/basic/logger.h>
 #include <geode/basic/range.h>
 
+#include <geode/model/mixin/core/line.h>
 #include <geode/model/mixin/core/surface.h>
 
 #include <geode/geosciences/mixin/core/fault.h>
@@ -118,6 +119,15 @@ void add_horizons(
         "[Test] Wrong modified Horizon name" );
 }
 
+void add_lines( geode::StructuralModelBuilder& builder )
+{
+    for( const auto i : geode::Range{ 8 } )
+    {
+        geode_unused( i );
+        builder.add_line();
+    }
+}
+
 void add_surfaces( geode::StructuralModelBuilder& builder )
 {
     for( const auto i : geode::Range{ 8 } )
@@ -174,6 +184,8 @@ void build_relations_between_geometry_and_geology(
     for( const auto& surface : model.surfaces() )
     {
         surfaces_uuids.push_back( surface.id() );
+        builder.add_line_surface_boundary_relationship(
+            ( *model.lines().begin() ), surface );
     }
     std::vector< geode::uuid > faults_uuids;
     faults_uuids.reserve( model.nb_faults() );
@@ -229,6 +241,42 @@ void test_io( const geode::StructuralModel& model )
     geode::StructuralModel reloaded_model =
         geode::load_structural_model( file_io );
     check_reloaded_model( reloaded_model );
+}
+
+void test_copy( const geode::StructuralModel& model )
+{
+    geode::StructuralModel copy;
+    geode::StructuralModelBuilder copier( copy );
+    copier.copy( model );
+    OPENGEODE_EXCEPTION( copy.nb_surfaces() == 8,
+        "[Test] Number of surfaces in copied model should be 8" );
+    OPENGEODE_EXCEPTION( copy.nb_horizons() == 3,
+        "[Test] Number of horizons in copied model should be 3" );
+    OPENGEODE_EXCEPTION( copy.nb_faults() == 2,
+        "[Test] Number of faults in copied model should be 2" );
+    OPENGEODE_EXCEPTION( copy.nb_fault_blocks() == 0,
+        "[Test] Number of fault blocks in copied model should be 0" );
+    geode::index_t nb_surface_boundaries{ 0 };
+    for( const auto& surface : copy.surfaces() )
+    {
+        nb_surface_boundaries += count_items( copy.boundaries( surface ) );
+    }
+    OPENGEODE_EXCEPTION( nb_surface_boundaries == 8,
+        "[Test] Number of boundaries of Surfaces in copied model should be 8" );
+    geode::index_t nb_fault_items{ 0 };
+    for( const auto& fault : copy.faults() )
+    {
+        nb_fault_items += count_items( copy.fault_items( fault ) );
+    }
+    OPENGEODE_EXCEPTION( nb_fault_items == 5,
+        "[Test] Number of items in faults in copied model should be 5" );
+    geode::index_t nb_horizon_items{ 0 };
+    for( const auto& horizon : copy.horizons() )
+    {
+        nb_horizon_items += count_items( copy.horizon_items( horizon ) );
+    }
+    OPENGEODE_EXCEPTION( nb_horizon_items == 4,
+        "[Test] Number of items in horizons in copied model should be 4" );
 }
 
 void modify_model(
@@ -288,9 +336,11 @@ int main()
         add_faults( model, builder );
         add_horizons( model, builder );
         add_surfaces( builder );
+        add_lines( builder );
         build_relations_between_geometry_and_geology( model, builder );
 
         test_io( model );
+        test_copy( model );
         modify_model( model, builder );
 
         geode::Logger::info( "TEST SUCCESS" );

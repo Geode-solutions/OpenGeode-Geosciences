@@ -26,7 +26,9 @@
 #include <geode/model/mixin/core/block.h>
 #include <geode/model/mixin/core/relationships.h>
 #include <geode/model/mixin/core/surface.h>
+#include <geode/model/representation/builder/detail/copy.h>
 
+#include <geode/geosciences/representation/builder/detail/copy.h>
 #include <geode/geosciences/representation/core/structural_model.h>
 
 namespace geode
@@ -41,6 +43,53 @@ namespace geode
               StratigraphicUnits >( structural_model ),
           structural_model_( structural_model )
     {
+    }
+
+    void StructuralModelBuilder::copy( const StructuralModel& structural_model )
+    {
+        auto mappings = copy_components( structural_model );
+        copy_component_relationships( mappings, structural_model );
+        copy_geological_components( mappings, structural_model );
+    }
+
+    void StructuralModelBuilder::copy_geological_components(
+        detail::ModelCopyMapping& mappings,
+        const StructuralModel& structural_model )
+    {
+        mappings.emplace( Fault3D::component_type_static(),
+            detail::copy_faults( structural_model, structural_model_, *this ) );
+        mappings.emplace( Horizon3D::component_type_static(),
+            detail::copy_horizons(
+                structural_model, structural_model_, *this ) );
+        mappings.emplace( FaultBlock3D::component_type_static(),
+            detail::copy_fault_blocks(
+                structural_model, structural_model_, *this ) );
+        mappings.emplace( StratigraphicUnit3D::component_type_static(),
+            detail::copy_stratigraphic_units(
+                structural_model, structural_model_, *this ) );
+        const auto& fault_mapping =
+            mappings.at( Fault3D::component_type_static() );
+        const auto& horizon_mapping =
+            mappings.at( Horizon3D::component_type_static() );
+        const auto& fault_block_mapping =
+            mappings.at( FaultBlock3D::component_type_static() );
+        const auto& stratigraphic_unit_mapping =
+            mappings.at( StratigraphicUnit3D::component_type_static() );
+        const auto& surface_mapping =
+            mappings.at( Surface3D::component_type_static() );
+        const auto& block_mapping =
+            mappings.at( Block3D::component_type_static() );
+        detail::copy_collection_item_relationships( structural_model,
+            structural_model.faults(), fault_mapping, surface_mapping, *this );
+        detail::copy_collection_item_relationships( structural_model,
+            structural_model.horizons(), horizon_mapping, surface_mapping,
+            *this );
+        detail::copy_collection_item_relationships( structural_model,
+            structural_model.fault_blocks(), fault_block_mapping, block_mapping,
+            *this );
+        detail::copy_collection_item_relationships( structural_model,
+            structural_model.stratigraphic_units(), stratigraphic_unit_mapping,
+            block_mapping, *this );
     }
 
     const uuid& StructuralModelBuilder::add_fault()
