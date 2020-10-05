@@ -25,7 +25,7 @@
 
 #include <geode/basic/pimpl.h>
 
-#include <geode/mesh/core/mesh_type.h>
+#include <geode/mesh/core/mesh_id.h>
 
 #include <geode/geosciences/common.h>
 #include <geode/geosciences/mixin/core/stratigraphic_unit.h>
