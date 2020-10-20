@@ -41,6 +41,10 @@ OpenGeode-Geosciences is a module of [OpenGeode] provides data structures for ge
 
 To check out our live documentation, visit [docs.geode-solutions.com](https://docs.geode-solutions.com).
 
+Installing OpenGeode-Geosciences is done:
+ * either, by compiling the C++ source.
+ * or, by using pip command ```pip install OpenGeode-Geosciences``` and add ```import opengeode_geosciences``` in your Python script.
+
 
 ## Questions
 For questions and support please use the official [slack](https://slackin-opengeode.herokuapp.com) and go to the channel #geosciences. The issue list of this repo is exclusively for bug reports and feature requests. 
