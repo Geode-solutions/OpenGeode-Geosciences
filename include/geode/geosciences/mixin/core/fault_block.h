@@ -23,8 +23,6 @@
 
 #pragma once
 
-#include <geode/basic/pimpl.h>
-
 #include <geode/model/mixin/core/component.h>
 
 #include <geode/geosciences/common.h>
@@ -78,9 +76,6 @@ namespace geode
         {
             this->set_name( name );
         }
-
-    private:
-        IMPLEMENTATION_MEMBER( impl_ );
     };
     ALIAS_2D_AND_3D( FaultBlock );
 } // namespace geode
