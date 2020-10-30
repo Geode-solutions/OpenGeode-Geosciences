@@ -55,6 +55,17 @@ namespace bitsery
                   geode::StratigraphicUnit3D >
         {
         };
+
+        BITSERY_CLASS_NAME( geode::Component2D, "Component2D" );
+        BITSERY_CLASS_NAME( geode::Fault2D, "Fault2D" );
+        BITSERY_CLASS_NAME( geode::Horizon2D, "Horizon2D" );
+        BITSERY_CLASS_NAME( geode::FaultBlock2D, "FaultBlock2D" );
+        BITSERY_CLASS_NAME( geode::StratigraphicUnit2D, "StratigraphicUnit2D" );
+        BITSERY_CLASS_NAME( geode::Component3D, "Component3D" );
+        BITSERY_CLASS_NAME( geode::Fault3D, "Fault3D" );
+        BITSERY_CLASS_NAME( geode::Horizon3D, "Horizon3D" );
+        BITSERY_CLASS_NAME( geode::FaultBlock3D, "FaultBlock3D" );
+        BITSERY_CLASS_NAME( geode::StratigraphicUnit3D, "StratigraphicUnit3D" );
     } // namespace ext
 } // namespace bitsery
 

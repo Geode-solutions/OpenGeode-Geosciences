@@ -24,20 +24,9 @@
 #include <geode/geosciences/mixin/core/stratigraphic_unit.h>
 
 #include <geode/basic/bitsery_archive.h>
-#include <geode/basic/pimpl_impl.h>
 
 namespace geode
 {
-    template < index_t dimension >
-    class StratigraphicUnit< dimension >::Impl
-    {
-    public:
-        template < typename Archive >
-        void serialize( Archive& /*unused*/ )
-        {
-        }
-    };
-
     template < index_t dimension >
     StratigraphicUnit< dimension >::StratigraphicUnit() // NOLINT
     {
@@ -52,9 +41,11 @@ namespace geode
     template < typename Archive >
     void StratigraphicUnit< dimension >::serialize( Archive& archive )
     {
-        archive.object( impl_ );
-        archive.ext(
-            *this, bitsery::ext::BaseClass< Component< dimension > >{} );
+        archive.ext( *this, DefaultGrowable< Archive, StratigraphicUnit >{},
+            []( Archive& archive, StratigraphicUnit& strati_unit ) {
+                archive.ext( strati_unit,
+                    bitsery::ext::BaseClass< Component< dimension > >{} );
+            } );
     }
 
     template class opengeode_geosciences_geosciences_api StratigraphicUnit< 2 >;

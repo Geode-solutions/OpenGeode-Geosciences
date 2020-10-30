@@ -24,20 +24,9 @@
 #include <geode/geosciences/mixin/core/fault_block.h>
 
 #include <geode/basic/bitsery_archive.h>
-#include <geode/basic/pimpl_impl.h>
 
 namespace geode
 {
-    template < index_t dimension >
-    class FaultBlock< dimension >::Impl
-    {
-    public:
-        template < typename Archive >
-        void serialize( Archive& /*unused*/ )
-        {
-        }
-    };
-
     template < index_t dimension >
     FaultBlock< dimension >::FaultBlock() // NOLINT
     {
@@ -52,9 +41,11 @@ namespace geode
     template < typename Archive >
     void FaultBlock< dimension >::serialize( Archive& archive )
     {
-        archive.object( impl_ );
-        archive.ext(
-            *this, bitsery::ext::BaseClass< Component< dimension > >{} );
+        archive.ext( *this, DefaultGrowable< Archive, FaultBlock >{},
+            []( Archive& archive, FaultBlock& fault_block ) {
+                archive.ext( fault_block,
+                    bitsery::ext::BaseClass< Component< dimension > >{} );
+            } );
     }
 
     template class opengeode_geosciences_geosciences_api FaultBlock< 2 >;
