@@ -34,7 +34,8 @@
 
 namespace geode
 {
-    class OpenGeodeCrossSectionOutput final : public CrossSectionOutput
+    class opengeode_geosciences_geosciences_api OpenGeodeCrossSectionOutput
+        final : public CrossSectionOutput
     {
     public:
         OpenGeodeCrossSectionOutput(
@@ -48,17 +49,29 @@ namespace geode
             return CrossSection::native_extension_static();
         }
 
-        void write() const final
+        void save_cross_section_files( absl::string_view directory ) const
         {
             OpenGeodeSectionOutput section_output{ cross_section(),
                 filename() };
-            const ZipFile zip_writer{ filename(), uuid{}.string() };
-            section_output.save_section_files( zip_writer.directory() );
-            cross_section().save_faults( zip_writer.directory() );
-            cross_section().save_horizons( zip_writer.directory() );
-            cross_section().save_fault_blocks( zip_writer.directory() );
-            cross_section().save_stratigraphic_units( zip_writer.directory() );
+            section_output.save_section_files( directory );
+            cross_section().save_faults( directory );
+            cross_section().save_horizons( directory );
+            cross_section().save_fault_blocks( directory );
+            cross_section().save_stratigraphic_units( directory );
+        }
+
+        void archive_cross_section_files( const ZipFile& zip_writer ) const
+        {
+            OpenGeodeSectionOutput section_output{ cross_section(),
+                filename() };
             section_output.archive_section_files( zip_writer );
+        }
+
+        void write() const final
+        {
+            const ZipFile zip_writer{ filename(), uuid{}.string() };
+            save_cross_section_files( zip_writer.directory().data() );
+            archive_cross_section_files( zip_writer );
         }
     };
 } // namespace geode

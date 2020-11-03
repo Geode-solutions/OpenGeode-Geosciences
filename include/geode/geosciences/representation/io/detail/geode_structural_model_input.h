@@ -36,7 +36,8 @@
 
 namespace geode
 {
-    class OpenGeodeStructuralModelInput final : public StructuralModelInput
+    class opengeode_geosciences_geosciences_api OpenGeodeStructuralModelInput
+        final : public StructuralModelInput
     {
     public:
         OpenGeodeStructuralModelInput(
