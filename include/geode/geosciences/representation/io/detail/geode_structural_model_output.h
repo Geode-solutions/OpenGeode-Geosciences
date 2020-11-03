@@ -34,7 +34,8 @@
 
 namespace geode
 {
-    class OpenGeodeStructuralModelOutput final : public StructuralModelOutput
+    class opengeode_geosciences_geosciences_api OpenGeodeStructuralModelOutput
+        final : public StructuralModelOutput
     {
     public:
         OpenGeodeStructuralModelOutput( const StructuralModel& structural_model,
@@ -48,17 +49,27 @@ namespace geode
             return StructuralModel::native_extension_static();
         }
 
-        void write() const final
+        void save_structural_model_files( absl::string_view directory ) const
         {
             OpenGeodeBRepOutput brep_output{ structural_model(), filename() };
+            brep_output.save_brep_files( directory );
+            structural_model().save_faults( directory );
+            structural_model().save_horizons( directory );
+            structural_model().save_fault_blocks( directory );
+            structural_model().save_stratigraphic_units( directory );
+        }
+
+        void archive_structural_model_files( const ZipFile& zip_writer ) const
+        {
+            OpenGeodeBRepOutput brep_output{ structural_model(), filename() };
+            section_output.archive_brep_files( zip_writer );
+        }
+
+        void write() const final
+        {
             const ZipFile zip_writer{ filename(), uuid{}.string() };
-            brep_output.save_brep_files( zip_writer.directory() );
-            structural_model().save_faults( zip_writer.directory() );
-            structural_model().save_horizons( zip_writer.directory() );
-            structural_model().save_fault_blocks( zip_writer.directory() );
-            structural_model().save_stratigraphic_units(
-                zip_writer.directory() );
-            brep_output.archive_brep_files( zip_writer );
+            save_structural_model_files( zip_writer.directory().data() );
+            archive_structural_model_files( zip_writer );
         }
     };
 } // namespace geode

@@ -36,7 +36,8 @@
 
 namespace geode
 {
-    class OpenGeodeCrossSectionInput final : public CrossSectionInput
+    class opengeode_geosciences_geosciences_api OpenGeodeCrossSectionInput final
+        : public CrossSectionInput
     {
     public:
         OpenGeodeCrossSectionInput(
