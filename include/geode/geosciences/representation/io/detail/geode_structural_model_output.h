@@ -62,7 +62,7 @@ namespace geode
         void archive_structural_model_files( const ZipFile& zip_writer ) const
         {
             OpenGeodeBRepOutput brep_output{ structural_model(), filename() };
-            section_output.archive_brep_files( zip_writer );
+            brep_output.archive_brep_files( zip_writer );
         }
 
         void write() const final
