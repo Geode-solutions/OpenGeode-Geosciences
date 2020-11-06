@@ -23,6 +23,7 @@
 
 #pragma once
 
+#include <geode/basic/passkey.h>
 #include <geode/model/mixin/core/component.h>
 
 #include <geode/geosciences/common.h>
@@ -42,7 +43,9 @@ namespace geode
     class StratigraphicUnit final : public Component< dimension >
     {
         OPENGEODE_DISABLE_COPY_AND_MOVE( StratigraphicUnit );
-        friend class StratigraphicUnits< dimension >;
+        PASSKEY( StratigraphicUnits< dimension >, StratigraphicUnitsKey );
+        PASSKEY( StratigraphicUnitsBuilder< dimension >,
+            StratigraphicUnitsBuilderKey );
 
     public:
         ~StratigraphicUnit();
@@ -62,20 +65,20 @@ namespace geode
             return { this->component_type_static(), this->id() };
         };
 
-    protected:
-        friend class bitsery::Access;
-        StratigraphicUnit();
+        StratigraphicUnit( StratigraphicUnitsKey ) : StratigraphicUnit() {}
 
-    private:
-        friend class bitsery::Access;
-        template < typename Archive >
-        void serialize( Archive& archive );
-
-        friend class StratigraphicUnitsBuilder< dimension >;
-        void set_stratigraphic_unit_name( absl::string_view name )
+        void set_stratigraphic_unit_name(
+            absl::string_view name, StratigraphicUnitsBuilderKey )
         {
             this->set_name( name );
         }
+
+    private:
+        StratigraphicUnit();
+
+        friend class bitsery::Access;
+        template < typename Archive >
+        void serialize( Archive& archive );
     };
     ALIAS_2D_AND_3D( StratigraphicUnit );
 } // namespace geode

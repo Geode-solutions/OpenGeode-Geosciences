@@ -23,6 +23,7 @@
 
 #pragma once
 
+#include <geode/basic/passkey.h>
 #include <geode/basic/pimpl.h>
 
 #include <geode/model/mixin/core/component.h>
@@ -45,7 +46,8 @@ namespace geode
     class Fault final : public Component< dimension >
     {
         OPENGEODE_DISABLE_COPY_AND_MOVE( Fault );
-        friend class Faults< dimension >;
+        PASSKEY( Faults< dimension >, FaultsKey );
+        PASSKEY( FaultsBuilder< dimension >, FaultsBuilderKey );
 
     public:
         enum struct FAULT_TYPE
@@ -81,25 +83,24 @@ namespace geode
 
         FAULT_TYPE type() const;
 
-    protected:
-        friend class bitsery::Access;
+        Fault( FaultsKey ) : Fault() {}
+        Fault( FAULT_TYPE type, FaultsKey ) : Fault( type ) {}
+
+        void set_type( FAULT_TYPE type, FaultsBuilderKey );
+
+        void set_fault_name( absl::string_view name, FaultsBuilderKey )
+        {
+            this->set_name( name );
+        }
+
+    private:
         Fault();
 
         explicit Fault( FAULT_TYPE type );
 
-    private:
         friend class bitsery::Access;
         template < typename Archive >
         void serialize( Archive& archive );
-
-        friend class FaultsBuilder< dimension >;
-        void set_type( FAULT_TYPE type );
-
-        friend class FaultsBuilder< dimension >;
-        void set_fault_name( absl::string_view name )
-        {
-            this->set_name( name );
-        }
 
     private:
         IMPLEMENTATION_MEMBER( impl_ );

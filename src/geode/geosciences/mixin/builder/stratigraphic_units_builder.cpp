@@ -54,7 +54,9 @@ namespace geode
         const uuid& id, absl::string_view name )
     {
         stratigraphic_units_.modifiable_stratigraphic_unit( id )
-            .set_stratigraphic_unit_name( name );
+            .set_stratigraphic_unit_name(
+                name, typename StratigraphicUnit<
+                          dimension >::StratigraphicUnitsBuilderKey{} );
     }
 
     template class opengeode_geosciences_geosciences_api

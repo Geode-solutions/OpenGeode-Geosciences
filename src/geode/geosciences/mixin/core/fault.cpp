@@ -84,7 +84,8 @@ namespace geode
     }
 
     template < index_t dimension >
-    void Fault< dimension >::set_type( typename Fault::FAULT_TYPE type )
+    void Fault< dimension >::set_type(
+        typename Fault::FAULT_TYPE type, FaultsBuilderKey )
     {
         return impl_->set_type( type );
     }

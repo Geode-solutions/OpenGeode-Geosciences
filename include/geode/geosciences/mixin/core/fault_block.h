@@ -25,6 +25,7 @@
 
 #include <geode/model/mixin/core/component.h>
 
+#include <geode/basic/passkey.h>
 #include <geode/geosciences/common.h>
 
 namespace geode
@@ -42,7 +43,10 @@ namespace geode
     class FaultBlock final : public Component< dimension >
     {
         OPENGEODE_DISABLE_COPY_AND_MOVE( FaultBlock );
-        friend class FaultBlocks< dimension >;
+        PASSKEY( FaultBlocks< dimension >, FaultBlocksKey );
+        PASSKEY( FaultBlocksBuilder< dimension >, FaultBlocksBuilderKey );
+
+        friend class bitsery::Access;
 
     public:
         ~FaultBlock();
@@ -62,20 +66,20 @@ namespace geode
             return { this->component_type_static(), this->id() };
         };
 
-    protected:
-        friend class bitsery::Access;
-        FaultBlock();
+        FaultBlock( FaultBlocksKey ) : FaultBlock(){};
 
-    private:
-        friend class bitsery::Access;
-        template < typename Archive >
-        void serialize( Archive& archive );
-
-        friend class FaultBlocksBuilder< dimension >;
-        void set_fault_block_name( absl::string_view name )
+        void set_fault_block_name(
+            absl::string_view name, FaultBlocksBuilderKey )
         {
             this->set_name( name );
         }
+
+    private:
+        FaultBlock();
+
+        friend class bitsery::Access;
+        template < typename Archive >
+        void serialize( Archive& archive );
     };
     ALIAS_2D_AND_3D( FaultBlock );
 } // namespace geode

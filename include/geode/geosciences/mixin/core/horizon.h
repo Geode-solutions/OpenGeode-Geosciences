@@ -23,6 +23,7 @@
 
 #pragma once
 
+#include <geode/basic/passkey.h>
 #include <geode/basic/pimpl.h>
 
 #include <geode/model/mixin/core/component.h>
@@ -45,7 +46,8 @@ namespace geode
     class Horizon final : public Component< dimension >
     {
         OPENGEODE_DISABLE_COPY_AND_MOVE( Horizon );
-        friend class Horizons< dimension >;
+        PASSKEY( HorizonsBuilder< dimension >, HorizonsBuilderKey );
+        PASSKEY( Horizons< dimension >, HorizonsKey );
 
     public:
         enum struct HORIZON_TYPE
@@ -80,25 +82,23 @@ namespace geode
 
         HORIZON_TYPE type() const;
 
-    protected:
-        friend class bitsery::Access;
-        Horizon();
+        Horizon( HorizonsKey ) : Horizon() {}
+        Horizon( HORIZON_TYPE type, HorizonsKey ) : Horizon( type ) {}
 
-        explicit Horizon( HORIZON_TYPE type );
+        void set_type( HORIZON_TYPE type, HorizonsBuilderKey );
 
-    private:
-        friend class bitsery::Access;
-        template < typename Archive >
-        void serialize( Archive& archive );
-
-        friend class HorizonsBuilder< dimension >;
-        void set_type( HORIZON_TYPE type );
-
-        friend class HorizonsBuilder< dimension >;
-        void set_horizon_name( absl::string_view name )
+        void set_horizon_name( absl::string_view name, HorizonsBuilderKey )
         {
             this->set_name( name );
         }
+
+    private:
+        Horizon();
+        explicit Horizon( HORIZON_TYPE type );
+
+        friend class bitsery::Access;
+        template < typename Archive >
+        void serialize( Archive& archive );
 
     private:
         IMPLEMENTATION_MEMBER( impl_ );
