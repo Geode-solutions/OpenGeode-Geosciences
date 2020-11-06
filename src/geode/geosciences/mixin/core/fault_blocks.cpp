@@ -105,7 +105,8 @@ namespace geode
     const uuid& FaultBlocks< dimension >::create_fault_block()
     {
         typename FaultBlocks< dimension >::Impl::ComponentPtr fault_block{
-            new FaultBlock< dimension >
+            new FaultBlock< dimension >{
+                typename FaultBlock< dimension >::FaultBlocksKey{} }
         };
         const auto& id = fault_block->id();
         impl_->add_component( std::move( fault_block ) );

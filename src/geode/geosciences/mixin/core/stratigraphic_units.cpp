@@ -111,7 +111,9 @@ namespace geode
     const uuid& StratigraphicUnits< dimension >::create_stratigraphic_unit()
     {
         typename StratigraphicUnits< dimension >::Impl::ComponentPtr
-            stratigraphic_unit{ new StratigraphicUnit< dimension > };
+            stratigraphic_unit{ new StratigraphicUnit< dimension >{
+                typename StratigraphicUnit<
+                    dimension >::StratigraphicUnitsKey{} } };
         const auto& id = stratigraphic_unit->id();
         impl_->add_component( std::move( stratigraphic_unit ) );
         return id;

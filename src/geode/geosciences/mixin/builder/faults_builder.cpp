@@ -58,14 +58,16 @@ namespace geode
     void FaultsBuilder< dimension >::set_fault_type(
         const uuid& fault_id, typename Fault< dimension >::FAULT_TYPE type )
     {
-        faults_.modifiable_fault( fault_id ).set_type( type );
+        faults_.modifiable_fault( fault_id )
+            .set_type( type, typename Fault< dimension >::FaultsBuilderKey{} );
     }
 
     template < index_t dimension >
     void FaultsBuilder< dimension >::set_fault_name(
         const uuid& id, absl::string_view name )
     {
-        faults_.modifiable_fault( id ).set_fault_name( name );
+        faults_.modifiable_fault( id ).set_fault_name(
+            name, typename Fault< dimension >::FaultsBuilderKey{} );
     }
 
     template class opengeode_geosciences_geosciences_api FaultsBuilder< 2 >;

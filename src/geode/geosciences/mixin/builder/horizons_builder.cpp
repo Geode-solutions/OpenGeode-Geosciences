@@ -59,14 +59,17 @@ namespace geode
     void HorizonsBuilder< dimension >::set_horizon_type( const uuid& horizon_id,
         typename Horizon< dimension >::HORIZON_TYPE type )
     {
-        horizons_.modifiable_horizon( horizon_id ).set_type( type );
+        horizons_.modifiable_horizon( horizon_id )
+            .set_type(
+                type, typename Horizon< dimension >::HorizonsBuilderKey{} );
     }
 
     template < index_t dimension >
     void HorizonsBuilder< dimension >::set_horizon_name(
         const uuid& id, absl::string_view name )
     {
-        horizons_.modifiable_horizon( id ).set_horizon_name( name );
+        horizons_.modifiable_horizon( id ).set_horizon_name(
+            name, typename Horizon< dimension >::HorizonsBuilderKey{} );
     }
 
     template class opengeode_geosciences_geosciences_api HorizonsBuilder< 2 >;

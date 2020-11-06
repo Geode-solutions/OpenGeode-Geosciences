@@ -85,7 +85,8 @@ namespace geode
     }
 
     template < index_t dimension >
-    void Horizon< dimension >::set_type( typename Horizon::HORIZON_TYPE type )
+    void Horizon< dimension >::set_type(
+        typename Horizon::HORIZON_TYPE type, HorizonsBuilderKey )
     {
         return impl_->set_type( type );
     }

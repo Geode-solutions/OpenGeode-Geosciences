@@ -100,7 +100,7 @@ namespace geode
     const uuid& Faults< dimension >::create_fault()
     {
         typename Faults< dimension >::Impl::ComponentPtr fault{
-            new Fault< dimension >
+            new Fault< dimension >{ typename Fault< dimension >::FaultsKey{} }
         };
         const auto& id = fault->id();
         impl_->add_component( std::move( fault ) );
@@ -112,7 +112,8 @@ namespace geode
         typename Fault< dimension >::FAULT_TYPE type )
     {
         typename Faults< dimension >::Impl::ComponentPtr fault{
-            new Fault< dimension >{ type }
+            new Fault< dimension >{
+                type, typename Fault< dimension >::FaultsKey{} }
         };
         const auto& id = fault->id();
         impl_->add_component( std::move( fault ) );

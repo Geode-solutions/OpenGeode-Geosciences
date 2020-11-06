@@ -104,7 +104,8 @@ namespace geode
     const uuid& Horizons< dimension >::create_horizon()
     {
         typename Horizons< dimension >::Impl::ComponentPtr horizon{
-            new Horizon< dimension >
+            new Horizon< dimension >{
+                typename Horizon< dimension >::HorizonsKey{} }
         };
         const auto& id = horizon->id();
         impl_->add_component( std::move( horizon ) );
@@ -116,7 +117,8 @@ namespace geode
         typename Horizon< dimension >::HORIZON_TYPE type )
     {
         typename Horizons< dimension >::Impl::ComponentPtr horizon{
-            new Horizon< dimension >{ type }
+            new Horizon< dimension >{
+                type, typename Horizon< dimension >::HorizonsKey{} }
         };
         const auto& id = horizon->id();
         impl_->add_component( std::move( horizon ) );

@@ -52,7 +52,8 @@ namespace geode
     void FaultBlocksBuilder< dimension >::set_fault_block_name(
         const uuid& id, absl::string_view name )
     {
-        fault_blocks_.modifiable_fault_block( id ).set_fault_block_name( name );
+        fault_blocks_.modifiable_fault_block( id ).set_fault_block_name(
+            name, typename FaultBlock< dimension >::FaultBlocksBuilderKey{} );
     }
 
     template class opengeode_geosciences_geosciences_api
