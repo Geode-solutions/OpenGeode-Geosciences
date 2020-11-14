@@ -51,18 +51,23 @@ namespace geode
             return StructuralModel::native_extension_static();
         }
 
+        void load_structural_model_files( absl::string_view directory )
+        {
+            StructuralModelBuilder builder{ structural_model() };
+            builder.load_faults( directory );
+            builder.load_horizons( directory );
+            builder.load_fault_blocks( directory );
+            builder.load_stratigraphic_units( directory );
+        }
+
         void read() final
         {
-            OpenGeodeBRepInput brep_input{ structural_model(), filename() };
-            brep_input.read();
-
-            StructuralModelBuilder builder( structural_model() );
             const UnzipFile zip_reader{ filename(), uuid{}.string() };
             zip_reader.extract_all();
-            builder.load_faults( zip_reader.directory() );
-            builder.load_horizons( zip_reader.directory() );
-            builder.load_fault_blocks( zip_reader.directory() );
-            builder.load_stratigraphic_units( zip_reader.directory() );
+
+            OpenGeodeBRepInput brep_input{ structural_model(), filename() };
+            brep_input.read();
+            load_structural_model_files( zip_reader.directory() );
         }
     };
 } // namespace geode

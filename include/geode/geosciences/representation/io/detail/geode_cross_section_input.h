@@ -51,18 +51,23 @@ namespace geode
             return CrossSection::native_extension_static();
         }
 
+        void load_cross_section_files( absl::string_view directory )
+        {
+            CrossSectionBuilder builder{ cross_section() };
+            builder.load_faults( directory );
+            builder.load_horizons( directory );
+            builder.load_fault_blocks( directory );
+            builder.load_stratigraphic_units( directory );
+        }
+
         void read() final
         {
-            OpenGeodeSectionInput section_input{ cross_section(), filename() };
-            section_input.read();
-
-            CrossSectionBuilder builder( cross_section() );
             const UnzipFile zip_reader{ filename(), uuid{}.string() };
             zip_reader.extract_all();
-            builder.load_faults( zip_reader.directory() );
-            builder.load_horizons( zip_reader.directory() );
-            builder.load_fault_blocks( zip_reader.directory() );
-            builder.load_stratigraphic_units( zip_reader.directory() );
+
+            OpenGeodeSectionInput section_input{ cross_section(), filename() };
+            section_input.load_section_files( zip_reader.directory() );
+            load_cross_section_files( zip_reader.directory() );
         }
     };
 } // namespace geode
