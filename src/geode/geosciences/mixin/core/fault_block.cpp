@@ -42,8 +42,8 @@ namespace geode
     void FaultBlock< dimension >::serialize( Archive& archive )
     {
         archive.ext( *this, DefaultGrowable< Archive, FaultBlock >{},
-            []( Archive& archive, FaultBlock& fault_block ) {
-                archive.ext( fault_block,
+            []( Archive& a, FaultBlock& fault_block ) {
+                a.ext( fault_block,
                     bitsery::ext::BaseClass< Component< dimension > >{} );
             } );
     }
