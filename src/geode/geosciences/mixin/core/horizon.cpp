@@ -46,8 +46,8 @@ namespace geode
         void serialize( Archive& archive )
         {
             archive.ext( *this, DefaultGrowable< Archive, Impl >{},
-                []( Archive& archive, Impl& impl ) {
-                    archive.value4b( impl.horizon_type_ );
+                []( Archive& a, Impl& impl ) {
+                    a.value4b( impl.horizon_type_ );
                 } );
         }
 
@@ -96,9 +96,9 @@ namespace geode
     void Horizon< dimension >::serialize( Archive& archive )
     {
         archive.ext( *this, DefaultGrowable< Archive, Horizon >{},
-            []( Archive& archive, Horizon& horizon ) {
-                archive.object( horizon.impl_ );
-                archive.ext( horizon,
+            []( Archive& a, Horizon& horizon ) {
+                a.object( horizon.impl_ );
+                a.ext( horizon,
                     bitsery::ext::BaseClass< Component< dimension > >{} );
             } );
     }

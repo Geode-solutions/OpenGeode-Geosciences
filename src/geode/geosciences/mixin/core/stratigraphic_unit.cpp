@@ -42,8 +42,8 @@ namespace geode
     void StratigraphicUnit< dimension >::serialize( Archive& archive )
     {
         archive.ext( *this, DefaultGrowable< Archive, StratigraphicUnit >{},
-            []( Archive& archive, StratigraphicUnit& strati_unit ) {
-                archive.ext( strati_unit,
+            []( Archive& a, StratigraphicUnit& strati_unit ) {
+                a.ext( strati_unit,
                     bitsery::ext::BaseClass< Component< dimension > >{} );
             } );
     }
