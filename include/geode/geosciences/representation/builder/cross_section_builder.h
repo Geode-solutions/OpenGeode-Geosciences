@@ -64,7 +64,7 @@ namespace geode
 
         void copy( const CrossSection& cross_section );
 
-        void copy_geological_components( detail::ModelCopyMapping& mapping,
+        void copy_geological_components( ModelCopyMapping& mapping,
             const CrossSection& cross_section );
 
         const uuid& add_fault();
