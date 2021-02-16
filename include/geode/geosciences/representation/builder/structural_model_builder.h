@@ -42,11 +42,6 @@
 namespace geode
 {
     class StructuralModel;
-
-    namespace detail
-    {
-        class ModelCopyMapping;
-    } // namespace detail
 } // namespace geode
 
 namespace geode
@@ -69,7 +64,7 @@ namespace geode
 
         void copy( const StructuralModel& structural_model );
 
-        void copy_geological_components( detail::ModelCopyMapping& mapping,
+        void copy_geological_components( ModelCopyMapping& mapping,
             const StructuralModel& structural_model );
 
         const uuid& add_fault();
