@@ -53,8 +53,7 @@ namespace geode
     }
 
     void StructuralModelBuilder::copy_geological_components(
-        ModelCopyMapping& mappings,
-        const StructuralModel& structural_model )
+        ModelCopyMapping& mappings, const StructuralModel& structural_model )
     {
         mappings.emplace( Fault3D::component_type_static(),
             detail::copy_faults( structural_model, structural_model_, *this ) );
