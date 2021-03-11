@@ -83,10 +83,10 @@ namespace geode
         return id;
     }
 
-    void StructuralModelBuilder::add_surface_in_fault(
+    index_t StructuralModelBuilder::add_surface_in_fault(
         const Surface3D& surface, const Fault3D& fault )
     {
-        add_item_in_collection( surface.id(), fault.id() );
+        return add_item_in_collection( surface.id(), fault.id() );
     }
 
     void StructuralModelBuilder::remove_fault( const Fault3D& fault )
@@ -110,10 +110,10 @@ namespace geode
         return id;
     }
 
-    void StructuralModelBuilder::add_surface_in_horizon(
+    index_t StructuralModelBuilder::add_surface_in_horizon(
         const Surface3D& surface, const Horizon3D& horizon )
     {
-        add_item_in_collection( surface.id(), horizon.id() );
+        return add_item_in_collection( surface.id(), horizon.id() );
     }
 
     void StructuralModelBuilder::remove_horizon( const Horizon3D& horizon )
@@ -130,10 +130,10 @@ namespace geode
         return id;
     }
 
-    void StructuralModelBuilder::add_block_in_fault_block(
+    index_t StructuralModelBuilder::add_block_in_fault_block(
         const Block3D& block, const FaultBlock3D& fault_block )
     {
-        add_item_in_collection( block.id(), fault_block.id() );
+        return add_item_in_collection( block.id(), fault_block.id() );
     }
 
     void StructuralModelBuilder::remove_fault_block(
@@ -151,10 +151,10 @@ namespace geode
         return id;
     }
 
-    void StructuralModelBuilder::add_block_in_stratigraphic_unit(
+    index_t StructuralModelBuilder::add_block_in_stratigraphic_unit(
         const Block3D& block, const StratigraphicUnit3D& stratigraphic_unit )
     {
-        add_item_in_collection( block.id(), stratigraphic_unit.id() );
+        return add_item_in_collection( block.id(), stratigraphic_unit.id() );
     }
 
     void StructuralModelBuilder::remove_stratigraphic_unit(

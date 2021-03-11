@@ -71,7 +71,7 @@ namespace geode
 
         const uuid& add_fault( typename Fault2D::FAULT_TYPE type );
 
-        void add_line_in_fault( const Line2D& line, const Fault2D& fault );
+        index_t add_line_in_fault( const Line2D& line, const Fault2D& fault );
 
         void remove_fault( const Fault2D& fault );
 
@@ -79,21 +79,21 @@ namespace geode
 
         const uuid& add_horizon( typename Horizon2D::HORIZON_TYPE type );
 
-        void add_line_in_horizon(
+        index_t add_line_in_horizon(
             const Line2D& line, const Horizon2D& horizon );
 
         void remove_horizon( const Horizon2D& horizon );
 
         const uuid& add_fault_block();
 
-        void add_surface_in_fault_block(
+        index_t add_surface_in_fault_block(
             const Surface2D& surface, const FaultBlock2D& fault_block );
 
         void remove_fault_block( const FaultBlock2D& fault_block );
 
         const uuid& add_stratigraphic_unit();
 
-        void add_surface_in_stratigraphic_unit( const Surface2D& surface,
+        index_t add_surface_in_stratigraphic_unit( const Surface2D& surface,
             const StratigraphicUnit2D& stratigraphic_unit );
 
         void remove_stratigraphic_unit(
