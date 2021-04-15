@@ -129,6 +129,37 @@ def test_io( model ):
     reloaded_model = geosciences.load_structural_model( "test.og_strm" )
     check_reloaded_model( reloaded_model )
 
+def test_copy(model):
+    copy = geosciences.StructuralModel()
+    copier = geosciences.StructuralModelBuilder( copy )
+    copier.copy( model )
+
+    if copy.nb_surfaces() != 8:
+        raise ValueError("[Test] Number of surfaces in copied model should be 8" )
+    if copy.nb_horizons() != 3:
+        raise ValueError("[Test] Number of horizons in copied model should be 3" )
+    if copy.nb_faults() != 2:
+        raise ValueError("[Test] Number of faults in copied model should be 2" )
+    if copy.nb_fault_blocks() != 0:
+        raise ValueError("[Test] Number of fault blocks in copied model should be 0" )
+
+    #nb_surface_boundaries = 0 
+    #for surface in copy.surfaces():
+    #    nb_surface_boundaries += len( copy.boundaries( surface ) )
+    #if nb_surface_boundaries != 8:
+    #    raise ValueError("[Test] Number of boundaries of Surfaces in copied model should be 8" )
+  
+    nb_fault_items = 0
+    for fault in copy.faults():
+        nb_fault_items += len( copy.fault_items( fault ) )
+    if nb_fault_items != 5:
+        raise ValueError("[Test] Number of items in faults in copied model should be 5" )
+    nb_horizon_items = 0 
+    for horizon in copy.horizons():
+        nb_horizon_items += len( copy.horizon_items( horizon ) )
+    if nb_horizon_items != 4:
+        raise ValueError("[Test] Number of items in stratigraphic_units in copied model should be 4" )
+
 def modify_model( model, builder ):
     horizons_ids = []
     for horizon in model.horizons():
@@ -151,4 +182,5 @@ if __name__ == '__main__':
     add_surfaces( builder )
     build_relations_between_geometry_and_geology( model, builder )
     test_io( model )
+    test_copy( model );
     modify_model( model, builder )
