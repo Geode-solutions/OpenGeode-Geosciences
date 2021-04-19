@@ -35,6 +35,9 @@ namespace geode
             HorizonsBuilder2D, FaultBlocksBuilder2D,
             StratigraphicUnitsBuilder2D >( module, "CrossSectionBuilder" )
             .def( pybind11::init< CrossSection& >() )
+            .def( "copy", ( void ( CrossSectionBuilder::* )(
+                              const CrossSection& cross_section ) )
+                              & CrossSectionBuilder::copy )
             .def( "add_fault", ( const uuid& (CrossSectionBuilder::*) () )
                                    & CrossSectionBuilder::add_fault )
             .def( "add_horizon", ( const uuid& (CrossSectionBuilder::*) () )
