@@ -25,11 +25,21 @@
 
 #define PYTHON_FAULT( dimension )                                              \
     const auto name##dimension = "Fault" + std::to_string( dimension ) + "D";  \
-    pybind11::class_< Fault##dimension##D, Component##dimension##D >(          \
-        module, name##dimension.c_str() )                                      \
-        .def( "has_type", &Fault##dimension##D::has_type )                     \
+    pybind11::class_< Fault##dimension##D, Component##dimension##D >           \
+        fault##dimension##D( module, name##dimension.c_str() );                \
+                                                                               \
+    fault##dimension##D.def( "has_type", &Fault##dimension##D::has_type )      \
         .def( "type", &Fault##dimension##D::type )                             \
-        .def( "component_id", &Fault##dimension##D::component_id )
+        .def( "component_id", &Fault##dimension##D::component_id );            \
+                                                                               \
+    pybind11::enum_< Fault##dimension##D::FAULT_TYPE >(                        \
+        fault##dimension##D, "FAULT_TYPE" )                                    \
+        .value( "NO_TYPE", Fault##dimension##D::FAULT_TYPE::NO_TYPE )          \
+        .value( "NORMAL", Fault##dimension##D::FAULT_TYPE::NORMAL )            \
+        .value( "REVERSE", Fault##dimension##D::FAULT_TYPE::REVERSE )          \
+        .value( "STRIKE_SLIP", Fault##dimension##D::FAULT_TYPE::STRIKE_SLIP )  \
+        .value( "LISTRIC", Fault##dimension##D::FAULT_TYPE::LISTRIC )          \
+        .value( "DECOLLEMENT", Fault##dimension##D::FAULT_TYPE::DECOLLEMENT )
 
 namespace geode
 {
