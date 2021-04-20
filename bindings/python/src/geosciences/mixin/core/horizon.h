@@ -26,11 +26,22 @@
 #define PYTHON_HORIZON( dimension )                                            \
     const auto name##dimension =                                               \
         "Horizon" + std::to_string( dimension ) + "D";                         \
-    pybind11::class_< Horizon##dimension##D, Component##dimension##D >(        \
-        module, name##dimension.c_str() )                                      \
-        .def( "has_type", &Horizon##dimension##D::has_type )                   \
+    pybind11::class_< Horizon##dimension##D, Component##dimension##D >         \
+        horizon##dimension##D( module, name##dimension.c_str() );              \
+                                                                               \
+    horizon##dimension##D.def( "has_type", &Horizon##dimension##D::has_type )  \
         .def( "type", &Horizon##dimension##D::type )                           \
-        .def( "component_id", &Horizon##dimension##D::component_id )
+        .def( "component_id", &Horizon##dimension##D::component_id );          \
+                                                                               \
+    pybind11::enum_< Horizon##dimension##D::HORIZON_TYPE >(                    \
+        horizon##dimension##D, "HORIZON_TYPE" )                                \
+        .value( "NO_TYPE", Horizon##dimension##D::HORIZON_TYPE::NO_TYPE )      \
+        .value( "CONFORMAL", Horizon##dimension##D::HORIZON_TYPE::CONFORMAL )  \
+        .value( "NON_CONFORMAL",                                               \
+            Horizon##dimension##D::HORIZON_TYPE::NON_CONFORMAL )               \
+        .value(                                                                \
+            "TOPOGRAPHY", Horizon##dimension##D::HORIZON_TYPE::TOPOGRAPHY )    \
+        .value( "INTRUSION", Horizon##dimension##D::HORIZON_TYPE::INTRUSION )
 
 namespace geode
 {

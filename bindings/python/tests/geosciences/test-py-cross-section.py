@@ -238,8 +238,17 @@ def modify_model( model, builder ):
     horizons_ids = []
     for horizon in model.horizons():
         horizons_ids.append( horizon.id() )
+        builder.set_horizon_type(horizon.id(),geosciences.Horizon2D.HORIZON_TYPE.TOPOGRAPHY)
+        if horizon.has_type() == False : 
+            raise ValueError("[Test] All horizon should have a type" )
+
     for horizon_id in horizons_ids:
         builder.remove_horizon( model.horizon( horizon_id ) )
+
+    for fault in model.faults():
+        builder.set_fault_type(fault.id(),geosciences.Fault2D.FAULT_TYPE.LISTRIC)
+        if fault.has_type() == False : 
+            raise ValueError("[Test] All faults should have a type" )
 
     temp_id = builder.add_fault()
     builder.remove_fault( model.fault( temp_id ) )
