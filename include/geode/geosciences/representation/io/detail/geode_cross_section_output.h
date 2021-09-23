@@ -70,7 +70,7 @@ namespace geode
         void write() const final
         {
             const ZipFile zip_writer{ filename(), uuid{}.string() };
-            save_cross_section_files( zip_writer.directory().data() );
+            save_cross_section_files( to_string( zip_writer.directory() ) );
             archive_cross_section_files( zip_writer );
         }
     };

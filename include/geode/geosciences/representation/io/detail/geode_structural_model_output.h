@@ -68,7 +68,7 @@ namespace geode
         void write() const final
         {
             const ZipFile zip_writer{ filename(), uuid{}.string() };
-            save_structural_model_files( zip_writer.directory().data() );
+            save_structural_model_files( to_string( zip_writer.directory() ) );
             archive_structural_model_files( zip_writer );
         }
     };

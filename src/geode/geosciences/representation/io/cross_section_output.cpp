@@ -31,7 +31,7 @@ namespace geode
         try
         {
             const auto output = CrossSectionOutputFactory::create(
-                extension_from_filename( filename ).data(), cross_section,
+                to_string( extension_from_filename( filename ) ), cross_section,
                 filename );
             output->write();
             Logger::info( "CrossSection saved in ", filename );

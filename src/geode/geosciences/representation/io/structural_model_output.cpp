@@ -31,8 +31,8 @@ namespace geode
         try
         {
             const auto output = StructuralModelOutputFactory::create(
-                extension_from_filename( filename ).data(), structural_model,
-                filename );
+                to_string( extension_from_filename( filename ) ),
+                structural_model, filename );
             output->write();
             Logger::info( "StructuralModel saved in ", filename );
         }
