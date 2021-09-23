@@ -46,8 +46,8 @@ namespace geode
         {
             StructuralModel structural_model;
             auto input = StructuralModelInputFactory::create(
-                extension_from_filename( filename ).data(), structural_model,
-                filename );
+                to_string( extension_from_filename( filename ) ),
+                structural_model, filename );
             input->read();
             Logger::info( "StructuralModel loaded from ", filename );
             std::string message{ "StructuralModel has: " };

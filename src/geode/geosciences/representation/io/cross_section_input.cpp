@@ -46,7 +46,7 @@ namespace geode
         {
             CrossSection cross_section;
             auto input = CrossSectionInputFactory::create(
-                extension_from_filename( filename ).data(), cross_section,
+                to_string( extension_from_filename( filename ) ), cross_section,
                 filename );
             input->read();
             Logger::info( "CrossSection loaded from ", filename );
