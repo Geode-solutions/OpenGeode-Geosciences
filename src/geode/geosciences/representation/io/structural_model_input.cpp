@@ -58,6 +58,8 @@ namespace geode
             add_to_message( message, structural_model.nb_lines(), " Lines, " );
             add_to_message(
                 message, structural_model.nb_corners(), " Corners, " );
+            add_to_message( message, structural_model.nb_model_boundaries(),
+                " ModelBoundaries, " );
             add_to_message(
                 message, structural_model.nb_faults(), " Faults, " );
             add_to_message(
@@ -72,8 +74,7 @@ namespace geode
         catch( const OpenGeodeException& e )
         {
             Logger::error( e.what() );
-            throw OpenGeodeException{ "[load_structural_model] Cannot load "
-                                      "StructuralModel from file: ",
+            throw OpenGeodeException{ "Cannot load StructuralModel from file: ",
                 filename };
         }
     }

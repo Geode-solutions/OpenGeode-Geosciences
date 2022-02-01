@@ -23,6 +23,10 @@
 
 #include <geode/geosciences/representation/io/cross_section_output.h>
 
+#include <geode/model/representation/io/section_output.h>
+
+#include <geode/geosciences/representation/core/cross_section.h>
+
 namespace geode
 {
     void save_cross_section(
@@ -30,19 +34,31 @@ namespace geode
     {
         try
         {
-            const auto output = CrossSectionOutputFactory::create(
-                to_string( extension_from_filename( filename ) ), cross_section,
-                filename );
-            output->write();
+            const auto extension =
+                to_string( extension_from_filename( filename ) );
+            if( CrossSectionOutputFactory::has_creator( extension ) )
+            {
+                CrossSectionOutputFactory::create(
+                    extension, cross_section, filename )
+                    ->write();
+            }
+            else if( SectionOutputFactory::has_creator( extension ) )
+            {
+                SectionOutputFactory::create(
+                    extension, cross_section, filename )
+                    ->write();
+            }
+            else
+            {
+                throw OpenGeodeException{ "Unknown extension: ", extension };
+            }
             Logger::info( "CrossSection saved in ", filename );
         }
         catch( const OpenGeodeException& e )
         {
             Logger::error( e.what() );
-            throw OpenGeodeException{
-                "[load_cross_section] Cannot save CrossSection in file: ",
-                filename
-            };
+            throw OpenGeodeException{ "Cannot save CrossSection in file: ",
+                filename };
         }
     }
 
