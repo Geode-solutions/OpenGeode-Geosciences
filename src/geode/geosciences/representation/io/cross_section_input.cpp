@@ -54,6 +54,9 @@ namespace geode
             add_to_message(
                 message, cross_section.nb_surfaces(), " Surfaces, " );
             add_to_message( message, cross_section.nb_lines(), " Lines, " );
+            add_to_message( message, cross_section.nb_corners(), " Corners, " );
+            add_to_message( message, cross_section.nb_model_boundaries(),
+                " ModelBoundaries, " );
             add_to_message( message, cross_section.nb_faults(), " Faults, " );
             add_to_message(
                 message, cross_section.nb_horizons(), " Horizons, " );
@@ -67,10 +70,8 @@ namespace geode
         catch( const OpenGeodeException& e )
         {
             Logger::error( e.what() );
-            throw OpenGeodeException{
-                "[load_cross_section] Cannot load CrossSection from file: ",
-                filename
-            };
+            throw OpenGeodeException{ "Cannot load CrossSection from file: ",
+                filename };
         }
     }
 
