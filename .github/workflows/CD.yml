@@ -90,12 +90,6 @@ jobs:
         user: __token__
         password: ${{ secrets.PYPI_TOKEN }}
         packages_dir: "build/wheel/dist/"
-    - name: Upload
-      uses: softprops/action-gh-release@v1
-      with:
-        files: "build/wheel/dist/OpenGeode_Geosciences-${{ steps.package.outputs.version }}-${{ matrix.config.tag }}-manylinux2014_x86_64.whl"
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Notify slack
       if: failure()
       uses: 8398a7/action-slack@v2
@@ -181,12 +175,6 @@ jobs:
       run: |
         pip install twine
         twine upload -u __token__ -p ${{ secrets.PYPI_TOKEN }} build/wheel/dist/*
-    - name: Upload
-      uses: softprops/action-gh-release@v1
-      with:
-        files: "build/wheel/dist/OpenGeode_Geosciences-${{ steps.package.outputs.version }}-${{ matrix.config.tag }}-macosx_10_14_x86_64.whl"
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Notify slack
       if: failure()
       uses: 8398a7/action-slack@v2
@@ -271,12 +259,6 @@ jobs:
       run: |
         pip install twine
         twine upload -u __token__ -p ${{ secrets.PYPI_TOKEN }} build/wheel/dist/*
-    - name: Upload
-      uses: softprops/action-gh-release@v1
-      with:
-        files: "build/wheel/dist/OpenGeode_Geosciences-${{ steps.package.outputs.version }}-${{ matrix.config.tag }}-win_amd64.whl"
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Notify slack
       if: failure()
       uses: 8398a7/action-slack@v2
