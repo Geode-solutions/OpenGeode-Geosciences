@@ -55,20 +55,18 @@ namespace geode
         ModelCopyMapping& mappings, const CrossSection& cross_section )
     {
         mappings.emplace( Fault2D::component_type_static(),
-            detail::copy_faults( cross_section, cross_section_, *this ) );
+            detail::copy_faults( cross_section, *this ) );
         mappings.emplace( Horizon2D::component_type_static(),
-            detail::copy_horizons( cross_section, cross_section_, *this ) );
+            detail::copy_horizons( cross_section, *this ) );
         mappings.emplace( FaultBlock2D::component_type_static(),
-            detail::copy_fault_blocks( cross_section, cross_section_, *this ) );
+            detail::copy_fault_blocks( cross_section, *this ) );
         mappings.emplace( StratigraphicUnit2D::component_type_static(),
-            detail::copy_stratigraphic_units(
-                cross_section, cross_section_, *this ) );
+            detail::copy_stratigraphic_units( cross_section, *this ) );
     }
 
     const uuid& CrossSectionBuilder::add_fault()
     {
         const auto& id = create_fault();
-        register_component( cross_section_.fault( id ).component_id() );
         return id;
     }
 
@@ -76,14 +74,14 @@ namespace geode
         typename Fault2D::FAULT_TYPE type )
     {
         const auto& id = create_fault( type );
-        register_component( cross_section_.fault( id ).component_id() );
         return id;
     }
 
     index_t CrossSectionBuilder::add_line_in_fault(
         const Line2D& line, const Fault2D& fault )
     {
-        return add_item_in_collection( line.id(), fault.id() );
+        return add_item_in_collection(
+            line.component_id(), fault.component_id() );
     }
 
     void CrossSectionBuilder::remove_fault( const Fault2D& fault )
@@ -95,7 +93,6 @@ namespace geode
     const uuid& CrossSectionBuilder::add_horizon()
     {
         const auto& id = create_horizon();
-        register_component( cross_section_.horizon( id ).component_id() );
         return id;
     }
 
@@ -103,14 +100,14 @@ namespace geode
         typename Horizon2D::HORIZON_TYPE type )
     {
         const auto& id = create_horizon( type );
-        register_component( cross_section_.horizon( id ).component_id() );
         return id;
     }
 
     index_t CrossSectionBuilder::add_line_in_horizon(
         const Line2D& line, const Horizon2D& horizon )
     {
-        return add_item_in_collection( line.id(), horizon.id() );
+        return add_item_in_collection(
+            line.component_id(), horizon.component_id() );
     }
 
     void CrossSectionBuilder::remove_horizon( const Horizon2D& horizon )
@@ -122,14 +119,14 @@ namespace geode
     const uuid& CrossSectionBuilder::add_fault_block()
     {
         const auto& id = create_fault_block();
-        register_component( cross_section_.fault_block( id ).component_id() );
         return id;
     }
 
     index_t CrossSectionBuilder::add_surface_in_fault_block(
         const Surface2D& surface, const FaultBlock2D& fault_block )
     {
-        return add_item_in_collection( surface.id(), fault_block.id() );
+        return add_item_in_collection(
+            surface.component_id(), fault_block.component_id() );
     }
 
     void CrossSectionBuilder::remove_fault_block(
@@ -142,8 +139,6 @@ namespace geode
     const uuid& CrossSectionBuilder::add_stratigraphic_unit()
     {
         const auto& id = create_stratigraphic_unit();
-        register_component(
-            cross_section_.stratigraphic_unit( id ).component_id() );
         return id;
     }
 
@@ -151,7 +146,8 @@ namespace geode
         const Surface2D& surface,
         const StratigraphicUnit2D& stratigraphic_unit )
     {
-        return add_item_in_collection( surface.id(), stratigraphic_unit.id() );
+        return add_item_in_collection(
+            surface.component_id(), stratigraphic_unit.component_id() );
     }
 
     void CrossSectionBuilder::remove_stratigraphic_unit(
