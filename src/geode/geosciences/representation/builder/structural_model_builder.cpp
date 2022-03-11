@@ -56,22 +56,18 @@ namespace geode
         ModelCopyMapping& mappings, const StructuralModel& structural_model )
     {
         mappings.emplace( Fault3D::component_type_static(),
-            detail::copy_faults( structural_model, structural_model_, *this ) );
+            detail::copy_faults( structural_model, *this ) );
         mappings.emplace( Horizon3D::component_type_static(),
-            detail::copy_horizons(
-                structural_model, structural_model_, *this ) );
+            detail::copy_horizons( structural_model, *this ) );
         mappings.emplace( FaultBlock3D::component_type_static(),
-            detail::copy_fault_blocks(
-                structural_model, structural_model_, *this ) );
+            detail::copy_fault_blocks( structural_model, *this ) );
         mappings.emplace( StratigraphicUnit3D::component_type_static(),
-            detail::copy_stratigraphic_units(
-                structural_model, structural_model_, *this ) );
+            detail::copy_stratigraphic_units( structural_model, *this ) );
     }
 
     const uuid& StructuralModelBuilder::add_fault()
     {
         const auto& id = create_fault();
-        register_component( structural_model_.fault( id ).component_id() );
         return id;
     }
 
@@ -79,14 +75,14 @@ namespace geode
         typename Fault3D::FAULT_TYPE type )
     {
         const auto& id = create_fault( type );
-        register_component( structural_model_.fault( id ).component_id() );
         return id;
     }
 
     index_t StructuralModelBuilder::add_surface_in_fault(
         const Surface3D& surface, const Fault3D& fault )
     {
-        return add_item_in_collection( surface.id(), fault.id() );
+        return add_item_in_collection(
+            surface.component_id(), fault.component_id() );
     }
 
     void StructuralModelBuilder::remove_fault( const Fault3D& fault )
@@ -98,7 +94,6 @@ namespace geode
     const uuid& StructuralModelBuilder::add_horizon()
     {
         const auto& id = create_horizon();
-        register_component( structural_model_.horizon( id ).component_id() );
         return id;
     }
 
@@ -106,14 +101,14 @@ namespace geode
         typename Horizon3D::HORIZON_TYPE type )
     {
         const auto& id = create_horizon( type );
-        register_component( structural_model_.horizon( id ).component_id() );
         return id;
     }
 
     index_t StructuralModelBuilder::add_surface_in_horizon(
         const Surface3D& surface, const Horizon3D& horizon )
     {
-        return add_item_in_collection( surface.id(), horizon.id() );
+        return add_item_in_collection(
+            surface.component_id(), horizon.component_id() );
     }
 
     void StructuralModelBuilder::remove_horizon( const Horizon3D& horizon )
@@ -125,15 +120,14 @@ namespace geode
     const uuid& StructuralModelBuilder::add_fault_block()
     {
         const auto& id = create_fault_block();
-        register_component(
-            structural_model_.fault_block( id ).component_id() );
         return id;
     }
 
     index_t StructuralModelBuilder::add_block_in_fault_block(
         const Block3D& block, const FaultBlock3D& fault_block )
     {
-        return add_item_in_collection( block.id(), fault_block.id() );
+        return add_item_in_collection(
+            block.component_id(), fault_block.component_id() );
     }
 
     void StructuralModelBuilder::remove_fault_block(
@@ -146,15 +140,14 @@ namespace geode
     const uuid& StructuralModelBuilder::add_stratigraphic_unit()
     {
         const auto& id = create_stratigraphic_unit();
-        register_component(
-            structural_model_.stratigraphic_unit( id ).component_id() );
         return id;
     }
 
     index_t StructuralModelBuilder::add_block_in_stratigraphic_unit(
         const Block3D& block, const StratigraphicUnit3D& stratigraphic_unit )
     {
-        return add_item_in_collection( block.id(), stratigraphic_unit.id() );
+        return add_item_in_collection(
+            block.component_id(), stratigraphic_unit.component_id() );
     }
 
     void StructuralModelBuilder::remove_stratigraphic_unit(

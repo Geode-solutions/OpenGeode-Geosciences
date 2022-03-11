@@ -35,9 +35,8 @@ namespace geode
     {
         using Mapping = BijectiveMapping< uuid >;
 
-        template < typename ModelFrom, typename ModelTo, typename BuilderTo >
-        Mapping copy_faults(
-            const ModelFrom& from, const ModelTo& to, BuilderTo& builder_to )
+        template < typename ModelFrom, typename BuilderTo >
+        Mapping copy_faults( const ModelFrom& from, BuilderTo& builder_to )
         {
             Mapping mapping;
             mapping.reserve( from.nb_faults() );
@@ -47,15 +46,12 @@ namespace geode
                 mapping.map( fault.id(), fault_id );
                 builder_to.set_fault_name( fault_id, fault.name() );
                 builder_to.set_fault_type( fault_id, fault.type() );
-                builder_to.register_component(
-                    to.fault( fault_id ).component_id() );
             }
             return mapping;
         }
 
-        template < typename ModelFrom, typename ModelTo, typename BuilderTo >
-        Mapping copy_horizons(
-            const ModelFrom& from, const ModelTo& to, BuilderTo& builder_to )
+        template < typename ModelFrom, typename BuilderTo >
+        Mapping copy_horizons( const ModelFrom& from, BuilderTo& builder_to )
         {
             Mapping mapping;
             mapping.reserve( from.nb_horizons() );
@@ -65,15 +61,13 @@ namespace geode
                 mapping.map( horizon.id(), horizon_id );
                 builder_to.set_horizon_name( horizon_id, horizon.name() );
                 builder_to.set_horizon_type( horizon_id, horizon.type() );
-                builder_to.register_component(
-                    to.horizon( horizon_id ).component_id() );
             }
             return mapping;
         }
 
-        template < typename ModelFrom, typename ModelTo, typename BuilderTo >
+        template < typename ModelFrom, typename BuilderTo >
         Mapping copy_fault_blocks(
-            const ModelFrom& from, const ModelTo& to, BuilderTo& builder_to )
+            const ModelFrom& from, BuilderTo& builder_to )
         {
             Mapping mapping;
             mapping.reserve( from.nb_fault_blocks() );
@@ -83,15 +77,13 @@ namespace geode
                 mapping.map( fault_block.id(), fault_block_id );
                 builder_to.set_fault_block_name(
                     fault_block_id, fault_block.name() );
-                builder_to.register_component(
-                    to.fault_block( fault_block_id ).component_id() );
             }
             return mapping;
         }
 
-        template < typename ModelFrom, typename ModelTo, typename BuilderTo >
+        template < typename ModelFrom, typename BuilderTo >
         Mapping copy_stratigraphic_units(
-            const ModelFrom& from, const ModelTo& to, BuilderTo& builder_to )
+            const ModelFrom& from, BuilderTo& builder_to )
         {
             Mapping mapping;
             mapping.reserve( from.nb_stratigraphic_units() );
@@ -102,9 +94,6 @@ namespace geode
                 mapping.map( stratigraphic_unit.id(), stratigraphic_unit_id );
                 builder_to.set_stratigraphic_unit_name(
                     stratigraphic_unit_id, stratigraphic_unit.name() );
-                builder_to.register_component(
-                    to.stratigraphic_unit( stratigraphic_unit_id )
-                        .component_id() );
             }
             return mapping;
         }
