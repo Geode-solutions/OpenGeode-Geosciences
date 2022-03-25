@@ -21,6 +21,8 @@
  *
  */
 
+#include "../../factory.h"
+
 #include <geode/geosciences/representation/io/structural_model_input.h>
 #include <geode/geosciences/representation/io/structural_model_output.h>
 
@@ -30,5 +32,7 @@ namespace geode
     {
         module.def( "save_structural_model", &save_structural_model );
         module.def( "load_structural_model", &load_structural_model );
+        PYTHON_FACTORY_CLASS( StructuralModelInputFactory );
+        PYTHON_FACTORY_CLASS( StructuralModelOutputFactory );
     }
 } // namespace geode
