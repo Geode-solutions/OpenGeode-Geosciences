@@ -21,18 +21,9 @@
  *
  */
 
-#include "../../factory.h"
+#include <geode/basic/factory.h>
 
-#include <geode/geosciences/representation/io/cross_section_input.h>
-#include <geode/geosciences/representation/io/cross_section_output.h>
-
-namespace geode
-{
-    void define_cross_section_io( pybind11::module& module )
-    {
-        module.def( "save_cross_section", &save_cross_section );
-        module.def( "load_cross_section", &load_cross_section );
-        PYTHON_FACTORY_CLASS( CrossSectionInputFactory );
-        PYTHON_FACTORY_CLASS( CrossSectionOutputFactory );
-    }
-} // namespace geode
+#define PYTHON_FACTORY_CLASS( type )                                           \
+    pybind11::class_< type >( module, #type )                                  \
+        .def( "list_creators", &type::list_creators )                          \
+        .def( "has_creator", &type::has_creator )
