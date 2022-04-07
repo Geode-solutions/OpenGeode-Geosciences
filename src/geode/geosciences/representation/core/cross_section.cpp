@@ -107,4 +107,9 @@ namespace geode
     {
         return { *this, stratigraphic_unit };
     }
+
+    CrossSection::CrossSection( Section&& section )
+        : Section{ std::move( section ) }
+    {
+    }
 } // namespace geode

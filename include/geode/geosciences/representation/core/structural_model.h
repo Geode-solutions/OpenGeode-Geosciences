@@ -102,6 +102,11 @@ namespace geode
             const StructuralModel& structural_model_;
         };
 
+    public:
+        StructuralModel() = default;
+        StructuralModel( StructuralModel&& ) = default;
+        StructuralModel( BRep&& brep );
+
         static constexpr absl::string_view native_extension_static()
         {
             return "og_strm";

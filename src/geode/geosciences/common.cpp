@@ -33,7 +33,6 @@ namespace
 {
     void register_cross_section_input()
     {
-        DEBUG( geode::OpenGeodeCrossSectionInput::extension().data() );
         geode::CrossSectionInputFactory::register_creator<
             geode::OpenGeodeCrossSectionInput >(
             geode::OpenGeodeCrossSectionInput::extension().data() );
