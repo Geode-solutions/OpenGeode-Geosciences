@@ -119,7 +119,7 @@ void add_horizons(
         "[Test] Wrong modified Horizon name" );
 }
 
-void add_lines( geode::StructuralModelBuilder& builder )
+void add_lines( geode::BRepBuilder& builder )
 {
     for( const auto i : geode::Range{ 8 } )
     {
@@ -128,7 +128,7 @@ void add_lines( geode::StructuralModelBuilder& builder )
     }
 }
 
-void add_surfaces( geode::StructuralModelBuilder& builder )
+void add_surfaces( geode::BRepBuilder& builder )
 {
     for( const auto i : geode::Range{ 8 } )
     {
@@ -179,6 +179,10 @@ void do_checks( const geode::StructuralModel& model,
 void build_relations_between_geometry_and_geology(
     geode::StructuralModel& model, geode::StructuralModelBuilder& builder )
 {
+    OPENGEODE_EXCEPTION(
+        model.nb_lines() == 8, "[Test] Wrong number of lines" );
+    OPENGEODE_EXCEPTION(
+        model.nb_surfaces() == 8, "[Test] Wrong number of surfaces" );
     std::vector< geode::uuid > surfaces_uuids;
     surfaces_uuids.reserve( model.nb_surfaces() );
     for( const auto& surface : model.surfaces() )
@@ -326,18 +330,25 @@ void modify_model(
         "[Test] Number of faults in modified model should be 2" );
 }
 
+geode::BRep build_brep()
+{
+    geode::BRep brep;
+    geode::BRepBuilder brep_builder( brep );
+    add_surfaces( brep_builder );
+    add_lines( brep_builder );
+    return brep;
+}
+
 int main()
 {
     using namespace geode;
 
     try
     {
-        StructuralModel model;
+        StructuralModel model = build_brep();
         StructuralModelBuilder builder( model );
         add_faults( model, builder );
         add_horizons( model, builder );
-        add_surfaces( builder );
-        add_lines( builder );
         build_relations_between_geometry_and_geology( model, builder );
 
         test_io( model );

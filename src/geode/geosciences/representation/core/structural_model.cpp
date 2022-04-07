@@ -110,4 +110,8 @@ namespace geode
     {
         return { *this, stratigraphic_unit };
     }
+
+    StructuralModel::StructuralModel( BRep&& brep ) : BRep{ std::move( brep ) }
+    {
+    }
 } // namespace geode

@@ -101,6 +101,11 @@ namespace geode
             const CrossSection& cross_section_;
         };
 
+    public:
+        CrossSection() = default;
+        CrossSection( CrossSection&& ) = default;
+        CrossSection( Section&& section );
+
         static constexpr absl::string_view native_extension_static()
         {
             return "og_xsctn";
