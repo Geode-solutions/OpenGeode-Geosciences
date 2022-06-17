@@ -69,6 +69,7 @@ namespace pybind11
 PYBIND11_MODULE( opengeode_geosciences_py_geosciences, module )
 {
     module.doc() = "OpenGeode-Geosciences Python binding for geosciences";
+    pybind11::module::import( "opengeode" );
     geode::define_fault_block( module );
     geode::define_fault( module );
     geode::define_horizon( module );
