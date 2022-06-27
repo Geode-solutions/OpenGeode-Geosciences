@@ -36,7 +36,7 @@ namespace geode
             HorizonsBuilder3D, FaultBlocksBuilder3D,
             StratigraphicUnitsBuilder3D >( module, "StructuralModelBuilder" )
             .def( pybind11::init< StructuralModel& >() )
-            .def( "copy", ( void ( StructuralModelBuilder::* )(
+            .def( "copy", ( void( StructuralModelBuilder::* )(
                               const StructuralModel& structural_model ) )
                               & StructuralModelBuilder::copy )
             .def( "add_fault", ( const uuid& (StructuralModelBuilder::*) () )
