@@ -23,6 +23,8 @@
 
 #pragma once
 
+#include <async++.h>
+
 #include <fstream>
 
 #include <geode/basic/uuid.h>
@@ -38,9 +40,8 @@ namespace geode
         final : public CrossSectionOutput
     {
     public:
-        OpenGeodeCrossSectionOutput(
-            const CrossSection& cross_section, absl::string_view filename )
-            : CrossSectionOutput( cross_section, filename )
+        OpenGeodeCrossSectionOutput( absl::string_view filename )
+            : CrossSectionOutput( filename )
         {
         }
 
@@ -49,28 +50,40 @@ namespace geode
             return CrossSection::native_extension_static();
         }
 
-        void save_cross_section_files( absl::string_view directory ) const
+        void save_cross_section_files( const CrossSection& cross_section,
+            absl::string_view directory ) const
         {
-            OpenGeodeSectionOutput section_output{ cross_section(),
-                filename() };
-            section_output.save_section_files( directory );
-            cross_section().save_faults( directory );
-            cross_section().save_horizons( directory );
-            cross_section().save_fault_blocks( directory );
-            cross_section().save_stratigraphic_units( directory );
+            async::parallel_invoke(
+                [&directory, &cross_section] {
+                    OpenGeodeSectionOutput section_output{ "" };
+                    section_output.save_section_files(
+                        cross_section, directory );
+                },
+                [&directory, &cross_section] {
+                    cross_section.save_faults( directory );
+                },
+                [&directory, &cross_section] {
+                    cross_section.save_horizons( directory );
+                },
+                [&directory, &cross_section] {
+                    cross_section.save_fault_blocks( directory );
+                },
+                [&directory, &cross_section] {
+                    cross_section.save_stratigraphic_units( directory );
+                } );
         }
 
         void archive_cross_section_files( const ZipFile& zip_writer ) const
         {
-            OpenGeodeSectionOutput section_output{ cross_section(),
-                filename() };
+            OpenGeodeSectionOutput section_output{ "" };
             section_output.archive_section_files( zip_writer );
         }
 
-        void write() const final
+        void write( const CrossSection& cross_section ) const final
         {
             const ZipFile zip_writer{ filename(), uuid{}.string() };
-            save_cross_section_files( to_string( zip_writer.directory() ) );
+            save_cross_section_files(
+                cross_section, to_string( zip_writer.directory() ) );
             archive_cross_section_files( zip_writer );
         }
     };

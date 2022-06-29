@@ -23,6 +23,8 @@
 
 #pragma once
 
+#include <async++.h>
+
 #include <fstream>
 
 #include <geode/basic/uuid.h>
@@ -38,9 +40,8 @@ namespace geode
         final : public StructuralModelOutput
     {
     public:
-        OpenGeodeStructuralModelOutput( const StructuralModel& structural_model,
-            absl::string_view filename )
-            : StructuralModelOutput( structural_model, filename )
+        OpenGeodeStructuralModelOutput( absl::string_view filename )
+            : StructuralModelOutput( filename )
         {
         }
 
@@ -49,26 +50,40 @@ namespace geode
             return StructuralModel::native_extension_static();
         }
 
-        void save_structural_model_files( absl::string_view directory ) const
+        void save_structural_model_files(
+            const StructuralModel& structural_model,
+            absl::string_view directory ) const
         {
-            OpenGeodeBRepOutput brep_output{ structural_model(), filename() };
-            brep_output.save_brep_files( directory );
-            structural_model().save_faults( directory );
-            structural_model().save_horizons( directory );
-            structural_model().save_fault_blocks( directory );
-            structural_model().save_stratigraphic_units( directory );
+            async::parallel_invoke(
+                [&directory, &structural_model] {
+                    OpenGeodeBRepOutput brep_output{ "" };
+                    brep_output.save_brep_files( structural_model, directory );
+                },
+                [&directory, &structural_model] {
+                    structural_model.save_faults( directory );
+                },
+                [&directory, &structural_model] {
+                    structural_model.save_horizons( directory );
+                },
+                [&directory, &structural_model] {
+                    structural_model.save_fault_blocks( directory );
+                },
+                [&directory, &structural_model] {
+                    structural_model.save_stratigraphic_units( directory );
+                } );
         }
 
         void archive_structural_model_files( const ZipFile& zip_writer ) const
         {
-            OpenGeodeBRepOutput brep_output{ structural_model(), filename() };
+            OpenGeodeBRepOutput brep_output{ "" };
             brep_output.archive_brep_files( zip_writer );
         }
 
-        void write() const final
+        void write( const StructuralModel& structural_model ) const final
         {
             const ZipFile zip_writer{ filename(), uuid{}.string() };
-            save_structural_model_files( to_string( zip_writer.directory() ) );
+            save_structural_model_files(
+                structural_model, to_string( zip_writer.directory() ) );
             archive_structural_model_files( zip_writer );
         }
     };

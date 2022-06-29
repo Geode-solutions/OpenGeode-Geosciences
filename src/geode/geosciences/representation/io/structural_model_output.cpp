@@ -23,7 +23,7 @@
 
 #include <geode/geosciences/representation/io/structural_model_output.h>
 
-#include <geode/model/representation/io/brep_output.h>
+#include <geode/basic/timer.h>
 
 #include <geode/geosciences/representation/core/structural_model.h>
 
@@ -34,25 +34,25 @@ namespace geode
     {
         try
         {
+            Timer timer;
             const auto extension =
                 to_string( extension_from_filename( filename ) );
             if( StructuralModelOutputFactory::has_creator( extension ) )
             {
-                StructuralModelOutputFactory::create(
-                    extension, structural_model, filename )
-                    ->write();
+                StructuralModelOutputFactory::create( extension, filename )
+                    ->write( structural_model );
             }
             else if( BRepOutputFactory::has_creator( extension ) )
             {
-                BRepOutputFactory::create(
-                    extension, structural_model, filename )
-                    ->write();
+                BRepOutputFactory::create( extension, filename )
+                    ->write( structural_model );
             }
             else
             {
                 throw OpenGeodeException{ "Unknown extension: ", extension };
             }
-            Logger::info( "StructuralModel saved in ", filename );
+            Logger::info( "StructuralModel saved in ", filename, " in ",
+                timer.duration() );
         }
         catch( const OpenGeodeException& e )
         {
@@ -60,11 +60,5 @@ namespace geode
             throw OpenGeodeException{ "Cannot save StructuralModel in file: ",
                 filename };
         }
-    }
-
-    StructuralModelOutput::StructuralModelOutput(
-        const StructuralModel& structural_model, absl::string_view filename )
-        : Output{ filename }, structural_model_( structural_model )
-    {
     }
 } // namespace geode

@@ -77,4 +77,6 @@ add_geode_library(
     PUBLIC_DEPENDENCIES
         OpenGeode::basic
         OpenGeode::model
+    PRIVATE_DEPENDENCIES
+        Async++
 )
