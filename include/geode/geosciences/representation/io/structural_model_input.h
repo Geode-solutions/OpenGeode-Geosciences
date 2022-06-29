@@ -45,27 +45,18 @@ namespace geode
     StructuralModel opengeode_geosciences_geosciences_api load_structural_model(
         absl::string_view filename );
 
-    class opengeode_geosciences_geosciences_api StructuralModelInput
-        : public Input
+    class StructuralModelInput : public Input< StructuralModel >
     {
     public:
         virtual ~StructuralModelInput() = default;
 
     protected:
-        StructuralModelInput(
-            StructuralModel& structural_model, absl::string_view filename );
-
-        StructuralModel& structural_model()
+        StructuralModelInput( absl::string_view filename )
+            : Input< StructuralModel >{ filename }
         {
-            return structural_model_;
         }
-
-    private:
-        StructuralModel& structural_model_;
     };
 
-    using StructuralModelInputFactory = Factory< std::string,
-        StructuralModelInput,
-        StructuralModel&,
-        absl::string_view >;
+    using StructuralModelInputFactory =
+        Factory< std::string, StructuralModelInput, absl::string_view >;
 } // namespace geode

@@ -45,26 +45,18 @@ namespace geode
     CrossSection opengeode_geosciences_geosciences_api load_cross_section(
         absl::string_view filename );
 
-    class opengeode_geosciences_geosciences_api CrossSectionInput : public Input
+    class CrossSectionInput : public Input< CrossSection >
     {
     public:
         virtual ~CrossSectionInput() = default;
 
     protected:
-        CrossSectionInput(
-            CrossSection& cross_section, absl::string_view filename );
-
-        CrossSection& cross_section()
+        CrossSectionInput( absl::string_view filename )
+            : Input< CrossSection >{ filename }
         {
-            return cross_section_;
         }
-
-    private:
-        CrossSection& cross_section_;
     };
 
-    using CrossSectionInputFactory = Factory< std::string,
-        CrossSectionInput,
-        CrossSection&,
-        absl::string_view >;
+    using CrossSectionInputFactory =
+        Factory< std::string, CrossSectionInput, absl::string_view >;
 } // namespace geode
