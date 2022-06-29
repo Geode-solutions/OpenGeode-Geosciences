@@ -23,6 +23,8 @@
 
 #include <geode/geosciences/representation/io/structural_model_input.h>
 
+#include <geode/basic/timer.h>
+
 #include <geode/geosciences/representation/core/structural_model.h>
 
 namespace
@@ -44,12 +46,17 @@ namespace geode
     {
         try
         {
-            StructuralModel structural_model;
-            auto input = StructuralModelInputFactory::create(
-                to_string( extension_from_filename( filename ) ),
-                structural_model, filename );
-            input->read();
-            Logger::info( "StructuralModel loaded from ", filename );
+            Timer timer;
+            const auto extension =
+                to_string( extension_from_filename( filename ) );
+            OPENGEODE_EXCEPTION(
+                StructuralModelInputFactory::has_creator( extension ),
+                "Unknown extension: ", extension );
+            auto structural_model =
+                StructuralModelInputFactory::create( extension, filename )
+                    ->read();
+            Logger::info( "StructuralModel loaded from ", filename, " in ",
+                timer.duration() );
             std::string message{ "StructuralModel has: " };
             add_to_message(
                 message, structural_model.nb_blocks(), " Blocks, " );
@@ -77,11 +84,5 @@ namespace geode
             throw OpenGeodeException{ "Cannot load StructuralModel from file: ",
                 filename };
         }
-    }
-
-    StructuralModelInput::StructuralModelInput(
-        StructuralModel& structural_model, absl::string_view filename )
-        : Input{ filename }, structural_model_( structural_model )
-    {
     }
 } // namespace geode

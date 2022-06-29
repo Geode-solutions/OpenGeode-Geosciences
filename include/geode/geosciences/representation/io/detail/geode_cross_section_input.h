@@ -23,6 +23,8 @@
 
 #pragma once
 
+#include <async++.h>
+
 #include <fstream>
 
 #include <geode/basic/uuid.h>
@@ -40,9 +42,8 @@ namespace geode
         : public CrossSectionInput
     {
     public:
-        OpenGeodeCrossSectionInput(
-            CrossSection& cross_section, absl::string_view filename )
-            : CrossSectionInput{ cross_section, filename }
+        OpenGeodeCrossSectionInput( absl::string_view filename )
+            : CrossSectionInput{ filename }
         {
         }
 
@@ -51,23 +52,35 @@ namespace geode
             return CrossSection::native_extension_static();
         }
 
-        void load_cross_section_files( absl::string_view directory )
+        void load_cross_section_files(
+            CrossSection& cross_section, absl::string_view directory )
         {
-            CrossSectionBuilder builder{ cross_section() };
-            builder.load_faults( directory );
-            builder.load_horizons( directory );
-            builder.load_fault_blocks( directory );
-            builder.load_stratigraphic_units( directory );
+            CrossSectionBuilder builder{ cross_section };
+            async::parallel_invoke(
+                [&builder, &directory] {
+                    builder.load_faults( directory );
+                },
+                [&builder, &directory] {
+                    builder.load_horizons( directory );
+                },
+                [&builder, &directory] {
+                    builder.load_fault_blocks( directory );
+                },
+                [&builder, &directory] {
+                    builder.load_stratigraphic_units( directory );
+                } );
         }
 
-        void read() final
+        CrossSection read() final
         {
             const UnzipFile zip_reader{ filename(), uuid{}.string() };
             zip_reader.extract_all();
-
-            OpenGeodeSectionInput section_input{ cross_section(), filename() };
-            section_input.load_section_files( zip_reader.directory() );
-            load_cross_section_files( zip_reader.directory() );
+            CrossSection cross_section;
+            OpenGeodeSectionInput section_input{ filename() };
+            section_input.load_section_files(
+                cross_section, zip_reader.directory() );
+            load_cross_section_files( cross_section, zip_reader.directory() );
+            return cross_section;
         }
     };
 } // namespace geode

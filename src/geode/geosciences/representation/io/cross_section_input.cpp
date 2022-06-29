@@ -23,6 +23,8 @@
 
 #include <geode/geosciences/representation/io/cross_section_input.h>
 
+#include <geode/basic/timer.h>
+
 #include <geode/geosciences/representation/core/cross_section.h>
 
 namespace
@@ -44,12 +46,16 @@ namespace geode
     {
         try
         {
-            CrossSection cross_section;
-            auto input = CrossSectionInputFactory::create(
-                to_string( extension_from_filename( filename ) ), cross_section,
-                filename );
-            input->read();
-            Logger::info( "CrossSection loaded from ", filename );
+            Timer timer;
+            const auto extension =
+                to_string( extension_from_filename( filename ) );
+            OPENGEODE_EXCEPTION(
+                CrossSectionInputFactory::has_creator( extension ),
+                "Unknown extension: ", extension );
+            auto cross_section =
+                CrossSectionInputFactory::create( extension, filename )->read();
+            Logger::info( "CrossSection loaded from ", filename, " in ",
+                timer.duration() );
             std::string message{ "CrossSection has: " };
             add_to_message(
                 message, cross_section.nb_surfaces(), " Surfaces, " );
@@ -73,11 +79,5 @@ namespace geode
             throw OpenGeodeException{ "Cannot load CrossSection from file: ",
                 filename };
         }
-    }
-
-    CrossSectionInput::CrossSectionInput(
-        CrossSection& cross_section, absl::string_view filename )
-        : Input{ filename }, cross_section_( cross_section )
-    {
     }
 } // namespace geode

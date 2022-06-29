@@ -23,6 +23,8 @@
 
 #pragma once
 
+#include <async++.h>
+
 #include <fstream>
 
 #include <geode/basic/uuid.h>
@@ -40,9 +42,8 @@ namespace geode
         final : public StructuralModelInput
     {
     public:
-        OpenGeodeStructuralModelInput(
-            StructuralModel& structural_model, absl::string_view filename )
-            : StructuralModelInput{ structural_model, filename }
+        OpenGeodeStructuralModelInput( absl::string_view filename )
+            : StructuralModelInput{ filename }
         {
         }
 
@@ -51,23 +52,36 @@ namespace geode
             return StructuralModel::native_extension_static();
         }
 
-        void load_structural_model_files( absl::string_view directory )
+        void load_structural_model_files(
+            StructuralModel& structural_model, absl::string_view directory )
         {
-            StructuralModelBuilder builder{ structural_model() };
-            builder.load_faults( directory );
-            builder.load_horizons( directory );
-            builder.load_fault_blocks( directory );
-            builder.load_stratigraphic_units( directory );
+            StructuralModelBuilder builder{ structural_model };
+            async::parallel_invoke(
+                [&builder, &directory] {
+                    builder.load_faults( directory );
+                },
+                [&builder, &directory] {
+                    builder.load_horizons( directory );
+                },
+                [&builder, &directory] {
+                    builder.load_fault_blocks( directory );
+                },
+                [&builder, &directory] {
+                    builder.load_stratigraphic_units( directory );
+                } );
         }
 
-        void read() final
+        StructuralModel read() final
         {
             const UnzipFile zip_reader{ filename(), uuid{}.string() };
             zip_reader.extract_all();
-
-            OpenGeodeBRepInput brep_input{ structural_model(), filename() };
-            brep_input.read();
-            load_structural_model_files( zip_reader.directory() );
+            StructuralModel structural_model;
+            OpenGeodeBRepInput brep_input{ filename() };
+            brep_input.load_brep_files(
+                structural_model, zip_reader.directory() );
+            load_structural_model_files(
+                structural_model, zip_reader.directory() );
+            return structural_model;
         }
     };
 } // namespace geode
