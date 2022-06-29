@@ -45,27 +45,18 @@ namespace geode
     void opengeode_geosciences_geosciences_api save_cross_section(
         const CrossSection& cross_section, absl::string_view filename );
 
-    class opengeode_geosciences_geosciences_api CrossSectionOutput
-        : public Output
+    class CrossSectionOutput : public Output< CrossSection >
     {
     public:
         virtual ~CrossSectionOutput() = default;
 
     protected:
-        CrossSectionOutput(
-            const CrossSection& cross_section, absl::string_view filename );
-
-        const CrossSection& cross_section() const
+        CrossSectionOutput( absl::string_view filename )
+            : Output< CrossSection >{ filename }
         {
-            return cross_section_;
         }
-
-    private:
-        const CrossSection& cross_section_;
     };
 
-    using CrossSectionOutputFactory = Factory< std::string,
-        CrossSectionOutput,
-        const CrossSection&,
-        absl::string_view >;
+    using CrossSectionOutputFactory =
+        Factory< std::string, CrossSectionOutput, absl::string_view >;
 } // namespace geode

@@ -23,7 +23,7 @@
 
 #include <geode/geosciences/representation/io/cross_section_output.h>
 
-#include <geode/model/representation/io/section_output.h>
+#include <geode/basic/timer.h>
 
 #include <geode/geosciences/representation/core/cross_section.h>
 
@@ -34,25 +34,25 @@ namespace geode
     {
         try
         {
+            Timer timer;
             const auto extension =
                 to_string( extension_from_filename( filename ) );
             if( CrossSectionOutputFactory::has_creator( extension ) )
             {
-                CrossSectionOutputFactory::create(
-                    extension, cross_section, filename )
-                    ->write();
+                CrossSectionOutputFactory::create( extension, filename )
+                    ->write( cross_section );
             }
             else if( SectionOutputFactory::has_creator( extension ) )
             {
-                SectionOutputFactory::create(
-                    extension, cross_section, filename )
-                    ->write();
+                SectionOutputFactory::create( extension, filename )
+                    ->write( cross_section );
             }
             else
             {
                 throw OpenGeodeException{ "Unknown extension: ", extension };
             }
-            Logger::info( "CrossSection saved in ", filename );
+            Logger::info(
+                "CrossSection saved in ", filename, " in ", timer.duration() );
         }
         catch( const OpenGeodeException& e )
         {
@@ -60,11 +60,5 @@ namespace geode
             throw OpenGeodeException{ "Cannot save CrossSection in file: ",
                 filename };
         }
-    }
-
-    CrossSectionOutput::CrossSectionOutput(
-        const CrossSection& cross_section, absl::string_view filename )
-        : Output{ filename }, cross_section_( cross_section )
-    {
     }
 } // namespace geode

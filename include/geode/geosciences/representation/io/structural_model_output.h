@@ -45,27 +45,18 @@ namespace geode
     void opengeode_geosciences_geosciences_api save_structural_model(
         const StructuralModel& structural_model, absl::string_view filename );
 
-    class opengeode_geosciences_geosciences_api StructuralModelOutput
-        : public Output
+    class StructuralModelOutput : public Output< StructuralModel >
     {
     public:
         virtual ~StructuralModelOutput() = default;
 
     protected:
-        StructuralModelOutput( const StructuralModel& structural_model,
-            absl::string_view filename );
-
-        const StructuralModel& structural_model() const
+        StructuralModelOutput( absl::string_view filename )
+            : Output< StructuralModel >{ filename }
         {
-            return structural_model_;
         }
-
-    private:
-        const StructuralModel& structural_model_;
     };
 
-    using StructuralModelOutputFactory = Factory< std::string,
-        StructuralModelOutput,
-        const StructuralModel&,
-        absl::string_view >;
+    using StructuralModelOutputFactory =
+        Factory< std::string, StructuralModelOutput, absl::string_view >;
 } // namespace geode
