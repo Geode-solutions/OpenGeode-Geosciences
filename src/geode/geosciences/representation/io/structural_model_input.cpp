@@ -23,8 +23,10 @@
 
 #include <geode/geosciences/representation/io/structural_model_input.h>
 
+#include <geode/basic/filename.h>
 #include <geode/basic/timer.h>
 
+#include <geode/geosciences/representation/builder/structural_model_builder.h>
 #include <geode/geosciences/representation/core/structural_model.h>
 
 namespace
@@ -52,9 +54,14 @@ namespace geode
             OPENGEODE_EXCEPTION(
                 StructuralModelInputFactory::has_creator( extension ),
                 "Unknown extension: ", extension );
-            auto structural_model =
-                StructuralModelInputFactory::create( extension, filename )
-                    ->read();
+            auto input =
+                StructuralModelInputFactory::create( extension, filename );
+            auto structural_model = input->read();
+            if( structural_model.name() == Identifier::DEFAULT_NAME )
+            {
+                StructuralModelBuilder{ structural_model }.set_name(
+                    filename_without_extension( filename ) );
+            }
             Logger::info( "StructuralModel loaded from ", filename, " in ",
                 timer.duration() );
             std::string message{ "StructuralModel has: " };
