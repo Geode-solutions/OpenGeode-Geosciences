@@ -23,6 +23,8 @@
 
 #include <geode/geosciences/mixin/core/bitsery_archive.h>
 
+#include <geode/model/mixin/core/bitsery_archive.h>
+
 #include <geode/geosciences/mixin/core/fault.h>
 #include <geode/geosciences/mixin/core/fault_block.h>
 #include <geode/geosciences/mixin/core/horizon.h>
@@ -56,12 +58,10 @@ namespace bitsery
         {
         };
 
-        BITSERY_CLASS_NAME( geode::Component2D, "Component2D" );
         BITSERY_CLASS_NAME( geode::Fault2D, "Fault2D" );
         BITSERY_CLASS_NAME( geode::Horizon2D, "Horizon2D" );
         BITSERY_CLASS_NAME( geode::FaultBlock2D, "FaultBlock2D" );
         BITSERY_CLASS_NAME( geode::StratigraphicUnit2D, "StratigraphicUnit2D" );
-        BITSERY_CLASS_NAME( geode::Component3D, "Component3D" );
         BITSERY_CLASS_NAME( geode::Fault3D, "Fault3D" );
         BITSERY_CLASS_NAME( geode::Horizon3D, "Horizon3D" );
         BITSERY_CLASS_NAME( geode::FaultBlock3D, "FaultBlock3D" );

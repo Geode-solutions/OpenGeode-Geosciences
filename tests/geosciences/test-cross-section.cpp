@@ -438,12 +438,12 @@ void modify_model(
 
 int main()
 {
-    using namespace geode;
-
     try
     {
-        CrossSection model;
-        CrossSectionBuilder builder( model );
+        geode::OpenGeodeGeosciencesGeosciences::initialize();
+
+        geode::CrossSection model;
+        geode::CrossSectionBuilder builder( model );
         add_faults( model, builder );
         add_horizons( model, builder );
         add_lines( builder );

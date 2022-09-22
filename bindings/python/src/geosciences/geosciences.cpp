@@ -70,6 +70,10 @@ PYBIND11_MODULE( opengeode_geosciences_py_geosciences, module )
 {
     module.doc() = "OpenGeode-Geosciences Python binding for geosciences";
     pybind11::module::import( "opengeode" );
+    pybind11::class_< geode::OpenGeodeGeosciencesGeosciences >(
+        module, "OpenGeodeGeosciencesGeosciences" )
+        .def(
+            "initialize", &geode::OpenGeodeGeosciencesGeosciences::initialize );
     geode::define_fault_block( module );
     geode::define_fault( module );
     geode::define_horizon( module );
