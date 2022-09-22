@@ -341,12 +341,12 @@ geode::BRep build_brep()
 
 int main()
 {
-    using namespace geode;
-
     try
     {
-        StructuralModel model = build_brep();
-        StructuralModelBuilder builder( model );
+        geode::OpenGeodeGeosciencesGeosciences::initialize();
+
+        geode::StructuralModel model = build_brep();
+        geode::StructuralModelBuilder builder( model );
         add_faults( model, builder );
         add_horizons( model, builder );
         build_relations_between_geometry_and_geology( model, builder );

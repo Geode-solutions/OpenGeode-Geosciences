@@ -21,3 +21,5 @@
 import opengeode
 
 from .opengeode_geosciences_py_geosciences import *
+
+OpenGeodeGeosciencesGeosciences.initialize()
