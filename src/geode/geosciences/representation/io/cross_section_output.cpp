@@ -23,6 +23,8 @@
 
 #include <geode/geosciences/representation/io/cross_section_output.h>
 
+#include <absl/strings/ascii.h>
+
 #include <geode/basic/timer.h>
 
 #include <geode/geosciences/representation/core/cross_section.h>
@@ -36,7 +38,7 @@ namespace geode
         {
             Timer timer;
             const auto extension =
-                to_string( extension_from_filename( filename ) );
+                absl::AsciiStrToLower( extension_from_filename( filename ) );
             if( CrossSectionOutputFactory::has_creator( extension ) )
             {
                 CrossSectionOutputFactory::create( extension, filename )

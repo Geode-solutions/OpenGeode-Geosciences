@@ -23,6 +23,8 @@
 
 #include <geode/geosciences/representation/io/structural_model_input.h>
 
+#include <absl/strings/ascii.h>
+
 #include <geode/basic/filename.h>
 #include <geode/basic/timer.h>
 
@@ -50,7 +52,7 @@ namespace geode
         {
             Timer timer;
             const auto extension =
-                to_string( extension_from_filename( filename ) );
+                absl::AsciiStrToLower( extension_from_filename( filename ) );
             OPENGEODE_EXCEPTION(
                 StructuralModelInputFactory::has_creator( extension ),
                 "Unknown extension: ", extension );
