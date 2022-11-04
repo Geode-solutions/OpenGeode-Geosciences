@@ -32,6 +32,9 @@ namespace geode
         pybind11::class_< StructuralModel, BRep, Faults3D, Horizons3D,
             FaultBlocks3D, StratigraphicUnits3D >( module, "StructuralModel" )
             .def( pybind11::init<>() )
+            .def( pybind11::init( []( BRep& cross_section ) {
+                return StructuralModel{ std::move( cross_section ) };
+            } ) )
             .def(
                 "horizon_items",
                 []( const StructuralModel& structural_model,
