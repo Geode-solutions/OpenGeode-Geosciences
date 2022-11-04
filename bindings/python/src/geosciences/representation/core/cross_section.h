@@ -32,6 +32,9 @@ namespace geode
         pybind11::class_< CrossSection, Section, Faults2D, Horizons2D,
             FaultBlocks2D, StratigraphicUnits2D >( module, "CrossSection" )
             .def( pybind11::init<>() )
+            .def( pybind11::init( []( Section& cross_section ) {
+                return CrossSection{ std::move( cross_section ) };
+            } ) )
             .def(
                 "horizon_items",
                 []( const CrossSection& cross_section,
