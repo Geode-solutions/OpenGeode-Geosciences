@@ -32,6 +32,11 @@
 
 namespace geode
 {
+    class StructuralModelBuilder;
+} // namespace geode
+
+namespace geode
+{
     /*!
      * A Structural Model is a Boundary Representation composed of
      * Faults and Horizons (as Surfaces) and FaultBlocks and StratigraphicUnits
@@ -39,11 +44,10 @@ namespace geode
      */
     class opengeode_geosciences_geosciences_api StructuralModel
         : public BRep,
-          public AddComponents< 3,
-              Faults,
-              Horizons,
-              FaultBlocks,
-              StratigraphicUnits >
+          public Faults3D,
+          public Horizons3D,
+          public FaultBlocks3D,
+          public StratigraphicUnits3D
     {
     public:
         class opengeode_geosciences_geosciences_api HorizonItemRange
@@ -103,6 +107,9 @@ namespace geode
         };
 
     public:
+        static constexpr index_t dimension{ 3 };
+        using Builder = StructuralModelBuilder;
+
         StructuralModel() = default;
         StructuralModel( StructuralModel&& ) = default;
         StructuralModel( BRep&& brep );

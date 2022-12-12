@@ -41,11 +41,12 @@ namespace geode
     template < typename Archive >
     void StratigraphicUnit< dimension >::serialize( Archive& archive )
     {
-        archive.ext( *this, DefaultGrowable< Archive, StratigraphicUnit >{},
-            []( Archive& a, StratigraphicUnit& strati_unit ) {
-                a.ext( strati_unit,
-                    bitsery::ext::BaseClass< Component< dimension > >{} );
-            } );
+        archive.ext( *this,
+            Growable< Archive, StratigraphicUnit >{
+                { []( Archive& a, StratigraphicUnit& strati_unit ) {
+                    a.ext( strati_unit,
+                        bitsery::ext::BaseClass< Component< dimension > >{} );
+                } } } );
     }
 
     template class opengeode_geosciences_geosciences_api StratigraphicUnit< 2 >;

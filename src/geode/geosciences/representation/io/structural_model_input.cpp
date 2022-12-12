@@ -26,9 +26,9 @@
 #include <absl/strings/ascii.h>
 
 #include <geode/basic/filename.h>
+#include <geode/basic/identifier_builder.h>
 #include <geode/basic/timer.h>
 
-#include <geode/geosciences/representation/builder/structural_model_builder.h>
 #include <geode/geosciences/representation/core/structural_model.h>
 
 namespace
@@ -61,7 +61,7 @@ namespace geode
             auto structural_model = input->read();
             if( structural_model.name() == Identifier::DEFAULT_NAME )
             {
-                StructuralModelBuilder{ structural_model }.set_name(
+                IdentifierBuilder{ structural_model }.set_name(
                     filename_without_extension( filename ) );
             }
             Logger::info( "StructuralModel loaded from ", filename, " in ",

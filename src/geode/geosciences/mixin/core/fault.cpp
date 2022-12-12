@@ -45,10 +45,10 @@ namespace geode
         template < typename Archive >
         void serialize( Archive& archive )
         {
-            archive.ext( *this, DefaultGrowable< Archive, Impl >{},
-                []( Archive& a, Impl& impl ) {
+            archive.ext( *this,
+                Growable< Archive, Impl >{ { []( Archive& a, Impl& impl ) {
                     a.value4b( impl.fault_type_ );
-                } );
+                } } } );
         }
 
     private:
@@ -94,12 +94,12 @@ namespace geode
     template < typename Archive >
     void Fault< dimension >::serialize( Archive& archive )
     {
-        archive.ext( *this, DefaultGrowable< Archive, Fault >{},
-            []( Archive& a, Fault& fault ) {
+        archive.ext( *this,
+            Growable< Archive, Fault >{ { []( Archive& a, Fault& fault ) {
                 a.object( fault.impl_ );
                 a.ext( fault,
                     bitsery::ext::BaseClass< Component< dimension > >{} );
-            } );
+            } } } );
     }
 
     template class opengeode_geosciences_geosciences_api Fault< 2 >;
