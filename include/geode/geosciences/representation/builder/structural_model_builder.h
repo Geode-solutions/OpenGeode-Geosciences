@@ -23,7 +23,6 @@
 
 #pragma once
 
-#include <geode/model/mixin/builder/add_components_builders.h>
 #include <geode/model/representation/builder/brep_builder.h>
 
 #include <geode/geosciences/mixin/builder/fault_blocks_builder.h>
@@ -51,11 +50,10 @@ namespace geode
      */
     class opengeode_geosciences_geosciences_api StructuralModelBuilder
         : public BRepBuilder,
-          public AddComponentsBuilders< 3,
-              Faults,
-              Horizons,
-              FaultBlocks,
-              StratigraphicUnits >
+          public FaultsBuilder3D,
+          public HorizonsBuilder3D,
+          public FaultBlocksBuilder3D,
+          public StratigraphicUnitsBuilder3D
     {
         OPENGEODE_DISABLE_COPY_AND_MOVE( StructuralModelBuilder );
 

@@ -26,6 +26,7 @@
 #include <absl/strings/ascii.h>
 
 #include <geode/basic/filename.h>
+#include <geode/basic/identifier_builder.h>
 #include <geode/basic/timer.h>
 
 #include <geode/geosciences/representation/builder/cross_section_builder.h>
@@ -61,7 +62,7 @@ namespace geode
             auto cross_section = input->read();
             if( cross_section.name() == Identifier::DEFAULT_NAME )
             {
-                CrossSectionBuilder{ cross_section }.set_name(
+                IdentifierBuilder{ cross_section }.set_name(
                     filename_without_extension( filename ) );
             }
             Logger::info( "CrossSection loaded from ", filename, " in ",

@@ -32,17 +32,21 @@
 
 namespace geode
 {
+    class CrossSectionBuilder;
+} // namespace geode
+
+namespace geode
+{
     /*!
      * A Cross Section is a Section composed of Faults and Horizons (as Lines)
      * and FaultBlocks and StratigraphicUnits (as Surfaces).
      */
     class opengeode_geosciences_geosciences_api CrossSection
         : public Section,
-          public AddComponents< 2,
-              Faults,
-              Horizons,
-              FaultBlocks,
-              StratigraphicUnits >
+          public Faults2D,
+          public Horizons2D,
+          public FaultBlocks2D,
+          public StratigraphicUnits2D
     {
     public:
         class opengeode_geosciences_geosciences_api HorizonItemRange
@@ -102,6 +106,9 @@ namespace geode
         };
 
     public:
+        static constexpr index_t dimension{ 2 };
+        using Builder = CrossSectionBuilder;
+
         CrossSection() = default;
         CrossSection( CrossSection&& ) = default;
         CrossSection( Section&& section );

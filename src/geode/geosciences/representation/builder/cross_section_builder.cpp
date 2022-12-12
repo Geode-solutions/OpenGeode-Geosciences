@@ -35,11 +35,10 @@ namespace geode
 {
     CrossSectionBuilder::CrossSectionBuilder( CrossSection& cross_section )
         : SectionBuilder( cross_section ),
-          AddComponentsBuilders< 2,
-              Faults,
-              Horizons,
-              FaultBlocks,
-              StratigraphicUnits >( cross_section ),
+          FaultsBuilder2D( cross_section ),
+          HorizonsBuilder2D( cross_section ),
+          FaultBlocksBuilder2D( cross_section ),
+          StratigraphicUnitsBuilder2D( cross_section ),
           cross_section_( cross_section )
     {
     }

@@ -41,11 +41,12 @@ namespace geode
     template < typename Archive >
     void FaultBlock< dimension >::serialize( Archive& archive )
     {
-        archive.ext( *this, DefaultGrowable< Archive, FaultBlock >{},
-            []( Archive& a, FaultBlock& fault_block ) {
-                a.ext( fault_block,
-                    bitsery::ext::BaseClass< Component< dimension > >{} );
-            } );
+        archive.ext( *this,
+            Growable< Archive, FaultBlock >{
+                { []( Archive& a, FaultBlock& fault_block ) {
+                    a.ext( fault_block,
+                        bitsery::ext::BaseClass< Component< dimension > >{} );
+                } } } );
     }
 
     template class opengeode_geosciences_geosciences_api FaultBlock< 2 >;

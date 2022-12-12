@@ -23,7 +23,6 @@
 
 #pragma once
 
-#include <geode/model/mixin/builder/add_components_builders.h>
 #include <geode/model/representation/builder/section_builder.h>
 
 #include <geode/geosciences/mixin/builder/fault_blocks_builder.h>
@@ -51,11 +50,10 @@ namespace geode
      */
     class opengeode_geosciences_geosciences_api CrossSectionBuilder
         : public SectionBuilder,
-          public AddComponentsBuilders< 2,
-              Faults,
-              Horizons,
-              FaultBlocks,
-              StratigraphicUnits >
+          public FaultsBuilder2D,
+          public HorizonsBuilder2D,
+          public FaultBlocksBuilder2D,
+          public StratigraphicUnitsBuilder2D
     {
         OPENGEODE_DISABLE_COPY_AND_MOVE( CrossSectionBuilder );
 
