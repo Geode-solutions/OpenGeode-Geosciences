@@ -24,6 +24,7 @@ jobs:
     with:
       name: OPENGEODE_GEOSCIENCES
       repos: OpenGeode
+      config: RelWithDebInfo
     secrets: inherit
 
   release-windows-python:
