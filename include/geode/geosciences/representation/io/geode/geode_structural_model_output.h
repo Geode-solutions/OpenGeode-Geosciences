@@ -29,7 +29,7 @@
 
 #include <geode/basic/uuid.h>
 
-#include <geode/model/representation/io/detail/geode_brep_output.h>
+#include <geode/model/representation/io/geode/geode_brep_output.h>
 
 #include <geode/geosciences/representation/core/structural_model.h>
 #include <geode/geosciences/representation/io/structural_model_output.h>

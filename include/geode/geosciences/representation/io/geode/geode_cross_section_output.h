@@ -29,7 +29,7 @@
 
 #include <geode/basic/uuid.h>
 
-#include <geode/model/representation/io/detail/geode_section_output.h>
+#include <geode/model/representation/io/geode/geode_section_output.h>
 
 #include <geode/geosciences/representation/core/cross_section.h>
 #include <geode/geosciences/representation/io/cross_section_output.h>
