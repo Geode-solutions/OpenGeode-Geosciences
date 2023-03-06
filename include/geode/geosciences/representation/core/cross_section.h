@@ -106,7 +106,7 @@ namespace geode
         };
 
     public:
-        static constexpr index_t dimension{ 2 };
+        static constexpr index_t dim{ 2 };
         using Builder = CrossSectionBuilder;
 
         CrossSection() = default;

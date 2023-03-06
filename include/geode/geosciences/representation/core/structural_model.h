@@ -107,7 +107,7 @@ namespace geode
         };
 
     public:
-        static constexpr index_t dimension{ 3 };
+        static constexpr index_t dim{ 3 };
         using Builder = StructuralModelBuilder;
 
         StructuralModel() = default;
