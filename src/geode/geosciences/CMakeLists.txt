@@ -70,10 +70,10 @@ add_geode_library(
     ADVANCED_HEADERS
         "mixin/core/detail/components_storage.h"
         "representation/builder/detail/copy.h"
-        "representation/io/detail/geode_cross_section_input.h"
-        "representation/io/detail/geode_cross_section_output.h"
-        "representation/io/detail/geode_structural_model_input.h"
-        "representation/io/detail/geode_structural_model_output.h"
+        "representation/io/geode/geode_cross_section_input.h"
+        "representation/io/geode/geode_cross_section_output.h"
+        "representation/io/geode/geode_structural_model_input.h"
+        "representation/io/geode/geode_structural_model_output.h"
     PUBLIC_DEPENDENCIES
         OpenGeode::basic
         OpenGeode::model
