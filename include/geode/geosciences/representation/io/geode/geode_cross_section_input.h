@@ -30,7 +30,7 @@
 #include <geode/basic/uuid.h>
 #include <geode/basic/zip_file.h>
 
-#include <geode/model/representation/io/detail/geode_section_input.h>
+#include <geode/model/representation/io/geode/geode_section_input.h>
 
 #include <geode/geosciences/representation/builder/cross_section_builder.h>
 #include <geode/geosciences/representation/core/cross_section.h>

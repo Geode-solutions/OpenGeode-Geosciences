@@ -30,7 +30,7 @@
 #include <geode/basic/uuid.h>
 #include <geode/basic/zip_file.h>
 
-#include <geode/model/representation/io/detail/geode_brep_input.h>
+#include <geode/model/representation/io/geode/geode_brep_input.h>
 
 #include <geode/geosciences/representation/builder/structural_model_builder.h>
 #include <geode/geosciences/representation/core/structural_model.h>

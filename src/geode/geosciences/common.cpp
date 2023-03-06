@@ -27,10 +27,10 @@
 #include <geode/model/common.h>
 
 #include <geode/geosciences/common.h>
-#include <geode/geosciences/representation/io/detail/geode_cross_section_input.h>
-#include <geode/geosciences/representation/io/detail/geode_cross_section_output.h>
-#include <geode/geosciences/representation/io/detail/geode_structural_model_input.h>
-#include <geode/geosciences/representation/io/detail/geode_structural_model_output.h>
+#include <geode/geosciences/representation/io/geode/geode_cross_section_input.h>
+#include <geode/geosciences/representation/io/geode/geode_cross_section_output.h>
+#include <geode/geosciences/representation/io/geode/geode_structural_model_input.h>
+#include <geode/geosciences/representation/io/geode/geode_structural_model_output.h>
 
 namespace
 {
