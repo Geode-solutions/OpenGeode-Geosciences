@@ -21,6 +21,7 @@
 cmake_minimum_required(VERSION 3.15)
 
 cmake_policy(SET CMP0091 NEW)
+set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
 
 # Define the project
 project(OpenGeode-Geosciences CXX)
