@@ -24,23 +24,11 @@ if(OPENGEODE_GEOSCIENCES_WITH_TESTS)
     add_subdirectory(tests)
 endif()
 
-configure_file(
-    __init__.py
-    ${PROJECT_BINARY_DIR}/wheel/opengeode_geosciences/__init__.py
-)
-configure_file(
-    setup.py
-    ${PROJECT_BINARY_DIR}/wheel/setup.py
-)
-execute_process(
-    COMMAND ${PYTHON_EXECUTABLE} -m pip install --user -r requirements.txt
-    WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
-)
-add_custom_target(wheel
-    COMMAND ${CMAKE_COMMAND} 
-        -DSOURCE_DIR="${CMAKE_BINARY_DIR}"
-        -DDEST_DIR="${CMAKE_BINARY_DIR}/wheel/opengeode_geosciences"
-        -P "${CMAKE_CURRENT_LIST_DIR}/copy_wheel.cmake"
-    COMMAND ${PYTHON_EXECUTABLE} setup.py bdist_wheel
-    WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/wheel
+add_geode_python_wheel(
+    NAME "OpenGeode-Geosciences"
+    DESCRIPTION 
+        "OpenGeode module for Geosciences"
+    MODULES
+        "geosciences.py"
+    LICENSE "MIT"
 )
