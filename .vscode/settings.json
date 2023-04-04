@@ -3,6 +3,7 @@
     "C_Cpp.default.includePath": [
         "${workspaceFolder}/include",
         "${workspaceFolder}/build",
+        "${workspaceFolder:OpenGeode}/include",
         "${workspaceFolder:OpenGeode}/build/opengeode/install/include"
     ],
     "files.watcherExclude": {
