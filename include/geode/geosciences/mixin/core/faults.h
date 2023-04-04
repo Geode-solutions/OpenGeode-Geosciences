@@ -88,6 +88,8 @@ namespace geode
 
         index_t nb_faults() const;
 
+        bool has_fault( const uuid& id ) const;
+
         const Fault< dimension >& fault( const uuid& id ) const;
 
         FaultRange faults() const;
@@ -98,6 +100,8 @@ namespace geode
         friend class FaultsBuilder< dimension >;
         Faults();
         Faults( Faults&& );
+
+        Faults& operator=( Faults&& other );
 
     private:
         class ModifiableFaultRange : public FaultRangeBase

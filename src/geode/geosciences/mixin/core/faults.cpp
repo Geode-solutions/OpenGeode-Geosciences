@@ -54,9 +54,23 @@ namespace geode
     }
 
     template < index_t dimension >
+    Faults< dimension >& Faults< dimension >::operator=(
+        Faults< dimension >&& other )
+    {
+        impl_ = std::move( other.impl_ );
+        return *this;
+    }
+
+    template < index_t dimension >
     index_t Faults< dimension >::nb_faults() const
     {
         return impl_->nb_components();
+    }
+
+    template < index_t dimension >
+    bool Faults< dimension >::has_fault( const uuid& id ) const
+    {
+        return impl_->has_component( id );
     }
 
     template < index_t dimension >
@@ -153,7 +167,7 @@ namespace geode
     template < index_t dimension >
     Faults< dimension >::FaultRangeBase::FaultRangeBase(
         FaultRangeBase&& other ) noexcept
-        : impl_( std::move( *other.impl_ ) )
+        : impl_( std::move( other.impl_ ) )
     {
     }
 
