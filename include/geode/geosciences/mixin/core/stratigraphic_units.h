@@ -93,6 +93,8 @@ namespace geode
 
         index_t nb_stratigraphic_units() const;
 
+        bool has_stratigraphic_unit( const uuid& id ) const;
+
         const StratigraphicUnit< dimension >& stratigraphic_unit(
             const uuid& id ) const;
 
@@ -104,6 +106,9 @@ namespace geode
         friend class StratigraphicUnitsBuilder< dimension >;
         StratigraphicUnits();
         StratigraphicUnits( StratigraphicUnits&& );
+
+        StratigraphicUnits< dimension >& operator=(
+            StratigraphicUnits< dimension >&& other );
 
     private:
         class ModifiableStratigraphicUnitRange

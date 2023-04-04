@@ -88,6 +88,8 @@ namespace geode
 
         index_t nb_horizons() const;
 
+        bool has_horizon( const uuid& id ) const;
+
         const Horizon< dimension >& horizon( const uuid& id ) const;
 
         HorizonRange horizons() const;
@@ -98,6 +100,8 @@ namespace geode
         friend class HorizonsBuilder< dimension >;
         Horizons();
         Horizons( Horizons&& );
+
+        Horizons< dimension >& operator=( Horizons< dimension >&& other );
 
     private:
         class ModifiableHorizonRange : public HorizonRangeBase
