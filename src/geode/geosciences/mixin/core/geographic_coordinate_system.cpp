@@ -186,8 +186,8 @@ namespace geode
     template class opengeode_geosciences_geosciences_api
         GeographicCoordinateSystem< 3 >;
 
-    SERIALIZE_BITSERY_ARCHIVE(
-        opengeode_geosciences_geosciences_api, GeographicCoordinateSystem< 2 > );
-    SERIALIZE_BITSERY_ARCHIVE(
-        opengeode_geosciences_geosciences_api, GeographicCoordinateSystem< 3 > );
+    SERIALIZE_BITSERY_ARCHIVE( opengeode_geosciences_geosciences_api,
+        GeographicCoordinateSystem< 2 > );
+    SERIALIZE_BITSERY_ARCHIVE( opengeode_geosciences_geosciences_api,
+        GeographicCoordinateSystem< 3 > );
 } // namespace geode
