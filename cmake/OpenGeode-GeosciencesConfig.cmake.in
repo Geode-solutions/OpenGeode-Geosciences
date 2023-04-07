@@ -21,7 +21,14 @@
 @PACKAGE_INIT@ 
 
 include(CMakeFindDependencyMacro)
-find_dependency(OpenGeode)
+find_dependency(OpenGeode CONFIG)
 
 # Load information for each target
 include(${CMAKE_CURRENT_LIST_DIR}/@PROJECT_NAME@_geosciences_target.cmake)
+
+get_target_property(library_type @PROJECT_NAME@::geosciences TYPE)
+if(library_type STREQUAL "STATIC_LIBRARY")
+    find_dependency(Async++ CONFIG)
+    find_dependency(PROJ CONFIG)
+    find_dependency(GDAL CONFIG)
+endif()

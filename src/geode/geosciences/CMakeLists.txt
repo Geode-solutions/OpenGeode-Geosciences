@@ -32,6 +32,7 @@ add_geode_library(
         "mixin/core/faults.cpp"
         "mixin/core/fault_block.cpp"
         "mixin/core/fault_blocks.cpp"
+        "mixin/core/geographic_coordinate_system.cpp"
         "mixin/core/horizon.cpp"
         "mixin/core/horizons.cpp"
         "mixin/core/stratigraphic_unit.cpp"
@@ -55,6 +56,7 @@ add_geode_library(
         "mixin/core/faults.h"
         "mixin/core/fault_block.h"
         "mixin/core/fault_blocks.h"
+        "mixin/core/geographic_coordinate_system.h"
         "mixin/core/horizon.h"
         "mixin/core/horizons.h"
         "mixin/core/stratigraphic_unit.h"
@@ -79,4 +81,6 @@ add_geode_library(
         OpenGeode::model
     PRIVATE_DEPENDENCIES
         Async++
+        PROJ::proj
+        GDAL::GDAL
 )
