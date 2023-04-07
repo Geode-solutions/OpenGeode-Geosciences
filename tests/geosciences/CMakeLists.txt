@@ -19,7 +19,7 @@
 # SOFTWARE.
 
 add_geode_test(
-    SOURCE "test-structural-model.cpp"
+    SOURCE "test-cross-section.cpp"
     DEPENDENCIES
         OpenGeode::basic
         OpenGeode::model
@@ -27,7 +27,14 @@ add_geode_test(
 )
 
 add_geode_test(
-    SOURCE "test-cross-section.cpp"
+    SOURCE "test-geographic-coordinate-system.cpp"
+    DEPENDENCIES
+        OpenGeode::basic
+        ${PROJECT_NAME}::geosciences
+)
+
+add_geode_test(
+    SOURCE "test-structural-model.cpp"
     DEPENDENCIES
         OpenGeode::basic
         OpenGeode::model
