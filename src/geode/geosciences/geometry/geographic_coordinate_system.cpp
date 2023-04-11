@@ -21,7 +21,7 @@
  *
  */
 
-#include <geode/geosciences/mixin/core/geographic_coordinate_system.h>
+#include <geode/geosciences/geometry/geographic_coordinate_system.h>
 
 #include <ogr_spatialref.h>
 #include <ogr_srs_api.h>
@@ -35,16 +35,11 @@ namespace geode
 {
     template < index_t dimension >
     class GeographicCoordinateSystem< dimension >::Impl
-        : public detail::PointsImpl< dimension >
     {
         friend class bitsery::Access;
 
     public:
-        Impl( AttributeManager& manager, Info info )
-            : detail::PointsImpl< dimension >{ manager, info.name },
-              info_{ std::move( info ) }
-        {
-        }
+        Impl( Info info ) : info_{ std::move( info ) } {}
 
         Impl() = default;
 
@@ -53,10 +48,9 @@ namespace geode
             return info_;
         }
 
-        void convert_geographic_coordinate_system(
+        void import_coordinates(
             const GeographicCoordinateSystem< dimension >& from,
-            GeographicCoordinateSystem< dimension >& to,
-            index_t nb_points ) const
+            GeographicCoordinateSystem< dimension >& to )
         {
             OGRSpatialReference origin;
             origin.SetFromUserInput( info_.authority_code().c_str() );
@@ -64,7 +58,7 @@ namespace geode
             destination.SetFromUserInput( to.info().authority_code().c_str() );
             auto* transformer =
                 OGRCreateCoordinateTransformation( &origin, &destination );
-            for( const auto p : Range{ nb_points } )
+            for( const auto p : Range{ from.nb_points() } )
             {
                 auto point = from.point( p );
                 std::array< double, 3 > values{ 0, 0, 0 };
@@ -92,8 +86,6 @@ namespace geode
         {
             archive.ext( *this,
                 Growable< Archive, Impl >{ { []( Archive& a, Impl& impl ) {
-                    a.ext( impl, bitsery::ext::BaseClass<
-                                     detail::PointsImpl< dimension > >{} );
                     a.object( impl.info_ );
                 } } } );
         }
@@ -110,7 +102,8 @@ namespace geode
     template < index_t dimension >
     GeographicCoordinateSystem< dimension >::GeographicCoordinateSystem(
         AttributeManager& manager, Info info )
-        : impl_{ manager, std::move( info ) }
+        : AttributeCoordinateReferenceSystem< dimension >{ manager, info.name },
+          impl_{ std::move( info ) }
     {
     }
 
@@ -126,29 +119,15 @@ namespace geode
     }
 
     template < index_t dimension >
-    const Point< dimension >& GeographicCoordinateSystem< dimension >::point(
-        index_t point_id ) const
-    {
-        return impl_->get_point( point_id );
-    }
-
-    template < index_t dimension >
-    void GeographicCoordinateSystem< dimension >::set_point(
-        index_t point_id, Point< dimension > point )
-    {
-        impl_->set_point( point_id, std::move( point ) );
-    }
-
-    template < index_t dimension >
     template < typename Archive >
     void GeographicCoordinateSystem< dimension >::serialize( Archive& archive )
     {
         archive.ext(
             *this, Growable< Archive, GeographicCoordinateSystem >{
                        { []( Archive& a, GeographicCoordinateSystem& crs ) {
-                           a.ext( crs,
-                               bitsery::ext::BaseClass<
-                                   CoordinateReferenceSystem< dimension > >{} );
+                           a.ext( crs, bitsery::ext::BaseClass<
+                                           AttributeCoordinateReferenceSystem<
+                                               dimension > >{} );
                            a.object( crs.impl_ );
                        } } } );
     }
@@ -173,19 +152,19 @@ namespace geode
     }
 
     template < index_t dimension >
-    void GeographicCoordinateSystem< dimension >::
-        convert_geographic_coordinate_system(
-            GeographicCoordinateSystem< dimension >& target,
-            index_t nb_points ) const
+    void GeographicCoordinateSystem< dimension >::import_coordinates(
+        const GeographicCoordinateSystem< dimension >& crs )
     {
-        impl_->convert_geographic_coordinate_system( *this, target, nb_points );
+        impl_->import_coordinates( crs, *this );
     }
 
-    template class opengeode_mesh_api GeographicCoordinateSystem< 2 >;
-    template class opengeode_mesh_api GeographicCoordinateSystem< 3 >;
+    template class opengeode_geosciences_geosciences_api
+        GeographicCoordinateSystem< 2 >;
+    template class opengeode_geosciences_geosciences_api
+        GeographicCoordinateSystem< 3 >;
 
-    SERIALIZE_BITSERY_ARCHIVE(
-        opengeode_mesh_api, GeographicCoordinateSystem< 2 > );
-    SERIALIZE_BITSERY_ARCHIVE(
-        opengeode_mesh_api, GeographicCoordinateSystem< 3 > );
+    SERIALIZE_BITSERY_ARCHIVE( opengeode_geosciences_geosciences_api,
+        GeographicCoordinateSystem< 2 > );
+    SERIALIZE_BITSERY_ARCHIVE( opengeode_geosciences_geosciences_api,
+        GeographicCoordinateSystem< 3 > );
 } // namespace geode

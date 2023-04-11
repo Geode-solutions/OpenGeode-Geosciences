@@ -26,7 +26,7 @@
 #include <geode/basic/pimpl.h>
 
 #include <geode/geosciences/common.h>
-#include <geode/mesh/core/coordinate_reference_system.h>
+#include <geode/mesh/core/attribute_coordinate_reference_system.h>
 
 namespace geode
 {
@@ -37,7 +37,7 @@ namespace geode
 {
     template < index_t dimension >
     class GeographicCoordinateSystem
-        : public CoordinateReferenceSystem< dimension >
+        : public AttributeCoordinateReferenceSystem< dimension >
     {
         friend class bitsery::Access;
 
@@ -84,6 +84,11 @@ namespace geode
         GeographicCoordinateSystem( AttributeManager& manager, Info info );
         ~GeographicCoordinateSystem();
 
+        static GeographicCoordinateSystem< dimension > create_from_attribute(
+            const AttributeCoordinateReferenceSystem< dimension >& crs,
+            AttributeManager& manager,
+            Info info );
+
         static CRSType type_name_static()
         {
             return CRSType{ "GeographicCoordinateSystem" };
@@ -96,15 +101,10 @@ namespace geode
 
         const Info& info() const;
 
-        const Point< dimension >& point( index_t point_id ) const override;
-
-        void set_point( index_t point_id, Point< dimension > point ) override;
-
         static absl::FixedArray< Info > geographic_coordinate_systems();
 
-        void convert_geographic_coordinate_system(
-            GeographicCoordinateSystem< dimension >& target,
-            index_t nb_points ) const;
+        void import_coordinates(
+            const GeographicCoordinateSystem< dimension >& crs );
 
     private:
         GeographicCoordinateSystem();

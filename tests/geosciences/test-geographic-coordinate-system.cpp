@@ -28,7 +28,7 @@
 
 #include <geode/geometry/point.h>
 
-#include <geode/geosciences/mixin/core/geographic_coordinate_system.h>
+#include <geode/geosciences/geometry/geographic_coordinate_system.h>
 
 int main()
 {
@@ -53,7 +53,7 @@ int main()
         }
         geode::GeographicCoordinateSystem3D lambert2{ manager,
             { "EPSG", "27572", "II" } };
-        lambert1.convert_geographic_coordinate_system( lambert2, nb_points );
+        lambert2.import_coordinates( lambert1 );
         std::array< geode::Point3D, nb_points > answers{
             geode::Point3D{ { 4273.64251995017, 1302920.55457198, 0 } },
             geode::Point3D{ { 4274.63159306906, 1302921.55102308, 1 } },
@@ -64,7 +64,7 @@ int main()
         {
             OPENGEODE_EXCEPTION(
                 lambert2.point( p ).inexact_equal( answers[p] ),
-                "[Test] Wrong coordinae conversion" );
+                "[Test] Wrong coordinate conversion" );
         }
 
         geode::Logger::info( "TEST SUCCESS" );
