@@ -24,6 +24,11 @@ add_geode_python_test(
         ${PROJECT_NAME}::py_geosciences
 )
 add_geode_python_test(
+    SOURCE "test-py-geographic-coordinate-system.py"
+    DEPENDENCIES
+        ${PROJECT_NAME}::py_geosciences
+)
+add_geode_python_test(
     SOURCE "test-py-structural-model.py"
     DEPENDENCIES
         ${PROJECT_NAME}::py_geosciences

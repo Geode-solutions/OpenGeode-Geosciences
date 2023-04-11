@@ -52,10 +52,10 @@ namespace geode
             const GeographicCoordinateSystem< dimension >& from,
             GeographicCoordinateSystem< dimension >& to )
         {
-            OGRSpatialReference origin;
-            origin.SetFromUserInput( info_.authority_code().c_str() );
             OGRSpatialReference destination;
-            destination.SetFromUserInput( to.info().authority_code().c_str() );
+            destination.SetFromUserInput( info_.authority_code().c_str() );
+            OGRSpatialReference origin;
+            origin.SetFromUserInput( from.info().authority_code().c_str() );
             auto* transformer =
                 OGRCreateCoordinateTransformation( &origin, &destination );
             for( const auto p : Range{ from.nb_points() } )
