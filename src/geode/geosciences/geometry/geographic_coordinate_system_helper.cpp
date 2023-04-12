@@ -47,13 +47,13 @@ namespace geode
             crs_manager.find_coordinate_reference_system(
                 attribute_crs_name ) );
         attribute_manager.rename_attribute(
-            attribute_crs.attribute_name(), info.name() );
+            attribute_crs.attribute_name(), info.name );
         CoordinateReferenceSystemManagerBuilder< dimension > crs_builder{
             crs_manager
         };
-        crs_builder.register_coordinate_reference_system(
-            geographic_crs_name, GeographicCoordinateSystem< dimension >{
-                                     attribute_manager, std::move( info ) } );
+        crs_builder.register_coordinate_reference_system( geographic_crs_name,
+            std::make_shared< GeographicCoordinateSystem< dimension > >(
+                attribute_manager, std::move( info ) ) );
         crs_builder.delete_coordinate_reference_system( attribute_crs_name );
         if( is_active )
         {
@@ -61,4 +61,19 @@ namespace geode
                 geographic_crs_name );
         }
     }
+
+    template void opengeode_geosciences_geosciences_api
+        convert_attribute_to_geographic_coordinate_reference_system(
+            CoordinateReferenceSystemManager< 2 >&,
+            AttributeManager&,
+            absl::string_view,
+            absl::string_view,
+            typename GeographicCoordinateSystem< 2 >::Info );
+    template void opengeode_geosciences_geosciences_api
+        convert_attribute_to_geographic_coordinate_reference_system(
+            CoordinateReferenceSystemManager< 3 >&,
+            AttributeManager&,
+            absl::string_view,
+            absl::string_view,
+            typename GeographicCoordinateSystem< 3 >::Info );
 } // namespace geode

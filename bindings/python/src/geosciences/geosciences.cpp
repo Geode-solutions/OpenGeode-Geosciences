@@ -26,6 +26,7 @@
 #include <pybind11/stl.h>
 
 #include "geometry/crs.h"
+#include "geometry/crs_helper.h"
 
 #include "mixin/builder/fault_blocks_builder.h"
 #include "mixin/builder/faults_builder.h"
@@ -100,4 +101,5 @@ PYBIND11_MODULE( opengeode_geosciences_py_geosciences, module )
     geode::define_cross_section_io( module );
 
     geode::define_crs( module );
+    geode::define_crs_helper( module );
 }
