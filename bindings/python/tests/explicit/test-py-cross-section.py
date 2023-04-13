@@ -330,7 +330,7 @@ def modify_model(model, builder):
 
 
 if __name__ == '__main__':
-    geosciences.GeosciencesExplicit.initialize()
+    geosciences.GeosciencesExplicitLibrary.initialize()
     model = geosciences.CrossSection()
     builder = geosciences.CrossSectionBuilder(model)
     add_faults(model, builder)

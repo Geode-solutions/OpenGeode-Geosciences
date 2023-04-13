@@ -65,7 +65,7 @@ def test_save_stratigraphic_lines( stratigraphic_section ):
 
 if __name__ == '__main__':
     print("Starting test")
-    geode_imp.GeosciencesImplicit.initialize()
+    geode_imp.GeosciencesImplicitLibrary.initialize()
 
     model = import_section_with_stratigraphy()
     test_section( model )

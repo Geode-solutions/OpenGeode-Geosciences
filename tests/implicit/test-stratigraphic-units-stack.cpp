@@ -60,7 +60,7 @@ int main()
     try
     {
         geode::Logger::info( "Starting test" );
-        geode::GeosciencesImplicit::initialize();
+        geode::GeosciencesImplicitLibrary::initialize();
         test_stratigraphic_stack();
 
         geode::Logger::info( "TEST SUCCESS" );

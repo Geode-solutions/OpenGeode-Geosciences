@@ -34,7 +34,7 @@ int main()
 {
     try
     {
-        geode::GeosciencesExplicit::initialize();
+        geode::GeosciencesExplicitLibrary::initialize();
 
         const auto infos = geode::GeographicCoordinateSystem3D::
             geographic_coordinate_systems();

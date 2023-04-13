@@ -20,6 +20,6 @@
 
 import opengeode
 
-from .opengeode_geosciences_py_implicit import *
+from opengeode_geosciences_py_implicit import *
 
-GeosciencesImplicit.initialize()
+GeosciencesImplicitLibrary.initialize()
