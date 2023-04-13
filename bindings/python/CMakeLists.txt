@@ -29,6 +29,7 @@ add_geode_python_wheel(
     DESCRIPTION 
         "OpenGeode module for Geosciences"
     MODULES
-        "geosciences.py"
+        "explicit.py"
+        "implicit.py"
     LICENSE "MIT"
 )
