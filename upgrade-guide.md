@@ -1,5 +1,16 @@
 # Upgrade Guide
 
+## Upgrading from OpenGeode-Geosciences v4.x.x to v5.0.0
+
+### Motivations
+
+This new major release adds a new library for implicit DataModels, and renames the previous library.
+
+### Breaking Changes
+
+- Replace import files previously from `geode/geosciences/*` to `geode/geosciences/explicit/*`.
+
+
 ## Upgrading from OpenGeode-Geosciences v3.x.x to v4.0.0
 
 ### Motivations

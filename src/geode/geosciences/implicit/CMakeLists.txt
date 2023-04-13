@@ -1,0 +1,66 @@
+#
+# Copyright (c) 2019 - 2023 Geode-solutions. All rights reserved.
+#
+
+add_geode_library(
+    NAME implicit
+    FOLDER "geode/geosciences/implicit"
+    SOURCES
+        "common.cpp"
+        "mixin/builder/stratigraphic_relationships_builder.cpp"
+        "mixin/core/stratigraphic_relationships.cpp"
+        "representation/builder/implicit_cross_section_builder.cpp"
+        "representation/builder/implicit_structural_model_builder.cpp"
+        "representation/builder/stratigraphic_model_builder.cpp"
+        "representation/builder/stratigraphic_section_builder.cpp"
+        "representation/builder/stratigraphic_units_stack_builder.cpp"
+        "representation/core/detail/helpers.cpp"
+        "representation/core/implicit_cross_section.cpp"
+        "representation/core/implicit_structural_model.cpp"
+        "representation/core/stratigraphic_model.cpp"
+        "representation/core/stratigraphic_section.cpp"
+        "representation/core/stratigraphic_units_stack.cpp"
+        "representation/io/geode/geode_stratigraphic_units_stack_input.cpp"
+        "representation/io/implicit_cross_section_input.cpp"
+        "representation/io/implicit_cross_section_output.cpp"
+        "representation/io/implicit_structural_model_input.cpp"
+        "representation/io/implicit_structural_model_output.cpp"
+        "representation/io/stratigraphic_model_input.cpp"
+        "representation/io/stratigraphic_model_output.cpp"
+        "representation/io/stratigraphic_section_input.cpp"
+        "representation/io/stratigraphic_section_output.cpp"
+        "representation/io/stratigraphic_units_stack_input.cpp"
+        "representation/io/stratigraphic_units_stack_output.cpp"
+    PUBLIC_HEADERS
+        "common.h"
+        "geometry/stratigraphic_point.h"
+        "mixin/builder/stratigraphic_relationships_builder.h"
+        "mixin/core/stratigraphic_relationships.h"
+        "representation/builder/implicit_cross_section_builder.h"
+        "representation/builder/implicit_structural_model_builder.h"
+        "representation/builder/stratigraphic_model_builder.h"
+        "representation/builder/stratigraphic_section_builder.h"
+        "representation/builder/stratigraphic_units_stack_builder.h"
+        "representation/core/detail/helpers.h"
+        "representation/core/implicit_cross_section.h"
+        "representation/core/implicit_structural_model.h"
+        "representation/core/stratigraphic_model.h"
+        "representation/core/stratigraphic_section.h"
+        "representation/core/stratigraphic_units_stack.h"
+        "representation/io/geode/geode_stratigraphic_units_stack_input.h"
+        "representation/io/geode/geode_stratigraphic_units_stack_output.h"
+        "representation/io/implicit_cross_section_input.h"
+        "representation/io/implicit_cross_section_output.h"
+        "representation/io/implicit_structural_model_input.h"
+        "representation/io/implicit_structural_model_output.h"
+        "representation/io/stratigraphic_units_stack_input.h"
+        "representation/io/stratigraphic_units_stack_output.h"
+    PUBLIC_DEPENDENCIES
+        OpenGeode::basic
+    PRIVATE_DEPENDENCIES
+        OpenGeode::geometry
+        OpenGeode::mesh
+        OpenGeode::model
+        Async++
+        ${PROJECT_NAME}::explicit
+)
