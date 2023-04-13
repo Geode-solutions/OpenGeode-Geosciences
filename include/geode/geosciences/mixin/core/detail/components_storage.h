@@ -37,18 +37,18 @@ namespace geode
         {
         public:
             using baseclass = ComponentsStorage< Component >;
-            void register_librairies_in_serialize_pcontext(
+            void register_libraries_in_serialize_pcontext(
                 TContext& context ) const override
             {
-                baseclass::register_librairies_in_serialize_pcontext( context );
+                baseclass::register_libraries_in_serialize_pcontext( context );
                 register_geosciences_serialize_pcontext(
                     std::get< 0 >( context ) );
             }
 
-            void register_librairies_in_deserialize_pcontext(
+            void register_libraries_in_deserialize_pcontext(
                 TContext& context ) const override
             {
-                baseclass::register_librairies_in_deserialize_pcontext(
+                baseclass::register_libraries_in_deserialize_pcontext(
                     context );
                 register_geosciences_deserialize_pcontext(
                     std::get< 0 >( context ) );
