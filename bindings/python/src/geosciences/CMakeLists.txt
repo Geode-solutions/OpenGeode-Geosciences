@@ -23,6 +23,8 @@ add_geode_python_binding(
     SOURCES
         "geosciences.cpp"
         "factory.h"
+        "geometry/crs.h"
+        "geometry/crs_helper.h"
         "mixin/builder/fault_blocks_builder.h"
         "mixin/builder/faults_builder.h"
         "mixin/builder/horizons_builder.h"

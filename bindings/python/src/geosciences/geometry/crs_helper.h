@@ -21,38 +21,26 @@
  *
  */
 
-#pragma once
+#include <geode/basic/attribute_manager.h>
 
-#include <geode/model/mixin/core/detail/components_storage.h>
+#include <geode/mesh/core/coordinate_reference_system_manager.h>
 
-#include <geode/geosciences/mixin/core/bitsery_archive.h>
+#include <geode/geosciences/geometry/geographic_coordinate_system.h>
+#include <geode/geosciences/geometry/geographic_coordinate_system_helper.h>
+
+#define PYTHON_CRS_HELPER( dimension )                                         \
+    const auto name##dimension =                                               \
+        "convert_attribute_to_geographic_coordinate_reference_system"          \
+        + std::to_string( dimension ) + "D";                                   \
+    module.def( name##dimension.c_str(),                                       \
+        &convert_attribute_to_geographic_coordinate_reference_system<          \
+            dimension > )
 
 namespace geode
 {
-    namespace detail
+    void define_crs_helper( pybind11::module& module )
     {
-        template < typename Component >
-        class GeologicalComponentsStorage
-            : public ComponentsStorage< Component >
-        {
-        public:
-            using baseclass = ComponentsStorage< Component >;
-            void register_libraries_in_serialize_pcontext(
-                TContext& context ) const override
-            {
-                baseclass::register_libraries_in_serialize_pcontext( context );
-                register_geosciences_serialize_pcontext(
-                    std::get< 0 >( context ) );
-            }
-
-            void register_libraries_in_deserialize_pcontext(
-                TContext& context ) const override
-            {
-                baseclass::register_libraries_in_deserialize_pcontext(
-                    context );
-                register_geosciences_deserialize_pcontext(
-                    std::get< 0 >( context ) );
-            }
-        };
-    } // namespace detail
+        PYTHON_CRS_HELPER( 2 );
+        PYTHON_CRS_HELPER( 3 );
+    }
 } // namespace geode
