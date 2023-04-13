@@ -131,7 +131,7 @@ int main()
     try
     {
         geode::Logger::info( "Starting test" );
-        geode::GeosciencesImplicit::initialize();
+        geode::GeosciencesImplicitLibrary::initialize();
         const auto model = import_section_with_stratigraphy();
         test_section( model );
         test_save_stratigraphic_lines( model );

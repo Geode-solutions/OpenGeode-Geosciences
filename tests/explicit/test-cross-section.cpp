@@ -440,7 +440,7 @@ int main()
 {
     try
     {
-        geode::GeosciencesExplicit::initialize();
+        geode::GeosciencesExplicitLibrary::initialize();
 
         geode::CrossSection model;
         geode::CrossSectionBuilder builder( model );

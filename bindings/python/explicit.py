@@ -22,4 +22,4 @@ import opengeode
 
 from opengeode_geosciences_py_explicit import *
 
-GeosciencesExplicit.initialize()
+GeosciencesExplicitLibrary.initialize()

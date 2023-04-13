@@ -45,6 +45,6 @@ def test_stratigraphic_stack():
 
 if __name__ == '__main__':
     print("Starting test")
-    geode_imp.GeosciencesImplicit.initialize()
+    geode_imp.GeosciencesImplicitLibrary.initialize()
 
     test_stratigraphic_stack()

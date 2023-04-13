@@ -25,7 +25,5 @@ add_geode_python_binding(
         "representation/io/stratigraphic_section.h"
         "representation/io/stratigraphic_units_stack.h"
     DEPENDENCIES
-        ${PROJECT_NAME}::explicit
         ${PROJECT_NAME}::implicit
-        Async++
 )

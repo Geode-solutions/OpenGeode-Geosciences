@@ -39,7 +39,7 @@ namespace geode
 {
     OPENGEODE_LIBRARY_IMPLEMENTATION( GeosciencesImplicit )
     {
-        GeosciencesExplicit::initialize();
+        GeosciencesExplicitLibrary::initialize();
         register_stratigraphic_units_stack_input();
         register_stratigraphic_units_stack_output();
     }

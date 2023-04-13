@@ -54,9 +54,9 @@ PYBIND11_MODULE( opengeode_geosciences_py_implicit, module )
 {
     module.doc() = "OpenGeode-Geosciences Python binding for implicit";
     pybind11::module::import( "opengeode" );
-    pybind11::class_< geode::GeosciencesImplicit >(
-        module, "GeosciencesImplicit" )
-        .def( "initialize", &geode::GeosciencesImplicit::initialize );
+    pybind11::class_< geode::GeosciencesImplicitLibrary >(
+        module, "GeosciencesImplicitLibrary" )
+        .def( "initialize", &geode::GeosciencesImplicitLibrary::initialize );
     geode::define_stratigraphic_point( module );
 
     geode::define_stratigraphic_relationships( module );

@@ -343,7 +343,7 @@ int main()
 {
     try
     {
-        geode::GeosciencesExplicit::initialize();
+        geode::GeosciencesExplicitLibrary::initialize();
 
         geode::StructuralModel model = build_brep();
         geode::StructuralModelBuilder builder( model );

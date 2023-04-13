@@ -122,7 +122,7 @@ int main()
     try
     {
         geode::Logger::info( "Starting test" );
-        geode::GeosciencesImplicit::initialize();
+        geode::GeosciencesImplicitLibrary::initialize();
         geode::StratigraphicModel model{ geode::load_structural_model(
             absl::StrCat( geode::data_path, "vri2.og_strm" ) ) };
         test_model( model );
