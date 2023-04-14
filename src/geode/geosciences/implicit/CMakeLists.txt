@@ -57,10 +57,10 @@ add_geode_library(
         "representation/io/stratigraphic_units_stack_output.h"
     PUBLIC_DEPENDENCIES
         OpenGeode::basic
+        ${PROJECT_NAME}::explicit
     PRIVATE_DEPENDENCIES
         OpenGeode::geometry
         OpenGeode::mesh
         OpenGeode::model
         Async++
-        ${PROJECT_NAME}::explicit
 )
