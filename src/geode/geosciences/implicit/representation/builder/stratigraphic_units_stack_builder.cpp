@@ -116,6 +116,24 @@ namespace geode
             strati_unit_above.component_id(), horizon_under.component_id() );
     }
 
+    template < index_t dimension >
+    void StratigraphicUnitsStackBuilder< dimension >::add_erosion_above(
+        const Horizon< dimension >& erosion_horizon,
+        const StratigraphicUnit< dimension >& eroded_unit )
+    {
+        StratigraphicRelationshipsBuilder::add_erosion_relation(
+            erosion_horizon.component_id(), eroded_unit.component_id() );
+    }
+
+    template < index_t dimension >
+    void StratigraphicUnitsStackBuilder< dimension >::add_baselap_under(
+        const Horizon< dimension >& baselap_horizon,
+        const StratigraphicUnit< dimension >& baselaping_unit )
+    {
+        StratigraphicRelationshipsBuilder::add_baselap_relation(
+            baselaping_unit.component_id(), baselap_horizon.component_id() );
+    }
+
     template class opengeode_geosciences_implicit_api
         StratigraphicUnitsStackBuilder< 2 >;
     template class opengeode_geosciences_implicit_api
