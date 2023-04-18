@@ -56,6 +56,11 @@ namespace geode
 
         bool is_above( const uuid& above, const uuid& under ) const;
 
+        bool is_eroded_by( const uuid& eroded, const uuid& erosion ) const;
+
+        bool is_baselap_of(
+            const uuid& baselap, const uuid& baselap_top ) const;
+
         absl::optional< uuid > above( const uuid& element ) const;
 
         absl::optional< uuid > under( const uuid& element ) const;
@@ -79,10 +84,32 @@ namespace geode
             const ComponentID& under,
             StratigraphicRelationshipsBuilderKey );
 
+        index_t add_erosion_relation( const ComponentID& erosion,
+            const ComponentID& eroded,
+            StratigraphicRelationshipsBuilderKey );
+
+        index_t add_baselap_relation( const ComponentID& baselap_top,
+            const ComponentID& baselap,
+            StratigraphicRelationshipsBuilderKey );
+
         /*!
-         * Remove the relation between two components
+         * Remove all relations between two components
          */
         void remove_relation( const uuid& id1,
+            const uuid& id2,
+            StratigraphicRelationshipsBuilderKey );
+
+        /*!
+         * Removes any above/under relationship between two components
+         */
+        void remove_above_relation( const uuid& id1,
+            const uuid& id2,
+            StratigraphicRelationshipsBuilderKey );
+
+        /*!
+         * Removes any unconformity relationship between two components
+         */
+        void remove_unconformity_relation( const uuid& id1,
             const uuid& id2,
             StratigraphicRelationshipsBuilderKey );
 

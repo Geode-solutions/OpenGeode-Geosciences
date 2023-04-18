@@ -65,6 +65,7 @@ namespace geode
             return { this->component_type_static(), this->id() };
         };
 
+    public:
         StratigraphicUnit( StratigraphicUnitsKey ) : StratigraphicUnit() {}
 
         void set_stratigraphic_unit_name(

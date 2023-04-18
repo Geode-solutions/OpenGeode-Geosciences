@@ -51,6 +51,16 @@ namespace geode
          */
         void remove_relation( const uuid& id1, const uuid& id2 );
 
+        /*!
+         * Remove a relationship of type above/under between two components
+         */
+        void remove_above_relation( const uuid& id1, const uuid& id2 );
+
+        /*!
+         * Remove an unconformity relationship between two components
+         */
+        void remove_unconformity_relation( const uuid& id1, const uuid& id2 );
+
         void copy_stratigraphic_relationships( const ModelCopyMapping& mapping,
             const StratigraphicRelationships& relationships );
 
@@ -63,6 +73,20 @@ namespace geode
          */
         index_t add_above_relation(
             const ComponentID& above, const ComponentID& under );
+
+        /*!
+         * Adds a new unconformity relationship of erosion type between two
+         * components
+         */
+        index_t add_erosion_relation(
+            const ComponentID& erosion, const ComponentID& eroded );
+
+        /*!
+         * Adds a new unconformity relationship of baselap type between two
+         * components
+         */
+        index_t add_baselap_relation(
+            const ComponentID& baselap_top, const ComponentID& baselap );
 
     private:
         StratigraphicRelationships& relationships_;
