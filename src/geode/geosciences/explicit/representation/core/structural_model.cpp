@@ -28,9 +28,29 @@ namespace geode
     StructuralModel::HorizonItemRange::HorizonItemRange(
         const StructuralModel& structural_model, const Horizon3D& horizon )
         : Relationships::ItemRangeIterator( structural_model, horizon.id() ),
-          BeginEnd< HorizonItemRange >( *this ),
           structural_model_( structural_model )
     {
+    }
+
+    StructuralModel::HorizonItemRange::HorizonItemRange(
+        const HorizonItemRange& range )
+        : Relationships::ItemRangeIterator{ range },
+          structural_model_( range.structural_model_ )
+    {
+    }
+
+    StructuralModel::HorizonItemRange::~HorizonItemRange() {}
+
+    auto StructuralModel::HorizonItemRange::begin() const
+        -> const HorizonItemRange&
+    {
+        return *this;
+    }
+
+    auto StructuralModel::HorizonItemRange::end() const
+        -> const HorizonItemRange&
+    {
+        return *this;
     }
 
     const Surface3D& StructuralModel::HorizonItemRange::operator*() const
@@ -48,9 +68,27 @@ namespace geode
     StructuralModel::FaultItemRange::FaultItemRange(
         const StructuralModel& structural_model, const Fault3D& fault )
         : Relationships::ItemRangeIterator( structural_model, fault.id() ),
-          BeginEnd< FaultItemRange >( *this ),
           structural_model_( structural_model )
     {
+    }
+
+    StructuralModel::FaultItemRange::FaultItemRange(
+        const FaultItemRange& range )
+        : Relationships::ItemRangeIterator{ range },
+          structural_model_( range.structural_model_ )
+    {
+    }
+
+    StructuralModel::FaultItemRange::~FaultItemRange() {}
+
+    auto StructuralModel::FaultItemRange::begin() const -> const FaultItemRange&
+    {
+        return *this;
+    }
+
+    auto StructuralModel::FaultItemRange::end() const -> const FaultItemRange&
+    {
+        return *this;
     }
 
     const Surface3D& StructuralModel::FaultItemRange::operator*() const
@@ -70,9 +108,29 @@ namespace geode
         const FaultBlock3D& fault_block )
         : Relationships::ItemRangeIterator(
             structural_model, fault_block.id() ),
-          BeginEnd< FaultBlockItemRange >( *this ),
           structural_model_( structural_model )
     {
+    }
+
+    StructuralModel::FaultBlockItemRange::FaultBlockItemRange(
+        const FaultBlockItemRange& range )
+        : Relationships::ItemRangeIterator{ range },
+          structural_model_( range.structural_model_ )
+    {
+    }
+
+    StructuralModel::FaultBlockItemRange::~FaultBlockItemRange() {}
+
+    auto StructuralModel::FaultBlockItemRange::begin() const
+        -> const FaultBlockItemRange&
+    {
+        return *this;
+    }
+
+    auto StructuralModel::FaultBlockItemRange::end() const
+        -> const FaultBlockItemRange&
+    {
+        return *this;
     }
 
     const Block3D& StructuralModel::FaultBlockItemRange::operator*() const
@@ -92,9 +150,31 @@ namespace geode
         const StratigraphicUnit3D& stratigraphic_unit )
         : Relationships::ItemRangeIterator(
             structural_model, stratigraphic_unit.id() ),
-          BeginEnd< StratigraphicUnitItemRange >( *this ),
           structural_model_( structural_model )
     {
+    }
+
+    StructuralModel::StratigraphicUnitItemRange::StratigraphicUnitItemRange(
+        const StratigraphicUnitItemRange& range )
+        : Relationships::ItemRangeIterator{ range },
+          structural_model_( range.structural_model_ )
+    {
+    }
+
+    StructuralModel::StratigraphicUnitItemRange::~StratigraphicUnitItemRange()
+    {
+    }
+
+    auto StructuralModel::StratigraphicUnitItemRange::begin() const
+        -> const StratigraphicUnitItemRange&
+    {
+        return *this;
+    }
+
+    auto StructuralModel::StratigraphicUnitItemRange::end() const
+        -> const StratigraphicUnitItemRange&
+    {
+        return *this;
     }
 
     const Block3D&

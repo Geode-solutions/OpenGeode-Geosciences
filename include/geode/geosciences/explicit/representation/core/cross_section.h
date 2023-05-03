@@ -50,12 +50,17 @@ namespace geode
     {
     public:
         class opengeode_geosciences_explicit_api HorizonItemRange
-            : public Relationships::ItemRangeIterator,
-              public BeginEnd< HorizonItemRange >
+            : public Relationships::ItemRangeIterator
         {
         public:
             HorizonItemRange(
                 const CrossSection& cross_section, const Horizon2D& horizon );
+            HorizonItemRange( const HorizonItemRange& range );
+            ~HorizonItemRange();
+
+            const HorizonItemRange& begin() const;
+
+            const HorizonItemRange& end() const;
 
             const Line2D& operator*() const;
 
@@ -64,12 +69,17 @@ namespace geode
         };
 
         class opengeode_geosciences_explicit_api FaultItemRange
-            : public Relationships::ItemRangeIterator,
-              public BeginEnd< FaultItemRange >
+            : public Relationships::ItemRangeIterator
         {
         public:
             FaultItemRange(
                 const CrossSection& cross_section, const Fault2D& fault );
+            FaultItemRange( const FaultItemRange& range );
+            ~FaultItemRange();
+
+            const FaultItemRange& begin() const;
+
+            const FaultItemRange& end() const;
 
             const Line2D& operator*() const;
 
@@ -78,12 +88,17 @@ namespace geode
         };
 
         class opengeode_geosciences_explicit_api FaultBlockItemRange
-            : public Relationships::ItemRangeIterator,
-              public BeginEnd< FaultBlockItemRange >
+            : public Relationships::ItemRangeIterator
         {
         public:
             FaultBlockItemRange( const CrossSection& cross_section,
                 const FaultBlock2D& fault_block );
+            FaultBlockItemRange( const FaultBlockItemRange& range );
+            ~FaultBlockItemRange();
+
+            const FaultBlockItemRange& begin() const;
+
+            const FaultBlockItemRange& end() const;
 
             const Surface2D& operator*() const;
 
@@ -92,12 +107,18 @@ namespace geode
         };
 
         class opengeode_geosciences_explicit_api StratigraphicUnitItemRange
-            : public Relationships::ItemRangeIterator,
-              public BeginEnd< StratigraphicUnitItemRange >
+            : public Relationships::ItemRangeIterator
         {
         public:
             StratigraphicUnitItemRange( const CrossSection& cross_section,
                 const StratigraphicUnit2D& stratigraphic_unit );
+            StratigraphicUnitItemRange(
+                const StratigraphicUnitItemRange& range );
+            ~StratigraphicUnitItemRange();
+
+            const StratigraphicUnitItemRange& begin() const;
+
+            const StratigraphicUnitItemRange& end() const;
 
             const Surface2D& operator*() const;
 

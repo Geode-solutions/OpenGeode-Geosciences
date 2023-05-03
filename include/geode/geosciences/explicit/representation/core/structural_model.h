@@ -51,12 +51,17 @@ namespace geode
     {
     public:
         class opengeode_geosciences_explicit_api HorizonItemRange
-            : public Relationships::ItemRangeIterator,
-              public BeginEnd< HorizonItemRange >
+            : public Relationships::ItemRangeIterator
         {
         public:
             HorizonItemRange( const StructuralModel& structural_model,
                 const Horizon3D& horizon );
+            HorizonItemRange( const HorizonItemRange& range );
+            ~HorizonItemRange();
+
+            const HorizonItemRange& begin() const;
+
+            const HorizonItemRange& end() const;
 
             const Surface3D& operator*() const;
 
@@ -65,12 +70,17 @@ namespace geode
         };
 
         class opengeode_geosciences_explicit_api FaultItemRange
-            : public Relationships::ItemRangeIterator,
-              public BeginEnd< FaultItemRange >
+            : public Relationships::ItemRangeIterator
         {
         public:
             FaultItemRange(
                 const StructuralModel& structural_model, const Fault3D& fault );
+            FaultItemRange( const FaultItemRange& range );
+            ~FaultItemRange();
+
+            const FaultItemRange& begin() const;
+
+            const FaultItemRange& end() const;
 
             const Surface3D& operator*() const;
 
@@ -79,12 +89,17 @@ namespace geode
         };
 
         class opengeode_geosciences_explicit_api FaultBlockItemRange
-            : public Relationships::ItemRangeIterator,
-              public BeginEnd< FaultBlockItemRange >
+            : public Relationships::ItemRangeIterator
         {
         public:
             FaultBlockItemRange( const StructuralModel& structural_model,
                 const FaultBlock3D& fault_block );
+            FaultBlockItemRange( const FaultBlockItemRange& range );
+            ~FaultBlockItemRange();
+
+            const FaultBlockItemRange& begin() const;
+
+            const FaultBlockItemRange& end() const;
 
             const Block3D& operator*() const;
 
@@ -93,12 +108,18 @@ namespace geode
         };
 
         class opengeode_geosciences_explicit_api StratigraphicUnitItemRange
-            : public Relationships::ItemRangeIterator,
-              public BeginEnd< StratigraphicUnitItemRange >
+            : public Relationships::ItemRangeIterator
         {
         public:
             StratigraphicUnitItemRange( const StructuralModel& structural_model,
                 const StratigraphicUnit3D& stratigraphic_unit );
+            StratigraphicUnitItemRange(
+                const StratigraphicUnitItemRange& range );
+            ~StratigraphicUnitItemRange();
+
+            const StratigraphicUnitItemRange& begin() const;
+
+            const StratigraphicUnitItemRange& end() const;
 
             const Block3D& operator*() const;
 
