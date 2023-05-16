@@ -42,5 +42,10 @@ namespace geode
     {
         PYTHON_CRS_HELPER( 2 );
         PYTHON_CRS_HELPER( 3 );
+        module
+            .def( "convert_brep_coordinate_reference_system",
+                &convert_brep_coordinate_reference_system )
+            .def( "convert_section_coordinate_reference_system",
+                &convert_section_coordinate_reference_system );
     }
 } // namespace geode

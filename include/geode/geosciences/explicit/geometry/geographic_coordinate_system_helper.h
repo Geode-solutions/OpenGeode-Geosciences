@@ -30,6 +30,10 @@ namespace geode
 {
     FORWARD_DECLARATION_DIMENSION_CLASS( CoordinateReferenceSystemManager );
     class AttributeManager;
+    class BRep;
+    class BRepBuilder;
+    class Section;
+    class SectionBuilder;
 } // namespace geode
 
 namespace geode
@@ -41,4 +45,16 @@ namespace geode
         absl::string_view attribute_crs_name,
         absl::string_view geographic_crs_name,
         typename GeographicCoordinateSystem< dimension >::Info info );
+
+    void opengeode_geosciences_explicit_api
+        convert_brep_coordinate_reference_system( const BRep& brep,
+            BRepBuilder& builder,
+            const GeographicCoordinateSystem3D::Info& info,
+            absl::string_view crs_name );
+
+    void opengeode_geosciences_explicit_api
+        convert_section_coordinate_reference_system( const Section& section,
+            SectionBuilder& builder,
+            const GeographicCoordinateSystem2D::Info& info,
+            absl::string_view crs_name );
 } // namespace geode

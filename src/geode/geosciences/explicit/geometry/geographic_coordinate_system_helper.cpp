@@ -26,8 +26,69 @@
 #include <geode/basic/attribute_manager.h>
 
 #include <geode/mesh/builder/coordinate_reference_system_manager_builder.h>
+#include <geode/mesh/builder/edged_curve_builder.h>
+#include <geode/mesh/builder/point_set_builder.h>
+#include <geode/mesh/builder/solid_mesh_builder.h>
+#include <geode/mesh/builder/surface_mesh_builder.h>
 #include <geode/mesh/core/attribute_coordinate_reference_system.h>
 #include <geode/mesh/core/coordinate_reference_system_manager.h>
+#include <geode/mesh/core/edged_curve.h>
+#include <geode/mesh/core/point_set.h>
+#include <geode/mesh/core/solid_mesh.h>
+#include <geode/mesh/core/surface_mesh.h>
+
+#include <geode/model/mixin/core/block.h>
+#include <geode/model/mixin/core/corner.h>
+#include <geode/model/mixin/core/line.h>
+#include <geode/model/mixin/core/surface.h>
+#include <geode/model/representation/builder/brep_builder.h>
+#include <geode/model/representation/builder/section_builder.h>
+#include <geode/model/representation/core/brep.h>
+#include <geode/model/representation/core/section.h>
+
+namespace
+{
+    template < geode::index_t dimension,
+        typename Range,
+        typename GetMeshBuilder >
+    void convert_components_coordinate_reference_system(
+        const typename geode::GeographicCoordinateSystem< dimension >::Info&
+            info,
+        absl::string_view crs_name,
+        Range range,
+        GetMeshBuilder get_mesh_builder )
+    {
+        using GeoCRS = typename geode::GeographicCoordinateSystem< dimension >;
+        for( const auto& component : range )
+        {
+            const auto& mesh = component.mesh();
+            const auto& crs_manager =
+                mesh.main_coordinate_reference_system_manager();
+            OPENGEODE_EXCEPTION(
+                !crs_manager.coordinate_reference_system_exists( crs_name ),
+                "[convert_components_coordinate_reference_system] New CRS name "
+                "already exists" );
+            auto crs_builder =
+                get_mesh_builder( component.id() )
+                    ->main_coordinate_reference_system_manager_builder();
+            auto crs = std::make_shared< GeoCRS >(
+                mesh.vertex_attribute_manager(), info );
+            if( mesh.nb_vertices() != 0 )
+            {
+                OPENGEODE_EXCEPTION(
+                    crs_manager.active_coordinate_reference_system().type_name()
+                        == GeoCRS::type_name_static(),
+                    "[convert_components_coordinate_reference_system] Only "
+                    "GeographicCoordinateSystem conversion is supported" );
+                crs->import_coordinates( dynamic_cast< const GeoCRS& >(
+                    crs_manager.active_coordinate_reference_system() ) );
+            }
+            crs_builder.register_coordinate_reference_system(
+                crs_name, std::move( crs ) );
+            crs_builder.set_active_coordinate_reference_system( crs_name );
+        }
+    }
+} // namespace
 
 namespace geode
 {
@@ -60,6 +121,48 @@ namespace geode
             crs_builder.set_active_coordinate_reference_system(
                 geographic_crs_name );
         }
+    }
+
+    void convert_brep_coordinate_reference_system( const BRep& brep,
+        BRepBuilder& builder,
+        const GeographicCoordinateSystem3D::Info& info,
+        absl::string_view crs_name )
+    {
+        convert_components_coordinate_reference_system< 3 >(
+            info, crs_name, brep.corners(), [&builder]( const uuid& id ) {
+                return builder.corner_mesh_builder( id );
+            } );
+        convert_components_coordinate_reference_system< 3 >(
+            info, crs_name, brep.lines(), [&builder]( const uuid& id ) {
+                return builder.line_mesh_builder( id );
+            } );
+        convert_components_coordinate_reference_system< 3 >(
+            info, crs_name, brep.surfaces(), [&builder]( const uuid& id ) {
+                return builder.surface_mesh_builder( id );
+            } );
+        convert_components_coordinate_reference_system< 3 >(
+            info, crs_name, brep.blocks(), [&builder]( const uuid& id ) {
+                return builder.block_mesh_builder( id );
+            } );
+    }
+
+    void convert_section_coordinate_reference_system( const Section& section,
+        SectionBuilder& builder,
+        const GeographicCoordinateSystem2D::Info& info,
+        absl::string_view crs_name )
+    {
+        convert_components_coordinate_reference_system< 2 >(
+            info, crs_name, section.corners(), [&builder]( const uuid& id ) {
+                return builder.corner_mesh_builder( id );
+            } );
+        convert_components_coordinate_reference_system< 2 >(
+            info, crs_name, section.lines(), [&builder]( const uuid& id ) {
+                return builder.line_mesh_builder( id );
+            } );
+        convert_components_coordinate_reference_system< 2 >(
+            info, crs_name, section.surfaces(), [&builder]( const uuid& id ) {
+                return builder.surface_mesh_builder( id );
+            } );
     }
 
     template void opengeode_geosciences_explicit_api
