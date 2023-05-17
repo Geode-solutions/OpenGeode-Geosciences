@@ -4,5 +4,5 @@
 #
 #    pip-compile bindings/python/requirements.in
 #
-opengeode-core==14.*,>=14.0.13
+opengeode-core==14.*,>=14.1.0
     # via -r bindings/python/requirements.in
