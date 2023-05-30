@@ -83,7 +83,7 @@ namespace geode
             const Section& section,
             SectionBuilder& builder,
             absl::string_view crs_name,
-            const GeographicCoordinateSystem3D::Info& info );
+            const GeographicCoordinateSystem2D::Info& info );
 
     template < index_t dimension >
     void convert_edged_curve_coordinate_reference_system(
