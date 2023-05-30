@@ -48,6 +48,38 @@
 
 namespace
 {
+    template < typename Mesh >
+    void convert_coordinate_reference_system( const Mesh& mesh,
+        typename Mesh::Builder& builder,
+        absl::string_view crs_name,
+        typename geode::GeographicCoordinateSystem< Mesh::dim >::Info info )
+    {
+        using GeoCRS = typename geode::GeographicCoordinateSystem< Mesh::dim >;
+        const auto& crs_manager =
+            mesh.main_coordinate_reference_system_manager();
+        OPENGEODE_EXCEPTION(
+            !crs_manager.coordinate_reference_system_exists( crs_name ),
+            "[convert_components_coordinate_reference_system] New CRS name "
+            "already exists" );
+        auto crs_builder =
+            builder.main_coordinate_reference_system_manager_builder();
+        auto crs =
+            std::make_shared< GeoCRS >( mesh.vertex_attribute_manager(), info );
+        if( mesh.nb_vertices() != 0 )
+        {
+            OPENGEODE_EXCEPTION(
+                crs_manager.active_coordinate_reference_system().type_name()
+                    == GeoCRS::type_name_static(),
+                "[convert_components_coordinate_reference_system] Only "
+                "GeographicCoordinateSystem conversion is supported" );
+            crs->import_coordinates( dynamic_cast< const GeoCRS& >(
+                crs_manager.active_coordinate_reference_system() ) );
+        }
+        crs_builder.register_coordinate_reference_system(
+            crs_name, std::move( crs ) );
+        crs_builder.set_active_coordinate_reference_system( crs_name );
+    }
+
     template < geode::index_t dimension,
         typename Range,
         typename GetMeshBuilder >
@@ -58,34 +90,57 @@ namespace
         Range range,
         GetMeshBuilder get_mesh_builder )
     {
-        using GeoCRS = typename geode::GeographicCoordinateSystem< dimension >;
         for( const auto& component : range )
         {
             const auto& mesh = component.mesh();
-            const auto& crs_manager =
-                mesh.main_coordinate_reference_system_manager();
-            OPENGEODE_EXCEPTION(
-                !crs_manager.coordinate_reference_system_exists( crs_name ),
-                "[convert_components_coordinate_reference_system] New CRS name "
-                "already exists" );
-            auto crs_builder =
-                get_mesh_builder( component.id() )
-                    ->main_coordinate_reference_system_manager_builder();
-            auto crs = std::make_shared< GeoCRS >(
-                mesh.vertex_attribute_manager(), info );
-            if( mesh.nb_vertices() != 0 )
-            {
-                OPENGEODE_EXCEPTION(
-                    crs_manager.active_coordinate_reference_system().type_name()
-                        == GeoCRS::type_name_static(),
-                    "[convert_components_coordinate_reference_system] Only "
-                    "GeographicCoordinateSystem conversion is supported" );
-                crs->import_coordinates( dynamic_cast< const GeoCRS& >(
-                    crs_manager.active_coordinate_reference_system() ) );
-            }
-            crs_builder.register_coordinate_reference_system(
-                crs_name, std::move( crs ) );
-            crs_builder.set_active_coordinate_reference_system( crs_name );
+            auto builder = get_mesh_builder( component.id() );
+            convert_coordinate_reference_system(
+                mesh, *builder, crs_name, info );
+        }
+    }
+
+    template < typename Mesh >
+    void convert_attribute_to_geographic_coordinate_reference_system(
+        const Mesh& mesh,
+        typename Mesh::Builder& builder,
+        absl::string_view crs_name,
+        typename geode::GeographicCoordinateSystem< Mesh::dim >::Info info )
+    {
+        const auto& crs_manager =
+            mesh.main_coordinate_reference_system_manager();
+        const auto old_crs_name =
+            crs_manager.active_coordinate_reference_system_name();
+        const auto& attribute_crs = dynamic_cast<
+            const geode::AttributeCoordinateReferenceSystem< Mesh::dim >& >(
+            crs_manager.find_coordinate_reference_system( old_crs_name ) );
+        auto& attribute_manager = mesh.vertex_attribute_manager();
+        attribute_manager.rename_attribute(
+            attribute_crs.attribute_name(), info.name );
+        auto crs_builder =
+            builder.main_coordinate_reference_system_manager_builder();
+        crs_builder.register_coordinate_reference_system( crs_name,
+            std::make_shared< geode::GeographicCoordinateSystem< Mesh::dim > >(
+                attribute_manager, std::move( info ) ) );
+        crs_builder.delete_coordinate_reference_system( old_crs_name );
+        crs_builder.set_active_coordinate_reference_system( crs_name );
+    }
+
+    template < geode::index_t dimension,
+        typename Range,
+        typename GetMeshBuilder >
+    void convert_components_attribute_to_geographic_coordinate_reference_system(
+        const typename geode::GeographicCoordinateSystem< dimension >::Info&
+            info,
+        absl::string_view crs_name,
+        Range range,
+        GetMeshBuilder get_mesh_builder )
+    {
+        for( const auto& component : range )
+        {
+            const auto& mesh = component.mesh();
+            auto builder = get_mesh_builder( component.id() );
+            convert_attribute_to_geographic_coordinate_reference_system(
+                mesh, *builder, crs_name, info );
         }
     }
 } // namespace
@@ -93,34 +148,136 @@ namespace
 namespace geode
 {
     template < index_t dimension >
-    void convert_attribute_to_geographic_coordinate_reference_system(
-        CoordinateReferenceSystemManager< dimension >& crs_manager,
-        AttributeManager& attribute_manager,
-        absl::string_view attribute_crs_name,
-        absl::string_view geographic_crs_name,
+    void assign_edged_curve_geographic_coordinate_system_info(
+        const EdgedCurve< dimension >& mesh,
+        EdgedCurveBuilder< dimension >& builder,
+        absl::string_view crs_name,
         typename GeographicCoordinateSystem< dimension >::Info info )
     {
-        const auto is_active =
-            crs_manager.active_coordinate_reference_system_name()
-            == attribute_crs_name;
-        const auto& attribute_crs = dynamic_cast<
-            const AttributeCoordinateReferenceSystem< dimension >& >(
-            crs_manager.find_coordinate_reference_system(
-                attribute_crs_name ) );
-        attribute_manager.rename_attribute(
-            attribute_crs.attribute_name(), info.name );
-        CoordinateReferenceSystemManagerBuilder< dimension > crs_builder{
-            crs_manager
-        };
-        crs_builder.register_coordinate_reference_system( geographic_crs_name,
-            std::make_shared< GeographicCoordinateSystem< dimension > >(
-                attribute_manager, std::move( info ) ) );
-        crs_builder.delete_coordinate_reference_system( attribute_crs_name );
-        if( is_active )
-        {
-            crs_builder.set_active_coordinate_reference_system(
-                geographic_crs_name );
-        }
+        convert_attribute_to_geographic_coordinate_reference_system(
+            mesh, builder, crs_name, std::move( info ) );
+    }
+
+    template < index_t dimension >
+    void assign_point_set_geographic_coordinate_system_info(
+        const PointSet< dimension >& mesh,
+        PointSetBuilder< dimension >& builder,
+        absl::string_view crs_name,
+        typename GeographicCoordinateSystem< dimension >::Info info )
+    {
+        convert_attribute_to_geographic_coordinate_reference_system(
+            mesh, builder, crs_name, std::move( info ) );
+    }
+
+    template < index_t dimension >
+    void assign_solid_mesh_geographic_coordinate_system_info(
+        const SolidMesh< dimension >& mesh,
+        SolidMeshBuilder< dimension >& builder,
+        absl::string_view crs_name,
+        typename GeographicCoordinateSystem< dimension >::Info info )
+    {
+        convert_attribute_to_geographic_coordinate_reference_system(
+            mesh, builder, crs_name, std::move( info ) );
+    }
+
+    template < index_t dimension >
+    void assign_surface_mesh_geographic_coordinate_system_info(
+        const SurfaceMesh< dimension >& mesh,
+        SurfaceMeshBuilder< dimension >& builder,
+        absl::string_view crs_name,
+        typename GeographicCoordinateSystem< dimension >::Info info )
+    {
+        convert_attribute_to_geographic_coordinate_reference_system(
+            mesh, builder, crs_name, std::move( info ) );
+    }
+
+    void assign_brep_geographic_coordinate_system_info( const BRep& brep,
+        BRepBuilder& builder,
+        absl::string_view crs_name,
+        const GeographicCoordinateSystem3D::Info& info )
+    {
+        convert_components_attribute_to_geographic_coordinate_reference_system<
+            3 >( info, crs_name, brep.corners(), [&builder]( const uuid& id ) {
+            return builder.corner_mesh_builder( id );
+        } );
+        convert_components_attribute_to_geographic_coordinate_reference_system<
+            3 >( info, crs_name, brep.lines(), [&builder]( const uuid& id ) {
+            return builder.line_mesh_builder( id );
+        } );
+        convert_components_attribute_to_geographic_coordinate_reference_system<
+            3 >( info, crs_name, brep.surfaces(), [&builder]( const uuid& id ) {
+            return builder.surface_mesh_builder( id );
+        } );
+        convert_components_attribute_to_geographic_coordinate_reference_system<
+            3 >( info, crs_name, brep.blocks(), [&builder]( const uuid& id ) {
+            return builder.block_mesh_builder( id );
+        } );
+    }
+
+    void assign_section_geographic_coordinate_system_info(
+        const Section& section,
+        SectionBuilder& builder,
+        absl::string_view crs_name,
+        const GeographicCoordinateSystem2D::Info& info )
+    {
+        convert_components_attribute_to_geographic_coordinate_reference_system<
+            2 >(
+            info, crs_name, section.corners(), [&builder]( const uuid& id ) {
+                return builder.corner_mesh_builder( id );
+            } );
+        convert_components_attribute_to_geographic_coordinate_reference_system<
+            2 >( info, crs_name, section.lines(), [&builder]( const uuid& id ) {
+            return builder.line_mesh_builder( id );
+        } );
+        convert_components_attribute_to_geographic_coordinate_reference_system<
+            2 >(
+            info, crs_name, section.surfaces(), [&builder]( const uuid& id ) {
+                return builder.surface_mesh_builder( id );
+            } );
+    }
+
+    template < index_t dimension >
+    void convert_edged_curve_coordinate_reference_system(
+        const EdgedCurve< dimension >& mesh,
+        EdgedCurveBuilder< dimension >& builder,
+        absl::string_view crs_name,
+        typename GeographicCoordinateSystem< dimension >::Info info )
+    {
+        convert_coordinate_reference_system(
+            mesh, builder, crs_name, std::move( info ) );
+    }
+
+    template < index_t dimension >
+    void convert_point_set_coordinate_reference_system(
+        const PointSet< dimension >& mesh,
+        PointSetBuilder< dimension >& builder,
+        absl::string_view crs_name,
+        typename GeographicCoordinateSystem< dimension >::Info info )
+    {
+        convert_coordinate_reference_system(
+            mesh, builder, crs_name, std::move( info ) );
+    }
+
+    template < index_t dimension >
+    void convert_solid_mesh_coordinate_reference_system(
+        const SolidMesh< dimension >& mesh,
+        SolidMeshBuilder< dimension >& builder,
+        absl::string_view crs_name,
+        typename GeographicCoordinateSystem< dimension >::Info info )
+    {
+        convert_coordinate_reference_system(
+            mesh, builder, crs_name, std::move( info ) );
+    }
+
+    template < index_t dimension >
+    void convert_surface_mesh_coordinate_reference_system(
+        const SurfaceMesh< dimension >& mesh,
+        SurfaceMeshBuilder< dimension >& builder,
+        absl::string_view crs_name,
+        typename GeographicCoordinateSystem< dimension >::Info info )
+    {
+        convert_coordinate_reference_system(
+            mesh, builder, crs_name, std::move( info ) );
     }
 
     void convert_brep_coordinate_reference_system( const BRep& brep,
@@ -166,17 +323,83 @@ namespace geode
     }
 
     template void opengeode_geosciences_explicit_api
-        convert_attribute_to_geographic_coordinate_reference_system(
-            CoordinateReferenceSystemManager< 2 >&,
-            AttributeManager&,
-            absl::string_view,
+        assign_edged_curve_geographic_coordinate_system_info(
+            const EdgedCurve< 2 >&,
+            EdgedCurveBuilder< 2 >&,
             absl::string_view,
             typename GeographicCoordinateSystem< 2 >::Info );
     template void opengeode_geosciences_explicit_api
-        convert_attribute_to_geographic_coordinate_reference_system(
-            CoordinateReferenceSystemManager< 3 >&,
-            AttributeManager&,
+        assign_point_set_geographic_coordinate_system_info(
+            const PointSet< 2 >&,
+            PointSetBuilder< 2 >&,
             absl::string_view,
+            typename GeographicCoordinateSystem< 2 >::Info );
+    template void opengeode_geosciences_explicit_api
+        assign_surface_mesh_geographic_coordinate_system_info(
+            const SurfaceMesh< 2 >&,
+            SurfaceMeshBuilder< 2 >&,
+            absl::string_view,
+            typename GeographicCoordinateSystem< 2 >::Info );
+    template void opengeode_geosciences_explicit_api
+        convert_edged_curve_coordinate_reference_system( const EdgedCurve< 2 >&,
+            EdgedCurveBuilder< 2 >&,
+            absl::string_view,
+            typename GeographicCoordinateSystem< 2 >::Info );
+    template void opengeode_geosciences_explicit_api
+        convert_point_set_coordinate_reference_system( const PointSet< 2 >&,
+            PointSetBuilder< 2 >&,
+            absl::string_view,
+            typename GeographicCoordinateSystem< 2 >::Info );
+    template void opengeode_geosciences_explicit_api
+        convert_surface_mesh_coordinate_reference_system(
+            const SurfaceMesh< 2 >&,
+            SurfaceMeshBuilder< 2 >&,
+            absl::string_view,
+            typename GeographicCoordinateSystem< 2 >::Info );
+
+    template void opengeode_geosciences_explicit_api
+        assign_edged_curve_geographic_coordinate_system_info(
+            const EdgedCurve< 3 >&,
+            EdgedCurveBuilder< 3 >&,
+            absl::string_view,
+            typename GeographicCoordinateSystem< 3 >::Info );
+    template void opengeode_geosciences_explicit_api
+        assign_point_set_geographic_coordinate_system_info(
+            const PointSet< 3 >&,
+            PointSetBuilder< 3 >&,
+            absl::string_view,
+            typename GeographicCoordinateSystem< 3 >::Info );
+    template void opengeode_geosciences_explicit_api
+        assign_solid_mesh_geographic_coordinate_system_info(
+            const SolidMesh< 3 >&,
+            SolidMeshBuilder< 3 >&,
+            absl::string_view,
+            typename GeographicCoordinateSystem< 3 >::Info );
+    template void opengeode_geosciences_explicit_api
+        assign_surface_mesh_geographic_coordinate_system_info(
+            const SurfaceMesh< 3 >&,
+            SurfaceMeshBuilder< 3 >&,
+            absl::string_view,
+            typename GeographicCoordinateSystem< 3 >::Info );
+    template void opengeode_geosciences_explicit_api
+        convert_edged_curve_coordinate_reference_system( const EdgedCurve< 3 >&,
+            EdgedCurveBuilder< 3 >&,
+            absl::string_view,
+            typename GeographicCoordinateSystem< 3 >::Info );
+    template void opengeode_geosciences_explicit_api
+        convert_point_set_coordinate_reference_system( const PointSet< 3 >&,
+            PointSetBuilder< 3 >&,
+            absl::string_view,
+            typename GeographicCoordinateSystem< 3 >::Info );
+    template void opengeode_geosciences_explicit_api
+        convert_solid_mesh_coordinate_reference_system( const SolidMesh< 3 >&,
+            SolidMeshBuilder< 3 >&,
+            absl::string_view,
+            typename GeographicCoordinateSystem< 3 >::Info );
+    template void opengeode_geosciences_explicit_api
+        convert_surface_mesh_coordinate_reference_system(
+            const SurfaceMesh< 3 >&,
+            SurfaceMeshBuilder< 3 >&,
             absl::string_view,
             typename GeographicCoordinateSystem< 3 >::Info );
 } // namespace geode

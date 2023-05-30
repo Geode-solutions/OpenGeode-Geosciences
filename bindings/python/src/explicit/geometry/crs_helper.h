@@ -23,25 +23,47 @@
 
 #include <geode/basic/attribute_manager.h>
 
+#include <geode/mesh/builder/coordinate_reference_system_manager_builder.h>
+#include <geode/mesh/builder/edged_curve_builder.h>
+#include <geode/mesh/builder/point_set_builder.h>
+#include <geode/mesh/builder/solid_mesh_builder.h>
+#include <geode/mesh/builder/surface_mesh_builder.h>
+#include <geode/mesh/core/attribute_coordinate_reference_system.h>
 #include <geode/mesh/core/coordinate_reference_system_manager.h>
+#include <geode/mesh/core/edged_curve.h>
+#include <geode/mesh/core/point_set.h>
+#include <geode/mesh/core/solid_mesh.h>
+#include <geode/mesh/core/surface_mesh.h>
 
 #include <geode/geosciences/explicit/geometry/geographic_coordinate_system.h>
 #include <geode/geosciences/explicit/geometry/geographic_coordinate_system_helper.h>
 
-#define PYTHON_CRS_HELPER( dimension )                                         \
-    const auto name##dimension =                                               \
-        "convert_attribute_to_geographic_coordinate_reference_system"          \
-        + std::to_string( dimension ) + "D";                                   \
-    module.def( name##dimension.c_str(),                                       \
-        &convert_attribute_to_geographic_coordinate_reference_system<          \
-            dimension > )
+#define PYTHON_MESH_CRS_HELPER( mesh, dimension )                              \
+    const auto assign##mesh##dimension = absl::StrCat( "assign_", #mesh,       \
+        "_geographic_coordinate_system_info", dimension, "D" );                \
+    module.def( assign##mesh##dimension.c_str(),                               \
+        &assign_##mesh##_geographic_coordinate_system_info< dimension > );     \
+    const auto convert##mesh##dimension = absl::StrCat(                        \
+        "convert_", #mesh, "_coordinate_reference_system", dimension, "D" );   \
+    module.def( convert##mesh##dimension.c_str(),                              \
+        &convert_##mesh##_coordinate_reference_system< dimension > )
 
 namespace geode
 {
     void define_crs_helper( pybind11::module& module )
     {
-        PYTHON_CRS_HELPER( 2 );
-        PYTHON_CRS_HELPER( 3 );
+        PYTHON_MESH_CRS_HELPER( edged_curve, 2 );
+        PYTHON_MESH_CRS_HELPER( edged_curve, 3 );
+        PYTHON_MESH_CRS_HELPER( point_set, 2 );
+        PYTHON_MESH_CRS_HELPER( point_set, 3 );
+        PYTHON_MESH_CRS_HELPER( solid_mesh, 3 );
+        PYTHON_MESH_CRS_HELPER( surface_mesh, 2 );
+        PYTHON_MESH_CRS_HELPER( surface_mesh, 3 );
+        module
+            .def( "assign_brep_geographic_coordinate_system_info",
+                &assign_brep_geographic_coordinate_system_info )
+            .def( "assign_section_geographic_coordinate_system_info",
+                &assign_section_geographic_coordinate_system_info );
         module
             .def( "convert_brep_coordinate_reference_system",
                 &convert_brep_coordinate_reference_system )
