@@ -28,8 +28,14 @@
 
 namespace geode
 {
-    FORWARD_DECLARATION_DIMENSION_CLASS( CoordinateReferenceSystemManager );
-    class AttributeManager;
+    FORWARD_DECLARATION_DIMENSION_CLASS( EdgedCurve );
+    FORWARD_DECLARATION_DIMENSION_CLASS( EdgedCurveBuilder );
+    FORWARD_DECLARATION_DIMENSION_CLASS( PointSet );
+    FORWARD_DECLARATION_DIMENSION_CLASS( PointSetBuilder );
+    FORWARD_DECLARATION_DIMENSION_CLASS( SolidMesh );
+    FORWARD_DECLARATION_DIMENSION_CLASS( SolidMeshBuilder );
+    FORWARD_DECLARATION_DIMENSION_CLASS( SurfaceMesh );
+    FORWARD_DECLARATION_DIMENSION_CLASS( SurfaceMeshBuilder );
     class BRep;
     class BRepBuilder;
     class Section;
@@ -39,11 +45,72 @@ namespace geode
 namespace geode
 {
     template < index_t dimension >
-    void convert_attribute_to_geographic_coordinate_reference_system(
-        CoordinateReferenceSystemManager< dimension >& crs_manager,
-        AttributeManager& attribute_manager,
-        absl::string_view attribute_crs_name,
-        absl::string_view geographic_crs_name,
+    void assign_edged_curve_geographic_coordinate_system_info(
+        const EdgedCurve< dimension >& mesh,
+        EdgedCurveBuilder< dimension >& builder,
+        absl::string_view crs_name,
+        typename GeographicCoordinateSystem< dimension >::Info info );
+
+    template < index_t dimension >
+    void assign_point_set_geographic_coordinate_system_info(
+        const PointSet< dimension >& mesh,
+        PointSetBuilder< dimension >& builder,
+        absl::string_view crs_name,
+        typename GeographicCoordinateSystem< dimension >::Info info );
+
+    template < index_t dimension >
+    void assign_solid_mesh_geographic_coordinate_system_info(
+        const SolidMesh< dimension >& mesh,
+        SolidMeshBuilder< dimension >& builder,
+        absl::string_view crs_name,
+        typename GeographicCoordinateSystem< dimension >::Info info );
+
+    template < index_t dimension >
+    void assign_surface_mesh_geographic_coordinate_system_info(
+        const SurfaceMesh< dimension >& mesh,
+        SurfaceMeshBuilder< dimension >& builder,
+        absl::string_view crs_name,
+        typename GeographicCoordinateSystem< dimension >::Info info );
+
+    void opengeode_geosciences_explicit_api
+        assign_brep_geographic_coordinate_system_info( const BRep& brep,
+            BRepBuilder& builder,
+            absl::string_view crs_name,
+            const GeographicCoordinateSystem3D::Info& info );
+
+    void opengeode_geosciences_explicit_api
+        assign_section_geographic_coordinate_system_info(
+            const Section& section,
+            SectionBuilder& builder,
+            absl::string_view crs_name,
+            const GeographicCoordinateSystem3D::Info& info );
+
+    template < index_t dimension >
+    void convert_edged_curve_coordinate_reference_system(
+        const EdgedCurve< dimension >& mesh,
+        EdgedCurveBuilder< dimension >& builder,
+        absl::string_view crs_name,
+        typename GeographicCoordinateSystem< dimension >::Info info );
+
+    template < index_t dimension >
+    void convert_point_set_coordinate_reference_system(
+        const PointSet< dimension >& mesh,
+        PointSetBuilder< dimension >& builder,
+        absl::string_view crs_name,
+        typename GeographicCoordinateSystem< dimension >::Info info );
+
+    template < index_t dimension >
+    void convert_solid_mesh_coordinate_reference_system(
+        const SolidMesh< dimension >& mesh,
+        SolidMeshBuilder< dimension >& builder,
+        absl::string_view crs_name,
+        typename GeographicCoordinateSystem< dimension >::Info info );
+
+    template < index_t dimension >
+    void convert_surface_mesh_coordinate_reference_system(
+        const SurfaceMesh< dimension >& mesh,
+        SurfaceMeshBuilder< dimension >& builder,
+        absl::string_view crs_name,
         typename GeographicCoordinateSystem< dimension >::Info info );
 
     void opengeode_geosciences_explicit_api
