@@ -282,8 +282,8 @@ namespace geode
 
     void convert_brep_coordinate_reference_system( const BRep& brep,
         BRepBuilder& builder,
-        const GeographicCoordinateSystem3D::Info& info,
-        absl::string_view crs_name )
+        absl::string_view crs_name,
+        const GeographicCoordinateSystem3D::Info& info )
     {
         convert_components_coordinate_reference_system< 3 >(
             info, crs_name, brep.corners(), [&builder]( const uuid& id ) {
@@ -305,8 +305,8 @@ namespace geode
 
     void convert_section_coordinate_reference_system( const Section& section,
         SectionBuilder& builder,
-        const GeographicCoordinateSystem2D::Info& info,
-        absl::string_view crs_name )
+        absl::string_view crs_name,
+        const GeographicCoordinateSystem2D::Info& info )
     {
         convert_components_coordinate_reference_system< 2 >(
             info, crs_name, section.corners(), [&builder]( const uuid& id ) {
