@@ -28,6 +28,8 @@
 #include <geode/model/mixin/core/block.h>
 #include <geode/model/representation/builder/detail/copy.h>
 
+#include <geode/geosciences/implicit/representation/builder/horizons_stack_builder.h>
+#include <geode/geosciences/implicit/representation/core/horizons_stack.h>
 #include <geode/geosciences/implicit/representation/core/implicit_structural_model.h>
 
 namespace geode
@@ -39,11 +41,40 @@ namespace geode
     {
     }
 
-    void ImplicitStructuralModelBuilder::copy(
-        const ImplicitStructuralModel& implicit_model )
+    ModelCopyMapping ImplicitStructuralModelBuilder::copy(
+        const ImplicitStructuralModel& other_model )
     {
-        StructuralModelBuilder::copy( implicit_model );
-        instantiate_implicit_attribute_on_blocks();
+        auto mapping = StructuralModelBuilder::copy( other_model );
+        reinitialize_implicit_query_trees();
+        copy_implicit_information( other_model, mapping );
+        return mapping;
+    }
+
+    void ImplicitStructuralModelBuilder::copy_implicit_information(
+        const ImplicitStructuralModel& other_model,
+        const ModelCopyMapping& mapping )
+    {
+        HorizonsStackBuilder3D{ implicit_model_.modifiable_horizons_stack(
+                                    {} ) }
+            .copy( other_model.horizons_stack(), mapping );
+        const auto& horizon_mapping =
+            mapping.at( Horizon3D::component_type_static() );
+        for( const auto& horizon : other_model.horizons_stack().horizons() )
+        {
+            if( const auto isovalue =
+                    other_model.horizon_implicit_value( horizon ) )
+            {
+                const auto& new_horizon = implicit_model_.horizon(
+                    horizon_mapping.in2out( horizon.id() ) );
+                implicit_model_.set_horizon_implicit_value(
+                    new_horizon, isovalue.value(), {} );
+            }
+        }
+    }
+
+    void ImplicitStructuralModelBuilder::reinitialize_implicit_query_trees()
+    {
+        implicit_model_.initialize_implicit_query_trees( {} );
     }
 
     void ImplicitStructuralModelBuilder::
@@ -58,15 +89,21 @@ namespace geode
         implicit_model_.set_implicit_value( block, vertex_id, value, {} );
     }
 
-    void ImplicitStructuralModelBuilder::set_stratigraphic_units_stack(
-        StratigraphicUnitsStack3D&& stack )
+    void ImplicitStructuralModelBuilder::set_horizons_stack(
+        HorizonsStack3D&& stack )
     {
-        implicit_model_.set_stratigraphic_units_stack( std::move( stack ), {} );
+        implicit_model_.set_horizons_stack( std::move( stack ), {} );
     }
 
-    void ImplicitStructuralModelBuilder::set_horizon_isovalue(
+    void ImplicitStructuralModelBuilder::set_horizon_implicit_value(
         const Horizon3D& horizon, double isovalue )
     {
-        implicit_model_.set_horizon_isovalue( horizon, isovalue, {} );
+        implicit_model_.set_horizon_implicit_value( horizon, isovalue, {} );
+    }
+
+    HorizonsStackBuilder3D
+        ImplicitStructuralModelBuilder::horizons_stack_builder()
+    {
+        return { implicit_model_.modifiable_horizons_stack( {} ) };
     }
 } // namespace geode

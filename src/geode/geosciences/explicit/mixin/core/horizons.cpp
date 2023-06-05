@@ -23,6 +23,7 @@
 
 #include <geode/geosciences/explicit/mixin/core/horizons.h>
 
+#include <geode/basic/identifier_builder.h>
 #include <geode/basic/pimpl_impl.h>
 #include <geode/basic/range.h>
 
@@ -137,6 +138,29 @@ namespace geode
         const auto& id = horizon->id();
         impl_->add_component( std::move( horizon ) );
         return id;
+    }
+
+    template < index_t dimension >
+    void Horizons< dimension >::create_horizon( uuid horizon_id )
+    {
+        typename Horizons< dimension >::Impl::ComponentPtr horizon{
+            new Horizon< dimension >{
+                typename Horizon< dimension >::HorizonsKey{} }
+        };
+        IdentifierBuilder{ *horizon }.set_id( std::move( horizon_id ) );
+        impl_->add_component( std::move( horizon ) );
+    }
+
+    template < index_t dimension >
+    void Horizons< dimension >::create_horizon(
+        uuid horizon_id, typename Horizon< dimension >::HORIZON_TYPE type )
+    {
+        typename Horizons< dimension >::Impl::ComponentPtr horizon{
+            new Horizon< dimension >{
+                type, typename Horizon< dimension >::HorizonsKey{} }
+        };
+        IdentifierBuilder{ *horizon }.set_id( std::move( horizon_id ) );
+        impl_->add_component( std::move( horizon ) );
     }
 
     template < index_t dimension >

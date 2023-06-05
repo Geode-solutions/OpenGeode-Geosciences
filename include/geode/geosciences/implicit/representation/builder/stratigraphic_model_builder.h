@@ -46,7 +46,9 @@ namespace geode
     public:
         StratigraphicModelBuilder( StratigraphicModel& stratigraphic_model_ );
 
-        void copy( const StratigraphicModel& stratigraphic_model_ );
+        ModelCopyMapping copy( const StratigraphicModel& implicit_model );
+
+        void reinitialize_stratigraphic_query_trees();
 
         void instantiate_stratigraphic_attribute_on_blocks();
 

@@ -32,35 +32,33 @@
 
 namespace geode
 {
-    FORWARD_DECLARATION_DIMENSION_CLASS( StratigraphicUnitsStackBuilder );
+    FORWARD_DECLARATION_DIMENSION_CLASS( HorizonsStackBuilder );
     struct uuid;
 } // namespace geode
 
 namespace geode
 {
     /*!
-     * A StratigraphicUnitsStack is a set of Horizons and StratigraphicUnits,
+     * A HorizonsStack is a set of Horizons and StratigraphicUnits,
      * linked by relations defining how they are stacked (which unit is above
      * and under which horizon, and inversely).
      */
     template < index_t dimension >
-    class opengeode_geosciences_implicit_api StratigraphicUnitsStack
+    class opengeode_geosciences_implicit_api HorizonsStack
         : public StratigraphicRelationships,
           public Horizons< dimension >,
           public StratigraphicUnits< dimension >,
           public Identifier
     {
-        PASSKEY( StratigraphicUnitsStackBuilder< dimension >,
-            StratigraphicUnitsStackBuilderKey );
+        PASSKEY( HorizonsStackBuilder< dimension >, HorizonsStackBuilderKey );
 
     public:
-        StratigraphicUnitsStack();
-        StratigraphicUnitsStack(
-            StratigraphicUnitsStack< dimension >&& su_stack );
-        ~StratigraphicUnitsStack();
+        HorizonsStack();
+        HorizonsStack( HorizonsStack< dimension >&& horizons_stack );
+        ~HorizonsStack();
 
-        StratigraphicUnitsStack< dimension >& operator=(
-            StratigraphicUnitsStack< dimension >&& other );
+        HorizonsStack< dimension >& operator=(
+            HorizonsStack< dimension >&& other );
 
         static absl::string_view native_extension_static()
         {
@@ -74,5 +72,5 @@ namespace geode
             return native_extension_static();
         }
     };
-    ALIAS_2D_AND_3D( StratigraphicUnitsStack );
+    ALIAS_2D_AND_3D( HorizonsStack );
 } // namespace geode

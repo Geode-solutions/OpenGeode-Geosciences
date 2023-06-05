@@ -60,7 +60,7 @@ namespace geode
     public:
         StructuralModelBuilder( StructuralModel& structural_model );
 
-        void copy( const StructuralModel& structural_model );
+        ModelCopyMapping copy( const StructuralModel& structural_model );
 
         void copy_geological_components( ModelCopyMapping& mapping,
             const StructuralModel& structural_model );

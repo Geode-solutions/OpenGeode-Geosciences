@@ -49,8 +49,8 @@ namespace geode
                 ( double( ImplicitCrossSection::* )(
                     const Surface2D&, const Point2D&, index_t ) const )
                     & ImplicitCrossSection::implicit_value )
-            .def( "stratigraphic_units_stack",
-                &ImplicitCrossSection::stratigraphic_units_stack )
+            .def( "horizons_stack",
+                &ImplicitCrossSection::horizons_stack )
             .def( "horizon_implicit_value",
                 &ImplicitCrossSection::horizon_implicit_value );
     }

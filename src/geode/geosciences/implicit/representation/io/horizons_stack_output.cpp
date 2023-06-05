@@ -21,21 +21,20 @@
  *
  */
 
-#include <geode/geosciences/implicit/representation/io/stratigraphic_units_stack_input.h>
+#include <geode/geosciences/implicit/representation/io/horizons_stack_output.h>
 
 #include <absl/strings/ascii.h>
 
 #include <geode/basic/filename.h>
-#include <geode/basic/identifier_builder.h>
 #include <geode/basic/timer.h>
 
-#include <geode/geosciences/implicit/representation/builder/stratigraphic_units_stack_builder.h>
-#include <geode/geosciences/implicit/representation/core/stratigraphic_units_stack.h>
+#include <geode/geosciences/implicit/representation/core/horizons_stack.h>
 
 namespace geode
 {
     template < index_t dimension >
-    StratigraphicUnitsStack< dimension > load_stratigraphic_units_stack(
+    void save_horizons_stack(
+        const HorizonsStack< dimension >& horizons_stack,
         absl::string_view filename )
     {
         try
@@ -44,37 +43,27 @@ namespace geode
             const auto extension =
                 absl::AsciiStrToLower( extension_from_filename( filename ) );
             OPENGEODE_EXCEPTION(
-                StratigraphicUnitsStackInputFactory< dimension >::has_creator(
+                HorizonsStackOutputFactory< dimension >::has_creator(
                     extension ),
                 "Unknown extension: ", extension );
-            auto input =
-                StratigraphicUnitsStackInputFactory< dimension >::create(
-                    extension, filename );
-            auto stratigraphic_units_stack = input->read();
-            if( stratigraphic_units_stack.name() == Identifier::DEFAULT_NAME )
-            {
-                IdentifierBuilder{ stratigraphic_units_stack }.set_name(
-                    filename_without_extension( filename ) );
-            }
-            Logger::info( "StratigraphicUnitsStack loaded from ", filename,
-                " in ", timer.duration() );
-            Logger::info( "StratigraphicUnitsStack has: ",
-                stratigraphic_units_stack.nb_horizons(), " Horizons and ",
-                stratigraphic_units_stack.nb_stratigraphic_units(),
-                " Stratigraphic Units" );
-            return stratigraphic_units_stack;
+            HorizonsStackOutputFactory< dimension >::create(
+                extension, filename )
+                ->write( horizons_stack );
+            Logger::info(
+                "HorizonsStack saved in ", filename, " in ", timer.duration() );
         }
         catch( const OpenGeodeException& e )
         {
             Logger::error( e.what() );
-            throw OpenGeodeException{
-                "Cannot load StratigraphicUnitsStack from file: ", filename
-            };
+            throw OpenGeodeException{ "Cannot save HorizonsStack in file: ",
+                filename };
         }
     }
 
-    template StratigraphicUnitsStack< 2 > opengeode_geosciences_implicit_api
-        load_stratigraphic_units_stack( absl::string_view );
-    template StratigraphicUnitsStack< 3 > opengeode_geosciences_implicit_api
-        load_stratigraphic_units_stack( absl::string_view );
+    template void opengeode_geosciences_implicit_api
+        save_horizons_stack(
+            const HorizonsStack< 2 >&, absl::string_view );
+    template void opengeode_geosciences_implicit_api
+        save_horizons_stack(
+            const HorizonsStack< 3 >&, absl::string_view );
 } // namespace geode

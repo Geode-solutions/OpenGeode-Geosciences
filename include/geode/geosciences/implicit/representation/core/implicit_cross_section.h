@@ -31,9 +31,9 @@
 namespace geode
 {
     FORWARD_DECLARATION_DIMENSION_CLASS( Point );
-    FORWARD_DECLARATION_DIMENSION_CLASS( StratigraphicUnitsStack );
+    FORWARD_DECLARATION_DIMENSION_CLASS( HorizonsStack );
     ALIAS_2D( Point );
-    ALIAS_2D( StratigraphicUnitsStack );
+    ALIAS_2D( HorizonsStack );
     class ImplicitCrossSectionBuilder;
 } // namespace geode
 
@@ -96,11 +96,14 @@ namespace geode
         absl::optional< index_t > containing_polygon(
             const Surface2D& surface, const Point2D& point ) const;
 
-        const StratigraphicUnitsStack2D& stratigraphic_units_stack() const;
+        const HorizonsStack2D& horizons_stack() const;
 
-        double horizon_implicit_value( const Horizon2D& horizon ) const;
+        absl::optional< implicit_attribute_type > horizon_implicit_value(
+            const Horizon2D& horizon ) const;
 
     public:
+        void initialize_implicit_query_trees( ImplicitCrossSectionBuilderKey );
+
         void instantiate_implicit_attribute_on_surfaces(
             ImplicitCrossSectionBuilderKey );
 
@@ -109,11 +112,14 @@ namespace geode
             double value,
             ImplicitCrossSectionBuilderKey );
 
-        void set_stratigraphic_units_stack(
-            StratigraphicUnitsStack2D&& stack, ImplicitCrossSectionBuilderKey );
+        void set_horizons_stack(
+            HorizonsStack2D&& stack, ImplicitCrossSectionBuilderKey );
 
-        void set_horizon_isovalue( const Horizon2D& horizon,
-            double isovalue,
+        void set_horizon_implicit_value( const Horizon2D& horizon,
+            implicit_attribute_type isovalue,
+            ImplicitCrossSectionBuilderKey );
+
+        HorizonsStack2D& modifiable_horizons_stack(
             ImplicitCrossSectionBuilderKey );
 
     protected:

@@ -47,7 +47,10 @@ namespace geode
         StratigraphicSectionBuilder(
             StratigraphicSection& stratigraphic_section );
 
-        void copy( const StratigraphicSection& stratigraphic_section );
+        ModelCopyMapping copy(
+            const StratigraphicSection& stratigraphic_section );
+
+        void reinitialize_stratigraphic_query_trees();
 
         void instantiate_stratigraphic_attribute_on_surfaces();
 

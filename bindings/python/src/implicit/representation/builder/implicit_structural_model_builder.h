@@ -32,21 +32,24 @@ namespace geode
         pybind11::class_< ImplicitStructuralModelBuilder,
             StructuralModelBuilder >( module, "ImplicitStructuralModelBuilder" )
             .def( pybind11::init< ImplicitStructuralModel& >() )
-            .def( "copy", ( void( ImplicitStructuralModelBuilder::* )(
-                              const ImplicitStructuralModel& implicit_model ) )
-                              & ImplicitStructuralModelBuilder::copy )
+            .def( "copy",
+                []( ImplicitStructuralModelBuilder& builder,
+                    const ImplicitStructuralModel& other_model ) {
+                    builder.copy( other_model );
+                } )
             .def( "instantiate_implicit_attribute_on_blocks",
                 &ImplicitStructuralModelBuilder::
                     instantiate_implicit_attribute_on_blocks )
             .def( "set_implicit_value",
                 &ImplicitStructuralModelBuilder::set_implicit_value )
-            .def( "set_stratigraphic_units_stack",
+            .def( "set_horizons_stack",
                 []( ImplicitStructuralModelBuilder& builder,
-                    StratigraphicUnitsStack3D& su_stack ) {
-                    builder.set_stratigraphic_units_stack(
-                        std::move( su_stack ) );
+                    HorizonsStack3D& horizons_stack ) {
+                    builder.set_horizons_stack( std::move( horizons_stack ) );
                 } )
-            .def( "set_horizon_isovalue",
-                &ImplicitStructuralModelBuilder::set_horizon_isovalue );
+            .def( "set_horizon_implicit_value",
+                &ImplicitStructuralModelBuilder::set_horizon_implicit_value )
+            .def( "horizons_stack_builder",
+                &ImplicitStructuralModelBuilder::horizons_stack_builder );
     }
 } // namespace geode

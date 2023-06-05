@@ -29,8 +29,10 @@
 namespace geode
 {
     class ImplicitCrossSection;
-    FORWARD_DECLARATION_DIMENSION_CLASS( StratigraphicUnitsStack );
-    ALIAS_2D( StratigraphicUnitsStack );
+    FORWARD_DECLARATION_DIMENSION_CLASS( HorizonsStack );
+    ALIAS_2D( HorizonsStack );
+    FORWARD_DECLARATION_DIMENSION_CLASS( HorizonsStackBuilder );
+    ALIAS_2D( HorizonsStackBuilder );
 } // namespace geode
 
 namespace geode
@@ -44,16 +46,24 @@ namespace geode
     public:
         ImplicitCrossSectionBuilder( ImplicitCrossSection& implicit_section );
 
-        void copy( const ImplicitCrossSection& implicit_section );
+        ModelCopyMapping copy( const ImplicitCrossSection& implicit_model );
+
+        void copy_implicit_information( const ImplicitCrossSection& other_model,
+            const ModelCopyMapping& mapping );
+
+        void reinitialize_implicit_query_trees();
 
         void instantiate_implicit_attribute_on_surfaces();
 
         void set_implicit_value(
             const Surface2D& surface, index_t vertex_id, double value );
 
-        void set_stratigraphic_units_stack( StratigraphicUnitsStack2D&& stack );
+        void set_horizons_stack( HorizonsStack2D&& stack );
 
-        void set_horizon_isovalue( const Horizon2D& horizon, double isovalue );
+        void set_horizon_implicit_value(
+            const Horizon2D& horizon, double isovalue );
+
+        HorizonsStackBuilder2D horizons_stack_builder();
 
     private:
         ImplicitCrossSection& implicit_section_;

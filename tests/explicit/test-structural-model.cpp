@@ -252,36 +252,68 @@ void test_copy( const geode::StructuralModel& model )
 {
     geode::StructuralModel copy;
     geode::StructuralModelBuilder copier( copy );
-    copier.copy( model );
-    OPENGEODE_EXCEPTION( copy.nb_surfaces() == 8,
+    const auto mapping = copier.copy( model );
+    OPENGEODE_EXCEPTION( copy.nb_surfaces() == model.nb_surfaces(),
         "[Test] Number of surfaces in copied model should be 8" );
-    OPENGEODE_EXCEPTION( copy.nb_horizons() == 3,
+    OPENGEODE_EXCEPTION( copy.nb_horizons() == model.nb_horizons(),
         "[Test] Number of horizons in copied model should be 3" );
-    OPENGEODE_EXCEPTION( copy.nb_faults() == 2,
+    OPENGEODE_EXCEPTION( copy.nb_faults() == model.nb_faults(),
         "[Test] Number of faults in copied model should be 2" );
-    OPENGEODE_EXCEPTION( copy.nb_fault_blocks() == 0,
+    OPENGEODE_EXCEPTION( copy.nb_fault_blocks() == model.nb_fault_blocks(),
         "[Test] Number of fault blocks in copied model should be 0" );
-    geode::index_t nb_surface_boundaries{ 0 };
-    for( const auto& surface : copy.surfaces() )
+    const auto& surfaces_mapping =
+        mapping.at( geode::Surface3D::component_type_static() );
+    const auto& lines_mapping =
+        mapping.at( geode::Line3D::component_type_static() );
+    for( const auto& surface : model.surfaces() )
     {
-        nb_surface_boundaries += count_items( copy.boundaries( surface ) );
+        const auto& surface_copy =
+            copy.surface( surfaces_mapping.in2out( surface.id() ) );
+        for( const auto& boundary : model.boundaries( surface ) )
+        {
+            const auto& boundary_copy =
+                copy.line( lines_mapping.in2out( boundary.id() ) );
+            OPENGEODE_EXCEPTION(
+                copy.is_boundary( boundary_copy, surface_copy ),
+                "[Test] Copied line ", boundary_copy.component_id().string(),
+                " should be boundary of copied surface ",
+                surface_copy.component_id().string() );
+        }
     }
-    OPENGEODE_EXCEPTION( nb_surface_boundaries == 8,
-        "[Test] Number of boundaries of Surfaces in copied model should be 8" );
-    geode::index_t nb_fault_items{ 0 };
-    for( const auto& fault : copy.faults() )
+    const auto& faults_mapping =
+        mapping.at( geode::Fault3D::component_type_static() );
+    for( const auto& fault : model.faults() )
     {
-        nb_fault_items += count_items( copy.fault_items( fault ) );
+        const auto& fault_copy =
+            copy.fault( faults_mapping.in2out( fault.id() ) );
+        for( const auto& item : model.fault_items( fault ) )
+        {
+            const auto& item_copy =
+                copy.surface( surfaces_mapping.in2out( item.id() ) );
+            OPENGEODE_EXCEPTION(
+                copy.is_item( item_copy.id(), fault_copy.id() ),
+                "[Test] Copied line ", item_copy.component_id().string(),
+                " should be item of copied fault ",
+                fault_copy.component_id().string() );
+        }
     }
-    OPENGEODE_EXCEPTION( nb_fault_items == 5,
-        "[Test] Number of items in faults in copied model should be 5" );
-    geode::index_t nb_horizon_items{ 0 };
-    for( const auto& horizon : copy.horizons() )
+    const auto& horizons_mapping =
+        mapping.at( geode::Horizon3D::component_type_static() );
+    for( const auto& horizon : model.horizons() )
     {
-        nb_horizon_items += count_items( copy.horizon_items( horizon ) );
+        const auto& horizon_copy =
+            copy.horizon( horizons_mapping.in2out( horizon.id() ) );
+        for( const auto& item : model.horizon_items( horizon ) )
+        {
+            const auto& item_copy =
+                copy.surface( surfaces_mapping.in2out( item.id() ) );
+            OPENGEODE_EXCEPTION(
+                copy.is_item( item_copy.id(), horizon_copy.id() ),
+                "[Test] Copied line ", item_copy.component_id().string(),
+                " should be item of copied horizon ",
+                horizon_copy.component_id().string() );
+        }
     }
-    OPENGEODE_EXCEPTION( nb_horizon_items == 4,
-        "[Test] Number of items in horizons in copied model should be 4" );
 }
 
 void modify_model(

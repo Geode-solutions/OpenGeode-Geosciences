@@ -60,7 +60,7 @@ namespace geode
     public:
         CrossSectionBuilder( CrossSection& cross_section );
 
-        void copy( const CrossSection& cross_section );
+        ModelCopyMapping copy( const CrossSection& cross_section );
 
         void copy_geological_components(
             ModelCopyMapping& mapping, const CrossSection& cross_section );

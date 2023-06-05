@@ -35,6 +35,13 @@ namespace geode
     }
 
     template < index_t dimension >
+    void FaultBlocksBuilder< dimension >::create_fault_block(
+        uuid fault_block_id )
+    {
+        fault_blocks_.create_fault_block( std::move( fault_block_id ) );
+    }
+
+    template < index_t dimension >
     void FaultBlocksBuilder< dimension >::delete_fault_block(
         const FaultBlock< dimension >& fault_block )
     {

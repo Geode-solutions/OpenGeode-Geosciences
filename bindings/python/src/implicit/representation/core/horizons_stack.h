@@ -21,45 +21,25 @@
  *
  */
 
-#pragma once
+#include <geode/geosciences/implicit/representation/core/horizons_stack.h>
 
-#include <geode/geosciences/explicit/common.h>
+#include <geode/geometry/point.h>
+
+#define PYTHON_horizons_stack( dimension )                                     \
+    const auto name##dimension =                                               \
+        "HorizonsStack" + std::to_string( dimension ) + "D";                   \
+    pybind11::class_< HorizonsStack##dimension##D, StratigraphicRelationships, \
+        Horizons##dimension##D, StratigraphicUnits##dimension##D,              \
+        Identifier >( module, name##dimension.c_str() )                        \
+        .def( pybind11::init<>() )                                             \
+        .def( "native_extension",                                              \
+            &HorizonsStack##dimension##D::native_extension )
 
 namespace geode
 {
-    FORWARD_DECLARATION_DIMENSION_CLASS( StratigraphicUnit );
-    FORWARD_DECLARATION_DIMENSION_CLASS( StratigraphicUnits );
-
-    struct uuid;
-} // namespace geode
-
-namespace geode
-{
-    template < index_t dimension >
-    class StratigraphicUnitsBuilder
+    void define_horizons_stack( pybind11::module& module )
     {
-    public:
-        void load_stratigraphic_units( absl::string_view directory );
-
-        void set_stratigraphic_unit_name(
-            const uuid& id, absl::string_view name );
-
-    protected:
-        StratigraphicUnitsBuilder(
-            StratigraphicUnits< dimension >& stratigraphic_units )
-            : stratigraphic_units_( stratigraphic_units )
-        {
-        }
-
-        const uuid& create_stratigraphic_unit();
-
-        void create_stratigraphic_unit( uuid stratigraphic_unit_id );
-
-        void delete_stratigraphic_unit(
-            const StratigraphicUnit< dimension >& stratigraphic_unit );
-
-    private:
-        StratigraphicUnits< dimension >& stratigraphic_units_;
-    };
-    ALIAS_2D_AND_3D( StratigraphicUnitsBuilder );
+        PYTHON_horizons_stack( 2 );
+        PYTHON_horizons_stack( 3 );
+    }
 } // namespace geode

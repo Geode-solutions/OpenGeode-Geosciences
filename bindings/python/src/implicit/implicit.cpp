@@ -32,18 +32,18 @@
 #include "representation/builder/implicit_structural_model_builder.h"
 #include "representation/builder/stratigraphic_model_builder.h"
 #include "representation/builder/stratigraphic_section_builder.h"
-#include "representation/builder/stratigraphic_units_stack_builder.h"
+#include "representation/builder/horizons_stack_builder.h"
 #include "representation/core/helpers.h"
 #include "representation/core/implicit_cross_section.h"
 #include "representation/core/implicit_structural_model.h"
 #include "representation/core/stratigraphic_model.h"
 #include "representation/core/stratigraphic_section.h"
-#include "representation/core/stratigraphic_units_stack.h"
+#include "representation/core/horizons_stack.h"
 #include "representation/io/implicit_cross_section.h"
 #include "representation/io/implicit_structural_model.h"
 #include "representation/io/stratigraphic_model.h"
 #include "representation/io/stratigraphic_section.h"
-#include "representation/io/stratigraphic_units_stack.h"
+#include "representation/io/horizons_stack.h"
 
 namespace pybind11
 {
@@ -86,16 +86,16 @@ PYBIND11_MODULE( opengeode_geosciences_py_implicit, module )
     geode::define_implicit_structural_model( module );
     geode::define_stratigraphic_model( module );
     geode::define_stratigraphic_section( module );
-    geode::define_stratigraphic_units_stack( module );
+    geode::define_horizons_stack( module );
     geode::define_implicit_cross_section_builder( module );
     geode::define_implicit_structural_model_builder( module );
     geode::define_stratigraphic_model_builder( module );
     geode::define_stratigraphic_section_builder( module );
-    geode::define_stratigraphic_units_stack_builder( module );
+    geode::define_horizons_stack_builder( module );
 
     geode::define_implicit_cross_section_io( module );
     geode::define_implicit_structural_model_io( module );
     geode::define_stratigraphic_model_io( module );
     geode::define_stratigraphic_section_io( module );
-    geode::define_stratigraphic_units_stack_io( module );
+    geode::define_horizons_stack_io( module );
 }

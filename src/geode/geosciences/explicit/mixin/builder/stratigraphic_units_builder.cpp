@@ -36,6 +36,13 @@ namespace geode
     }
 
     template < index_t dimension >
+    void StratigraphicUnitsBuilder< dimension >::create_stratigraphic_unit(
+        uuid stratigraphic_unit_id )
+    {
+        stratigraphic_units_.create_stratigraphic_unit( stratigraphic_unit_id );
+    }
+
+    template < index_t dimension >
     void StratigraphicUnitsBuilder< dimension >::delete_stratigraphic_unit(
         const StratigraphicUnit< dimension >& stratigraphic_unit )
     {

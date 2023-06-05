@@ -66,6 +66,20 @@ namespace geode
         }
 
         template < typename ModelFrom, typename BuilderTo >
+        void copy_horizons( const ModelFrom& from,
+            BuilderTo& builder_to,
+            const Mapping& mapping )
+        {
+            for( const auto& horizon : from.horizons() )
+            {
+                const auto& new_horizon_id = mapping.in2out( horizon.id() );
+                builder_to.add_horizon( new_horizon_id );
+                builder_to.set_horizon_name( new_horizon_id, horizon.name() );
+                builder_to.set_horizon_type( new_horizon_id, horizon.type() );
+            }
+        }
+
+        template < typename ModelFrom, typename BuilderTo >
         Mapping copy_fault_blocks(
             const ModelFrom& from, BuilderTo& builder_to )
         {
@@ -96,6 +110,21 @@ namespace geode
                     stratigraphic_unit_id, stratigraphic_unit.name() );
             }
             return mapping;
+        }
+
+        template < typename ModelFrom, typename BuilderTo >
+        void copy_stratigraphic_units( const ModelFrom& from,
+            BuilderTo& builder_to,
+            const Mapping& mapping )
+        {
+            for( const auto& stratigraphic_unit : from.stratigraphic_units() )
+            {
+                const auto& new_stratigraphic_unit_id =
+                    mapping.in2out( stratigraphic_unit.id() );
+                builder_to.add_stratigraphic_unit( new_stratigraphic_unit_id );
+                builder_to.set_stratigraphic_unit_name(
+                    new_stratigraphic_unit_id, stratigraphic_unit.name() );
+            }
         }
 
         template < typename ModelFrom,

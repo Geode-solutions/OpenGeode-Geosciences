@@ -21,27 +21,25 @@
  *
  */
 
-#include <geode/geosciences/implicit/representation/io/geode/geode_stratigraphic_units_stack_input.h>
+#include <geode/geosciences/implicit/representation/io/geode/geode_horizons_stack_input.h>
 
 #include <async++.h>
 
 #include <geode/basic/uuid.h>
 #include <geode/basic/zip_file.h>
 
-#include <geode/geosciences/implicit/representation/builder/stratigraphic_units_stack_builder.h>
-#include <geode/geosciences/implicit/representation/core/stratigraphic_units_stack.h>
+#include <geode/geosciences/implicit/representation/builder/horizons_stack_builder.h>
+#include <geode/geosciences/implicit/representation/core/horizons_stack.h>
 
 namespace geode
 {
     template < index_t dimension >
-    void OpenGeodeStratigraphicUnitsStackInput< dimension >::
-        load_stratigraphic_units_stack_files(
-            StratigraphicUnitsStack< dimension >& stratigraphic_units_stack,
+    void OpenGeodeHorizonsStackInput< dimension >::
+        load_horizons_stack_files(
+            HorizonsStack< dimension >& horizons_stack,
             absl::string_view directory )
     {
-        StratigraphicUnitsStackBuilder< dimension > builder{
-            stratigraphic_units_stack
-        };
+        HorizonsStackBuilder< dimension > builder{ horizons_stack };
         async::parallel_invoke(
             [&builder, &directory] {
                 builder.load_identifier( directory );
@@ -56,19 +54,18 @@ namespace geode
     }
 
     template < index_t dimension >
-    StratigraphicUnitsStack< dimension >
-        OpenGeodeStratigraphicUnitsStackInput< dimension >::read()
+    HorizonsStack< dimension > OpenGeodeHorizonsStackInput< dimension >::read()
     {
         const UnzipFile zip_reader{ this->filename(), uuid{}.string() };
         zip_reader.extract_all();
-        StratigraphicUnitsStack< dimension > stratigraphic_units_stack;
-        load_stratigraphic_units_stack_files(
-            stratigraphic_units_stack, zip_reader.directory() );
-        return stratigraphic_units_stack;
+        HorizonsStack< dimension > horizons_stack;
+        load_horizons_stack_files(
+            horizons_stack, zip_reader.directory() );
+        return horizons_stack;
     }
 
     template class opengeode_geosciences_implicit_api
-        OpenGeodeStratigraphicUnitsStackInput< 2 >;
+        OpenGeodeHorizonsStackInput< 2 >;
     template class opengeode_geosciences_implicit_api
-        OpenGeodeStratigraphicUnitsStackInput< 3 >;
+        OpenGeodeHorizonsStackInput< 3 >;
 } // namespace geode

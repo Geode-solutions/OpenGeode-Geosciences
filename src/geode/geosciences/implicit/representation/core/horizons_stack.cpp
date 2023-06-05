@@ -21,34 +21,33 @@
  *
  */
 
-#include <geode/geosciences/implicit/representation/core/stratigraphic_units_stack.h>
+#include <geode/geosciences/implicit/representation/core/horizons_stack.h>
 
 namespace geode
 {
     template < index_t dimension >
-    StratigraphicUnitsStack< dimension >::StratigraphicUnitsStack()
+    HorizonsStack< dimension >::HorizonsStack()
     {
     }
 
     template < index_t dimension >
-    StratigraphicUnitsStack< dimension >::StratigraphicUnitsStack(
-        StratigraphicUnitsStack< dimension >&& su_stack )
-        : StratigraphicRelationships{ std::move( su_stack ) },
-          Horizons< dimension >{ std::move( su_stack ) },
-          StratigraphicUnits< dimension >{ std::move( su_stack ) },
-          Identifier{ std::move( su_stack ) }
+    HorizonsStack< dimension >::HorizonsStack(
+        HorizonsStack< dimension >&& horizons_stack )
+        : StratigraphicRelationships{ std::move( horizons_stack ) },
+          Horizons< dimension >{ std::move( horizons_stack ) },
+          StratigraphicUnits< dimension >{ std::move( horizons_stack ) },
+          Identifier{ std::move( horizons_stack ) }
     {
     }
 
     template < index_t dimension >
-    StratigraphicUnitsStack< dimension >::~StratigraphicUnitsStack()
+    HorizonsStack< dimension >::~HorizonsStack()
     {
     }
 
     template < index_t dimension >
-    StratigraphicUnitsStack< dimension >&
-        StratigraphicUnitsStack< dimension >::operator=(
-            StratigraphicUnitsStack< dimension >&& other )
+    HorizonsStack< dimension >& HorizonsStack< dimension >::operator=(
+        HorizonsStack< dimension >&& other )
     {
         StratigraphicRelationships::operator=( std::move( other ) );
         Horizons< dimension >::operator=( std::move( other ) );
@@ -57,8 +56,6 @@ namespace geode
         return *this;
     }
 
-    template class opengeode_geosciences_implicit_api
-        StratigraphicUnitsStack< 2 >;
-    template class opengeode_geosciences_implicit_api
-        StratigraphicUnitsStack< 3 >;
+    template class opengeode_geosciences_implicit_api HorizonsStack< 2 >;
+    template class opengeode_geosciences_implicit_api HorizonsStack< 3 >;
 } // namespace geode

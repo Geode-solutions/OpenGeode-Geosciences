@@ -41,7 +41,7 @@
 
 #include <geode/model/mixin/core/surface.h>
 
-#include <geode/geosciences/implicit/representation/core/stratigraphic_units_stack.h>
+#include <geode/geosciences/implicit/representation/core/horizons_stack.h>
 
 namespace geode
 {
@@ -105,20 +105,31 @@ namespace geode
             return absl::nullopt;
         }
 
-        const StratigraphicUnitsStack2D& stratigraphic_units_stack() const
+        const HorizonsStack2D& horizons_stack() const
         {
-            return su_stack_;
+            return horizons_stack_;
         }
 
-        double horizon_implicit_value( const Horizon2D& horizon ) const
+        HorizonsStack2D& modifiable_horizons_stack()
         {
-            OPENGEODE_EXCEPTION( su_stack_.has_horizon( horizon.id() ),
+            return horizons_stack_;
+        }
+
+        absl::optional< double > horizon_implicit_value(
+            const Horizon2D& horizon ) const
+        {
+            OPENGEODE_EXCEPTION( horizons_stack_.has_horizon( horizon.id() ),
                 "[horizon_implicit_value] You cannot access the isovalue of "
                 "Horizon ",
                 horizon.id().string(),
                 " because the horizon is not defined in the "
-                "StratigraphicUnitsStack." );
-            return horizon_isovalues_.at( horizon.id() );
+                "HorizonsStack." );
+            const auto value = horizon_isovalues_.find( horizon.id() );
+            if( value == horizon_isovalues_.end() )
+            {
+                return absl::nullopt;
+            }
+            return value->second;
         }
 
         void instantiate_implicit_attribute_on_surfaces(
@@ -164,19 +175,20 @@ namespace geode
                 .set_value( vertex_id, value );
         }
 
-        void set_stratigraphic_units_stack( StratigraphicUnitsStack2D&& stack )
+        void set_horizons_stack( HorizonsStack2D&& stack )
         {
-            su_stack_ = std::move( stack );
+            horizons_stack_ = std::move( stack );
         }
 
-        void set_horizon_isovalue( const Horizon2D& horizon, double isovalue )
+        void set_horizon_implicit_value(
+            const Horizon2D& horizon, double isovalue )
         {
-            OPENGEODE_EXCEPTION( su_stack_.has_horizon( horizon.id() ),
+            OPENGEODE_EXCEPTION( horizons_stack_.has_horizon( horizon.id() ),
                 "[horizon_implicit_value] You cannot change the isovalue of "
                 "Horizon ",
                 horizon.id().string(),
                 " because the horizon is not defined in the "
-                "StratigraphicUnitsStack." );
+                "HorizonsStack." );
             horizon_isovalues_[horizon.id()] = isovalue;
         }
 
@@ -195,7 +207,7 @@ namespace geode
     private:
         absl::flat_hash_map< uuid, TriangulatedSurfaceScalarFunction2D >
             implicit_attributes_;
-        StratigraphicUnitsStack2D su_stack_;
+        HorizonsStack2D horizons_stack_;
         absl::flat_hash_map< uuid, double > horizon_isovalues_;
         absl::flat_hash_map< uuid, CachedValue< AABBTree2D > >
             surface_mesh_aabb_trees_;
@@ -248,16 +260,21 @@ namespace geode
         return impl_->containing_polygon( surface, point );
     }
 
-    const StratigraphicUnitsStack2D&
-        ImplicitCrossSection::stratigraphic_units_stack() const
+    const HorizonsStack2D& ImplicitCrossSection::horizons_stack() const
     {
-        return impl_->stratigraphic_units_stack();
+        return impl_->horizons_stack();
     }
 
-    double ImplicitCrossSection::horizon_implicit_value(
+    absl::optional< double > ImplicitCrossSection::horizon_implicit_value(
         const Horizon2D& horizon ) const
     {
         return horizon_implicit_value( horizon );
+    }
+
+    void ImplicitCrossSection::initialize_implicit_query_trees(
+        ImplicitCrossSectionBuilderKey )
+    {
+        impl_->initialize_implicit_query_trees( *this );
     }
 
     void ImplicitCrossSection::instantiate_implicit_attribute_on_surfaces(
@@ -274,17 +291,24 @@ namespace geode
         do_set_implicit_value( surface, vertex_id, value );
     }
 
-    void ImplicitCrossSection::set_stratigraphic_units_stack(
-        StratigraphicUnitsStack2D&& stack, ImplicitCrossSectionBuilderKey )
+    void ImplicitCrossSection::set_horizons_stack(
+        HorizonsStack2D&& stack, ImplicitCrossSectionBuilderKey )
     {
-        impl_->set_stratigraphic_units_stack( std::move( stack ) );
+        impl_->set_horizons_stack( std::move( stack ) );
     }
 
-    void ImplicitCrossSection::set_horizon_isovalue( const Horizon2D& horizon,
+    void ImplicitCrossSection::set_horizon_implicit_value(
+        const Horizon2D& horizon,
         double isovalue,
         ImplicitCrossSectionBuilderKey )
     {
-        impl_->set_horizon_isovalue( horizon, isovalue );
+        impl_->set_horizon_implicit_value( horizon, isovalue );
+    }
+
+    HorizonsStack2D& ImplicitCrossSection::modifiable_horizons_stack(
+        ImplicitCrossSectionBuilderKey )
+    {
+        return impl_->modifiable_horizons_stack();
     }
 
     void ImplicitCrossSection::do_set_implicit_value(

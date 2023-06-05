@@ -30,28 +30,27 @@
 #include <geode/basic/uuid.h>
 #include <geode/basic/zip_file.h>
 
-#include <geode/geosciences/implicit/representation/core/stratigraphic_units_stack.h>
-#include <geode/geosciences/implicit/representation/io/stratigraphic_units_stack_output.h>
+#include <geode/geosciences/implicit/representation/core/horizons_stack.h>
+#include <geode/geosciences/implicit/representation/io/horizons_stack_output.h>
 
 namespace geode
 {
     template < index_t dimension >
-    class OpenGeodeStratigraphicUnitsStackOutput final
-        : public StratigraphicUnitsStackOutput< dimension >
+    class OpenGeodeHorizonsStackOutput final
+        : public HorizonsStackOutput< dimension >
     {
     public:
-        OpenGeodeStratigraphicUnitsStackOutput( absl::string_view filename )
-            : StratigraphicUnitsStackOutput< dimension >( filename )
+        OpenGeodeHorizonsStackOutput( absl::string_view filename )
+            : HorizonsStackOutput< dimension >( filename )
         {
         }
 
         static absl::string_view extension()
         {
-            return StratigraphicUnitsStack<
-                dimension >::native_extension_static();
+            return HorizonsStack< dimension >::native_extension_static();
         }
 
-        void archive_stratigraphic_units_stack_files(
+        void archive_horizons_stack_files(
             const ZipFile& zip_writer ) const
         {
             for( const auto& file :
@@ -61,34 +60,34 @@ namespace geode
             }
         }
 
-        void save_stratigraphic_units_stack_files(
-            const StratigraphicUnitsStack< dimension >&
-                stratigraphic_units_stack,
+        void save_horizons_stack_files(
+            const HorizonsStack< dimension >& horizons_stack,
             absl::string_view directory ) const
         {
             async::parallel_invoke(
-                [&directory, &stratigraphic_units_stack] {
-                    stratigraphic_units_stack.save_identifier( directory );
+                [&directory, &horizons_stack] {
+                    horizons_stack.save_identifier( directory );
                 },
-                [&directory, &stratigraphic_units_stack] {
-                    stratigraphic_units_stack.save_stratigraphic_relationships(
+                [&directory, &horizons_stack] {
+                    horizons_stack.save_stratigraphic_relationships(
                         directory );
                 },
-                [&directory, &stratigraphic_units_stack] {
-                    stratigraphic_units_stack.save_horizons( directory );
-                    stratigraphic_units_stack.save_stratigraphic_units(
+                [&directory, &horizons_stack] {
+                    horizons_stack.save_horizons( directory );
+                    horizons_stack.save_stratigraphic_units(
                         directory );
                 } );
         }
 
-        void write( const StratigraphicUnitsStack< dimension >&
-                stratigraphic_units_stack ) const final
+        void write(
+            const HorizonsStack< dimension >& horizons_stack )
+            const final
         {
             const ZipFile zip_writer{ this->filename(), uuid{}.string() };
-            save_stratigraphic_units_stack_files(
-                stratigraphic_units_stack, zip_writer.directory() );
-            archive_stratigraphic_units_stack_files( zip_writer );
+            save_horizons_stack_files(
+                horizons_stack, zip_writer.directory() );
+            archive_horizons_stack_files( zip_writer );
         }
     };
-    ALIAS_2D_AND_3D( OpenGeodeStratigraphicUnitsStackOutput );
+    ALIAS_2D_AND_3D( OpenGeodeHorizonsStackOutput );
 } // namespace geode

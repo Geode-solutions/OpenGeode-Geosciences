@@ -33,7 +33,7 @@ add_geode_python_test(
 )
 
 add_geode_python_test(
-    SOURCE "test-py-stratigraphic-units-stack.py"
+    SOURCE "test-py-horizons-stack.py"
     DEPENDENCIES
         ${PROJECT_NAME}::py_explicit
         ${PROJECT_NAME}::py_implicit

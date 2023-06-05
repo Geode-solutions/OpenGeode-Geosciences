@@ -128,6 +128,11 @@ namespace geode
         const uuid& create_fault(
             typename Fault< dimension >::FAULT_TYPE type );
 
+        void create_fault( uuid fault_id );
+
+        void create_fault(
+            uuid fault_id, typename Fault< dimension >::FAULT_TYPE type );
+
         void delete_fault( const Fault< dimension >& fault );
 
         void load_faults( absl::string_view directory );

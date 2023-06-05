@@ -21,26 +21,26 @@
  *
  */
 
-#include <geode/geosciences/implicit/representation/core/stratigraphic_units_stack.h>
+#include "../../factory.h"
 
-#include <geode/geometry/point.h>
+#include <geode/geosciences/implicit/representation/io/horizons_stack_input.h>
+#include <geode/geosciences/implicit/representation/io/horizons_stack_output.h>
 
-#define PYTHON_STRATIGRAPHIC_UNITS_STACK( dimension )                          \
-    const auto name##dimension =                                               \
-        "StratigraphicUnitsStack" + std::to_string( dimension ) + "D";         \
-    pybind11::class_< StratigraphicUnitsStack##dimension##D,                   \
-        StratigraphicRelationships, Horizons##dimension##D,                    \
-        StratigraphicUnits##dimension##D, Identifier >(                        \
-        module, name##dimension.c_str() )                                      \
-        .def( pybind11::init<>() )                                             \
-        .def( "native_extension",                                              \
-            &StratigraphicUnitsStack##dimension##D::native_extension )
+#define PYTHON_horizons_stack_IO( dimension )                                  \
+    const auto save##dimension =                                               \
+        "save_horizons_stack" + std::to_string( dimension ) + "D";             \
+    module.def( save##dimension.c_str(), &save_horizons_stack< dimension > );  \
+    const auto load##dimension =                                               \
+        "load_horizons_stack" + std::to_string( dimension ) + "D";             \
+    module.def( load##dimension.c_str(), &load_horizons_stack< dimension > );  \
+    PYTHON_FACTORY_CLASS( HorizonsStackInputFactory##dimension##D );           \
+    PYTHON_FACTORY_CLASS( HorizonsStackOutputFactory##dimension##D )
 
 namespace geode
 {
-    void define_stratigraphic_units_stack( pybind11::module& module )
+    void define_horizons_stack_io( pybind11::module& module )
     {
-        PYTHON_STRATIGRAPHIC_UNITS_STACK( 2 );
-        PYTHON_STRATIGRAPHIC_UNITS_STACK( 3 );
+        PYTHON_horizons_stack_IO( 2 );
+        PYTHON_horizons_stack_IO( 3 );
     }
 } // namespace geode

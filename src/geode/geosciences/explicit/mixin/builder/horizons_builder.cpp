@@ -42,6 +42,19 @@ namespace geode
     }
 
     template < index_t dimension >
+    void HorizonsBuilder< dimension >::create_horizon( uuid horizon_id )
+    {
+        horizons_.create_horizon( std::move( horizon_id ) );
+    }
+
+    template < index_t dimension >
+    void HorizonsBuilder< dimension >::create_horizon(
+        uuid horizon_id, typename Horizon< dimension >::HORIZON_TYPE type )
+    {
+        horizons_.create_horizon( std::move( horizon_id ), type );
+    }
+
+    template < index_t dimension >
     void HorizonsBuilder< dimension >::delete_horizon(
         const Horizon< dimension >& horizon )
     {

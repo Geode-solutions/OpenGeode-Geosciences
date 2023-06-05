@@ -133,6 +133,9 @@ namespace geode
         BoundingBox2D stratigraphic_bounding_box() const;
 
     public:
+        void initialize_stratigraphic_query_trees(
+            StratigraphicSectionBuilderKey );
+
         void instantiate_stratigraphic_location_on_surfaces(
             StratigraphicSectionBuilderKey );
 

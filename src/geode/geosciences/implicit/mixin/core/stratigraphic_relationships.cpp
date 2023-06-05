@@ -241,6 +241,7 @@ namespace geode
         void copy( const Impl& impl, const ModelCopyMapping& mapping )
         {
             detail::RelationshipsImpl::copy( impl, mapping );
+            initialize_relation_attributes();
         }
 
         void save( absl::string_view directory ) const
