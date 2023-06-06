@@ -33,8 +33,7 @@
 namespace geode
 {
     template < index_t dimension >
-    void save_horizons_stack(
-        const HorizonsStack< dimension >& horizons_stack,
+    void save_horizons_stack( const HorizonsStack< dimension >& horizons_stack,
         absl::string_view filename )
     {
         try
@@ -60,10 +59,8 @@ namespace geode
         }
     }
 
-    template void opengeode_geosciences_implicit_api
-        save_horizons_stack(
-            const HorizonsStack< 2 >&, absl::string_view );
-    template void opengeode_geosciences_implicit_api
-        save_horizons_stack(
-            const HorizonsStack< 3 >&, absl::string_view );
+    template void opengeode_geosciences_implicit_api save_horizons_stack(
+        const HorizonsStack< 2 >&, absl::string_view );
+    template void opengeode_geosciences_implicit_api save_horizons_stack(
+        const HorizonsStack< 3 >&, absl::string_view );
 } // namespace geode

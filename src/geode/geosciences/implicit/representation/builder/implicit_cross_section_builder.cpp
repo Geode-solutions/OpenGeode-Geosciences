@@ -27,8 +27,8 @@
 #include <geode/model/representation/builder/detail/copy.h>
 
 #include <geode/geosciences/implicit/representation/builder/horizons_stack_builder.h>
-#include <geode/geosciences/implicit/representation/core/implicit_cross_section.h>
 #include <geode/geosciences/implicit/representation/core/horizons_stack.h>
+#include <geode/geosciences/implicit/representation/core/implicit_cross_section.h>
 
 namespace geode
 {
@@ -52,9 +52,8 @@ namespace geode
         const ImplicitCrossSection& other_model,
         const ModelCopyMapping& mapping )
     {
-        HorizonsStackBuilder2D{
-            implicit_section_.modifiable_horizons_stack( {} )
-        }
+        HorizonsStackBuilder2D{ implicit_section_.modifiable_horizons_stack(
+                                    {} ) }
             .copy( other_model.horizons_stack(), mapping );
         const auto& horizon_mapping =
             mapping.at( Horizon2D::component_type_static() );
@@ -91,8 +90,7 @@ namespace geode
     void ImplicitCrossSectionBuilder::set_horizons_stack(
         HorizonsStack2D&& stack )
     {
-        implicit_section_.set_horizons_stack(
-            std::move( stack ), {} );
+        implicit_section_.set_horizons_stack( std::move( stack ), {} );
     }
 
     void ImplicitCrossSectionBuilder::set_horizon_implicit_value(
@@ -101,8 +99,7 @@ namespace geode
         implicit_section_.set_horizon_implicit_value( horizon, isovalue, {} );
     }
 
-    HorizonsStackBuilder2D
-        ImplicitCrossSectionBuilder::horizons_stack_builder()
+    HorizonsStackBuilder2D ImplicitCrossSectionBuilder::horizons_stack_builder()
     {
         return { implicit_section_.modifiable_horizons_stack( {} ) };
     }

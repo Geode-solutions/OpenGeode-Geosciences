@@ -34,10 +34,9 @@
 namespace geode
 {
     template < index_t dimension >
-    void OpenGeodeHorizonsStackInput< dimension >::
-        load_horizons_stack_files(
-            HorizonsStack< dimension >& horizons_stack,
-            absl::string_view directory )
+    void OpenGeodeHorizonsStackInput< dimension >::load_horizons_stack_files(
+        HorizonsStack< dimension >& horizons_stack,
+        absl::string_view directory )
     {
         HorizonsStackBuilder< dimension > builder{ horizons_stack };
         async::parallel_invoke(
@@ -59,8 +58,7 @@ namespace geode
         const UnzipFile zip_reader{ this->filename(), uuid{}.string() };
         zip_reader.extract_all();
         HorizonsStack< dimension > horizons_stack;
-        load_horizons_stack_files(
-            horizons_stack, zip_reader.directory() );
+        load_horizons_stack_files( horizons_stack, zip_reader.directory() );
         return horizons_stack;
     }
 

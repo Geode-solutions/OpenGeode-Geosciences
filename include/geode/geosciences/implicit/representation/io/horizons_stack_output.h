@@ -43,8 +43,7 @@ namespace geode
      * @param[in] filename Path to the file where save the brep.
      */
     template < index_t dimension >
-    void save_horizons_stack(
-        const HorizonsStack< dimension >& horizons_stack,
+    void save_horizons_stack( const HorizonsStack< dimension >& horizons_stack,
         absl::string_view filename );
 
     template < index_t dimension >

@@ -50,8 +50,7 @@ namespace geode
             return HorizonsStack< dimension >::native_extension_static();
         }
 
-        void archive_horizons_stack_files(
-            const ZipFile& zip_writer ) const
+        void archive_horizons_stack_files( const ZipFile& zip_writer ) const
         {
             for( const auto& file :
                 ghc::filesystem::directory_iterator( zip_writer.directory() ) )
@@ -74,18 +73,15 @@ namespace geode
                 },
                 [&directory, &horizons_stack] {
                     horizons_stack.save_horizons( directory );
-                    horizons_stack.save_stratigraphic_units(
-                        directory );
+                    horizons_stack.save_stratigraphic_units( directory );
                 } );
         }
 
         void write(
-            const HorizonsStack< dimension >& horizons_stack )
-            const final
+            const HorizonsStack< dimension >& horizons_stack ) const final
         {
             const ZipFile zip_writer{ this->filename(), uuid{}.string() };
-            save_horizons_stack_files(
-                horizons_stack, zip_writer.directory() );
+            save_horizons_stack_files( horizons_stack, zip_writer.directory() );
             archive_horizons_stack_files( zip_writer );
         }
     };

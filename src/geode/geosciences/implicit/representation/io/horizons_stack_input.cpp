@@ -35,8 +35,7 @@
 namespace geode
 {
     template < index_t dimension >
-    HorizonsStack< dimension > load_horizons_stack(
-        absl::string_view filename )
+    HorizonsStack< dimension > load_horizons_stack( absl::string_view filename )
     {
         try
         {
@@ -57,9 +56,8 @@ namespace geode
             }
             Logger::info( "HorizonsStack loaded from ", filename, " in ",
                 timer.duration() );
-            Logger::info( "HorizonsStack has: ",
-                horizons_stack.nb_horizons(), " Horizons and ",
-                horizons_stack.nb_stratigraphic_units(),
+            Logger::info( "HorizonsStack has: ", horizons_stack.nb_horizons(),
+                " Horizons and ", horizons_stack.nb_stratigraphic_units(),
                 " Stratigraphic Units" );
             return horizons_stack;
         }

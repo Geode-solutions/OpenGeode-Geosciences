@@ -23,7 +23,9 @@
 
 #include <geode/geosciences/implicit/representation/builder/horizons_stack_builder.h>
 
-#include <geode/geometry/point.h>
+// #include <geode/geometry/point.h>
+
+#include <geode/geosciences/implicit/representation/core/horizons_stack.h>
 
 #define PYTHON_HORIZONS_STACK_BUILDER( dimension )                             \
     const auto name##dimension =                                               \
