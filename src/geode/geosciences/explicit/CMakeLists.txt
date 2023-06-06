@@ -76,7 +76,6 @@ add_geode_library(
         "representation/io/structural_model_input.h"
         "representation/io/structural_model_output.h"
     ADVANCED_HEADERS
-        "mixin/core/detail/components_storage.h"
         "representation/builder/detail/copy.h"
         "representation/io/geode/geode_cross_section_input.h"
         "representation/io/geode/geode_cross_section_output.h"

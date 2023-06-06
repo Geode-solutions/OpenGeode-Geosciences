@@ -26,14 +26,15 @@
 #include <geode/basic/pimpl_impl.h>
 #include <geode/basic/range.h>
 
-#include <geode/geosciences/explicit/mixin/core/detail/components_storage.h>
+#include <geode/model/mixin/core/detail/components_storage.h>
+
 #include <geode/geosciences/explicit/mixin/core/fault.h>
 
 namespace geode
 {
     template < index_t dimension >
     class Faults< dimension >::Impl
-        : public detail::GeologicalComponentsStorage< Fault< dimension > >
+        : public detail::ComponentsStorage< Fault< dimension > >
     {
     };
 
