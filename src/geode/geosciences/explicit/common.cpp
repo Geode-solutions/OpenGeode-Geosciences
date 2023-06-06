@@ -27,6 +27,7 @@
 #include <geode/model/common.h>
 
 #include <geode/geosciences/explicit/common.h>
+#include <geode/geosciences/explicit/mixin/core/bitsery_archive.h>
 #include <geode/geosciences/explicit/representation/io/geode/geode_cross_section_input.h>
 #include <geode/geosciences/explicit/representation/io/geode/geode_cross_section_output.h>
 #include <geode/geosciences/explicit/representation/io/geode/geode_structural_model_input.h>
@@ -72,5 +73,8 @@ namespace geode
         register_cross_section_output();
         register_structural_model_input();
         register_structural_model_output();
+        BitseryExtensions::register_functions(
+            register_explicit_serialize_pcontext,
+            register_explicit_deserialize_pcontext );
     }
 } // namespace geode
