@@ -42,7 +42,7 @@ namespace geode
             mapping.reserve( from.nb_faults() );
             for( const auto& fault : from.faults() )
             {
-                const auto fault_id = builder_to.add_fault();
+                const auto& fault_id = builder_to.add_fault();
                 mapping.map( fault.id(), fault_id );
                 builder_to.set_fault_name( fault_id, fault.name() );
                 builder_to.set_fault_type( fault_id, fault.type() );
@@ -57,7 +57,7 @@ namespace geode
             mapping.reserve( from.nb_horizons() );
             for( const auto& horizon : from.horizons() )
             {
-                const auto horizon_id = builder_to.add_horizon();
+                const auto& horizon_id = builder_to.add_horizon();
                 mapping.map( horizon.id(), horizon_id );
                 builder_to.set_horizon_name( horizon_id, horizon.name() );
                 builder_to.set_horizon_type( horizon_id, horizon.type() );
@@ -66,16 +66,25 @@ namespace geode
         }
 
         template < typename ModelFrom, typename BuilderTo >
-        void copy_horizons( const ModelFrom& from,
-            BuilderTo& builder_to,
-            const Mapping& mapping )
+        void copy_horizons(
+            const ModelFrom& from, BuilderTo& builder_to, Mapping& mapping )
         {
             for( const auto& horizon : from.horizons() )
             {
-                const auto& new_horizon_id = mapping.in2out( horizon.id() );
-                builder_to.add_horizon( new_horizon_id );
-                builder_to.set_horizon_name( new_horizon_id, horizon.name() );
-                builder_to.set_horizon_type( new_horizon_id, horizon.type() );
+                if( mapping.has_mapping_input( horizon.id() ) )
+                {
+                    const auto& horizon_id = mapping.in2out( horizon.id() );
+                    builder_to.add_horizon( horizon_id );
+                    builder_to.set_horizon_name( horizon_id, horizon.name() );
+                    builder_to.set_horizon_type( horizon_id, horizon.type() );
+                }
+                else
+                {
+                    const auto& horizon_id = builder_to.add_horizon();
+                    mapping.map( horizon.id(), horizon_id );
+                    builder_to.set_horizon_name( horizon_id, horizon.name() );
+                    builder_to.set_horizon_type( horizon_id, horizon.type() );
+                }
             }
         }
 
@@ -87,7 +96,7 @@ namespace geode
             mapping.reserve( from.nb_fault_blocks() );
             for( const auto& fault_block : from.fault_blocks() )
             {
-                const auto fault_block_id = builder_to.add_fault_block();
+                const auto& fault_block_id = builder_to.add_fault_block();
                 mapping.map( fault_block.id(), fault_block_id );
                 builder_to.set_fault_block_name(
                     fault_block_id, fault_block.name() );
@@ -103,7 +112,7 @@ namespace geode
             mapping.reserve( from.nb_stratigraphic_units() );
             for( const auto& stratigraphic_unit : from.stratigraphic_units() )
             {
-                const auto stratigraphic_unit_id =
+                const auto& stratigraphic_unit_id =
                     builder_to.add_stratigraphic_unit();
                 mapping.map( stratigraphic_unit.id(), stratigraphic_unit_id );
                 builder_to.set_stratigraphic_unit_name(
@@ -113,17 +122,28 @@ namespace geode
         }
 
         template < typename ModelFrom, typename BuilderTo >
-        void copy_stratigraphic_units( const ModelFrom& from,
-            BuilderTo& builder_to,
-            const Mapping& mapping )
+        void copy_stratigraphic_units(
+            const ModelFrom& from, BuilderTo& builder_to, Mapping& mapping )
         {
             for( const auto& stratigraphic_unit : from.stratigraphic_units() )
             {
-                const auto& new_stratigraphic_unit_id =
-                    mapping.in2out( stratigraphic_unit.id() );
-                builder_to.add_stratigraphic_unit( new_stratigraphic_unit_id );
-                builder_to.set_stratigraphic_unit_name(
-                    new_stratigraphic_unit_id, stratigraphic_unit.name() );
+                if( mapping.has_mapping_input( stratigraphic_unit.id() ) )
+                {
+                    const auto& stratigraphic_unit_id =
+                        mapping.in2out( stratigraphic_unit.id() );
+                    builder_to.add_stratigraphic_unit( stratigraphic_unit_id );
+                    builder_to.set_stratigraphic_unit_name(
+                        stratigraphic_unit_id, stratigraphic_unit.name() );
+                }
+                else
+                {
+                    const auto& stratigraphic_unit_id =
+                        builder_to.add_stratigraphic_unit();
+                    mapping.map(
+                        stratigraphic_unit.id(), stratigraphic_unit_id );
+                    builder_to.set_stratigraphic_unit_name(
+                        stratigraphic_unit_id, stratigraphic_unit.name() );
+                }
             }
         }
 

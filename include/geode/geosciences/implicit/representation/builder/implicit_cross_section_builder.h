@@ -48,8 +48,8 @@ namespace geode
 
         ModelCopyMapping copy( const ImplicitCrossSection& implicit_model );
 
-        void copy_implicit_information( const ImplicitCrossSection& other_model,
-            const ModelCopyMapping& mapping );
+        void copy_implicit_information( ModelCopyMapping& mapping,
+            const ImplicitCrossSection& other_model );
 
         void reinitialize_implicit_query_trees();
 

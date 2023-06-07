@@ -74,11 +74,16 @@ namespace geode
         ModelCopyMapping copy_components(
             const HorizonsStack< dimension >& horizons_stack );
 
-        void copy( const HorizonsStack< dimension >& horizons_stack,
-            const ModelCopyMapping& mapping );
+        void copy( ModelCopyMapping& mapping,
+            const HorizonsStack< dimension >& horizons_stack );
 
-        void copy_components( const HorizonsStack< dimension >& horizons_stack,
-            const ModelCopyMapping& mapping );
+        /*!
+         * Copies the components with the uuid given by the mapping. If the
+         * mapping doesnt exist, creates a component with a new uuid and adds it
+         * to the mapping.
+         */
+        void copy_components( ModelCopyMapping& mapping,
+            const HorizonsStack< dimension >& horizons_stack );
 
         const uuid& add_horizon();
 

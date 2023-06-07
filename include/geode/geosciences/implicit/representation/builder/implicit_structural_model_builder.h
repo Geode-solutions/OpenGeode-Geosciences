@@ -49,9 +49,8 @@ namespace geode
 
         ModelCopyMapping copy( const ImplicitStructuralModel& implicit_model );
 
-        void copy_implicit_information(
-            const ImplicitStructuralModel& other_model,
-            const ModelCopyMapping& mapping );
+        void copy_implicit_information( ModelCopyMapping& mapping,
+            const ImplicitStructuralModel& other_model );
 
         void reinitialize_implicit_query_trees();
 

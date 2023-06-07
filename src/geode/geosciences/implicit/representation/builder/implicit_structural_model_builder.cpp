@@ -46,17 +46,16 @@ namespace geode
     {
         auto mapping = StructuralModelBuilder::copy( other_model );
         reinitialize_implicit_query_trees();
-        copy_implicit_information( other_model, mapping );
+        copy_implicit_information( mapping, other_model );
         return mapping;
     }
 
     void ImplicitStructuralModelBuilder::copy_implicit_information(
-        const ImplicitStructuralModel& other_model,
-        const ModelCopyMapping& mapping )
+        ModelCopyMapping& mapping, const ImplicitStructuralModel& other_model )
     {
         HorizonsStackBuilder3D{ implicit_model_.modifiable_horizons_stack(
                                     {} ) }
-            .copy( other_model.horizons_stack(), mapping );
+            .copy( mapping, other_model.horizons_stack() );
         const auto& horizon_mapping =
             mapping.at( Horizon3D::component_type_static() );
         for( const auto& horizon : other_model.horizons_stack().horizons() )
@@ -64,8 +63,9 @@ namespace geode
             if( const auto isovalue =
                     other_model.horizon_implicit_value( horizon ) )
             {
-                const auto& new_horizon = implicit_model_.horizon(
-                    horizon_mapping.in2out( horizon.id() ) );
+                const auto& new_horizon =
+                    implicit_model_.horizons_stack().horizon(
+                        horizon_mapping.in2out( horizon.id() ) );
                 implicit_model_.set_horizon_implicit_value(
                     new_horizon, isovalue.value(), {} );
             }

@@ -44,17 +44,16 @@ namespace geode
     {
         auto mapping = CrossSectionBuilder::copy( other_model );
         reinitialize_implicit_query_trees();
-        copy_implicit_information( other_model, mapping );
+        copy_implicit_information( mapping, other_model );
         return mapping;
     }
 
     void ImplicitCrossSectionBuilder::copy_implicit_information(
-        const ImplicitCrossSection& other_model,
-        const ModelCopyMapping& mapping )
+        ModelCopyMapping& mapping, const ImplicitCrossSection& other_model )
     {
         HorizonsStackBuilder2D{ implicit_section_.modifiable_horizons_stack(
                                     {} ) }
-            .copy( other_model.horizons_stack(), mapping );
+            .copy( mapping, other_model.horizons_stack() );
         const auto& horizon_mapping =
             mapping.at( Horizon2D::component_type_static() );
         for( const auto& horizon : other_model.horizons() )

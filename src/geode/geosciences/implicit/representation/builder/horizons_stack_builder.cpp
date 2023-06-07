@@ -71,9 +71,8 @@ namespace geode
     }
 
     template < index_t dimension >
-    void HorizonsStackBuilder< dimension >::copy(
-        const HorizonsStack< dimension >& horizons_stack,
-        const ModelCopyMapping& mapping )
+    void HorizonsStackBuilder< dimension >::copy( ModelCopyMapping& mapping,
+        const HorizonsStack< dimension >& horizons_stack )
     {
         const auto nb_components = horizons_stack_.nb_horizons()
                                    + horizons_stack_.nb_stratigraphic_units();
@@ -81,20 +80,39 @@ namespace geode
             "[HorizonsStackBuild::copy] HorizonsStack "
             "should be empty before copy." );
         set_name( horizons_stack.name() );
-        copy_components( horizons_stack, mapping );
+        copy_components( mapping, horizons_stack );
         copy_stratigraphic_relationships( mapping, horizons_stack );
     }
 
     template < index_t dimension >
     void HorizonsStackBuilder< dimension >::copy_components(
-        const HorizonsStack< dimension >& horizons_stack,
-        const ModelCopyMapping& mapping )
+        ModelCopyMapping& mapping,
+        const HorizonsStack< dimension >& horizons_stack )
     {
-        detail::copy_horizons( horizons_stack, *this,
-            mapping.at( Horizon< dimension >::component_type_static() ) );
-        detail::copy_stratigraphic_units( horizons_stack, *this,
-            mapping.at(
-                StratigraphicUnit< dimension >::component_type_static() ) );
+        if( !mapping.has_mapping_type(
+                Horizon< dimension >::component_type_static() ) )
+        {
+            mapping.emplace( Horizon< dimension >::component_type_static(),
+                detail::copy_horizons( horizons_stack, *this ) );
+        }
+        else
+        {
+            detail::copy_horizons( horizons_stack, *this,
+                mapping.at( Horizon< dimension >::component_type_static() ) );
+        }
+        if( !mapping.has_mapping_type(
+                StratigraphicUnit< dimension >::component_type_static() ) )
+        {
+            mapping.emplace(
+                StratigraphicUnit< dimension >::component_type_static(),
+                detail::copy_stratigraphic_units( horizons_stack, *this ) );
+        }
+        else
+        {
+            detail::copy_stratigraphic_units( horizons_stack, *this,
+                mapping.at(
+                    StratigraphicUnit< dimension >::component_type_static() ) );
+        }
     }
 
     template < index_t dimension >
