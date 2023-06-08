@@ -25,6 +25,7 @@
 
 #include <geode/model/mixin/core/bitsery_archive.h>
 
+#include <geode/geosciences/explicit/geometry/geographic_coordinate_system.h>
 #include <geode/geosciences/explicit/mixin/core/fault.h>
 #include <geode/geosciences/explicit/mixin/core/fault_block.h>
 #include <geode/geosciences/explicit/mixin/core/horizon.h>
@@ -80,6 +81,14 @@ namespace
         context.registerBasesList< Serializer,
             bitsery::ext::GeosciencesHierarchy >(
             bitsery::ext::PolymorphicClassesList< geode::Component3D >{} );
+        geode::CoordinateReferenceSystem2D::
+            register_coordinate_reference_system_type<
+                geode::GeographicCoordinateSystem2D, Serializer >(
+                context, "GeographicCoordinateSystem2D" );
+        geode::CoordinateReferenceSystem3D::
+            register_coordinate_reference_system_type<
+                geode::GeographicCoordinateSystem3D, Serializer >(
+                context, "GeographicCoordinateSystem3D" );
     }
 } // namespace
 

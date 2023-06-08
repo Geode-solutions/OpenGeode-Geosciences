@@ -27,14 +27,15 @@
 #include <geode/basic/pimpl_impl.h>
 #include <geode/basic/range.h>
 
-#include <geode/geosciences/explicit/mixin/core/detail/components_storage.h>
+#include <geode/model/mixin/core/detail/components_storage.h>
+
 #include <geode/geosciences/explicit/mixin/core/horizon.h>
 
 namespace geode
 {
     template < index_t dimension >
     class Horizons< dimension >::Impl
-        : public detail::GeologicalComponentsStorage< Horizon< dimension > >
+        : public detail::ComponentsStorage< Horizon< dimension > >
     {
     };
 
