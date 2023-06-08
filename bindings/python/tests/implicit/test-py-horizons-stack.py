@@ -12,7 +12,7 @@ import opengeode as geode
 import opengeode_geosciences_py_explicit
 import opengeode_geosciences_py_implicit as geode_imp
 
-def test_stratigraphic_stack():
+def test_horizons_stack():
     horizons_stack = geode_imp.HorizonsStack3D()
     stack_builder = geode_imp.HorizonsStackBuilder3D( horizons_stack )
 
@@ -47,4 +47,4 @@ if __name__ == '__main__':
     print("Starting test")
     geode_imp.GeosciencesImplicitLibrary.initialize()
 
-    test_stratigraphic_stack()
+    test_horizons_stack()

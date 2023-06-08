@@ -25,7 +25,7 @@
 
 #include <geode/geometry/point.h>
 
-#define PYTHON_horizons_stack( dimension )                                     \
+#define PYTHON_HORIZONS_STACK( dimension )                                     \
     const auto name##dimension =                                               \
         "HorizonsStack" + std::to_string( dimension ) + "D";                   \
     pybind11::class_< HorizonsStack##dimension##D, StratigraphicRelationships, \
@@ -39,7 +39,7 @@ namespace geode
 {
     void define_horizons_stack( pybind11::module& module )
     {
-        PYTHON_horizons_stack( 2 );
-        PYTHON_horizons_stack( 3 );
+        PYTHON_HORIZONS_STACK( 2 );
+        PYTHON_HORIZONS_STACK( 3 );
     }
 } // namespace geode

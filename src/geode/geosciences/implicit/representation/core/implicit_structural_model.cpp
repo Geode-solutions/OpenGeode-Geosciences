@@ -128,6 +128,22 @@ namespace geode
             return value->second;
         }
 
+        bool implicit_value_is_above_horizon(
+            double implicit_function_value, const Horizon3D& horizon ) const
+        {
+            const auto increasing = increasing_stack_isovalues();
+            OPENGEODE_EXCEPTION( increasing.has_value(),
+                "[implicit_value_is_above_horizon] Could not define if "
+                "implicit values were "
+                "increasing or decreasing in the horizon stack." );
+            const auto it = horizon_isovalues_.find( horizon.id() );
+            OPENGEODE_EXCEPTION( it != horizon_isovalues_.end(),
+                "[implicit_value_is_above_horizon] Cannot find horizon "
+                "implicit value in the horizon stack." );
+            return increasing.value()
+                   == ( implicit_function_value >= it->second );
+        }
+
         absl::optional< uuid > containing_stratigraphic_unit(
             double implicit_function_value ) const
         {
@@ -338,6 +354,13 @@ namespace geode
         const Horizon3D& horizon ) const
     {
         return impl_->horizon_implicit_value( horizon );
+    }
+
+    bool ImplicitStructuralModel::implicit_value_is_above_horizon(
+        double implicit_function_value, const Horizon3D& horizon ) const
+    {
+        return impl_->implicit_value_is_above_horizon(
+            implicit_function_value, horizon );
     }
 
     absl::optional< uuid >

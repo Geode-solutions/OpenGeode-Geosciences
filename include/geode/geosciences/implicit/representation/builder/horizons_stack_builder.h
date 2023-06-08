@@ -79,8 +79,8 @@ namespace geode
 
         /*!
          * Copies the components with the uuid given by the mapping. If the
-         * mapping doesnt exist, creates a component with a new uuid and adds it
-         * to the mapping.
+         * mapping does not exist, creates a component with a new uuid and adds
+         * it to the mapping.
          */
         void copy_components( ModelCopyMapping& mapping,
             const HorizonsStack< dimension >& horizons_stack );

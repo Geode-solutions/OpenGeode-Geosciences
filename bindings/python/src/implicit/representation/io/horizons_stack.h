@@ -26,7 +26,7 @@
 #include <geode/geosciences/implicit/representation/io/horizons_stack_input.h>
 #include <geode/geosciences/implicit/representation/io/horizons_stack_output.h>
 
-#define PYTHON_horizons_stack_IO( dimension )                                  \
+#define PYTHON_HORIZONS_STACK_IO( dimension )                                  \
     const auto save##dimension =                                               \
         "save_horizons_stack" + std::to_string( dimension ) + "D";             \
     module.def( save##dimension.c_str(), &save_horizons_stack< dimension > );  \
@@ -40,7 +40,7 @@ namespace geode
 {
     void define_horizons_stack_io( pybind11::module& module )
     {
-        PYTHON_horizons_stack_IO( 2 );
-        PYTHON_horizons_stack_IO( 3 );
+        PYTHON_HORIZONS_STACK_IO( 2 );
+        PYTHON_HORIZONS_STACK_IO( 3 );
     }
 } // namespace geode

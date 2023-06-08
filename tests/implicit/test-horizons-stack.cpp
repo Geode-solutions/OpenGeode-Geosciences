@@ -31,7 +31,7 @@
 #include <geode/geosciences/implicit/representation/io/horizons_stack_input.h>
 #include <geode/geosciences/implicit/representation/io/horizons_stack_output.h>
 
-void test_stratigraphic_stack()
+void test_horizons_stack()
 {
     geode::HorizonsStack3D horizons_stack;
     geode::HorizonsStackBuilder3D stack_builder{ horizons_stack };
@@ -90,7 +90,7 @@ int main()
     {
         geode::Logger::info( "Starting test" );
         geode::GeosciencesImplicitLibrary::initialize();
-        test_stratigraphic_stack();
+        test_horizons_stack();
 
         geode::Logger::info( "TEST SUCCESS" );
         return 0;

@@ -101,6 +101,9 @@ namespace geode
         absl::optional< implicit_attribute_type > horizon_implicit_value(
             const Horizon3D& horizon ) const;
 
+        bool implicit_value_is_above_horizon(
+            double implicit_function_value, const Horizon3D& horizon ) const;
+
         absl::optional< uuid > containing_stratigraphic_unit(
             implicit_attribute_type implicit_function_value ) const;
 
