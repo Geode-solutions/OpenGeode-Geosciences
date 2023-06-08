@@ -101,6 +101,9 @@ namespace geode
         absl::optional< implicit_attribute_type > horizon_implicit_value(
             const Horizon3D& horizon ) const;
 
+        absl::optional< uuid > containing_stratigraphic_unit(
+            implicit_attribute_type implicit_function_value ) const;
+
     public:
         void initialize_implicit_query_trees(
             ImplicitStructuralModelBuilderKey );

@@ -132,6 +132,60 @@ namespace geode
             return value->second;
         }
 
+        absl::optional< uuid > containing_stratigraphic_unit(
+            double implicit_function_value ) const
+        {
+            if( horizon_isovalues_.empty() )
+            {
+                return absl::nullopt;
+            }
+            const auto increasing = increasing_stack_isovalues();
+            if( !increasing.has_value() )
+            {
+                return absl::nullopt;
+            }
+            auto horizon_id = horizon_isovalues_.begin()->first;
+            while( true )
+            {
+                if( increasing.value()
+                    == ( implicit_function_value
+                         >= horizon_isovalues_.at( horizon_id ) ) )
+                {
+                    const auto unit_above = horizons_stack_.above( horizon_id );
+                    if( !unit_above )
+                    {
+                        return absl::nullopt;
+                    }
+                    const auto horizon_above =
+                        horizons_stack_.above( unit_above.value() );
+                    if( !horizon_above
+                        || increasing.value()
+                               == ( implicit_function_value
+                                    < horizon_isovalues_.at( horizon_id ) ) )
+                    {
+                        return unit_above.value();
+                    }
+                    horizon_id = horizon_above.value();
+                    continue;
+                }
+                const auto unit_under = horizons_stack_.under( horizon_id );
+                if( !unit_under )
+                {
+                    return absl::nullopt;
+                }
+                const auto horizon_under =
+                    horizons_stack_.under( unit_under.value() );
+                if( !horizon_under
+                    || increasing.value()
+                           == ( implicit_function_value
+                                > horizon_isovalues_.at( horizon_id ) ) )
+                {
+                    return unit_under.value();
+                }
+                horizon_id = horizon_under.value();
+            }
+        }
+
         void instantiate_implicit_attribute_on_surfaces(
             const ImplicitCrossSection& model )
         {
@@ -204,6 +258,27 @@ namespace geode
             }
         }
 
+        absl::optional< bool > increasing_stack_isovalues() const
+        {
+            for( const auto& unit : horizons_stack_.stratigraphic_units() )
+            {
+                const auto above = horizons_stack_.above( unit.id() );
+                const auto under = horizons_stack_.under( unit.id() );
+                if( above && under )
+                {
+                    const auto it0 = horizon_isovalues_.find( above.value() );
+                    const auto it1 = horizon_isovalues_.find( under.value() );
+                    if( it0 == horizon_isovalues_.end()
+                        || it1 == horizon_isovalues_.end() )
+                    {
+                        return absl::nullopt;
+                    }
+                    return it0->second > it1->second;
+                }
+            }
+            return absl::nullopt;
+        }
+
     private:
         absl::flat_hash_map< uuid, TriangulatedSurfaceScalarFunction2D >
             implicit_attributes_;
@@ -269,6 +344,12 @@ namespace geode
         const Horizon2D& horizon ) const
     {
         return horizon_implicit_value( horizon );
+    }
+
+    absl::optional< uuid > ImplicitCrossSection::containing_stratigraphic_unit(
+        double implicit_function_value ) const
+    {
+        return impl_->containing_stratigraphic_unit( implicit_function_value );
     }
 
     void ImplicitCrossSection::initialize_implicit_query_trees(
