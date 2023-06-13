@@ -39,12 +39,19 @@ namespace geode
     {
     }
 
-    void StratigraphicSectionBuilder::copy(
+    ModelCopyMapping StratigraphicSectionBuilder::copy(
         const StratigraphicSection& stratigraphic_section )
     {
-        ImplicitCrossSectionBuilder::copy( stratigraphic_section );
-        stratigraphic_section_.instantiate_stratigraphic_location_on_surfaces(
-            {} );
+        auto mappings =
+            ImplicitCrossSectionBuilder::copy( stratigraphic_section );
+        stratigraphic_section_.initialize_stratigraphic_query_trees( {} );
+        return mappings;
+    }
+
+    void StratigraphicSectionBuilder::reinitialize_stratigraphic_query_trees()
+    {
+        this->reinitialize_implicit_query_trees();
+        stratigraphic_section_.initialize_stratigraphic_query_trees( {} );
     }
 
     void StratigraphicSectionBuilder::

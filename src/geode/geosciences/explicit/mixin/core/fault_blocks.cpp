@@ -23,6 +23,7 @@
 
 #include <geode/geosciences/explicit/mixin/core/fault_blocks.h>
 
+#include <geode/basic/identifier_builder.h>
 #include <geode/basic/pimpl_impl.h>
 #include <geode/basic/range.h>
 
@@ -126,6 +127,17 @@ namespace geode
         const auto& id = fault_block->id();
         impl_->add_component( std::move( fault_block ) );
         return id;
+    }
+
+    template < index_t dimension >
+    void FaultBlocks< dimension >::create_fault_block( uuid fault_block_id )
+    {
+        typename FaultBlocks< dimension >::Impl::ComponentPtr fault_block{
+            new FaultBlock< dimension >{
+                typename FaultBlock< dimension >::FaultBlocksKey{} }
+        };
+        IdentifierBuilder{ *fault_block }.set_id( std::move( fault_block_id ) );
+        impl_->add_component( std::move( fault_block ) );
     }
 
     template < index_t dimension >

@@ -39,11 +39,46 @@
 
 #include <geode/geosciences/explicit/representation/io/structural_model_input.h>
 #include <geode/geosciences/implicit/geometry/stratigraphic_point.h>
+#include <geode/geosciences/implicit/representation/builder/horizons_stack_builder.h>
+#include <geode/geosciences/implicit/representation/builder/stratigraphic_model_builder.h>
+#include <geode/geosciences/implicit/representation/core/horizons_stack.h>
 #include <geode/geosciences/implicit/representation/core/stratigraphic_model.h>
 
-void test_model( const geode::StratigraphicModel& model )
+void add_horizons_stack_to_model(
+    geode::StratigraphicModel& model, const geode::uuid& block1_id )
 {
-    const geode::uuid block1_id{ "00000000-c271-42e7-8000-00002c3147ed" };
+    geode::StratigraphicModelBuilder builder{ model };
+    auto horizons_stack_builder = builder.horizons_stack_builder();
+    geode::index_t counter{ 1 };
+    for( const auto& horizon : model.horizons() )
+    {
+        horizons_stack_builder.add_horizon( horizon.id() );
+        builder.set_horizon_implicit_value( horizon, counter++ );
+    }
+    for( const auto& block : model.blocks() )
+    {
+        const auto& unit_id = builder.add_stratigraphic_unit();
+        builder.add_block_in_stratigraphic_unit(
+            block, model.stratigraphic_unit( unit_id ) );
+        horizons_stack_builder.add_stratigraphic_unit( unit_id );
+        if( block.id() != block1_id )
+        {
+            continue;
+        }
+        for( const auto& horizon : model.horizons() )
+        {
+            if( model.horizon_implicit_value( horizon ).value() == 3 )
+            {
+                horizons_stack_builder.add_horizon_above(
+                    horizon, model.stratigraphic_unit( unit_id ) );
+            }
+        }
+    }
+}
+
+void test_model(
+    const geode::StratigraphicModel& model, const geode::uuid& block1_id )
+{
     const auto& block = model.block( block1_id );
     const auto& strati_pt1 = model.stratigraphic_coordinates( block, 59 );
     OPENGEODE_EXCEPTION( strati_pt1.stratigraphic_coordinates().inexact_equal(
@@ -95,6 +130,52 @@ void test_model( const geode::StratigraphicModel& model )
     OPENGEODE_EXCEPTION( stratigraphic_bbox.max().inexact_equal(
                              { { 0.5643514, 0.6411656, 1 } } ),
         "[Test] Wrong stratigraphic coordinates bounding box minimum." );
+
+    for( const auto& horizon : model.horizons() )
+    {
+        const auto isovalue = model.horizon_implicit_value( horizon );
+        OPENGEODE_EXCEPTION( isovalue,
+            "[Test] Horizon should have an associated implicit value." );
+
+        if( isovalue.value() == 3 )
+        {
+            const auto& strati_unit_id =
+                model.horizons_stack().under( horizon.id() );
+            OPENGEODE_EXCEPTION( strati_unit_id,
+                "[Test] Should have found a stratigraphic unit "
+                "under the horizon with implicit value 3." );
+            const auto& strati_unit =
+                model.stratigraphic_unit( strati_unit_id.value() );
+            for( const auto& item :
+                model.stratigraphic_unit_items( strati_unit ) )
+            {
+                OPENGEODE_EXCEPTION( item.id() == block1_id,
+                    "[Test] The only item in given stratigraphic unit should "
+                    "be ",
+                    block.component_id().string() );
+            }
+        }
+    }
+}
+
+void test_copy(
+    const geode::StratigraphicModel& model, const geode::uuid& block1_id )
+{
+    geode::StratigraphicModel copy;
+    geode::StratigraphicModelBuilder builder{ copy };
+    const auto mappings = builder.copy( model );
+    const auto& new_block_id =
+        mappings.at( geode::Block3D::component_type_static() )
+            .in2out( block1_id );
+    test_model( copy, new_block_id );
+    const auto& horizon_mapping =
+        mappings.at( geode::Horizon3D::component_type_static() );
+    for( const auto& horizon : model.horizons() )
+    {
+        OPENGEODE_EXCEPTION( copy.horizons_stack().has_horizon(
+                                 horizon_mapping.in2out( horizon.id() ) ),
+            "[Test] Should have found horizon in HorizonsStack." );
+    }
 }
 
 void test_save_stratigraphic_surfaces( const geode::StratigraphicModel& model )
@@ -144,7 +225,11 @@ int main()
         geode::GeosciencesImplicitLibrary::initialize();
         geode::StratigraphicModel model{ geode::load_structural_model(
             absl::StrCat( geode::data_path, "vri2.og_strm" ) ) };
-        test_model( model );
+        const geode::uuid block1_id{ "00000000-c271-42e7-8000-00002c3147ed" };
+        add_horizons_stack_to_model( model, block1_id );
+        test_model( model, block1_id );
+        geode::Logger::info( "Testing copy" );
+        test_copy( model, block1_id );
         test_save_stratigraphic_surfaces( model );
 
         geode::Logger::info( "TEST SUCCESS" );

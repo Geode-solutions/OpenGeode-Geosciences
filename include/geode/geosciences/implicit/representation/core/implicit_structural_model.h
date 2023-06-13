@@ -31,9 +31,9 @@
 namespace geode
 {
     FORWARD_DECLARATION_DIMENSION_CLASS( Point );
-    FORWARD_DECLARATION_DIMENSION_CLASS( StratigraphicUnitsStack );
+    FORWARD_DECLARATION_DIMENSION_CLASS( HorizonsStack );
     ALIAS_3D( Point );
-    ALIAS_3D( StratigraphicUnitsStack );
+    ALIAS_3D( HorizonsStack );
     class ImplicitStructuralModelBuilder;
 } // namespace geode
 
@@ -96,11 +96,21 @@ namespace geode
         absl::optional< index_t > containing_polyhedron(
             const Block3D& block, const Point3D& point ) const;
 
-        const StratigraphicUnitsStack3D& stratigraphic_units_stack() const;
+        const HorizonsStack3D& horizons_stack() const;
 
-        double horizon_implicit_value( const Horizon3D& horizon ) const;
+        absl::optional< implicit_attribute_type > horizon_implicit_value(
+            const Horizon3D& horizon ) const;
+
+        bool implicit_value_is_above_horizon(
+            double implicit_function_value, const Horizon3D& horizon ) const;
+
+        absl::optional< uuid > containing_stratigraphic_unit(
+            implicit_attribute_type implicit_function_value ) const;
 
     public:
+        void initialize_implicit_query_trees(
+            ImplicitStructuralModelBuilderKey );
+
         void instantiate_implicit_attribute_on_blocks(
             ImplicitStructuralModelBuilderKey );
 
@@ -109,11 +119,14 @@ namespace geode
             implicit_attribute_type value,
             ImplicitStructuralModelBuilderKey );
 
-        void set_stratigraphic_units_stack( StratigraphicUnitsStack3D&& stack,
+        void set_horizons_stack(
+            HorizonsStack3D&& stack, ImplicitStructuralModelBuilderKey );
+
+        void set_horizon_implicit_value( const Horizon3D& horizon,
+            implicit_attribute_type isovalue,
             ImplicitStructuralModelBuilderKey );
 
-        void set_horizon_isovalue( const Horizon3D& horizon,
-            double isovalue,
+        HorizonsStack3D& modifiable_horizons_stack(
             ImplicitStructuralModelBuilderKey );
 
     protected:

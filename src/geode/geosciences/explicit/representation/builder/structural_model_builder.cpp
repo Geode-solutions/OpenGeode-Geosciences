@@ -44,11 +44,14 @@ namespace geode
     {
     }
 
-    void StructuralModelBuilder::copy( const StructuralModel& structural_model )
+    ModelCopyMapping StructuralModelBuilder::copy(
+        const StructuralModel& structural_model )
     {
         auto mappings = copy_components( structural_model );
+        copy_component_geometry( mappings, structural_model );
         copy_geological_components( mappings, structural_model );
         copy_relationships( mappings, structural_model );
+        return mappings;
     }
 
     void StructuralModelBuilder::copy_geological_components(
@@ -103,6 +106,17 @@ namespace geode
         return id;
     }
 
+    void StructuralModelBuilder::add_horizon( uuid horizon_id )
+    {
+        create_horizon( std::move( horizon_id ) );
+    }
+
+    void StructuralModelBuilder::add_horizon(
+        uuid horizon_id, typename Horizon3D::HORIZON_TYPE type )
+    {
+        create_horizon( std::move( horizon_id ), type );
+    }
+
     index_t StructuralModelBuilder::add_surface_in_horizon(
         const Surface3D& surface, const Horizon3D& horizon )
     {
@@ -140,6 +154,11 @@ namespace geode
     {
         const auto& id = create_stratigraphic_unit();
         return id;
+    }
+
+    void StructuralModelBuilder::add_stratigraphic_unit( uuid unit_id )
+    {
+        create_stratigraphic_unit( unit_id );
     }
 
     index_t StructuralModelBuilder::add_block_in_stratigraphic_unit(

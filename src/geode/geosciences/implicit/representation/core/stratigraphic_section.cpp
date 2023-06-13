@@ -550,6 +550,12 @@ namespace geode
         return impl_->stratigraphic_bounding_box( *this );
     }
 
+    void StratigraphicSection::initialize_stratigraphic_query_trees(
+        StratigraphicSectionBuilderKey )
+    {
+        impl_->initialize_stratigraphic_query_trees( *this );
+    }
+
     void StratigraphicSection::instantiate_stratigraphic_location_on_surfaces(
         StratigraphicSectionBuilderKey )
     {

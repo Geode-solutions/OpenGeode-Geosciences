@@ -39,11 +39,18 @@ namespace geode
     {
     }
 
-    void StratigraphicModelBuilder::copy(
+    ModelCopyMapping StratigraphicModelBuilder::copy(
         const StratigraphicModel& implicit_model )
     {
-        ImplicitStructuralModelBuilder::copy( implicit_model );
-        stratigraphic_model_.instantiate_stratigraphic_location_on_blocks( {} );
+        auto mappings = ImplicitStructuralModelBuilder::copy( implicit_model );
+        stratigraphic_model_.initialize_stratigraphic_query_trees( {} );
+        return mappings;
+    }
+
+    void StratigraphicModelBuilder::reinitialize_stratigraphic_query_trees()
+    {
+        this->reinitialize_implicit_query_trees();
+        stratigraphic_model_.initialize_stratigraphic_query_trees( {} );
     }
 
     void StratigraphicModelBuilder::

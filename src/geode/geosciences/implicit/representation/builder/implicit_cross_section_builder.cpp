@@ -26,6 +26,8 @@
 #include <geode/model/mixin/core/surface.h>
 #include <geode/model/representation/builder/detail/copy.h>
 
+#include <geode/geosciences/implicit/representation/builder/horizons_stack_builder.h>
+#include <geode/geosciences/implicit/representation/core/horizons_stack.h>
 #include <geode/geosciences/implicit/representation/core/implicit_cross_section.h>
 
 namespace geode
@@ -37,11 +39,39 @@ namespace geode
     {
     }
 
-    void ImplicitCrossSectionBuilder::copy(
-        const ImplicitCrossSection& implicit_section )
+    ModelCopyMapping ImplicitCrossSectionBuilder::copy(
+        const ImplicitCrossSection& other_model )
     {
-        CrossSectionBuilder::copy( implicit_section );
-        instantiate_implicit_attribute_on_surfaces();
+        auto mapping = CrossSectionBuilder::copy( other_model );
+        reinitialize_implicit_query_trees();
+        copy_implicit_information( mapping, other_model );
+        return mapping;
+    }
+
+    void ImplicitCrossSectionBuilder::copy_implicit_information(
+        ModelCopyMapping& mapping, const ImplicitCrossSection& other_model )
+    {
+        HorizonsStackBuilder2D{ implicit_section_.modifiable_horizons_stack(
+                                    {} ) }
+            .copy( mapping, other_model.horizons_stack() );
+        const auto& horizon_mapping =
+            mapping.at( Horizon2D::component_type_static() );
+        for( const auto& horizon : other_model.horizons() )
+        {
+            if( const auto isovalue =
+                    other_model.horizon_implicit_value( horizon ) )
+            {
+                const auto& new_horizon = implicit_section_.horizon(
+                    horizon_mapping.in2out( horizon.id() ) );
+                implicit_section_.set_horizon_implicit_value(
+                    new_horizon, isovalue.value(), {} );
+            }
+        }
+    }
+
+    void ImplicitCrossSectionBuilder::reinitialize_implicit_query_trees()
+    {
+        implicit_section_.initialize_implicit_query_trees( {} );
     }
 
     void ImplicitCrossSectionBuilder::
@@ -56,16 +86,20 @@ namespace geode
         implicit_section_.set_implicit_value( surface, vertex_id, value, {} );
     }
 
-    void ImplicitCrossSectionBuilder::set_stratigraphic_units_stack(
-        StratigraphicUnitsStack2D&& stack )
+    void ImplicitCrossSectionBuilder::set_horizons_stack(
+        HorizonsStack2D&& stack )
     {
-        implicit_section_.set_stratigraphic_units_stack(
-            std::move( stack ), {} );
+        implicit_section_.set_horizons_stack( std::move( stack ), {} );
     }
 
-    void ImplicitCrossSectionBuilder::set_horizon_isovalue(
+    void ImplicitCrossSectionBuilder::set_horizon_implicit_value(
         const Horizon2D& horizon, double isovalue )
     {
-        implicit_section_.set_horizon_isovalue( horizon, isovalue, {} );
+        implicit_section_.set_horizon_implicit_value( horizon, isovalue, {} );
+    }
+
+    HorizonsStackBuilder2D ImplicitCrossSectionBuilder::horizons_stack_builder()
+    {
+        return { implicit_section_.modifiable_horizons_stack( {} ) };
     }
 } // namespace geode

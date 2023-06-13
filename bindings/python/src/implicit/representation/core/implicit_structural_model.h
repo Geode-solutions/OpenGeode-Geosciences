@@ -51,8 +51,7 @@ namespace geode
                 ( double( ImplicitStructuralModel::* )(
                     const Block3D&, const Point3D&, index_t ) const )
                     & ImplicitStructuralModel::implicit_value )
-            .def( "stratigraphic_units_stack",
-                &ImplicitStructuralModel::stratigraphic_units_stack )
+            .def( "horizons_stack", &ImplicitStructuralModel::horizons_stack )
             .def( "horizon_implicit_value",
                 &ImplicitStructuralModel::horizon_implicit_value );
     }

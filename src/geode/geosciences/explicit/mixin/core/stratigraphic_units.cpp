@@ -23,6 +23,7 @@
 
 #include <geode/geosciences/explicit/mixin/core/stratigraphic_units.h>
 
+#include <geode/basic/identifier_builder.h>
 #include <geode/basic/pimpl_impl.h>
 #include <geode/basic/range.h>
 
@@ -132,6 +133,19 @@ namespace geode
         const auto& id = stratigraphic_unit->id();
         impl_->add_component( std::move( stratigraphic_unit ) );
         return id;
+    }
+
+    template < index_t dimension >
+    void StratigraphicUnits< dimension >::create_stratigraphic_unit(
+        uuid stratigraphic_unit_id )
+    {
+        typename StratigraphicUnits< dimension >::Impl::ComponentPtr
+            stratigraphic_unit{ new StratigraphicUnit< dimension >{
+                typename StratigraphicUnit<
+                    dimension >::StratigraphicUnitsKey{} } };
+        IdentifierBuilder{ *stratigraphic_unit }.set_id(
+            std::move( stratigraphic_unit_id ) );
+        impl_->add_component( std::move( stratigraphic_unit ) );
     }
 
     template < index_t dimension >

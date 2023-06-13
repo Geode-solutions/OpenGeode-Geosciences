@@ -23,7 +23,7 @@ add_geode_test(
 )
 
 add_geode_test(
-    SOURCE "test-stratigraphic-units-stack.cpp"
+    SOURCE "test-horizons-stack.cpp"
     DEPENDENCIES
         OpenGeode::basic
         OpenGeode::geometry

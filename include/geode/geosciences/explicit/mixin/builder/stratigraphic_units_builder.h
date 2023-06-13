@@ -53,6 +53,8 @@ namespace geode
 
         const uuid& create_stratigraphic_unit();
 
+        void create_stratigraphic_unit( uuid stratigraphic_unit_id );
+
         void delete_stratigraphic_unit(
             const StratigraphicUnit< dimension >& stratigraphic_unit );
 

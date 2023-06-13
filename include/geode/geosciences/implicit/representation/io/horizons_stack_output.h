@@ -30,38 +30,36 @@
 
 namespace geode
 {
-    FORWARD_DECLARATION_DIMENSION_CLASS( StratigraphicUnitsStack );
-    FORWARD_DECLARATION_DIMENSION_CLASS( StratigraphicUnitsStackBuilder );
+    FORWARD_DECLARATION_DIMENSION_CLASS( HorizonsStack );
+    FORWARD_DECLARATION_DIMENSION_CLASS( HorizonsStackBuilder );
 } // namespace geode
 
 namespace geode
 {
     /*!
-     * API function for saving a StratigraphicUnitsStack.
+     * API function for saving a HorizonsStack.
      * The adequate saver is called depending on the given filename extension.
-     * @param[in] stratigraphic_units_stack StratigraphicUnitsStack to save.
+     * @param[in] horizons_stack HorizonsStack to save.
      * @param[in] filename Path to the file where save the brep.
      */
     template < index_t dimension >
-    void save_stratigraphic_units_stack(
-        const StratigraphicUnitsStack< dimension >& stratigraphic_units_stack,
+    void save_horizons_stack( const HorizonsStack< dimension >& horizons_stack,
         absl::string_view filename );
 
     template < index_t dimension >
-    class StratigraphicUnitsStackOutput
-        : public Output< StratigraphicUnitsStack< dimension > >
+    class HorizonsStackOutput : public Output< HorizonsStack< dimension > >
     {
     protected:
-        StratigraphicUnitsStackOutput( absl::string_view filename )
-            : Output< StratigraphicUnitsStack< dimension > >{ filename }
+        HorizonsStackOutput( absl::string_view filename )
+            : Output< HorizonsStack< dimension > >{ filename }
         {
         }
     };
-    ALIAS_2D_AND_3D( StratigraphicUnitsStackOutput );
+    ALIAS_2D_AND_3D( HorizonsStackOutput );
 
     template < index_t dimension >
-    using StratigraphicUnitsStackOutputFactory = Factory< std::string,
-        StratigraphicUnitsStackOutput< dimension >,
+    using HorizonsStackOutputFactory = Factory< std::string,
+        HorizonsStackOutput< dimension >,
         absl::string_view >;
-    ALIAS_2D_AND_3D( StratigraphicUnitsStackOutputFactory );
+    ALIAS_2D_AND_3D( HorizonsStackOutputFactory );
 } // namespace geode

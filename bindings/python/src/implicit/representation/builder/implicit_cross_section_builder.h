@@ -32,21 +32,24 @@ namespace geode
         pybind11::class_< ImplicitCrossSectionBuilder, CrossSectionBuilder >(
             module, "ImplicitCrossSectionBuilder" )
             .def( pybind11::init< ImplicitCrossSection& >() )
-            .def( "copy", ( void( ImplicitCrossSectionBuilder::* )(
-                              const ImplicitCrossSection& implicit_section ) )
-                              & ImplicitCrossSectionBuilder::copy )
+            .def( "copy",
+                []( ImplicitCrossSectionBuilder& builder,
+                    const ImplicitCrossSection& other_model ) {
+                    builder.copy( other_model );
+                } )
             .def( "instantiate_implicit_attribute_on_surfaces",
                 &ImplicitCrossSectionBuilder::
                     instantiate_implicit_attribute_on_surfaces )
             .def( "set_implicit_value",
                 &ImplicitCrossSectionBuilder::set_implicit_value )
-            .def( "set_stratigraphic_units_stack",
+            .def( "set_horizons_stack",
                 []( ImplicitCrossSectionBuilder& builder,
-                    StratigraphicUnitsStack2D& su_stack ) {
-                    builder.set_stratigraphic_units_stack(
-                        std::move( su_stack ) );
+                    HorizonsStack2D& horizons_stack ) {
+                    builder.set_horizons_stack( std::move( horizons_stack ) );
                 } )
-            .def( "set_horizon_isovalue",
-                &ImplicitCrossSectionBuilder::set_horizon_isovalue );
+            .def( "set_horizon_implicit_value",
+                &ImplicitCrossSectionBuilder::set_horizon_implicit_value )
+            .def( "horizons_stack_builder",
+                &ImplicitCrossSectionBuilder::horizons_stack_builder );
     }
 } // namespace geode

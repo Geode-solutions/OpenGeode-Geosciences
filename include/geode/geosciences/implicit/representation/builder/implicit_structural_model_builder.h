@@ -29,8 +29,10 @@
 namespace geode
 {
     class ImplicitStructuralModel;
-    FORWARD_DECLARATION_DIMENSION_CLASS( StratigraphicUnitsStack );
-    ALIAS_3D( StratigraphicUnitsStack );
+    FORWARD_DECLARATION_DIMENSION_CLASS( HorizonsStack );
+    ALIAS_3D( HorizonsStack );
+    FORWARD_DECLARATION_DIMENSION_CLASS( HorizonsStackBuilder );
+    ALIAS_3D( HorizonsStackBuilder );
 } // namespace geode
 
 namespace geode
@@ -45,16 +47,24 @@ namespace geode
         ImplicitStructuralModelBuilder(
             ImplicitStructuralModel& implicit_model );
 
-        void copy( const ImplicitStructuralModel& implicit_model );
+        ModelCopyMapping copy( const ImplicitStructuralModel& implicit_model );
+
+        void copy_implicit_information( ModelCopyMapping& mapping,
+            const ImplicitStructuralModel& other_model );
+
+        void reinitialize_implicit_query_trees();
 
         void instantiate_implicit_attribute_on_blocks();
 
         void set_implicit_value(
             const Block3D& block, index_t vertex_id, double value );
 
-        void set_stratigraphic_units_stack( StratigraphicUnitsStack3D&& stack );
+        void set_horizons_stack( HorizonsStack3D&& stack );
 
-        void set_horizon_isovalue( const Horizon3D& horizon, double isovalue );
+        void set_horizon_implicit_value(
+            const Horizon3D& horizon, double isovalue );
+
+        HorizonsStackBuilder3D horizons_stack_builder();
 
     private:
         ImplicitStructuralModel& implicit_model_;

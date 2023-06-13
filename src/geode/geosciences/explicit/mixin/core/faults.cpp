@@ -23,6 +23,7 @@
 
 #include <geode/geosciences/explicit/mixin/core/faults.h>
 
+#include <geode/basic/identifier_builder.h>
 #include <geode/basic/pimpl_impl.h>
 #include <geode/basic/range.h>
 
@@ -133,6 +134,28 @@ namespace geode
         const auto& id = fault->id();
         impl_->add_component( std::move( fault ) );
         return id;
+    }
+
+    template < index_t dimension >
+    void Faults< dimension >::create_fault( uuid fault_id )
+    {
+        typename Faults< dimension >::Impl::ComponentPtr fault{
+            new Fault< dimension >{ typename Fault< dimension >::FaultsKey{} }
+        };
+        IdentifierBuilder{ *fault }.set_id( std::move( fault_id ) );
+        impl_->add_component( std::move( fault ) );
+    }
+
+    template < index_t dimension >
+    void Faults< dimension >::create_fault(
+        uuid fault_id, typename Fault< dimension >::FAULT_TYPE type )
+    {
+        typename Faults< dimension >::Impl::ComponentPtr fault{
+            new Fault< dimension >{
+                type, typename Fault< dimension >::FaultsKey{} }
+        };
+        IdentifierBuilder{ *fault }.set_id( std::move( fault_id ) );
+        impl_->add_component( std::move( fault ) );
     }
 
     template < index_t dimension >

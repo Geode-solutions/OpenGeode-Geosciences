@@ -36,42 +36,65 @@
 
 namespace geode
 {
-    FORWARD_DECLARATION_DIMENSION_CLASS( StratigraphicUnitsStack );
+    FORWARD_DECLARATION_DIMENSION_CLASS( HorizonsStack );
     struct uuid;
 } // namespace geode
 
 namespace geode
 {
     /*!
-     * Class managing modifications of a StratigraphicUnitsStack
+     * Class managing modifications of a HorizonsStack
      * @extends HorizonsBuilder
      * @extends StratigraphicUnitsBuilder
      * @extends StratigraphicRelationshipsBuilder
      */
     template < index_t dimension >
-    class StratigraphicUnitsStackBuilder
-        : public StratigraphicRelationshipsBuilder,
-          public HorizonsBuilder< dimension >,
-          public StratigraphicUnitsBuilder< dimension >,
-          public IdentifierBuilder
+    class HorizonsStackBuilder : public StratigraphicRelationshipsBuilder,
+                                 public HorizonsBuilder< dimension >,
+                                 public StratigraphicUnitsBuilder< dimension >,
+                                 public IdentifierBuilder
     {
-        OPENGEODE_DISABLE_COPY( StratigraphicUnitsStackBuilder );
+        OPENGEODE_DISABLE_COPY( HorizonsStackBuilder );
 
     public:
-        StratigraphicUnitsStackBuilder(
-            StratigraphicUnitsStack< dimension >& units_stack );
-        StratigraphicUnitsStackBuilder(
-            StratigraphicUnitsStackBuilder< dimension >&& ) = default;
+        struct InsertedHorizonInfo
+        {
+            uuid new_horizon_id;
+            uuid strati_unit_above_id;
+            uuid strati_unit_under_id;
+        };
+
+    public:
+        HorizonsStackBuilder( HorizonsStack< dimension >& horizons_stack );
+        HorizonsStackBuilder( HorizonsStackBuilder< dimension >&& ) = default;
 
         ModelCopyMapping copy(
-            const StratigraphicUnitsStack< dimension >& units_stack );
+            const HorizonsStack< dimension >& horizons_stack );
 
         ModelCopyMapping copy_components(
-            const StratigraphicUnitsStack< dimension >& units_stack );
+            const HorizonsStack< dimension >& horizons_stack );
+
+        void copy( ModelCopyMapping& mapping,
+            const HorizonsStack< dimension >& horizons_stack );
+
+        /*!
+         * Copies the components with the uuid given by the mapping. If the
+         * mapping does not exist, creates a component with a new uuid and adds
+         * it to the mapping.
+         */
+        void copy_components( ModelCopyMapping& mapping,
+            const HorizonsStack< dimension >& horizons_stack );
 
         const uuid& add_horizon();
 
+        void add_horizon( uuid horizon_id );
+
         const uuid& add_stratigraphic_unit();
+
+        void add_stratigraphic_unit( uuid stratigraphic_unit_id );
+
+        InsertedHorizonInfo add_horizon_in_stratigraphic_unit(
+            const StratigraphicUnit< dimension >& strati_unit );
 
         void add_horizon_above( const Horizon< dimension >& horizon_above,
             const StratigraphicUnit< dimension >& strati_unit_under );
@@ -91,7 +114,7 @@ namespace geode
             const StratigraphicUnit< dimension >& stratigraphic_unit );
 
     private:
-        StratigraphicUnitsStack< dimension >& units_stack_;
+        HorizonsStack< dimension >& horizons_stack_;
     };
-    ALIAS_2D_AND_3D( StratigraphicUnitsStackBuilder );
+    ALIAS_2D_AND_3D( HorizonsStackBuilder );
 } // namespace geode

@@ -23,32 +23,42 @@
 
 #pragma once
 
-#include <geode/geosciences/implicit/representation/core/stratigraphic_units_stack.h>
-#include <geode/geosciences/implicit/representation/io/stratigraphic_units_stack_input.h>
+#include <geode/basic/factory.h>
+#include <geode/basic/input.h>
+
+#include <geode/geosciences/implicit/common.h>
 
 namespace geode
 {
+    FORWARD_DECLARATION_DIMENSION_CLASS( HorizonsStack );
+    FORWARD_DECLARATION_DIMENSION_CLASS( HorizonsStackBuilder );
+} // namespace geode
+
+namespace geode
+{
+    /*!
+     * API function for loading a HorizonsStack.
+     * The adequate loader is called depending on the filename extension.
+     * @param[in] filename Path to the file to load.
+     * @return Loaded HorizonsStack.
+     */
     template < index_t dimension >
-    class OpenGeodeStratigraphicUnitsStackInput final
-        : public StratigraphicUnitsStackInput< dimension >
+    HorizonsStack< dimension > load_horizons_stack(
+        absl::string_view filename );
+
+    template < index_t dimension >
+    class HorizonsStackInput : public Input< HorizonsStack< dimension > >
     {
-    public:
-        OpenGeodeStratigraphicUnitsStackInput( absl::string_view filename )
-            : StratigraphicUnitsStackInput< dimension >( filename )
+    protected:
+        HorizonsStackInput( absl::string_view filename )
+            : Input< HorizonsStack< dimension > >{ filename }
         {
         }
-
-        static absl::string_view extension()
-        {
-            return StratigraphicUnitsStack<
-                dimension >::native_extension_static();
-        }
-
-        void load_stratigraphic_units_stack_files(
-            StratigraphicUnitsStack< dimension >& stratigraphic_units_stack,
-            absl::string_view directory );
-
-        StratigraphicUnitsStack< dimension > read() final;
     };
-    ALIAS_2D_AND_3D( OpenGeodeStratigraphicUnitsStackInput );
+
+    template < index_t dimension >
+    using HorizonsStackInputFactory = Factory< std::string,
+        HorizonsStackInput< dimension >,
+        absl::string_view >;
+    ALIAS_2D_AND_3D( HorizonsStackInputFactory );
 } // namespace geode

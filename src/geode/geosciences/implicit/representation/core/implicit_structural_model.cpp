@@ -39,7 +39,7 @@
 
 #include <geode/model/mixin/core/block.h>
 
-#include <geode/geosciences/implicit/representation/core/stratigraphic_units_stack.h>
+#include <geode/geosciences/implicit/representation/core/horizons_stack.h>
 
 namespace geode
 {
@@ -101,20 +101,101 @@ namespace geode
             return absl::nullopt;
         }
 
-        const StratigraphicUnitsStack3D& stratigraphic_units_stack() const
+        const HorizonsStack3D& horizons_stack() const
         {
-            return su_stack_;
+            return horizons_stack_;
         }
 
-        double horizon_implicit_value( const Horizon3D& horizon ) const
+        HorizonsStack3D& modifiable_horizons_stack()
         {
-            OPENGEODE_EXCEPTION( su_stack_.has_horizon( horizon.id() ),
+            return horizons_stack_;
+        }
+
+        absl::optional< double > horizon_implicit_value(
+            const Horizon3D& horizon ) const
+        {
+            OPENGEODE_EXCEPTION( horizons_stack_.has_horizon( horizon.id() ),
                 "[horizon_implicit_value] You cannot access the isovalue of "
                 "Horizon ",
                 horizon.id().string(),
                 " because the horizon is not defined in the "
-                "StratigraphicUnitsStack." );
-            return horizon_isovalues_.at( horizon.id() );
+                "HorizonsStack." );
+            const auto value = horizon_isovalues_.find( horizon.id() );
+            if( value == horizon_isovalues_.end() )
+            {
+                return absl::nullopt;
+            }
+            return value->second;
+        }
+
+        bool implicit_value_is_above_horizon(
+            double implicit_function_value, const Horizon3D& horizon ) const
+        {
+            const auto increasing = increasing_stack_isovalues();
+            OPENGEODE_EXCEPTION( increasing.has_value(),
+                "[implicit_value_is_above_horizon] Could not define if "
+                "implicit values were "
+                "increasing or decreasing in the horizon stack." );
+            const auto it = horizon_isovalues_.find( horizon.id() );
+            OPENGEODE_EXCEPTION( it != horizon_isovalues_.end(),
+                "[implicit_value_is_above_horizon] Cannot find horizon "
+                "implicit value in the horizon stack." );
+            return increasing.value()
+                   == ( implicit_function_value >= it->second );
+        }
+
+        absl::optional< uuid > containing_stratigraphic_unit(
+            double implicit_function_value ) const
+        {
+            if( horizon_isovalues_.empty() )
+            {
+                return absl::nullopt;
+            }
+            const auto increasing = increasing_stack_isovalues();
+            if( !increasing.has_value() )
+            {
+                return absl::nullopt;
+            }
+            auto horizon_id = horizon_isovalues_.begin()->first;
+            while( true )
+            {
+                if( increasing.value()
+                    == ( implicit_function_value
+                         >= horizon_isovalues_.at( horizon_id ) ) )
+                {
+                    const auto unit_above = horizons_stack_.above( horizon_id );
+                    if( !unit_above )
+                    {
+                        return absl::nullopt;
+                    }
+                    const auto horizon_above =
+                        horizons_stack_.above( unit_above.value() );
+                    if( !horizon_above
+                        || increasing.value()
+                               == ( implicit_function_value
+                                    < horizon_isovalues_.at( horizon_id ) ) )
+                    {
+                        return unit_above.value();
+                    }
+                    horizon_id = horizon_above.value();
+                    continue;
+                }
+                const auto unit_under = horizons_stack_.under( horizon_id );
+                if( !unit_under )
+                {
+                    return absl::nullopt;
+                }
+                const auto horizon_under =
+                    horizons_stack_.under( unit_under.value() );
+                if( !horizon_under
+                    || increasing.value()
+                           == ( implicit_function_value
+                                > horizon_isovalues_.at( horizon_id ) ) )
+                {
+                    return unit_under.value();
+                }
+                horizon_id = horizon_under.value();
+            }
         }
 
         void instantiate_implicit_attribute_on_blocks(
@@ -158,19 +239,20 @@ namespace geode
             implicit_attributes_.at( block.id() ).set_value( vertex_id, value );
         }
 
-        void set_stratigraphic_units_stack( StratigraphicUnitsStack3D&& stack )
+        void set_horizons_stack( HorizonsStack3D&& stack )
         {
-            su_stack_ = std::move( stack );
+            horizons_stack_ = std::move( stack );
         }
 
-        void set_horizon_isovalue( const Horizon3D& horizon, double isovalue )
+        void set_horizon_implicit_value(
+            const Horizon3D& horizon, double isovalue )
         {
-            OPENGEODE_EXCEPTION( su_stack_.has_horizon( horizon.id() ),
+            OPENGEODE_EXCEPTION( horizons_stack_.has_horizon( horizon.id() ),
                 "[horizon_implicit_value] You cannot access the isovalue of "
                 "Horizon ",
                 horizon.id().string(),
                 " because the horizon is not defined in the "
-                "StratigraphicUnitsStack." );
+                "HorizonsStack." );
             horizon_isovalues_[horizon.id()] = isovalue;
         }
 
@@ -186,10 +268,31 @@ namespace geode
             }
         }
 
+        absl::optional< bool > increasing_stack_isovalues() const
+        {
+            for( const auto& unit : horizons_stack_.stratigraphic_units() )
+            {
+                const auto above = horizons_stack_.above( unit.id() );
+                const auto under = horizons_stack_.under( unit.id() );
+                if( above && under )
+                {
+                    const auto it0 = horizon_isovalues_.find( above.value() );
+                    const auto it1 = horizon_isovalues_.find( under.value() );
+                    if( it0 == horizon_isovalues_.end()
+                        || it1 == horizon_isovalues_.end() )
+                    {
+                        return absl::nullopt;
+                    }
+                    return it0->second > it1->second;
+                }
+            }
+            return absl::nullopt;
+        }
+
     private:
         absl::flat_hash_map< uuid, TetrahedralSolidScalarFunction3D >
             implicit_attributes_;
-        StratigraphicUnitsStack3D su_stack_;
+        HorizonsStack3D horizons_stack_;
         absl::flat_hash_map< uuid, double > horizon_isovalues_;
         absl::flat_hash_map< uuid, CachedValue< AABBTree3D > >
             block_mesh_aabb_trees_;
@@ -242,16 +345,35 @@ namespace geode
         return impl_->containing_polyhedron( block, point );
     }
 
-    const StratigraphicUnitsStack3D&
-        ImplicitStructuralModel::stratigraphic_units_stack() const
+    const HorizonsStack3D& ImplicitStructuralModel::horizons_stack() const
     {
-        return impl_->stratigraphic_units_stack();
+        return impl_->horizons_stack();
     }
 
-    double ImplicitStructuralModel::horizon_implicit_value(
+    absl::optional< double > ImplicitStructuralModel::horizon_implicit_value(
         const Horizon3D& horizon ) const
     {
-        return horizon_implicit_value( horizon );
+        return impl_->horizon_implicit_value( horizon );
+    }
+
+    bool ImplicitStructuralModel::implicit_value_is_above_horizon(
+        double implicit_function_value, const Horizon3D& horizon ) const
+    {
+        return impl_->implicit_value_is_above_horizon(
+            implicit_function_value, horizon );
+    }
+
+    absl::optional< uuid >
+        ImplicitStructuralModel::containing_stratigraphic_unit(
+            double implicit_function_value ) const
+    {
+        return impl_->containing_stratigraphic_unit( implicit_function_value );
+    }
+
+    void ImplicitStructuralModel::initialize_implicit_query_trees(
+        ImplicitStructuralModelBuilderKey )
+    {
+        impl_->initialize_implicit_query_trees( *this );
     }
 
     void ImplicitStructuralModel::instantiate_implicit_attribute_on_blocks(
@@ -268,18 +390,24 @@ namespace geode
         do_set_implicit_value( block, vertex_id, value );
     }
 
-    void ImplicitStructuralModel::set_stratigraphic_units_stack(
-        StratigraphicUnitsStack3D&& stack, ImplicitStructuralModelBuilderKey )
+    void ImplicitStructuralModel::set_horizons_stack(
+        HorizonsStack3D&& stack, ImplicitStructuralModelBuilderKey )
     {
-        impl_->set_stratigraphic_units_stack( std::move( stack ) );
+        impl_->set_horizons_stack( std::move( stack ) );
     }
 
-    void ImplicitStructuralModel::set_horizon_isovalue(
+    void ImplicitStructuralModel::set_horizon_implicit_value(
         const Horizon3D& horizon,
         double isovalue,
         ImplicitStructuralModelBuilderKey )
     {
-        impl_->set_horizon_isovalue( horizon, isovalue );
+        impl_->set_horizon_implicit_value( horizon, isovalue );
+    }
+
+    HorizonsStack3D& ImplicitStructuralModel::modifiable_horizons_stack(
+        ImplicitStructuralModelBuilderKey )
+    {
+        return impl_->modifiable_horizons_stack();
     }
 
     void ImplicitStructuralModel::do_set_implicit_value(

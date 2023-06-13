@@ -32,9 +32,11 @@ namespace geode
         pybind11::class_< StratigraphicModelBuilder, StructuralModelBuilder >(
             module, "StratigraphicModelBuilder" )
             .def( pybind11::init< StratigraphicModel& >() )
-            .def( "copy", ( void( StratigraphicModelBuilder::* )(
-                              const StratigraphicModel& implicit_model ) )
-                              & StratigraphicModelBuilder::copy )
+            .def( "copy",
+                []( StratigraphicModelBuilder& builder,
+                    const StratigraphicModel& other_model ) {
+                    builder.copy( other_model );
+                } )
             .def( "instantiate_stratigraphic_attribute_on_blocks",
                 &StratigraphicModelBuilder::
                     instantiate_stratigraphic_attribute_on_blocks )

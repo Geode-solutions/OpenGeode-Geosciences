@@ -32,9 +32,11 @@ namespace geode
         pybind11::class_< StratigraphicSectionBuilder, CrossSectionBuilder >(
             module, "StratigraphicSectionBuilder" )
             .def( pybind11::init< StratigraphicSection& >() )
-            .def( "copy", ( void( StratigraphicSectionBuilder::* )(
-                              const StratigraphicSection& implicit_section ) )
-                              & StratigraphicSectionBuilder::copy )
+            .def( "copy",
+                []( StratigraphicSectionBuilder& builder,
+                    const StratigraphicSection& other_model ) {
+                    builder.copy( other_model );
+                } )
             .def( "instantiate_stratigraphic_attribute_on_surfaces",
                 &StratigraphicSectionBuilder::
                     instantiate_stratigraphic_attribute_on_surfaces )

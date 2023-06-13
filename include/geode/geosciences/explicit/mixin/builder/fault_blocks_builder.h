@@ -51,6 +51,8 @@ namespace geode
 
         const uuid& create_fault_block();
 
+        void create_fault_block( uuid fault_block_id );
+
         void delete_fault_block( const FaultBlock< dimension >& fault_block );
 
     private:
