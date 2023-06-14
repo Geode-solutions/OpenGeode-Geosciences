@@ -51,7 +51,8 @@ namespace geode
                 ( double( ImplicitStructuralModel::* )(
                     const Block3D&, const Point3D&, index_t ) const )
                     & ImplicitStructuralModel::implicit_value )
-            .def( "horizons_stack", &ImplicitStructuralModel::horizons_stack )
+            .def( "horizons_stack", &ImplicitStructuralModel::horizons_stack,
+                pybind11::return_value_policy::reference )
             .def( "horizon_implicit_value",
                 &ImplicitStructuralModel::horizon_implicit_value );
     }
