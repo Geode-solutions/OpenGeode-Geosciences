@@ -135,6 +135,11 @@ namespace geode
             implicit_attribute_type value );
 
     private:
+        friend class bitsery::Access;
+        template < typename Archive >
+        void serialize( Archive& archive );
+
+    private:
         IMPLEMENTATION_MEMBER( impl_ );
     };
 } // namespace geode

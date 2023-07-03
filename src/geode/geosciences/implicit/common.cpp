@@ -26,6 +26,10 @@
 #include <geode/geosciences/implicit/common.h>
 #include <geode/geosciences/implicit/representation/io/geode/geode_horizons_stack_input.h>
 #include <geode/geosciences/implicit/representation/io/geode/geode_horizons_stack_output.h>
+#include <geode/geosciences/implicit/representation/io/geode/geode_implicit_cross_section_input.h>
+#include <geode/geosciences/implicit/representation/io/geode/geode_implicit_cross_section_output.h>
+#include <geode/geosciences/implicit/representation/io/geode/geode_implicit_structural_model_input.h>
+#include <geode/geosciences/implicit/representation/io/geode/geode_implicit_structural_model_output.h>
 
 namespace
 {
@@ -48,6 +52,34 @@ namespace
             geode::OpenGeodeHorizonsStackOutput3D >(
             geode::OpenGeodeHorizonsStackOutput3D::extension().data() );
     }
+
+    void register_cross_section_model_input()
+    {
+        geode::ImplicitCrossSectionInputFactory::register_creator<
+            geode::OpenGeodeImplicitCrossSectionInput >(
+            geode::OpenGeodeImplicitCrossSectionInput::extension().data() );
+    }
+
+    void register_cross_section_model_output()
+    {
+        geode::ImplicitCrossSectionOutputFactory::register_creator<
+            geode::OpenGeodeImplicitCrossSectionOutput >(
+            geode::OpenGeodeImplicitCrossSectionOutput::extension().data() );
+    }
+
+    void register_implicit_structural_model_input()
+    {
+        geode::ImplicitStructuralModelInputFactory::register_creator<
+            geode::OpenGeodeImplicitStructuralModelInput >(
+            geode::OpenGeodeImplicitStructuralModelInput::extension().data() );
+    }
+
+    void register_implicit_structural_model_output()
+    {
+        geode::ImplicitStructuralModelOutputFactory::register_creator<
+            geode::OpenGeodeImplicitStructuralModelOutput >(
+            geode::OpenGeodeImplicitStructuralModelOutput::extension().data() );
+    }
 } // namespace
 
 namespace geode
@@ -57,5 +89,9 @@ namespace geode
         GeosciencesExplicitLibrary::initialize();
         register_horizons_stack_input();
         register_horizons_stack_output();
+        register_cross_section_model_input();
+        register_cross_section_model_output();
+        register_implicit_structural_model_input();
+        register_implicit_structural_model_output();
     }
 } // namespace geode

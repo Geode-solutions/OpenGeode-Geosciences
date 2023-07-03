@@ -43,6 +43,8 @@
 #include <geode/geosciences/implicit/representation/builder/stratigraphic_model_builder.h>
 #include <geode/geosciences/implicit/representation/core/horizons_stack.h>
 #include <geode/geosciences/implicit/representation/core/stratigraphic_model.h>
+#include <geode/geosciences/implicit/representation/io/implicit_structural_model_input.h>
+#include <geode/geosciences/implicit/representation/io/implicit_structural_model_output.h>
 
 void add_horizons_stack_to_model(
     geode::StratigraphicModel& model, const geode::uuid& block1_id )
@@ -217,6 +219,20 @@ void test_save_stratigraphic_surfaces( const geode::StratigraphicModel& model )
     }
 }
 
+void test_io(
+    const geode::StratigraphicModel& model, const geode::uuid& block1_id )
+{
+    geode::Logger::info( "Testing IO" );
+    const auto filename = "test_implicit_model_io.og_istrm";
+    geode::save_implicit_structural_model( model, filename );
+    geode::StratigraphicModel model_reload{
+        geode::load_implicit_structural_model( filename )
+    };
+    geode::StratigraphicModelBuilder builder{ model_reload };
+    builder.reinitialize_stratigraphic_query_trees();
+    test_model( model_reload, block1_id );
+}
+
 int main()
 {
     try
@@ -231,6 +247,7 @@ int main()
         geode::Logger::info( "Testing copy" );
         test_copy( model, block1_id );
         test_save_stratigraphic_surfaces( model );
+        test_io( model, block1_id );
 
         geode::Logger::info( "TEST SUCCESS" );
         return 0;

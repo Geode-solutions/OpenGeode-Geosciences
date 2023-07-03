@@ -24,6 +24,7 @@
 #include <geode/geosciences/implicit/representation/core/implicit_structural_model.h>
 
 #include <geode/basic/attribute_manager.h>
+#include <geode/basic/bitsery_archive.h>
 #include <geode/basic/cached_value.h>
 #include <geode/basic/logger.h>
 #include <geode/basic/pimpl_impl.h>
@@ -46,6 +47,13 @@ namespace geode
     class ImplicitStructuralModel::Impl
     {
     public:
+        Impl() = default;
+        Impl( Impl&& other )
+            : horizons_stack_{ std::move( other.horizons_stack_ ) },
+              horizon_isovalues_{ std::move( other.horizon_isovalues_ ) }
+        {
+        }
+
         void initialize_implicit_query_trees(
             const ImplicitStructuralModel& model )
         {
@@ -118,8 +126,7 @@ namespace geode
                 "[horizon_implicit_value] You cannot access the isovalue of "
                 "Horizon ",
                 horizon.id().string(),
-                " because the horizon is not defined in the "
-                "HorizonsStack." );
+                " because the horizon is not defined in the HorizonsStack." );
             const auto value = horizon_isovalues_.find( horizon.id() );
             if( value == horizon_isovalues_.end() )
             {
@@ -251,8 +258,7 @@ namespace geode
                 "[horizon_implicit_value] You cannot access the isovalue of "
                 "Horizon ",
                 horizon.id().string(),
-                " because the horizon is not defined in the "
-                "HorizonsStack." );
+                " because the horizon is not defined in the HorizonsStack." );
             horizon_isovalues_[horizon.id()] = isovalue;
         }
 
@@ -289,6 +295,21 @@ namespace geode
             return absl::nullopt;
         }
 
+        friend class bitsery::Access;
+        template < typename Archive >
+        void serialize( Archive& archive )
+        {
+            archive.ext( *this, Growable< Archive, Impl >{ { []( Archive& a,
+                                                                 Impl& impl ) {
+                a.ext( impl.horizon_isovalues_,
+                    bitsery::ext::StdMap{ impl.horizon_isovalues_.max_size() },
+                    []( Archive& a2, uuid& id, double item ) {
+                        a2.object( id );
+                        a2.value8b( item );
+                    } );
+            } } } );
+        }
+
     private:
         absl::flat_hash_map< uuid, TetrahedralSolidScalarFunction3D >
             implicit_attributes_;
@@ -307,7 +328,8 @@ namespace geode
 
     ImplicitStructuralModel::ImplicitStructuralModel(
         ImplicitStructuralModel&& implicit_model )
-        : StructuralModel{ std::move( implicit_model ) }
+        : StructuralModel{ std::move( implicit_model ) },
+          impl_{ std::move( implicit_model.impl_ ) }
     {
         impl_->initialize_implicit_query_trees( *this );
     }
@@ -415,4 +437,17 @@ namespace geode
     {
         impl_->set_implicit_value( block, vertex_id, value );
     }
+
+    template < typename Archive >
+    void ImplicitStructuralModel::serialize( Archive& archive )
+    {
+        archive.ext(
+            *this, Growable< Archive, ImplicitStructuralModel >{
+                       { []( Archive& a, ImplicitStructuralModel& model ) {
+                           a.object( model.impl_ );
+                       } } } );
+    }
+
+    SERIALIZE_BITSERY_ARCHIVE(
+        opengeode_geosciences_implicit_api, ImplicitStructuralModel );
 } // namespace geode
