@@ -133,6 +133,11 @@ namespace geode
             const Surface2D& surface, index_t vertex_id, double value );
 
     private:
+        friend class bitsery::Access;
+        template < typename Archive >
+        void serialize( Archive& archive );
+
+    private:
         IMPLEMENTATION_MEMBER( impl_ );
     };
 } // namespace geode

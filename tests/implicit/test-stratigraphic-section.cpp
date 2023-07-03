@@ -43,6 +43,8 @@
 #include <geode/geosciences/implicit/geometry/stratigraphic_point.h>
 #include <geode/geosciences/implicit/representation/builder/stratigraphic_section_builder.h>
 #include <geode/geosciences/implicit/representation/core/stratigraphic_section.h>
+#include <geode/geosciences/implicit/representation/io/implicit_cross_section_input.h>
+#include <geode/geosciences/implicit/representation/io/implicit_cross_section_output.h>
 
 geode::StratigraphicSection import_section_with_stratigraphy()
 {
@@ -145,6 +147,19 @@ void test_save_stratigraphic_lines(
     }
 }
 
+void test_io( const geode::StratigraphicSection& implicit_model )
+{
+    geode::Logger::info( "Testing IO" );
+    const auto filename = "test_implicit_section_io.og_ixsctn";
+    geode::save_implicit_cross_section( implicit_model, filename );
+    geode::StratigraphicSection model_reload{
+        geode::load_implicit_cross_section( filename )
+    };
+    geode::StratigraphicSectionBuilder builder{ model_reload };
+    builder.reinitialize_stratigraphic_query_trees();
+    test_section( model_reload );
+}
+
 int main()
 {
     try
@@ -154,6 +169,7 @@ int main()
         const auto model = import_section_with_stratigraphy();
         test_section( model );
         test_save_stratigraphic_lines( model );
+        test_io( model );
 
         geode::Logger::info( "TEST SUCCESS" );
         return 0;
