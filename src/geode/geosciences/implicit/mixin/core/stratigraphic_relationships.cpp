@@ -216,6 +216,7 @@ namespace geode
                 == NO_UNCONFORMITY )
             {
                 this->remove_relation_edge( id.value() );
+                return;
             }
             above_relations_->set_value( id.value(), false );
         }
