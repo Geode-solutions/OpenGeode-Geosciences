@@ -63,7 +63,7 @@ namespace geode
         static absl::string_view native_extension_static()
         {
             static const auto extension =
-                absl::StrCat( "og_sus", dimension, "d" );
+                absl::StrCat( "og_hst", dimension, "d" );
             return extension;
         }
 
