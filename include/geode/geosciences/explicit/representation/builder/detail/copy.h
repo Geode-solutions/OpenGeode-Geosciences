@@ -51,6 +51,29 @@ namespace geode
         }
 
         template < typename ModelFrom, typename BuilderTo >
+        void copy_faults(
+            const ModelFrom& from, BuilderTo& builder_to, Mapping& mapping )
+        {
+            for( const auto& fault : from.faults() )
+            {
+                if( mapping.has_mapping_input( fault.id() ) )
+                {
+                    const auto& fault_id = mapping.in2out( fault.id() );
+                    builder_to.add_fault( fault_id );
+                    builder_to.set_fault_name( fault_id, fault.name() );
+                    builder_to.set_fault_type( fault_id, fault.type() );
+                }
+                else
+                {
+                    const auto& fault_id = builder_to.add_fault();
+                    builder_to.set_fault_name( fault_id, fault.name() );
+                    builder_to.set_fault_type( fault_id, fault.type() );
+                    mapping.map( fault.id(), fault_id );
+                }
+            }
+        }
+
+        template < typename ModelFrom, typename BuilderTo >
         Mapping copy_horizons( const ModelFrom& from, BuilderTo& builder_to )
         {
             Mapping mapping;
@@ -102,6 +125,30 @@ namespace geode
                     fault_block_id, fault_block.name() );
             }
             return mapping;
+        }
+
+        template < typename ModelFrom, typename BuilderTo >
+        void copy_fault_blocks(
+            const ModelFrom& from, BuilderTo& builder_to, Mapping& mapping )
+        {
+            for( const auto& fault_block : from.fault_blocks() )
+            {
+                if( mapping.has_mapping_input( fault_block.id() ) )
+                {
+                    const auto& fault_block_id =
+                        mapping.in2out( fault_block.id() );
+                    builder_to.add_fault( fault_block_id );
+                    builder_to.set_fault_name(
+                        fault_block_id, fault_block.name() );
+                }
+                else
+                {
+                    const auto& fault_block_id = builder_to.add_fault_block();
+                    builder_to.set_fault_block_name(
+                        fault_block_id, fault_block.name() );
+                    mapping.map( fault_block.id(), fault_block_id );
+                }
+            }
         }
 
         template < typename ModelFrom, typename BuilderTo >

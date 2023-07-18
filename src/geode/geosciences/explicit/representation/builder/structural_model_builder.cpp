@@ -57,14 +57,14 @@ namespace geode
     void StructuralModelBuilder::copy_geological_components(
         ModelCopyMapping& mappings, const StructuralModel& structural_model )
     {
-        mappings.emplace( Fault3D::component_type_static(),
-            detail::copy_faults( structural_model, *this ) );
-        mappings.emplace( Horizon3D::component_type_static(),
-            detail::copy_horizons( structural_model, *this ) );
-        mappings.emplace( FaultBlock3D::component_type_static(),
-            detail::copy_fault_blocks( structural_model, *this ) );
-        mappings.emplace( StratigraphicUnit3D::component_type_static(),
-            detail::copy_stratigraphic_units( structural_model, *this ) );
+        detail::copy_faults( structural_model, *this,
+            mappings[Fault3D::component_type_static()] );
+        detail::copy_horizons( structural_model, *this,
+            mappings[Horizon3D::component_type_static()] );
+        detail::copy_fault_blocks( structural_model, *this,
+            mappings[FaultBlock3D::component_type_static()] );
+        detail::copy_stratigraphic_units( structural_model, *this,
+            mappings[StratigraphicUnit3D::component_type_static()] );
     }
 
     const uuid& StructuralModelBuilder::add_fault()
@@ -78,6 +78,17 @@ namespace geode
     {
         const auto& id = create_fault( type );
         return id;
+    }
+
+    void StructuralModelBuilder::add_fault( uuid fault_id )
+    {
+        create_fault( std::move( fault_id ) );
+    }
+
+    void StructuralModelBuilder::add_fault(
+        uuid fault_id, typename Fault3D::FAULT_TYPE type )
+    {
+        create_fault( std::move( fault_id ), type );
     }
 
     index_t StructuralModelBuilder::add_surface_in_fault(
@@ -134,6 +145,11 @@ namespace geode
     {
         const auto& id = create_fault_block();
         return id;
+    }
+
+    void StructuralModelBuilder::add_fault_block( uuid fault_block_id )
+    {
+        create_fault_block( std::move( fault_block_id ) );
     }
 
     index_t StructuralModelBuilder::add_block_in_fault_block(
