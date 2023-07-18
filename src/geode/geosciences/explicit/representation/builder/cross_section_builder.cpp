@@ -78,6 +78,17 @@ namespace geode
         return id;
     }
 
+    void CrossSectionBuilder::add_fault( uuid fault_id )
+    {
+        create_fault( std::move( fault_id ) );
+    }
+
+    void CrossSectionBuilder::add_fault(
+        uuid fault_id, typename Fault2D::FAULT_TYPE type )
+    {
+        create_fault( std::move( fault_id ), type );
+    }
+
     index_t CrossSectionBuilder::add_line_in_fault(
         const Line2D& line, const Fault2D& fault )
     {
@@ -104,6 +115,17 @@ namespace geode
         return id;
     }
 
+    void CrossSectionBuilder::add_horizon( uuid horizon_id )
+    {
+        create_horizon( std::move( horizon_id ) );
+    }
+
+    void CrossSectionBuilder::add_horizon(
+        uuid horizon_id, typename Horizon2D::HORIZON_TYPE type )
+    {
+        create_horizon( std::move( horizon_id ), type );
+    }
+
     index_t CrossSectionBuilder::add_line_in_horizon(
         const Line2D& line, const Horizon2D& horizon )
     {
@@ -121,6 +143,11 @@ namespace geode
     {
         const auto& id = create_fault_block();
         return id;
+    }
+
+    void CrossSectionBuilder::add_fault_block( uuid fault_block_id )
+    {
+        create_fault_block( fault_block_id );
     }
 
     index_t CrossSectionBuilder::add_surface_in_fault_block(
@@ -141,6 +168,12 @@ namespace geode
     {
         const auto& id = create_stratigraphic_unit();
         return id;
+    }
+
+    void CrossSectionBuilder::add_stratigraphic_unit(
+        uuid stratigraphic_unit_id )
+    {
+        create_stratigraphic_unit( std::move( stratigraphic_unit_id ) );
     }
 
     index_t CrossSectionBuilder::add_surface_in_stratigraphic_unit(
