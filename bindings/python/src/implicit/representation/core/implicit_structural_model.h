@@ -40,17 +40,18 @@ namespace geode
             .def(
                 "native_extension", &ImplicitStructuralModel::native_extension )
             .def( "implicit_value_from_vertex_id",
-                ( double( ImplicitStructuralModel::* )(
-                    const Block3D&, index_t ) const )
-                    & ImplicitStructuralModel::implicit_value )
+                static_cast< double ( ImplicitStructuralModel::* )(
+                    const Block3D&, index_t ) const >(
+                    &ImplicitStructuralModel::implicit_value ) )
             .def( "implicit_value_from_geometric_point",
-                ( absl::optional< double >( ImplicitStructuralModel::* )(
-                    const Block3D&, const Point3D& ) const )
-                    & ImplicitStructuralModel::implicit_value )
+                static_cast< absl::optional< double > (
+                    ImplicitStructuralModel::* )(
+                    const Block3D&, const Point3D& ) const >(
+                    &ImplicitStructuralModel::implicit_value ) )
             .def( "implicit_value_from_geometric_point_and_tetra_id",
-                ( double( ImplicitStructuralModel::* )(
-                    const Block3D&, const Point3D&, index_t ) const )
-                    & ImplicitStructuralModel::implicit_value )
+                static_cast< double ( ImplicitStructuralModel::* )(
+                    const Block3D&, const Point3D&, index_t ) const >(
+                    &ImplicitStructuralModel::implicit_value ) )
             .def( "horizons_stack", &ImplicitStructuralModel::horizons_stack,
                 pybind11::return_value_policy::reference )
             .def( "horizon_implicit_value",

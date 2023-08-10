@@ -40,16 +40,18 @@ namespace geode
                     const CrossSection& other_section ) {
                     builder.copy( other_section );
                 } )
-            .def( "add_fault", ( const uuid& (CrossSectionBuilder::*) () )
-                                   & CrossSectionBuilder::add_fault )
-            .def( "add_horizon", ( const uuid& (CrossSectionBuilder::*) () )
-                                     & CrossSectionBuilder::add_horizon )
-            .def(
-                "add_fault_block", ( const uuid& (CrossSectionBuilder::*) () )
-                                       & CrossSectionBuilder::add_fault_block )
+            .def( "add_fault",
+                static_cast< const uuid& (CrossSectionBuilder::*) () >(
+                    &CrossSectionBuilder::add_fault ) )
+            .def( "add_horizon",
+                static_cast< const uuid& (CrossSectionBuilder::*) () >(
+                    &CrossSectionBuilder::add_horizon ) )
+            .def( "add_fault_block",
+                static_cast< const uuid& (CrossSectionBuilder::*) () >(
+                    &CrossSectionBuilder::add_fault_block ) )
             .def( "add_stratigraphic_unit",
-                ( const uuid& (CrossSectionBuilder::*) () )
-                    & CrossSectionBuilder::add_stratigraphic_unit )
+                static_cast< const uuid& (CrossSectionBuilder::*) () >(
+                    &CrossSectionBuilder::add_stratigraphic_unit ) )
             .def( "remove_fault", &CrossSectionBuilder::remove_fault )
             .def( "remove_horizon", &CrossSectionBuilder::remove_horizon )
             .def(

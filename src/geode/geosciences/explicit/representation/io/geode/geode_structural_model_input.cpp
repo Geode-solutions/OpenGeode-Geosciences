@@ -30,6 +30,12 @@
 #include <geode/basic/uuid.h>
 #include <geode/basic/zip_file.h>
 
+#include <geode/model/mixin/core/block.h>
+#include <geode/model/mixin/core/corner.h>
+#include <geode/model/mixin/core/line.h>
+#include <geode/model/mixin/core/model_boundary.h>
+#include <geode/model/mixin/core/surface.h>
+#include <geode/model/representation/builder/detail/filter.h>
 #include <geode/model/representation/io/geode/geode_brep_input.h>
 
 #include <geode/geosciences/explicit/representation/builder/structural_model_builder.h>
@@ -69,6 +75,7 @@ namespace geode
         OpenGeodeBRepInput brep_input{ filename() };
         brep_input.load_brep_files( structural_model, zip_reader.directory() );
         load_structural_model_files( structural_model, zip_reader.directory() );
+        detail::filter_unsupported_components( structural_model );
         return structural_model;
     }
 } // namespace geode

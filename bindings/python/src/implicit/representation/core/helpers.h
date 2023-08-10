@@ -36,17 +36,17 @@ namespace geode
         {
             module
                 .def( "rescale_model_implicit_value",
-                    ( void ( * )( ImplicitStructuralModel&, double ) )
-                        & rescale_implicit_value )
+                    static_cast< void ( * )( ImplicitStructuralModel&,
+                        double ) >( &rescale_implicit_value ) )
                 .def( "rescale_model_implicit_value_to_bbox_scale",
-                    ( void ( * )( StratigraphicModel& ) )
-                        & rescale_implicit_value_to_bbox_scale )
+                    static_cast< void ( * )( StratigraphicModel& ) >(
+                        &rescale_implicit_value_to_bbox_scale ) )
                 .def( "rescale_section_implicit_value",
-                    ( void ( * )( ImplicitCrossSection&, double ) )
-                        & rescale_implicit_value )
+                    static_cast< void ( * )( ImplicitCrossSection&, double ) >(
+                        &rescale_implicit_value ) )
                 .def( "rescale_section_implicit_value_to_bbox_scale",
-                    ( void ( * )( StratigraphicSection& ) )
-                        & rescale_implicit_value_to_bbox_scale )
+                    static_cast< void ( * )( StratigraphicSection& ) >(
+                        &rescale_implicit_value_to_bbox_scale ) )
                 .def( "save_stratigraphic_surfaces",
                     &save_stratigraphic_surfaces )
                 .def( "save_stratigraphic_blocks", &save_stratigraphic_blocks )

@@ -41,16 +41,18 @@ namespace geode
                     const StructuralModel& other_model ) {
                     builder.copy( other_model );
                 } )
-            .def( "add_fault", ( const uuid& (StructuralModelBuilder::*) () )
-                                   & StructuralModelBuilder::add_fault )
-            .def( "add_horizon", ( const uuid& (StructuralModelBuilder::*) () )
-                                     & StructuralModelBuilder::add_horizon )
+            .def( "add_fault",
+                static_cast< const uuid& (StructuralModelBuilder::*) () >(
+                    &StructuralModelBuilder::add_fault ) )
+            .def( "add_horizon",
+                static_cast< const uuid& (StructuralModelBuilder::*) () >(
+                    &StructuralModelBuilder::add_horizon ) )
             .def( "add_fault_block",
-                ( const uuid& (StructuralModelBuilder::*) () )
-                    & StructuralModelBuilder::add_fault_block )
+                static_cast< const uuid& (StructuralModelBuilder::*) () >(
+                    &StructuralModelBuilder::add_fault_block ) )
             .def( "add_stratigraphic_unit",
-                ( const uuid& (StructuralModelBuilder::*) () )
-                    & StructuralModelBuilder::add_stratigraphic_unit )
+                static_cast< const uuid& (StructuralModelBuilder::*) () >(
+                    &StructuralModelBuilder::add_stratigraphic_unit ) )
             .def( "remove_fault", &StructuralModelBuilder::remove_fault )
             .def( "remove_horizon", &StructuralModelBuilder::remove_horizon )
             .def( "remove_fault_block",
