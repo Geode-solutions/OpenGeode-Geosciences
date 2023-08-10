@@ -30,6 +30,11 @@
 #include <geode/basic/uuid.h>
 #include <geode/basic/zip_file.h>
 
+#include <geode/model/mixin/core/corner.h>
+#include <geode/model/mixin/core/line.h>
+#include <geode/model/mixin/core/model_boundary.h>
+#include <geode/model/mixin/core/surface.h>
+#include <geode/model/representation/builder/detail/filter.h>
 #include <geode/model/representation/io/geode/geode_section_input.h>
 
 #include <geode/geosciences/explicit/representation/builder/cross_section_builder.h>
@@ -70,6 +75,7 @@ namespace geode
         section_input.load_section_files(
             cross_section, zip_reader.directory() );
         load_cross_section_files( cross_section, zip_reader.directory() );
+        detail::filter_unsupported_components( cross_section );
         return cross_section;
     }
 } // namespace geode

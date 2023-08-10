@@ -23,6 +23,8 @@
 
 #pragma once
 
+#include <geode/basic/algorithm.h>
+
 #include <geode/model/representation/core/brep.h>
 
 #include <geode/geosciences/explicit/mixin/core/fault_blocks.h>
@@ -130,6 +132,11 @@ namespace geode
     public:
         static constexpr index_t dim{ 3 };
         using Builder = StructuralModelBuilder;
+        using Components = tuple_cat< BRep::Components,
+            std::tuple< Fault3D,
+                Horizon3D,
+                FaultBlock3D,
+                StratigraphicUnit3D > >;
 
         StructuralModel() = default;
         StructuralModel( StructuralModel&& ) = default;

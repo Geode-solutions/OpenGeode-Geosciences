@@ -37,18 +37,19 @@ namespace geode
             } ) )
             .def( "native_extension", &ImplicitCrossSection::native_extension )
             .def( "implicit_value_from_vertex_id",
-                ( double( ImplicitCrossSection::* )( const Surface2D&, index_t )
-                        const )
-                    & ImplicitCrossSection::implicit_value )
+                static_cast< double ( ImplicitCrossSection::* )(
+                    const Surface2D&, index_t ) const >(
+                    &ImplicitCrossSection::implicit_value ) )
             .def( "implicit_value_from_geometric_point",
-                ( absl::optional< double >( ImplicitCrossSection::* )(
-                    const Surface2D&, const Point2D& ) const )
-                    & ImplicitCrossSection::implicit_value )
+                static_cast< absl::optional< double > (
+                    ImplicitCrossSection::* )(
+                    const Surface2D&, const Point2D& ) const >(
+                    &ImplicitCrossSection::implicit_value ) )
             .def( "implicit_value_from_geometric_point_and_triangle_"
                   "id",
-                ( double( ImplicitCrossSection::* )(
-                    const Surface2D&, const Point2D&, index_t ) const )
-                    & ImplicitCrossSection::implicit_value )
+                static_cast< double ( ImplicitCrossSection::* )(
+                    const Surface2D&, const Point2D&, index_t ) const >(
+                    &ImplicitCrossSection::implicit_value ) )
             .def( "horizons_stack", &ImplicitCrossSection::horizons_stack,
                 pybind11::return_value_policy::reference )
             .def( "horizon_implicit_value",

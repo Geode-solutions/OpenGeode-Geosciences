@@ -46,11 +46,14 @@
                 builder.copy_components( other_stack );                        \
             } )                                                                \
         .def( "add_horizon",                                                   \
-            ( const uuid& (HorizonsStackBuilder##dimension##D::*) () )         \
-                & HorizonsStackBuilder##dimension##D::add_horizon )            \
+            static_cast< const uuid& (                                         \
+                HorizonsStackBuilder##dimension##D::*) () >(                   \
+                &HorizonsStackBuilder##dimension##D::add_horizon ) )           \
         .def( "add_stratigraphic_unit",                                        \
-            ( const uuid& (HorizonsStackBuilder##dimension##D::*) () )         \
-                & HorizonsStackBuilder##dimension##D::add_stratigraphic_unit ) \
+            static_cast< const uuid& (                                         \
+                HorizonsStackBuilder##dimension##D::*) () >(                   \
+                &HorizonsStackBuilder##dimension##D::                          \
+                    add_stratigraphic_unit ) )                                 \
         .def( "add_horizon_above",                                             \
             &HorizonsStackBuilder##dimension##D::add_horizon_above )           \
         .def( "add_horizon_under",                                             \

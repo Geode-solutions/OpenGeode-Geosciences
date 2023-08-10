@@ -45,26 +45,27 @@ namespace geode
                 return StratigraphicModel{ std::move( model ) };
             } ) )
             .def( "stratigraphic_coordinates_from_vertex_id",
-                ( StratigraphicPoint3D( StratigraphicModel::* )(
-                    const Block3D&, index_t ) const )
-                    & StratigraphicModel::stratigraphic_coordinates )
+                static_cast< StratigraphicPoint3D ( StratigraphicModel::* )(
+                    const Block3D&, index_t ) const >(
+                    &StratigraphicModel::stratigraphic_coordinates ) )
             .def( "stratigraphic_coordinates_from_geometric_point",
-                ( absl::optional< StratigraphicPoint3D >(
+                static_cast< absl::optional< StratigraphicPoint3D > (
                     StratigraphicModel::* )( const Block3D&, const Point3D& )
-                        const )
-                    & StratigraphicModel::stratigraphic_coordinates )
+                        const >(
+                    &StratigraphicModel::stratigraphic_coordinates ) )
             .def( "stratigraphic_coordinates_from_geometric_point_and_tetra_id",
-                ( StratigraphicPoint3D( StratigraphicModel::* )(
-                    const Block3D&, const Point3D&, index_t ) const )
-                    & StratigraphicModel::stratigraphic_coordinates )
+                static_cast< StratigraphicPoint3D ( StratigraphicModel::* )(
+                    const Block3D&, const Point3D&, index_t ) const >(
+                    &StratigraphicModel::stratigraphic_coordinates ) )
             .def( "geometric_coordinates_from_stratigraphic_point",
-                ( absl::optional< Point3D >( StratigraphicModel::* )(
-                    const Block3D&, const StratigraphicPoint3D& ) const )
-                    & StratigraphicModel::geometric_coordinates )
+                static_cast< absl::optional< Point3D > (
+                    StratigraphicModel::* )(
+                    const Block3D&, const StratigraphicPoint3D& ) const >(
+                    &StratigraphicModel::geometric_coordinates ) )
             .def( "geometric_coordinates_from_stratigraphic_point_and_tetra_id",
-                ( Point3D( StratigraphicModel::* )( const Block3D&,
-                    const StratigraphicPoint3D&, index_t ) const )
-                    & StratigraphicModel::geometric_coordinates )
+                static_cast< Point3D ( StratigraphicModel::* )( const Block3D&,
+                    const StratigraphicPoint3D&, index_t ) const >(
+                    &StratigraphicModel::geometric_coordinates ) )
             .def( "stratigraphic_surface",
                 &StratigraphicModel::stratigraphic_surface )
             .def( "stratigraphic_bounding_box",

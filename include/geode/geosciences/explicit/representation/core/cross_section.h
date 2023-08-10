@@ -23,6 +23,8 @@
 
 #pragma once
 
+#include <geode/basic/algorithm.h>
+
 #include <geode/model/representation/core/section.h>
 
 #include <geode/geosciences/explicit/mixin/core/fault_blocks.h>
@@ -129,6 +131,11 @@ namespace geode
     public:
         static constexpr index_t dim{ 2 };
         using Builder = CrossSectionBuilder;
+        using Components = tuple_cat< Section::Components,
+            std::tuple< Fault2D,
+                Horizon2D,
+                FaultBlock2D,
+                StratigraphicUnit2D > >;
 
         CrossSection() = default;
         CrossSection( CrossSection&& ) = default;
