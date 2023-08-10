@@ -72,7 +72,7 @@ namespace geode
             {
                 return false;
             }
-            return vertex_component_id( { edge_id.value(), ABOVE_EDGE_VERTEX } )
+            return graph_component_id( { edge_id.value(), ABOVE_EDGE_VERTEX } )
                        .id()
                    == above;
         }
@@ -89,7 +89,7 @@ namespace geode
             {
                 return false;
             }
-            return vertex_component_id(
+            return graph_component_id(
                        { edge_id.value(), IS_ERODED_EDGE_VERTEX } )
                        .id()
                    == eroded;
@@ -107,7 +107,7 @@ namespace geode
             {
                 return false;
             }
-            return vertex_component_id(
+            return graph_component_id(
                        { edge_id.value(), IS_BASELAP_OF_EDGE_VERTEX } )
                        .id()
                    == baselap;
@@ -129,7 +129,7 @@ namespace geode
                 }
                 if( edge_vertex.vertex_id == UNDER_EDGE_VERTEX )
                 {
-                    return this->vertex_component_id( edge_vertex.opposite() )
+                    return this->graph_component_id( edge_vertex.opposite() )
                         .id();
                 }
             }
@@ -152,7 +152,7 @@ namespace geode
                 }
                 if( edge_vertex.vertex_id == ABOVE_EDGE_VERTEX )
                 {
-                    return this->vertex_component_id( edge_vertex.opposite() )
+                    return this->graph_component_id( edge_vertex.opposite() )
                         .id();
                 }
             }
@@ -309,7 +309,7 @@ namespace geode
                 this->graph().edges_around_vertex( index_from.value() ) )
             {
                 const auto& other =
-                    this->vertex_component_id( edge_vertex.opposite() );
+                    this->graph_component_id( edge_vertex.opposite() );
                 if( to == other.id() )
                 {
                     return edge_vertex.edge_id;
