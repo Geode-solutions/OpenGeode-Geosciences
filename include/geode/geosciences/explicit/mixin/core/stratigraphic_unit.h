@@ -76,7 +76,7 @@ namespace geode
 
     private:
         StratigraphicUnit();
-        StratigraphicUnit( StratigraphicUnit&& other ) = default;
+        StratigraphicUnit( StratigraphicUnit&& other )  noexcept = default;
 
         friend class bitsery::Access;
         template < typename Archive >
