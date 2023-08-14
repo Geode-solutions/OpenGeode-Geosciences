@@ -43,7 +43,7 @@ namespace geode
     template < index_t dimension >
     class FaultBlock final : public Component< dimension >
     {
-        OPENGEODE_DISABLE_COPY_AND_MOVE( FaultBlock );
+        OPENGEODE_DISABLE_COPY( FaultBlock );
         PASSKEY( FaultBlocks< dimension >, FaultBlocksKey );
         PASSKEY( FaultBlocksBuilder< dimension >, FaultBlocksBuilderKey );
 
@@ -77,6 +77,7 @@ namespace geode
 
     private:
         FaultBlock();
+        FaultBlock( FaultBlock&& other ) = default;
 
         friend class bitsery::Access;
         template < typename Archive >

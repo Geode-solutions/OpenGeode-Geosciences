@@ -45,7 +45,7 @@ namespace geode
     template < index_t dimension >
     class Horizon final : public Component< dimension >
     {
-        OPENGEODE_DISABLE_COPY_AND_MOVE( Horizon );
+        OPENGEODE_DISABLE_COPY( Horizon );
         PASSKEY( HorizonsBuilder< dimension >, HorizonsBuilderKey );
         PASSKEY( Horizons< dimension >, HorizonsKey );
 
@@ -95,6 +95,7 @@ namespace geode
     private:
         Horizon();
         explicit Horizon( HORIZON_TYPE type );
+        Horizon( Horizon&& other ) noexcept;
 
         friend class bitsery::Access;
         template < typename Archive >

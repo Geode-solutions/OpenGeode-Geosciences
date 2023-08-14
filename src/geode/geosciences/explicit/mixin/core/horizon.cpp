@@ -67,6 +67,13 @@ namespace geode
     }
 
     template < index_t dimension >
+    Horizon< dimension >::Horizon( Horizon&& other ) noexcept
+        : Component< dimension >{ std::move( other ) },
+          impl_{ std::move( other.impl_ ) }
+    {
+    }
+
+    template < index_t dimension >
     Horizon< dimension >::~Horizon() // NOLINT
     {
     }

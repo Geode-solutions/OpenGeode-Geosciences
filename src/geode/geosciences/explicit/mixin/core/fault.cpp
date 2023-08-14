@@ -67,6 +67,13 @@ namespace geode
     }
 
     template < index_t dimension >
+    Fault< dimension >::Fault( Fault&& other ) noexcept
+        : Component< dimension >{ std::move( other ) },
+          impl_{ std::move( other.impl_ ) }
+    {
+    }
+
+    template < index_t dimension >
     Fault< dimension >::~Fault() // NOLINT
     {
     }

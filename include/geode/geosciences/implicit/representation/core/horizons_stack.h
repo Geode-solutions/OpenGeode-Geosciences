@@ -54,7 +54,7 @@ namespace geode
 
     public:
         HorizonsStack();
-        HorizonsStack( HorizonsStack< dimension >&& horizons_stack );
+        HorizonsStack( HorizonsStack&& horizons_stack ) noexcept;
         ~HorizonsStack();
 
         HorizonsStack< dimension >& operator=(
