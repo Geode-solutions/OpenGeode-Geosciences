@@ -77,7 +77,7 @@ namespace geode
 
     private:
         FaultBlock();
-        FaultBlock( FaultBlock&& other )  noexcept = default;
+        FaultBlock( FaultBlock&& other ) noexcept = default;
 
         friend class bitsery::Access;
         template < typename Archive >
