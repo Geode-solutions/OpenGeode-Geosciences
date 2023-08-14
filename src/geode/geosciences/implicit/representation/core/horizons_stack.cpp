@@ -32,7 +32,7 @@ namespace geode
 
     template < index_t dimension >
     HorizonsStack< dimension >::HorizonsStack(
-        HorizonsStack< dimension >&& horizons_stack )
+        HorizonsStack< dimension >&& horizons_stack ) noexcept
         : StratigraphicRelationships{ std::move( horizons_stack ) },
           Horizons< dimension >{ std::move( horizons_stack ) },
           StratigraphicUnits< dimension >{ std::move( horizons_stack ) },

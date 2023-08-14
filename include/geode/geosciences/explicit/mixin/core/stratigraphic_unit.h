@@ -42,7 +42,7 @@ namespace geode
     template < index_t dimension >
     class StratigraphicUnit final : public Component< dimension >
     {
-        OPENGEODE_DISABLE_COPY_AND_MOVE( StratigraphicUnit );
+        OPENGEODE_DISABLE_COPY( StratigraphicUnit );
         PASSKEY( StratigraphicUnits< dimension >, StratigraphicUnitsKey );
         PASSKEY( StratigraphicUnitsBuilder< dimension >,
             StratigraphicUnitsBuilderKey );
@@ -76,6 +76,7 @@ namespace geode
 
     private:
         StratigraphicUnit();
+        StratigraphicUnit( StratigraphicUnit&& other ) = default;
 
         friend class bitsery::Access;
         template < typename Archive >

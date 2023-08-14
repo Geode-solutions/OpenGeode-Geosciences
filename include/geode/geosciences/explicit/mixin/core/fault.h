@@ -45,7 +45,7 @@ namespace geode
     template < index_t dimension >
     class Fault final : public Component< dimension >
     {
-        OPENGEODE_DISABLE_COPY_AND_MOVE( Fault );
+        OPENGEODE_DISABLE_COPY( Fault );
         PASSKEY( Faults< dimension >, FaultsKey );
         PASSKEY( FaultsBuilder< dimension >, FaultsBuilderKey );
 
@@ -95,6 +95,7 @@ namespace geode
 
     private:
         Fault();
+        Fault( Fault&& other ) noexcept;
 
         explicit Fault( FAULT_TYPE type );
 
