@@ -216,8 +216,8 @@ namespace geode
                     block_mesh.vertex_attribute_manager()
                         .find_or_create_attribute< VariableAttribute,
                             ImplicitStructuralModel::implicit_attribute_type >(
-                            ImplicitStructuralModel::implicit_attribute_name,
-                            0 );
+                            ImplicitStructuralModel::implicit_attribute_name, 0,
+                            { false, true } );
                 for( const auto vertex_id : Range{ block_mesh.nb_vertices() } )
                 {
                     implicit_attribute->set_value(
