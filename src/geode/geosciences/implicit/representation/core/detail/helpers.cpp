@@ -126,7 +126,7 @@ namespace geode
                 auto xyz_attribute =
                     strati_surface->vertex_attribute_manager()
                         .find_or_create_attribute< VariableAttribute, Point2D >(
-                            "geode_xyz", { { 0, 0 } } );
+                            "geode_xyz", { { 0, 0 } }, { false, true } );
                 for( const auto pt_id : Range{ strati_surface->nb_vertices() } )
                 {
                     xyz_attribute->set_value(
@@ -156,7 +156,7 @@ namespace geode
                 auto xyz_attribute =
                     strati_solid->vertex_attribute_manager()
                         .find_or_create_attribute< VariableAttribute, Point3D >(
-                            "geode_xyz", { { 0, 0, 0 } } );
+                            "geode_xyz", { { 0, 0, 0 } }, { false, true } );
                 for( const auto pt_id : Range{ strati_solid->nb_vertices() } )
                 {
                     xyz_attribute->set_value(
@@ -188,7 +188,8 @@ namespace geode
                     surface_mesh.vertex_attribute_manager()
                         .find_or_create_attribute< VariableAttribute,
                             ImplicitCrossSection::implicit_attribute_type >(
-                            ImplicitCrossSection::implicit_attribute_name, 0 );
+                            ImplicitCrossSection::implicit_attribute_name, 0,
+                            { false, true } );
                 for( const auto vertex_id :
                     Range{ surface_mesh.nb_vertices() } )
                 {
@@ -246,7 +247,7 @@ namespace geode
                             StratigraphicModel::stratigraphic_location_type >(
                             StratigraphicModel::
                                 stratigraphic_location_attribute_name,
-                            { { 0, 0 } } );
+                            { { 0, 0 } }, { false, true } );
                 for( const auto vertex_id : Range{ block_mesh.nb_vertices() } )
                 {
                     const auto& vertex_point = block_mesh.point( vertex_id );
