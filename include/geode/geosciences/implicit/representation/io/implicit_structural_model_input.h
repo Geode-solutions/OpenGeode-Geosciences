@@ -47,17 +47,17 @@ namespace geode
     {
     public:
         using Base = Input< ImplicitStructuralModel >;
-        using Base::InputData;
-        using Base::MissingFiles;
+        using typename Base::InputData;
+        using typename Base::MissingFiles;
 
     protected:
-        ImplicitStructuralModelInput( absl::string_view filename )
+        explicit ImplicitStructuralModelInput( absl::string_view filename )
             : Base{ filename }
         {
         }
     };
 
-    typename ImplicitStructuralModelInput::MissingFiles
+    ImplicitStructuralModelInput::MissingFiles
         opengeode_geosciences_implicit_api
         check_implicit_structural_model_missing_files(
             absl::string_view filename );

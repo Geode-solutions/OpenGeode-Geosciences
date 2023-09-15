@@ -35,7 +35,7 @@ namespace geode
     {
         try
         {
-            const auto type = "StratigraphicModel";
+            constexpr auto type = "StratigraphicModel";
             auto stratigraphic_model = detail::geode_object_input_impl<
                 StratigraphicModelInputFactory >( type, filename );
             auto message = absl::StrCat( type, " has: " );

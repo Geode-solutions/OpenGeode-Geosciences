@@ -34,7 +34,7 @@ namespace geode
     {
         try
         {
-            const auto type = "ImplicitCrossSection";
+            constexpr auto type = "ImplicitCrossSection";
             auto implicit_model = detail::geode_object_input_impl<
                 ImplicitCrossSectionInputFactory >( type, filename );
             auto message = absl::StrCat( type, " has: " );
