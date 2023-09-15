@@ -47,18 +47,17 @@ namespace geode
     {
     public:
         using Base = Input< StratigraphicSection >;
-        using Base::InputData;
-        using Base::MissingFiles;
+        using typename Base::InputData;
+        using typename Base::MissingFiles;
 
     protected:
-        StratigraphicSectionInput( absl::string_view filename )
+        explicit StratigraphicSectionInput( absl::string_view filename )
             : Base{ filename }
         {
         }
     };
 
-    typename StratigraphicSectionInput::MissingFiles
-        opengeode_geosciences_implicit_api
+    StratigraphicSectionInput::MissingFiles opengeode_geosciences_implicit_api
         check_stratigraphic_section_missing_files( absl::string_view filename );
 
     using StratigraphicSectionInputFactory =

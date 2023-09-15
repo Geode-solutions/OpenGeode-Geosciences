@@ -36,7 +36,7 @@ namespace geode
     {
         try
         {
-            const auto type = "ImplicitStructuralModel";
+            constexpr auto type = "ImplicitStructuralModel";
             auto implicit_model = detail::geode_object_input_impl<
                 ImplicitStructuralModelInputFactory >( type, filename );
             auto message = absl::StrCat( type, " has: " );

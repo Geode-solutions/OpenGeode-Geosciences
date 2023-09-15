@@ -34,7 +34,7 @@ namespace geode
     {
         try
         {
-            const auto type = "StratigraphicSection";
+            constexpr auto type = "StratigraphicSection";
             auto stratigraphic_section = detail::geode_object_input_impl<
                 StratigraphicSectionInputFactory >( type, filename );
             auto message = absl::StrCat( type, " has: " );
@@ -68,8 +68,7 @@ namespace geode
         }
     }
 
-    typename StratigraphicSectionInput::MissingFiles
-        opengeode_geosciences_implicit_api
+    StratigraphicSectionInput::MissingFiles opengeode_geosciences_implicit_api
         check_stratigraphic_section_missing_files( absl::string_view filename )
     {
         const auto input = detail::geode_object_input_reader<

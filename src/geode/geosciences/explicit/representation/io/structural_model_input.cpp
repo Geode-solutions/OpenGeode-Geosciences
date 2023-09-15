@@ -33,7 +33,7 @@ namespace geode
     {
         try
         {
-            const auto type = "StructuralModel";
+            constexpr auto type = "StructuralModel";
             auto structural_model =
                 detail::geode_object_input_impl< StructuralModelInputFactory >(
                     type, filename );

@@ -34,7 +34,7 @@ namespace geode
     {
         try
         {
-            const auto type = "CrossSection";
+            constexpr auto type = "CrossSection";
             auto cross_section =
                 detail::geode_object_input_impl< CrossSectionInputFactory >(
                     type, filename );

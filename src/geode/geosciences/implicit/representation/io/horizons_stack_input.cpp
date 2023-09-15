@@ -35,7 +35,7 @@ namespace geode
     {
         try
         {
-            const auto type = "HorizonsStack";
+            constexpr auto type = "HorizonsStack";
             auto horizons_stack = detail::geode_object_input_impl<
                 HorizonsStackInputFactory< dimension > >( type, filename );
             auto message = absl::StrCat( type, " has: " );

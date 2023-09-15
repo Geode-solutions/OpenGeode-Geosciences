@@ -49,14 +49,17 @@ namespace geode
     {
     public:
         using Base = Input< CrossSection >;
-        using Base::InputData;
-        using Base::MissingFiles;
+        using typename Base::InputData;
+        using typename Base::MissingFiles;
 
     protected:
-        CrossSectionInput( absl::string_view filename ) : Base{ filename } {}
+        explicit CrossSectionInput( absl::string_view filename )
+            : Base{ filename }
+        {
+        }
     };
 
-    typename CrossSectionInput::MissingFiles opengeode_geosciences_explicit_api
+    CrossSectionInput::MissingFiles opengeode_geosciences_explicit_api
         check_cross_section_missing_files( absl::string_view filename );
 
     using CrossSectionInputFactory =
