@@ -23,11 +23,7 @@
 
 #include <geode/geosciences/implicit/representation/io/horizons_stack_input.h>
 
-#include <absl/strings/ascii.h>
-
-#include <geode/basic/filename.h>
-#include <geode/basic/identifier_builder.h>
-#include <geode/basic/timer.h>
+#include <geode/basic/detail/geode_input_impl.h>
 
 #include <geode/geosciences/implicit/representation/builder/horizons_stack_builder.h>
 #include <geode/geosciences/implicit/representation/core/horizons_stack.h>
@@ -39,26 +35,16 @@ namespace geode
     {
         try
         {
-            Timer timer;
-            const auto extension =
-                absl::AsciiStrToLower( extension_from_filename( filename ) );
-            OPENGEODE_EXCEPTION(
-                HorizonsStackInputFactory< dimension >::has_creator(
-                    extension ),
-                "Unknown extension: ", extension );
-            auto input = HorizonsStackInputFactory< dimension >::create(
-                extension, filename );
-            auto horizons_stack = input->read();
-            if( horizons_stack.name() == Identifier::DEFAULT_NAME )
-            {
-                IdentifierBuilder{ horizons_stack }.set_name(
-                    filename_without_extension( filename ) );
-            }
-            Logger::info( "HorizonsStack loaded from ", filename, " in ",
-                timer.duration() );
-            Logger::info( "HorizonsStack has: ", horizons_stack.nb_horizons(),
-                " Horizons and ", horizons_stack.nb_stratigraphic_units(),
+            const auto type = "HorizonsStack";
+            auto horizons_stack = detail::geode_object_input_impl<
+                HorizonsStackInputFactory< dimension > >( type, filename );
+            auto message = absl::StrCat( type, " has: " );
+            detail::add_to_message(
+                message, horizons_stack.nb_horizons(), " Horizons, " );
+            detail::add_to_message( message,
+                horizons_stack.nb_stratigraphic_units(),
                 " Stratigraphic Units" );
+            Logger::info( message );
             return horizons_stack;
         }
         catch( const OpenGeodeException& e )
@@ -69,8 +55,24 @@ namespace geode
         }
     }
 
+    template < index_t dimension >
+    typename HorizonsStackInput< dimension >::MissingFiles
+        check_horizon_stack_missing_files( absl::string_view filename )
+    {
+        const auto input = detail::geode_object_input_reader<
+            HorizonsStackInputFactory< dimension > >( filename );
+        return input->check_missing_files();
+    }
+
     template HorizonsStack< 2 > opengeode_geosciences_implicit_api
         load_horizons_stack( absl::string_view );
     template HorizonsStack< 3 > opengeode_geosciences_implicit_api
         load_horizons_stack( absl::string_view );
+
+    template HorizonsStackInput< 2 >::MissingFiles
+        opengeode_geosciences_implicit_api
+            check_horizon_stack_missing_files< 2 >( absl::string_view );
+    template HorizonsStackInput< 3 >::MissingFiles
+        opengeode_geosciences_implicit_api
+            check_horizon_stack_missing_files< 3 >( absl::string_view );
 } // namespace geode

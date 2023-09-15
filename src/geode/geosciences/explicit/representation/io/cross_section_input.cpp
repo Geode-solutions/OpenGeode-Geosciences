@@ -23,27 +23,10 @@
 
 #include <geode/geosciences/explicit/representation/io/cross_section_input.h>
 
-#include <absl/strings/ascii.h>
-
-#include <geode/basic/filename.h>
-#include <geode/basic/identifier_builder.h>
-#include <geode/basic/timer.h>
+#include <geode/basic/detail/geode_input_impl.h>
 
 #include <geode/geosciences/explicit/representation/builder/cross_section_builder.h>
 #include <geode/geosciences/explicit/representation/core/cross_section.h>
-
-namespace
-{
-    void add_to_message( std::string& message,
-        geode::index_t nb_components,
-        absl::string_view component_text )
-    {
-        if( nb_components > 0 )
-        {
-            absl::StrAppend( &message, nb_components, component_text );
-        }
-    }
-} // namespace
 
 namespace geode
 {
@@ -51,36 +34,27 @@ namespace geode
     {
         try
         {
-            Timer timer;
-            const auto extension =
-                absl::AsciiStrToLower( extension_from_filename( filename ) );
-            OPENGEODE_EXCEPTION(
-                CrossSectionInputFactory::has_creator( extension ),
-                "Unknown extension: ", extension );
-            auto input =
-                CrossSectionInputFactory::create( extension, filename );
-            auto cross_section = input->read();
-            if( cross_section.name() == Identifier::DEFAULT_NAME )
-            {
-                IdentifierBuilder{ cross_section }.set_name(
-                    filename_without_extension( filename ) );
-            }
-            Logger::info( "CrossSection loaded from ", filename, " in ",
-                timer.duration() );
-            std::string message{ "CrossSection has: " };
-            add_to_message(
+            const auto type = "CrossSection";
+            auto cross_section =
+                detail::geode_object_input_impl< CrossSectionInputFactory >(
+                    type, filename );
+            auto message = absl::StrCat( type, " has: " );
+            detail::add_to_message(
                 message, cross_section.nb_surfaces(), " Surfaces, " );
-            add_to_message( message, cross_section.nb_lines(), " Lines, " );
-            add_to_message( message, cross_section.nb_corners(), " Corners, " );
-            add_to_message( message, cross_section.nb_model_boundaries(),
-                " ModelBoundaries, " );
-            add_to_message( message, cross_section.nb_faults(), " Faults, " );
-            add_to_message(
+            detail::add_to_message(
+                message, cross_section.nb_lines(), " Lines, " );
+            detail::add_to_message(
+                message, cross_section.nb_corners(), " Corners, " );
+            detail::add_to_message( message,
+                cross_section.nb_model_boundaries(), " ModelBoundaries, " );
+            detail::add_to_message(
+                message, cross_section.nb_faults(), " Faults, " );
+            detail::add_to_message(
                 message, cross_section.nb_horizons(), " Horizons, " );
-            add_to_message(
+            detail::add_to_message(
                 message, cross_section.nb_fault_blocks(), " FaultBlocks, " );
-            add_to_message( message, cross_section.nb_stratigraphic_units(),
-                " StratigraphicUnits" );
+            detail::add_to_message( message,
+                cross_section.nb_stratigraphic_units(), " StratigraphicUnits" );
             Logger::info( message );
             return cross_section;
         }
@@ -90,5 +64,14 @@ namespace geode
             throw OpenGeodeException{ "Cannot load CrossSection from file: ",
                 filename };
         }
+    }
+
+    typename CrossSectionInput::MissingFiles check_cross_section_missing_files(
+        absl::string_view filename )
+    {
+        const auto input =
+            detail::geode_object_input_reader< CrossSectionInputFactory >(
+                filename );
+        return input->check_missing_files();
     }
 } // namespace geode

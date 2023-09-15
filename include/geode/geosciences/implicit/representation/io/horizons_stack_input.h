@@ -49,12 +49,18 @@ namespace geode
     template < index_t dimension >
     class HorizonsStackInput : public Input< HorizonsStack< dimension > >
     {
+    public:
+        using Base = Input< HorizonsStack< dimension > >;
+        using Base::InputData;
+        using Base::MissingFiles;
+
     protected:
-        HorizonsStackInput( absl::string_view filename )
-            : Input< HorizonsStack< dimension > >{ filename }
-        {
-        }
+        HorizonsStackInput( absl::string_view filename ) : Base{ filename } {}
     };
+
+    template < index_t dimension >
+    typename HorizonsStackInput< dimension >::MissingFiles
+        check_horizon_stack_missing_files( absl::string_view filename );
 
     template < index_t dimension >
     using HorizonsStackInputFactory = Factory< std::string,

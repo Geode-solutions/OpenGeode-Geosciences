@@ -23,27 +23,11 @@
 
 #include <geode/geosciences/implicit/representation/io/stratigraphic_model_input.h>
 
-#include <absl/strings/ascii.h>
-
-#include <geode/basic/filename.h>
-#include <geode/basic/timer.h>
+#include <geode/basic/detail/geode_input_impl.h>
 
 #include <geode/geosciences/explicit/representation/io/structural_model_input.h>
 
 #include <geode/geosciences/implicit/representation/core/stratigraphic_model.h>
-
-namespace
-{
-    void add_to_message( std::string& message,
-        geode::index_t nb_components,
-        absl::string_view component_text )
-    {
-        if( nb_components > 0 )
-        {
-            absl::StrAppend( &message, nb_components, component_text );
-        }
-    }
-} // namespace
 
 namespace geode
 {
@@ -51,35 +35,28 @@ namespace geode
     {
         try
         {
-            Timer timer;
-            const auto extension =
-                absl::AsciiStrToLower( extension_from_filename( filename ) );
-            OPENGEODE_EXCEPTION(
-                StratigraphicModelInputFactory::has_creator( extension ),
-                "Unknown extension: ", extension );
-            auto stratigraphic_model =
-                StratigraphicModelInputFactory::create( extension, filename )
-                    ->read();
-            Logger::info( "StratigraphicModel loaded from ", filename, " in ",
-                timer.duration() );
-            std::string message{ "StratigraphicModel has: " };
-            add_to_message(
+            const auto type = "StratigraphicModel";
+            auto stratigraphic_model = detail::geode_object_input_impl<
+                StratigraphicModelInputFactory >( type, filename );
+            auto message = absl::StrCat( type, " has: " );
+            detail::add_to_message(
                 message, stratigraphic_model.nb_blocks(), " Blocks, " );
-            add_to_message(
+            detail::add_to_message(
                 message, stratigraphic_model.nb_surfaces(), " Surfaces, " );
-            add_to_message(
+            detail::add_to_message(
                 message, stratigraphic_model.nb_lines(), " Lines, " );
-            add_to_message(
+            detail::add_to_message(
                 message, stratigraphic_model.nb_corners(), " Corners, " );
-            add_to_message( message, stratigraphic_model.nb_model_boundaries(),
+            detail::add_to_message( message,
+                stratigraphic_model.nb_model_boundaries(),
                 " ModelBoundaries, " );
-            add_to_message(
+            detail::add_to_message(
                 message, stratigraphic_model.nb_faults(), " Faults, " );
-            add_to_message(
+            detail::add_to_message(
                 message, stratigraphic_model.nb_horizons(), " Horizons, " );
-            add_to_message( message, stratigraphic_model.nb_fault_blocks(),
-                " FaultBlocks, " );
-            add_to_message( message,
+            detail::add_to_message( message,
+                stratigraphic_model.nb_fault_blocks(), " FaultBlocks, " );
+            detail::add_to_message( message,
                 stratigraphic_model.nb_stratigraphic_units(),
                 " StratigraphicUnits" );
             Logger::info( message );
@@ -92,5 +69,14 @@ namespace geode
                 "Cannot load StratigraphicModel from file: ", filename
             };
         }
+    }
+
+    typename StratigraphicModelInput::MissingFiles
+        check_stratigraphic_model_missing_files( absl::string_view filename )
+    {
+        const auto input =
+            detail::geode_object_input_reader< StratigraphicModelInputFactory >(
+                filename );
+        return input->check_missing_files();
     }
 } // namespace geode
