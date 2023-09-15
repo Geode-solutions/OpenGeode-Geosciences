@@ -48,14 +48,17 @@ namespace geode
     class StructuralModelInput : public Input< StructuralModel >
     {
     public:
-        virtual ~StructuralModelInput() = default;
+        using Base = Input< StructuralModel >;
+        using Base::InputData;
+        using Base::MissingFiles;
 
     protected:
-        StructuralModelInput( absl::string_view filename )
-            : Input< StructuralModel >{ filename }
-        {
-        }
+        StructuralModelInput( absl::string_view filename ) : Base{ filename } {}
     };
+
+    typename StructuralModelInput::MissingFiles
+        opengeode_geosciences_explicit_api
+        check_structural_model_missing_files( absl::string_view filename );
 
     using StructuralModelInputFactory =
         Factory< std::string, StructuralModelInput, absl::string_view >;

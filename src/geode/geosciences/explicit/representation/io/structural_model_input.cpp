@@ -23,26 +23,9 @@
 
 #include <geode/geosciences/explicit/representation/io/structural_model_input.h>
 
-#include <absl/strings/ascii.h>
-
-#include <geode/basic/filename.h>
-#include <geode/basic/identifier_builder.h>
-#include <geode/basic/timer.h>
+#include <geode/basic/detail/geode_input_impl.h>
 
 #include <geode/geosciences/explicit/representation/core/structural_model.h>
-
-namespace
-{
-    void add_to_message( std::string& message,
-        geode::index_t nb_components,
-        absl::string_view component_text )
-    {
-        if( nb_components > 0 )
-        {
-            absl::StrAppend( &message, nb_components, component_text );
-        }
-    }
-} // namespace
 
 namespace geode
 {
@@ -50,39 +33,29 @@ namespace geode
     {
         try
         {
-            Timer timer;
-            const auto extension =
-                absl::AsciiStrToLower( extension_from_filename( filename ) );
-            OPENGEODE_EXCEPTION(
-                StructuralModelInputFactory::has_creator( extension ),
-                "Unknown extension: ", extension );
-            auto input =
-                StructuralModelInputFactory::create( extension, filename );
-            auto structural_model = input->read();
-            if( structural_model.name() == Identifier::DEFAULT_NAME )
-            {
-                IdentifierBuilder{ structural_model }.set_name(
-                    filename_without_extension( filename ) );
-            }
-            Logger::info( "StructuralModel loaded from ", filename, " in ",
-                timer.duration() );
-            std::string message{ "StructuralModel has: " };
-            add_to_message(
+            const auto type = "StructuralModel";
+            auto structural_model =
+                detail::geode_object_input_impl< StructuralModelInputFactory >(
+                    type, filename );
+            auto message = absl::StrCat( type, " has: " );
+            detail::add_to_message(
                 message, structural_model.nb_blocks(), " Blocks, " );
-            add_to_message(
+            detail::add_to_message(
                 message, structural_model.nb_surfaces(), " Surfaces, " );
-            add_to_message( message, structural_model.nb_lines(), " Lines, " );
-            add_to_message(
+            detail::add_to_message(
+                message, structural_model.nb_lines(), " Lines, " );
+            detail::add_to_message(
                 message, structural_model.nb_corners(), " Corners, " );
-            add_to_message( message, structural_model.nb_model_boundaries(),
-                " ModelBoundaries, " );
-            add_to_message(
+            detail::add_to_message( message,
+                structural_model.nb_model_boundaries(), " ModelBoundaries, " );
+            detail::add_to_message(
                 message, structural_model.nb_faults(), " Faults, " );
-            add_to_message(
+            detail::add_to_message(
                 message, structural_model.nb_horizons(), " Horizons, " );
-            add_to_message(
+            detail::add_to_message(
                 message, structural_model.nb_fault_blocks(), " FaultBlocks, " );
-            add_to_message( message, structural_model.nb_stratigraphic_units(),
+            detail::add_to_message( message,
+                structural_model.nb_stratigraphic_units(),
                 " StratigraphicUnits" );
             Logger::info( message );
             return structural_model;
@@ -93,5 +66,14 @@ namespace geode
             throw OpenGeodeException{ "Cannot load StructuralModel from file: ",
                 filename };
         }
+    }
+
+    typename StructuralModelInput::MissingFiles
+        check_strucutral_model_missing_files( absl::string_view filename )
+    {
+        const auto input =
+            detail::geode_object_input_reader< StructuralModelInputFactory >(
+                filename );
+        return input->check_missing_files();
     }
 } // namespace geode

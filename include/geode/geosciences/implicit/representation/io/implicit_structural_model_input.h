@@ -46,14 +46,21 @@ namespace geode
     class ImplicitStructuralModelInput : public Input< ImplicitStructuralModel >
     {
     public:
-        virtual ~ImplicitStructuralModelInput() = default;
+        using Base = Input< ImplicitStructuralModel >;
+        using Base::InputData;
+        using Base::MissingFiles;
 
     protected:
         ImplicitStructuralModelInput( absl::string_view filename )
-            : Input< ImplicitStructuralModel >{ filename }
+            : Base{ filename }
         {
         }
     };
+
+    typename ImplicitStructuralModelInput::MissingFiles
+        opengeode_geosciences_implicit_api
+        check_implicit_structural_model_missing_files(
+            absl::string_view filename );
 
     using ImplicitStructuralModelInputFactory =
         Factory< std::string, ImplicitStructuralModelInput, absl::string_view >;

@@ -46,14 +46,21 @@ namespace geode
     class ImplicitCrossSectionInput : public Input< ImplicitCrossSection >
     {
     public:
-        virtual ~ImplicitCrossSectionInput() = default;
+        using Base = Input< ImplicitCrossSection >;
+        using Base::InputData;
+        using Base::MissingFiles;
 
     protected:
         ImplicitCrossSectionInput( absl::string_view filename )
-            : Input< ImplicitCrossSection >{ filename }
+            : Base{ filename }
         {
         }
     };
+
+    typename ImplicitCrossSectionInput::MissingFiles
+        opengeode_geosciences_implicit_api
+        check_implicit_cross_section_missing_files(
+            absl::string_view filename );
 
     using ImplicitCrossSectionInputFactory =
         Factory< std::string, ImplicitCrossSectionInput, absl::string_view >;
