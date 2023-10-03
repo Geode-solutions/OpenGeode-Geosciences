@@ -26,6 +26,7 @@
 #include <geode/basic/algorithm.h>
 
 #include <geode/model/mixin/core/corner.h>
+#include <geode/model/mixin/core/line.h>
 #include <geode/model/mixin/core/model_boundary.h>
 #include <geode/model/mixin/core/surface.h>
 #include <geode/model/representation/core/section.h>

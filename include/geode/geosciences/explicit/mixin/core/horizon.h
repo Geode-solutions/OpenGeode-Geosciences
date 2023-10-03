@@ -61,6 +61,7 @@ namespace geode
         };
 
     public:
+        Horizon( Horizon&& other ) noexcept;
         ~Horizon();
 
         static ComponentType component_type_static()
@@ -95,7 +96,6 @@ namespace geode
     private:
         Horizon();
         explicit Horizon( HORIZON_TYPE type );
-        Horizon( Horizon&& other ) noexcept;
 
         friend class bitsery::Access;
         template < typename Archive >

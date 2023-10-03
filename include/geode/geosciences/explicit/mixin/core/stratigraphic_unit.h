@@ -48,6 +48,7 @@ namespace geode
             StratigraphicUnitsBuilderKey );
 
     public:
+        StratigraphicUnit( StratigraphicUnit&& other ) noexcept = default;
         ~StratigraphicUnit();
 
         static ComponentType component_type_static()
@@ -76,7 +77,6 @@ namespace geode
 
     private:
         StratigraphicUnit();
-        StratigraphicUnit( StratigraphicUnit&& other ) noexcept = default;
 
         friend class bitsery::Access;
         template < typename Archive >
