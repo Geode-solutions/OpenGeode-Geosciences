@@ -50,6 +50,7 @@ namespace geode
         friend class bitsery::Access;
 
     public:
+        FaultBlock( FaultBlock&& other ) noexcept = default;
         ~FaultBlock();
 
         static ComponentType component_type_static()
@@ -77,7 +78,6 @@ namespace geode
 
     private:
         FaultBlock();
-        FaultBlock( FaultBlock&& other ) noexcept = default;
 
         friend class bitsery::Access;
         template < typename Archive >

@@ -62,6 +62,7 @@ namespace geode
         };
 
     public:
+        Fault( Fault&& other ) noexcept;
         ~Fault();
 
         static ComponentType component_type_static()
@@ -95,7 +96,6 @@ namespace geode
 
     private:
         Fault();
-        Fault( Fault&& other ) noexcept;
 
         explicit Fault( FAULT_TYPE type );
 
