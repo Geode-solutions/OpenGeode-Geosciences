@@ -4,7 +4,6 @@ add_geode_python_binding(
     NAME "py_implicit"
     SOURCES
         "implicit.cpp"
-        "factory.h"
         "geometry/stratigraphic_point.h"
         "mixin/builder/stratigraphic_relationships_builder.h"
         "mixin/core/stratigraphic_relationships.h"

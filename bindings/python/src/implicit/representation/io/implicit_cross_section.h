@@ -21,7 +21,8 @@
  *
  */
 
-#include "../../factory.h"
+#include "../../../factory.h"
+#include "../../../input.h"
 
 #include <geode/geosciences/implicit/representation/io/implicit_cross_section_input.h>
 #include <geode/geosciences/implicit/representation/io/implicit_cross_section_output.h>
@@ -34,6 +35,9 @@ namespace geode
             "save_implicit_cross_section", &save_implicit_cross_section );
         module.def(
             "load_implicit_cross_section", &load_implicit_cross_section );
+        module.def( "check_implicit_cross_section_missing_files",
+            &check_implicit_cross_section_missing_files );
+        PYTHON_INPUT_CLASS( ImplicitCrossSection, "ImplicitCrossSection" );
         PYTHON_FACTORY_CLASS( ImplicitCrossSectionInputFactory );
         PYTHON_FACTORY_CLASS( ImplicitCrossSectionOutputFactory );
     }

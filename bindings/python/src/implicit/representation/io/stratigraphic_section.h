@@ -21,7 +21,8 @@
  *
  */
 
-#include "../../factory.h"
+#include "../../../factory.h"
+#include "../../../input.h"
 
 #include <geode/geosciences/implicit/representation/io/stratigraphic_section_input.h>
 #include <geode/geosciences/implicit/representation/io/stratigraphic_section_output.h>
@@ -32,6 +33,9 @@ namespace geode
     {
         module.def( "save_stratigraphic_section", &save_stratigraphic_section );
         module.def( "load_stratigraphic_section", &load_stratigraphic_section );
+        module.def( "check_stratigraphic_section_missing_files",
+            &check_stratigraphic_section_missing_files );
+        PYTHON_INPUT_CLASS( StratigraphicSection, "StratigraphicSection" );
         PYTHON_FACTORY_CLASS( StratigraphicSectionInputFactory );
         PYTHON_FACTORY_CLASS( StratigraphicSectionOutputFactory );
     }

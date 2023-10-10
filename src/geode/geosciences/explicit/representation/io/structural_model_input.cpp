@@ -69,7 +69,7 @@ namespace geode
     }
 
     typename StructuralModelInput::MissingFiles
-        check_strucutral_model_missing_files( absl::string_view filename )
+        check_structural_model_missing_files( absl::string_view filename )
     {
         const auto input =
             detail::geode_object_input_reader< StructuralModelInputFactory >(

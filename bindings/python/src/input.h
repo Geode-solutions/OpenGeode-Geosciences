@@ -21,9 +21,14 @@
  *
  */
 
-#include <geode/basic/factory.h>
+#include <geode/basic/input.h>
 
-#define PYTHON_FACTORY_CLASS( type )                                           \
-    pybind11::class_< type >( module, #type )                                  \
-        .def( "list_creators", &type::list_creators )                          \
-        .def( "has_creator", &type::has_creator )
+#define PYTHON_INPUT_CLASS( type, name )                                       \
+    pybind11::class_< Input< type >::MissingFiles >(                           \
+        module, absl::StrCat( "MissingFiles", name ).c_str() )                 \
+        .def( "has_missing_files",                                             \
+            &Input< type >::MissingFiles::has_missing_files )                  \
+        .def_readwrite( "additional_files",                                    \
+            &Input< type >::MissingFiles::additional_files )                   \
+        .def_readwrite(                                                        \
+            "mandatory_files", &Input< type >::MissingFiles::mandatory_files )

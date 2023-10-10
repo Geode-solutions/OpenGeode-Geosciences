@@ -22,7 +22,6 @@ add_geode_python_binding(
     NAME "py_explicit"
     SOURCES
         "explicit.cpp"
-        "factory.h"
         "geometry/crs.h"
         "geometry/crs_helper.h"
         "mixin/builder/fault_blocks_builder.h"

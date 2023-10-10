@@ -63,7 +63,7 @@ namespace geode
 
     template < index_t dimension >
     typename HorizonsStackInput< dimension >::MissingFiles
-        check_horizon_stack_missing_files( absl::string_view filename );
+        check_horizons_stack_missing_files( absl::string_view filename );
 
     template < index_t dimension >
     using HorizonsStackInputFactory = Factory< std::string,
