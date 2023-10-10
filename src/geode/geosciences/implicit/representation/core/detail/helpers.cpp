@@ -103,9 +103,9 @@ namespace geode
         void rescale_implicit_value_to_bbox_scale( StratigraphicModel& model )
         {
             const auto model_bbox = model.bounding_box();
-            const auto model_lengths = model_bbox.max() - model_bbox.min();
+            const auto model_lengths = model_bbox.diagonal();
             const auto strati_bbox = model.stratigraphic_bounding_box();
-            const auto strati_lengths = strati_bbox.max() - strati_bbox.min();
+            const auto strati_lengths = strati_bbox.diagonal();
             auto scaling_factor =
                 strati_lengths.value( 0 ) * model_lengths.value( 2 )
                 / ( model_lengths.value( 0 ) * strati_lengths.value( 2 ) );
@@ -233,8 +233,8 @@ namespace geode
             local_index_t implicit_axis )
         {
             OPENGEODE_EXCEPTION( implicit_axis < 3,
-                "[create_implicit_model_from_brep_attribute_and_coords] Give a "
-                "valid axis (0, 1, or 2)." );
+                "[create_stratigraphic_model_from_brep_attribute_and_coords] "
+                "Give a valid axis (0, 1, or 2)." );
 
             const local_index_t first_axis = implicit_axis == 0 ? 1 : 0;
             const local_index_t second_axis = implicit_axis == 1 ? 2 : 1;
