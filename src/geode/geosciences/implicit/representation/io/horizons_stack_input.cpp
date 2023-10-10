@@ -57,7 +57,7 @@ namespace geode
 
     template < index_t dimension >
     typename HorizonsStackInput< dimension >::MissingFiles
-        check_horizon_stack_missing_files( absl::string_view filename )
+        check_horizons_stack_missing_files( absl::string_view filename )
     {
         const auto input = detail::geode_object_input_reader<
             HorizonsStackInputFactory< dimension > >( filename );
@@ -71,8 +71,8 @@ namespace geode
 
     template HorizonsStackInput< 2 >::MissingFiles
         opengeode_geosciences_implicit_api
-            check_horizon_stack_missing_files< 2 >( absl::string_view );
+            check_horizons_stack_missing_files< 2 >( absl::string_view );
     template HorizonsStackInput< 3 >::MissingFiles
         opengeode_geosciences_implicit_api
-            check_horizon_stack_missing_files< 3 >( absl::string_view );
+            check_horizons_stack_missing_files< 3 >( absl::string_view );
 } // namespace geode

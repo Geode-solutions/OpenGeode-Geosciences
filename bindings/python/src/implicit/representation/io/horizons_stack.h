@@ -21,7 +21,8 @@
  *
  */
 
-#include "../../factory.h"
+#include "../../../factory.h"
+#include "../../../input.h"
 
 #include <geode/geosciences/implicit/representation/io/horizons_stack_input.h>
 #include <geode/geosciences/implicit/representation/io/horizons_stack_output.h>
@@ -33,6 +34,12 @@
     const auto load##dimension =                                               \
         "load_horizons_stack" + std::to_string( dimension ) + "D";             \
     module.def( load##dimension.c_str(), &load_horizons_stack< dimension > );  \
+    const auto check##dimension = "check_horizons_stack_missing_files"         \
+                                  + std::to_string( dimension ) + "D";         \
+    module.def( check##dimension.c_str(),                                      \
+        &check_horizons_stack_missing_files< dimension > );                    \
+    PYTHON_INPUT_CLASS( HorizonsStack< dimension >,                            \
+        "HorizonsStack" + std::to_string( dimension ) + "D" );                 \
     PYTHON_FACTORY_CLASS( HorizonsStackInputFactory##dimension##D );           \
     PYTHON_FACTORY_CLASS( HorizonsStackOutputFactory##dimension##D )
 
