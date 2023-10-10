@@ -52,7 +52,7 @@ namespace geode
             "[HorizonsStackBuild::copy] HorizonsStack "
             "should be empty before copy." );
         set_name( horizons_stack.name() );
-        const auto mapping = copy_components( horizons_stack );
+        auto mapping = copy_components( horizons_stack );
         copy_stratigraphic_relationships( mapping, horizons_stack );
         return mapping;
     }
