@@ -53,10 +53,7 @@ namespace geode
     {
     protected:
         HorizonsStackOutput( absl::string_view filename )
-            : Output< HorizonsStack< dimension > >
-        {
-            filename
-        }
+            : Output< HorizonsStack< dimension > >{ filename }
         {
         }
     };

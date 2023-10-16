@@ -56,10 +56,7 @@ namespace geode
 
     protected:
         ImplicitStructuralModelOutput( absl::string_view filename )
-            : Output< ImplicitStructuralModel >
-        {
-            filename
-        }
+            : Output< ImplicitStructuralModel >{ filename }
         {
         }
     };

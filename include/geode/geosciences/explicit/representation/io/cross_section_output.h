@@ -54,10 +54,7 @@ namespace geode
 
     protected:
         CrossSectionOutput( absl::string_view filename )
-            : Output< CrossSection >
-        {
-            filename
-        }
+            : Output< CrossSection >{ filename }
         {
         }
     };

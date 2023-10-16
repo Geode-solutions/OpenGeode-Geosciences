@@ -55,10 +55,7 @@ namespace geode
 
     protected:
         StratigraphicSectionOutput( absl::string_view filename )
-            : Output< StratigraphicSection >
-        {
-            filename
-        }
+            : Output< StratigraphicSection >{ filename }
         {
         }
     };

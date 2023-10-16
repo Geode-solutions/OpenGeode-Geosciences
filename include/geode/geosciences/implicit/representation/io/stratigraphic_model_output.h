@@ -56,10 +56,7 @@ namespace geode
 
     protected:
         StratigraphicModelOutput( absl::string_view filename )
-            : Output< StratigraphicModel >
-        {
-            filename
-        }
+            : Output< StratigraphicModel >{ filename }
         {
         }
     };

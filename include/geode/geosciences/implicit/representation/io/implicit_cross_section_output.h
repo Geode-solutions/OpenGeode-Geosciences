@@ -55,10 +55,7 @@ namespace geode
 
     protected:
         ImplicitCrossSectionOutput( absl::string_view filename )
-            : Output< ImplicitCrossSection >
-        {
-            filename
-        }
+            : Output< ImplicitCrossSection >{ filename }
         {
         }
     };

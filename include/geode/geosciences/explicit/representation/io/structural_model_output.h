@@ -54,10 +54,7 @@ namespace geode
 
     protected:
         StructuralModelOutput( absl::string_view filename )
-            : Output< StructuralModel >
-        {
-            filename
-        }
+            : Output< StructuralModel >{ filename }
         {
         }
     };
