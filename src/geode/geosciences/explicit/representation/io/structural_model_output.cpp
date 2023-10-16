@@ -23,10 +23,9 @@
 
 #include <geode/geosciences/explicit/representation/io/structural_model_output.h>
 
-#include <absl/strings/ascii.h>
+#include <absl/strings/string_view.h>
 
-#include <geode/basic/filename.h>
-#include <geode/basic/timer.h>
+#include <geode/basic/detail/geode_output_impl.h>
 
 #include <geode/geosciences/explicit/representation/core/structural_model.h>
 
@@ -37,25 +36,8 @@ namespace geode
     {
         try
         {
-            Timer timer;
-            const auto extension =
-                absl::AsciiStrToLower( extension_from_filename( filename ) );
-            if( StructuralModelOutputFactory::has_creator( extension ) )
-            {
-                StructuralModelOutputFactory::create( extension, filename )
-                    ->write( structural_model );
-            }
-            else if( BRepOutputFactory::has_creator( extension ) )
-            {
-                BRepOutputFactory::create( extension, filename )
-                    ->write( structural_model );
-            }
-            else
-            {
-                throw OpenGeodeException{ "Unknown extension: ", extension };
-            }
-            Logger::info( "StructuralModel saved in ", filename, " in ",
-                timer.duration() );
+            detail::geode_object_output_impl< StructuralModelOutputFactory >(
+                "StructuralModel", structural_model, filename );
         }
         catch( const OpenGeodeException& e )
         {
@@ -63,5 +45,14 @@ namespace geode
             throw OpenGeodeException{ "Cannot save StructuralModel in file: ",
                 filename };
         }
+    }
+
+    bool is_structural_model_saveable(
+        const StructuralModel& structural_model, absl::string_view filename )
+    {
+        const auto output =
+            detail::geode_object_output_writer< StructuralModelOutputFactory >(
+                filename );
+        return output->is_saveable( structural_model );
     }
 } // namespace geode

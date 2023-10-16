@@ -23,10 +23,9 @@
 
 #include <geode/geosciences/implicit/representation/io/implicit_structural_model_output.h>
 
-#include <absl/strings/ascii.h>
+#include <absl/strings/string_view.h>
 
-#include <geode/basic/filename.h>
-#include <geode/basic/timer.h>
+#include <geode/basic/detail/geode_output_impl.h>
 
 #include <geode/model/representation/io/brep_output.h>
 
@@ -42,31 +41,9 @@ namespace geode
     {
         try
         {
-            Timer timer;
-            const auto extension =
-                absl::AsciiStrToLower( extension_from_filename( filename ) );
-            if( ImplicitStructuralModelOutputFactory::has_creator( extension ) )
-            {
-                ImplicitStructuralModelOutputFactory::create(
-                    extension, filename )
-                    ->write( implicit_model );
-            }
-            else if( StructuralModelOutputFactory::has_creator( extension ) )
-            {
-                StructuralModelOutputFactory::create( extension, filename )
-                    ->write( implicit_model );
-            }
-            else if( BRepOutputFactory::has_creator( extension ) )
-            {
-                BRepOutputFactory::create( extension, filename )
-                    ->write( implicit_model );
-            }
-            else
-            {
-                throw OpenGeodeException{ "Unknown extension: ", extension };
-            }
-            Logger::info( "ImplicitStructuralModel saved in ", filename, " in ",
-                timer.duration() );
+            detail::geode_object_output_impl<
+                ImplicitStructuralModelOutputFactory >(
+                "ImplicitStructuralModel", implicit_model, filename );
         }
         catch( const OpenGeodeException& e )
         {
@@ -75,5 +52,14 @@ namespace geode
                 "Cannot save ImplicitStructuralModel in file: ", filename
             };
         }
+    }
+
+    bool is_implicit_structural_model_saveable(
+        const ImplicitStructuralModel& implicit_model,
+        absl::string_view filename )
+    {
+        const auto output = detail::geode_object_output_writer<
+            ImplicitStructuralModelOutputFactory >( filename );
+        return output->is_saveable( implicit_model );
     }
 } // namespace geode

@@ -23,10 +23,9 @@
 
 #include <geode/geosciences/explicit/representation/io/cross_section_output.h>
 
-#include <absl/strings/ascii.h>
+#include <absl/strings/string_view.h>
 
-#include <geode/basic/filename.h>
-#include <geode/basic/timer.h>
+#include <geode/basic/detail/geode_output_impl.h>
 
 #include <geode/geosciences/explicit/representation/core/cross_section.h>
 
@@ -37,25 +36,8 @@ namespace geode
     {
         try
         {
-            Timer timer;
-            const auto extension =
-                absl::AsciiStrToLower( extension_from_filename( filename ) );
-            if( CrossSectionOutputFactory::has_creator( extension ) )
-            {
-                CrossSectionOutputFactory::create( extension, filename )
-                    ->write( cross_section );
-            }
-            else if( SectionOutputFactory::has_creator( extension ) )
-            {
-                SectionOutputFactory::create( extension, filename )
-                    ->write( cross_section );
-            }
-            else
-            {
-                throw OpenGeodeException{ "Unknown extension: ", extension };
-            }
-            Logger::info(
-                "CrossSection saved in ", filename, " in ", timer.duration() );
+            detail::geode_object_output_impl< CrossSectionOutputFactory >(
+                "CrossSection", cross_section, filename );
         }
         catch( const OpenGeodeException& e )
         {
@@ -63,5 +45,14 @@ namespace geode
             throw OpenGeodeException{ "Cannot save CrossSection in file: ",
                 filename };
         }
+    }
+
+    bool is_cross_section_saveable(
+        const CrossSection& cross_section, absl::string_view filename )
+    {
+        const auto output =
+            detail::geode_object_output_writer< CrossSectionOutputFactory >(
+                filename );
+        return output->is_saveable( cross_section );
     }
 } // namespace geode

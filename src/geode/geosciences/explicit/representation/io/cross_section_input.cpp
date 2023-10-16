@@ -23,6 +23,8 @@
 
 #include <geode/geosciences/explicit/representation/io/cross_section_input.h>
 
+#include <absl/strings/string_view.h>
+
 #include <geode/basic/detail/geode_input_impl.h>
 
 #include <geode/geosciences/explicit/representation/builder/cross_section_builder.h>
