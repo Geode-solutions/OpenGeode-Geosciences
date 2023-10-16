@@ -241,7 +241,6 @@ void test_io( const geode::StructuralModel& model )
 {
     const auto file_io = absl::StrCat( "test.", model.native_extension() );
     geode::save_structural_model( model, file_io );
-    geode::save_structural_model( model, "test.og_brep" );
 
     geode::StructuralModel reloaded_model =
         geode::load_structural_model( file_io );
