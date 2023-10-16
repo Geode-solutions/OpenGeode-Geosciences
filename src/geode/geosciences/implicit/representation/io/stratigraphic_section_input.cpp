@@ -23,6 +23,8 @@
 
 #include <geode/geosciences/implicit/representation/io/stratigraphic_section_input.h>
 
+#include <absl/strings/string_view.h>
+
 #include <geode/basic/detail/geode_input_impl.h>
 
 #include <geode/geosciences/implicit/representation/core/stratigraphic_section.h>

@@ -23,10 +23,9 @@
 
 #include <geode/geosciences/implicit/representation/io/stratigraphic_section_output.h>
 
-#include <absl/strings/ascii.h>
+#include <absl/strings/string_view.h>
 
-#include <geode/basic/filename.h>
-#include <geode/basic/timer.h>
+#include <geode/basic/detail/geode_output_impl.h>
 
 #include <geode/model/representation/io/section_output.h>
 
@@ -43,36 +42,9 @@ namespace geode
     {
         try
         {
-            Timer timer;
-            const auto extension =
-                absl::AsciiStrToLower( extension_from_filename( filename ) );
-            if( StratigraphicSectionOutputFactory::has_creator( extension ) )
-            {
-                StratigraphicSectionOutputFactory::create( extension, filename )
-                    ->write( stratigraphic_section );
-            }
-            else if( ImplicitCrossSectionOutputFactory::has_creator(
-                         extension ) )
-            {
-                ImplicitCrossSectionOutputFactory::create( extension, filename )
-                    ->write( stratigraphic_section );
-            }
-            else if( CrossSectionOutputFactory::has_creator( extension ) )
-            {
-                CrossSectionOutputFactory::create( extension, filename )
-                    ->write( stratigraphic_section );
-            }
-            else if( SectionOutputFactory::has_creator( extension ) )
-            {
-                SectionOutputFactory::create( extension, filename )
-                    ->write( stratigraphic_section );
-            }
-            else
-            {
-                throw OpenGeodeException{ "Unknown extension: ", extension };
-            }
-            Logger::info( "StratigraphicSection saved in ", filename, " in ",
-                timer.duration() );
+            detail::geode_object_output_impl<
+                StratigraphicSectionOutputFactory >(
+                "StratigraphicSection", stratigraphic_section, filename );
         }
         catch( const OpenGeodeException& e )
         {
@@ -81,5 +53,14 @@ namespace geode
                 "Cannot save StratigraphicSection in file: ", filename
             };
         }
+    }
+
+    bool is_stratigraphic_section_saveable(
+        const StratigraphicSection& stratigraphic_section,
+        absl::string_view filename )
+    {
+        const auto output = detail::geode_object_output_writer<
+            StratigraphicSectionOutputFactory >( filename );
+        return output->is_saveable( stratigraphic_section );
     }
 } // namespace geode

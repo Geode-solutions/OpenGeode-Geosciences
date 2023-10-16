@@ -23,6 +23,8 @@
 
 #pragma once
 
+#include <absl/strings/string_view.h>
+
 #include <geode/basic/factory.h>
 #include <geode/basic/output.h>
 
@@ -54,7 +56,10 @@ namespace geode
 
     protected:
         ImplicitStructuralModelOutput( absl::string_view filename )
-            : Output< ImplicitStructuralModel >{ filename }
+            : Output< ImplicitStructuralModel >
+        {
+            filename
+        }
         {
         }
     };

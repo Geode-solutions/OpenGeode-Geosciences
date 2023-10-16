@@ -23,10 +23,9 @@
 
 #include <geode/geosciences/implicit/representation/io/horizons_stack_output.h>
 
-#include <absl/strings/ascii.h>
+#include <absl/strings/string_view.h>
 
-#include <geode/basic/filename.h>
-#include <geode/basic/timer.h>
+#include <geode/basic/detail/geode_output_impl.h>
 
 #include <geode/geosciences/implicit/representation/core/horizons_stack.h>
 
@@ -38,18 +37,9 @@ namespace geode
     {
         try
         {
-            Timer timer;
-            const auto extension =
-                absl::AsciiStrToLower( extension_from_filename( filename ) );
-            OPENGEODE_EXCEPTION(
-                HorizonsStackOutputFactory< dimension >::has_creator(
-                    extension ),
-                "Unknown extension: ", extension );
-            HorizonsStackOutputFactory< dimension >::create(
-                extension, filename )
-                ->write( horizons_stack );
-            Logger::info(
-                "HorizonsStack saved in ", filename, " in ", timer.duration() );
+            detail::geode_object_output_impl<
+                HorizonsStackOutputFactory< dimension > >(
+                "HorizonsStack", horizons_stack, filename );
         }
         catch( const OpenGeodeException& e )
         {
@@ -59,8 +49,23 @@ namespace geode
         }
     }
 
+    template < index_t dimension >
+    bool is_horizons_stack_saveable(
+        const HorizonsStack< dimension >& horizons_stack,
+        absl::string_view filename )
+    {
+        const auto output = detail::geode_object_output_writer<
+            HorizonsStackOutputFactory< dimension > >( filename );
+        return output->is_saveable( horizons_stack );
+    }
+
     template void opengeode_geosciences_implicit_api save_horizons_stack(
         const HorizonsStack< 2 >&, absl::string_view );
     template void opengeode_geosciences_implicit_api save_horizons_stack(
+        const HorizonsStack< 3 >&, absl::string_view );
+
+    template bool opengeode_geosciences_implicit_api is_horizons_stack_saveable(
+        const HorizonsStack< 2 >&, absl::string_view );
+    template bool opengeode_geosciences_implicit_api is_horizons_stack_saveable(
         const HorizonsStack< 3 >&, absl::string_view );
 } // namespace geode

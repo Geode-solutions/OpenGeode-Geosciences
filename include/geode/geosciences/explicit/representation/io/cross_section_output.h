@@ -23,6 +23,8 @@
 
 #pragma once
 
+#include <absl/strings/string_view.h>
+
 #include <geode/basic/factory.h>
 
 #include <geode/model/representation/io/section_output.h>
@@ -52,10 +54,16 @@ namespace geode
 
     protected:
         CrossSectionOutput( absl::string_view filename )
-            : Output< CrossSection >{ filename }
+            : Output< CrossSection >
+        {
+            filename
+        }
         {
         }
     };
+
+    bool opengeode_geosciences_explicit_api is_cross_section_saveable(
+        const CrossSection& cross_section, absl::string_view filename );
 
     using CrossSectionOutputFactory =
         Factory< std::string, CrossSectionOutput, absl::string_view >;

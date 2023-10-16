@@ -23,6 +23,8 @@
 
 #include <geode/geosciences/implicit/representation/io/horizons_stack_input.h>
 
+#include <absl/strings/string_view.h>
+
 #include <geode/basic/detail/geode_input_impl.h>
 
 #include <geode/geosciences/implicit/representation/builder/horizons_stack_builder.h>

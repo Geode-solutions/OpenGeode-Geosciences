@@ -23,6 +23,8 @@
 
 #pragma once
 
+#include <absl/strings/string_view.h>
+
 #include <geode/basic/factory.h>
 
 #include <geode/model/representation/io/brep_output.h>
@@ -52,7 +54,10 @@ namespace geode
 
     protected:
         StructuralModelOutput( absl::string_view filename )
-            : Output< StructuralModel >{ filename }
+            : Output< StructuralModel >
+        {
+            filename
+        }
         {
         }
     };
