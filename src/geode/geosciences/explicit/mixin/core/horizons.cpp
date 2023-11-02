@@ -40,14 +40,10 @@ namespace geode
     };
 
     template < index_t dimension >
-    Horizons< dimension >::Horizons() // NOLINT
-    {
-    }
+    Horizons< dimension >::Horizons() = default;
 
     template < index_t dimension >
-    Horizons< dimension >::~Horizons() // NOLINT
-    {
-    }
+    Horizons< dimension >::~Horizons() = default;
 
     template < index_t dimension >
     Horizons< dimension >::Horizons( Horizons&& other )
@@ -211,9 +207,7 @@ namespace geode
     }
 
     template < index_t dimension >
-    Horizons< dimension >::HorizonRangeBase::~HorizonRangeBase() // NOLINT
-    {
-    }
+    Horizons< dimension >::HorizonRangeBase::~HorizonRangeBase() = default;
 
     template < index_t dimension >
     bool Horizons< dimension >::HorizonRangeBase::operator!=(

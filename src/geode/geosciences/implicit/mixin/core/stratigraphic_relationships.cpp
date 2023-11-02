@@ -345,13 +345,13 @@ namespace geode
             unconformity_relations_;
     };
 
-    StratigraphicRelationships::StratigraphicRelationships() {} // NOLINT
+    StratigraphicRelationships::StratigraphicRelationships() = default;
     StratigraphicRelationships::StratigraphicRelationships(
         StratigraphicRelationships&& other )
         : impl_( std::move( other.impl_ ) )
     {
     }
-    StratigraphicRelationships::~StratigraphicRelationships() {} // NOLINT
+    StratigraphicRelationships::~StratigraphicRelationships() = default;
 
     StratigraphicRelationships& StratigraphicRelationships::operator=(
         StratigraphicRelationships&& other )

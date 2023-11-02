@@ -40,14 +40,10 @@ namespace geode
     };
 
     template < index_t dimension >
-    FaultBlocks< dimension >::FaultBlocks() // NOLINT
-    {
-    }
+    FaultBlocks< dimension >::FaultBlocks() = default;
 
     template < index_t dimension >
-    FaultBlocks< dimension >::~FaultBlocks() // NOLINT
-    {
-    }
+    FaultBlocks< dimension >::~FaultBlocks() = default;
 
     template < index_t dimension >
     FaultBlocks< dimension >::FaultBlocks( FaultBlocks&& other )
@@ -188,9 +184,7 @@ namespace geode
 
     template < index_t dimension >
     FaultBlocks<
-        dimension >::FaultBlockRangeBase::~FaultBlockRangeBase() // NOLINT
-    {
-    }
+        dimension >::FaultBlockRangeBase::~FaultBlockRangeBase() = default;
 
     template < index_t dimension >
     bool FaultBlocks< dimension >::FaultBlockRangeBase::operator!=(

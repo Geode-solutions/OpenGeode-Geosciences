@@ -40,14 +40,10 @@ namespace geode
     };
 
     template < index_t dimension >
-    StratigraphicUnits< dimension >::StratigraphicUnits() // NOLINT
-    {
-    }
+    StratigraphicUnits< dimension >::StratigraphicUnits() = default;
 
     template < index_t dimension >
-    StratigraphicUnits< dimension >::~StratigraphicUnits() // NOLINT
-    {
-    }
+    StratigraphicUnits< dimension >::~StratigraphicUnits() = default;
 
     template < index_t dimension >
     StratigraphicUnits< dimension >::StratigraphicUnits(
@@ -201,9 +197,7 @@ namespace geode
 
     template < index_t dimension >
     StratigraphicUnits< dimension >::StratigraphicUnitRangeBase::
-        ~StratigraphicUnitRangeBase() // NOLINT
-    {
-    }
+        ~StratigraphicUnitRangeBase() = default;
 
     template < index_t dimension >
     bool
