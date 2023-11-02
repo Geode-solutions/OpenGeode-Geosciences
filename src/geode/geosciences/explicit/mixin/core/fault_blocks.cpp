@@ -183,8 +183,8 @@ namespace geode
     }
 
     template < index_t dimension >
-    FaultBlocks<
-        dimension >::FaultBlockRangeBase::~FaultBlockRangeBase() = default;
+    FaultBlocks< dimension >::FaultBlockRangeBase::~FaultBlockRangeBase() =
+        default;
 
     template < index_t dimension >
     bool FaultBlocks< dimension >::FaultBlockRangeBase::operator!=(

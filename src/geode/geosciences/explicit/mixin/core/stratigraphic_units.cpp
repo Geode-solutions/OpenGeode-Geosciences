@@ -196,8 +196,9 @@ namespace geode
     }
 
     template < index_t dimension >
-    StratigraphicUnits< dimension >::StratigraphicUnitRangeBase::
-        ~StratigraphicUnitRangeBase() = default;
+    StratigraphicUnits<
+        dimension >::StratigraphicUnitRangeBase::~StratigraphicUnitRangeBase() =
+        default;
 
     template < index_t dimension >
     bool
