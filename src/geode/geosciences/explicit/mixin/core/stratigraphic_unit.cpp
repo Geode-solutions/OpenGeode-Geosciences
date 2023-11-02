@@ -28,14 +28,10 @@
 namespace geode
 {
     template < index_t dimension >
-    StratigraphicUnit< dimension >::StratigraphicUnit() // NOLINT
-    {
-    }
+    StratigraphicUnit< dimension >::StratigraphicUnit() = default;
 
     template < index_t dimension >
-    StratigraphicUnit< dimension >::~StratigraphicUnit() // NOLINT
-    {
-    }
+    StratigraphicUnit< dimension >::~StratigraphicUnit() = default;
 
     template < index_t dimension >
     template < typename Archive >

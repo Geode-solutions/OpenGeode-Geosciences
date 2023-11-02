@@ -56,9 +56,7 @@ namespace geode
     };
 
     template < index_t dimension >
-    Horizon< dimension >::Horizon() // NOLINT
-    {
-    }
+    Horizon< dimension >::Horizon() = default;
 
     template < index_t dimension >
     Horizon< dimension >::Horizon( typename Horizon::HORIZON_TYPE type )
@@ -74,9 +72,7 @@ namespace geode
     }
 
     template < index_t dimension >
-    Horizon< dimension >::~Horizon() // NOLINT
-    {
-    }
+    Horizon< dimension >::~Horizon() = default;
 
     template < index_t dimension >
     bool Horizon< dimension >::has_type() const

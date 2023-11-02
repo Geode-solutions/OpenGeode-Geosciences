@@ -56,9 +56,7 @@ namespace geode
     };
 
     template < index_t dimension >
-    Fault< dimension >::Fault() // NOLINT
-    {
-    }
+    Fault< dimension >::Fault() = default;
 
     template < index_t dimension >
     Fault< dimension >::Fault( typename Fault::FAULT_TYPE type )
@@ -74,9 +72,7 @@ namespace geode
     }
 
     template < index_t dimension >
-    Fault< dimension >::~Fault() // NOLINT
-    {
-    }
+    Fault< dimension >::~Fault() = default;
 
     template < index_t dimension >
     bool Fault< dimension >::has_type() const

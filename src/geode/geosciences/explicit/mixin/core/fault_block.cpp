@@ -28,14 +28,10 @@
 namespace geode
 {
     template < index_t dimension >
-    FaultBlock< dimension >::FaultBlock() // NOLINT
-    {
-    }
+    FaultBlock< dimension >::FaultBlock() = default;
 
     template < index_t dimension >
-    FaultBlock< dimension >::~FaultBlock() // NOLINT
-    {
-    }
+    FaultBlock< dimension >::~FaultBlock() = default;
 
     template < index_t dimension >
     template < typename Archive >
