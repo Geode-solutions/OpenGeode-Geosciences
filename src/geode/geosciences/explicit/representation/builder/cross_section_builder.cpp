@@ -28,6 +28,10 @@
 #include <geode/model/mixin/core/surface.h>
 #include <geode/model/representation/builder/detail/copy.h>
 
+#include <geode/geosciences/explicit/mixin/core/fault.h>
+#include <geode/geosciences/explicit/mixin/core/fault_block.h>
+#include <geode/geosciences/explicit/mixin/core/horizon.h>
+#include <geode/geosciences/explicit/mixin/core/stratigraphic_unit.h>
 #include <geode/geosciences/explicit/representation/builder/detail/copy.h>
 #include <geode/geosciences/explicit/representation/core/cross_section.h>
 
