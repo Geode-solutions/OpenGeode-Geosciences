@@ -36,7 +36,8 @@ namespace geode
         using Mapping = BijectiveMapping< uuid >;
 
         template < typename ModelFrom, typename BuilderTo >
-        Mapping copy_faults( const ModelFrom& from, BuilderTo& builder_to )
+        OPENGEODE_MODEL_DEPRECATED Mapping copy_faults(
+            const ModelFrom& from, BuilderTo& builder_to )
         {
             Mapping mapping;
             mapping.reserve( from.nb_faults() );
@@ -74,7 +75,8 @@ namespace geode
         }
 
         template < typename ModelFrom, typename BuilderTo >
-        Mapping copy_horizons( const ModelFrom& from, BuilderTo& builder_to )
+        OPENGEODE_MODEL_DEPRECATED Mapping copy_horizons(
+            const ModelFrom& from, BuilderTo& builder_to )
         {
             Mapping mapping;
             mapping.reserve( from.nb_horizons() );
@@ -112,7 +114,7 @@ namespace geode
         }
 
         template < typename ModelFrom, typename BuilderTo >
-        Mapping copy_fault_blocks(
+        OPENGEODE_MODEL_DEPRECATED Mapping copy_fault_blocks(
             const ModelFrom& from, BuilderTo& builder_to )
         {
             Mapping mapping;
@@ -152,7 +154,7 @@ namespace geode
         }
 
         template < typename ModelFrom, typename BuilderTo >
-        Mapping copy_stratigraphic_units(
+        OPENGEODE_MODEL_DEPRECATED Mapping copy_stratigraphic_units(
             const ModelFrom& from, BuilderTo& builder_to )
         {
             Mapping mapping;
