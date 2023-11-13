@@ -73,7 +73,7 @@ namespace geode
             Logger::error( e.what() );
             print_available_extensions< StratigraphicSectionInputFactory >(
                 TYPE );
-            Logger::info( "Other extensions are available in parent clases." );
+            Logger::info( "Other extensions are available in parent classes." );
             print_available_extensions< ImplicitCrossSectionInputFactory >(
                 "ImplicitCrossSection" );
             print_available_extensions< CrossSectionInputFactory >(
