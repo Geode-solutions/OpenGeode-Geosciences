@@ -23,9 +23,12 @@
 
 #include <geode/geosciences/implicit/representation/io/horizons_stack_input.h>
 
+#include <absl/strings/str_cat.h>
 #include <absl/strings/string_view.h>
 
 #include <geode/basic/detail/geode_input_impl.h>
+#include <geode/basic/io.h>
+#include <geode/basic/logger.h>
 
 #include <geode/geosciences/implicit/representation/builder/horizons_stack_builder.h>
 #include <geode/geosciences/implicit/representation/core/horizons_stack.h>
@@ -35,12 +38,12 @@ namespace geode
     template < index_t dimension >
     HorizonsStack< dimension > load_horizons_stack( absl::string_view filename )
     {
+        constexpr auto TYPE = "HorizonsStack";
         try
         {
-            constexpr auto type = "HorizonsStack";
             auto horizons_stack = detail::geode_object_input_impl<
-                HorizonsStackInputFactory< dimension > >( type, filename );
-            auto message = absl::StrCat( type, " has: " );
+                HorizonsStackInputFactory< dimension > >( TYPE, filename );
+            auto message = absl::StrCat( TYPE, " has: " );
             detail::add_to_message(
                 message, horizons_stack.nb_horizons(), " Horizons, " );
             detail::add_to_message( message,
@@ -52,6 +55,8 @@ namespace geode
         catch( const OpenGeodeException& e )
         {
             Logger::error( e.what() );
+            print_available_extensions<
+                HorizonsStackInputFactory< dimension > >( TYPE );
             throw OpenGeodeException{ "Cannot load HorizonsStack from file: ",
                 filename };
         }

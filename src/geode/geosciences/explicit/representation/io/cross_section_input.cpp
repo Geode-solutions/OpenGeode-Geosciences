@@ -23,9 +23,14 @@
 
 #include <geode/geosciences/explicit/representation/io/cross_section_input.h>
 
+#include <absl/strings/str_cat.h>
 #include <absl/strings/string_view.h>
 
 #include <geode/basic/detail/geode_input_impl.h>
+#include <geode/basic/io.h>
+#include <geode/basic/logger.h>
+
+#include <geode/model/representation/io/section_input.h>
 
 #include <geode/geosciences/explicit/representation/builder/cross_section_builder.h>
 #include <geode/geosciences/explicit/representation/core/cross_section.h>
@@ -34,13 +39,13 @@ namespace geode
 {
     CrossSection load_cross_section( absl::string_view filename )
     {
+        constexpr auto TYPE = "CrossSection";
         try
         {
-            constexpr auto type = "CrossSection";
             auto cross_section =
                 detail::geode_object_input_impl< CrossSectionInputFactory >(
-                    type, filename );
-            auto message = absl::StrCat( type, " has: " );
+                    TYPE, filename );
+            auto message = absl::StrCat( TYPE, " has: " );
             detail::add_to_message(
                 message, cross_section.nb_surfaces(), " Surfaces, " );
             detail::add_to_message(
@@ -63,6 +68,9 @@ namespace geode
         catch( const OpenGeodeException& e )
         {
             Logger::error( e.what() );
+            print_available_extensions< CrossSectionInputFactory >( TYPE );
+            Logger::info( "Other extensions are available in parent clases." );
+            print_available_extensions< SectionInputFactory >( "Section" );
             throw OpenGeodeException{ "Cannot load CrossSection from file: ",
                 filename };
         }

@@ -23,12 +23,16 @@
 
 #include <geode/geosciences/implicit/representation/io/implicit_structural_model_input.h>
 
+#include <absl/strings/str_cat.h>
 #include <absl/strings/string_view.h>
 
 #include <geode/basic/detail/geode_input_impl.h>
+#include <geode/basic/io.h>
+#include <geode/basic/logger.h>
+
+#include <geode/model/representation/io/brep_input.h>
 
 #include <geode/geosciences/explicit/representation/io/structural_model_input.h>
-
 #include <geode/geosciences/implicit/representation/core/implicit_structural_model.h>
 
 namespace geode
@@ -36,12 +40,12 @@ namespace geode
     ImplicitStructuralModel load_implicit_structural_model(
         absl::string_view filename )
     {
+        constexpr auto TYPE = "ImplicitStructuralModel";
         try
         {
-            constexpr auto type = "ImplicitStructuralModel";
             auto implicit_model = detail::geode_object_input_impl<
-                ImplicitStructuralModelInputFactory >( type, filename );
-            auto message = absl::StrCat( type, " has: " );
+                ImplicitStructuralModelInputFactory >( TYPE, filename );
+            auto message = absl::StrCat( TYPE, " has: " );
             detail::add_to_message(
                 message, implicit_model.nb_blocks(), " Blocks, " );
             detail::add_to_message(
@@ -67,6 +71,12 @@ namespace geode
         catch( const OpenGeodeException& e )
         {
             Logger::error( e.what() );
+            print_available_extensions< ImplicitStructuralModelInputFactory >(
+                TYPE );
+            Logger::info( "Other extensions are available in parent clases." );
+            print_available_extensions< StructuralModelInputFactory >(
+                "StructuralModel" );
+            print_available_extensions< BRepInputFactory >( "BRep" );
             throw OpenGeodeException{
                 "Cannot load ImplicitStructuralModel from file: ", filename
             };

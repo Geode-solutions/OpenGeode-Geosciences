@@ -26,11 +26,12 @@
 #include <absl/strings/string_view.h>
 
 #include <geode/basic/detail/geode_output_impl.h>
+#include <geode/basic/io.h>
+#include <geode/basic/logger.h>
 
 #include <geode/model/representation/io/section_output.h>
 
 #include <geode/geosciences/explicit/representation/io/cross_section_output.h>
-
 #include <geode/geosciences/implicit/representation/core/stratigraphic_section.h>
 #include <geode/geosciences/implicit/representation/io/implicit_cross_section_output.h>
 
@@ -40,15 +41,24 @@ namespace geode
         const StratigraphicSection& stratigraphic_section,
         absl::string_view filename )
     {
+        constexpr auto TYPE = "StratigraphicSection";
         try
         {
             detail::geode_object_output_impl<
                 StratigraphicSectionOutputFactory >(
-                "StratigraphicSection", stratigraphic_section, filename );
+                TYPE, stratigraphic_section, filename );
         }
         catch( const OpenGeodeException& e )
         {
             Logger::error( e.what() );
+            print_available_extensions< StratigraphicSectionOutputFactory >(
+                TYPE );
+            Logger::info( "Other extensions are available in parent clases." );
+            print_available_extensions< ImplicitCrossSectionOutputFactory >(
+                "ImplicitCrossSection" );
+            print_available_extensions< CrossSectionOutputFactory >(
+                "CrossSection" );
+            print_available_extensions< SectionOutputFactory >( "Section" );
             throw OpenGeodeException{
                 "Cannot save StratigraphicSection in file: ", filename
             };

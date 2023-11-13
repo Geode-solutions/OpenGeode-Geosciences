@@ -26,6 +26,10 @@
 #include <absl/strings/string_view.h>
 
 #include <geode/basic/detail/geode_output_impl.h>
+#include <geode/basic/io.h>
+#include <geode/basic/logger.h>
+
+#include <geode/model/representation/io/brep_output.h>
 
 #include <geode/geosciences/explicit/representation/core/structural_model.h>
 
@@ -34,14 +38,18 @@ namespace geode
     void save_structural_model(
         const StructuralModel& structural_model, absl::string_view filename )
     {
+        constexpr auto TYPE = "StructuralModel";
         try
         {
             detail::geode_object_output_impl< StructuralModelOutputFactory >(
-                "StructuralModel", structural_model, filename );
+                TYPE, structural_model, filename );
         }
         catch( const OpenGeodeException& e )
         {
             Logger::error( e.what() );
+            print_available_extensions< StructuralModelOutputFactory >( TYPE );
+            Logger::info( "Other extensions are available in parent clases." );
+            print_available_extensions< BRepOutputFactory >( "BRep" );
             throw OpenGeodeException{ "Cannot save StructuralModel in file: ",
                 filename };
         }

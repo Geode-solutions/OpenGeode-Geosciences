@@ -23,9 +23,14 @@
 
 #include <geode/geosciences/explicit/representation/io/structural_model_input.h>
 
+#include <absl/strings/str_cat.h>
 #include <absl/strings/string_view.h>
 
 #include <geode/basic/detail/geode_input_impl.h>
+#include <geode/basic/io.h>
+#include <geode/basic/logger.h>
+
+#include <geode/model/representation/io/brep_input.h>
 
 #include <geode/geosciences/explicit/representation/core/structural_model.h>
 
@@ -33,13 +38,13 @@ namespace geode
 {
     StructuralModel load_structural_model( absl::string_view filename )
     {
+        constexpr auto TYPE = "StructuralModel";
         try
         {
-            constexpr auto type = "StructuralModel";
             auto structural_model =
                 detail::geode_object_input_impl< StructuralModelInputFactory >(
-                    type, filename );
-            auto message = absl::StrCat( type, " has: " );
+                    TYPE, filename );
+            auto message = absl::StrCat( TYPE, " has: " );
             detail::add_to_message(
                 message, structural_model.nb_blocks(), " Blocks, " );
             detail::add_to_message(
@@ -65,6 +70,9 @@ namespace geode
         catch( const OpenGeodeException& e )
         {
             Logger::error( e.what() );
+            print_available_extensions< StructuralModelInputFactory >( TYPE );
+            Logger::info( "Other extensions are available in parent clases." );
+            print_available_extensions< BRepInputFactory >( "BRep" );
             throw OpenGeodeException{ "Cannot load StructuralModel from file: ",
                 filename };
         }
