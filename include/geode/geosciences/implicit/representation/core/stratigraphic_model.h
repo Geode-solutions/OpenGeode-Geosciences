@@ -59,9 +59,10 @@ namespace geode
                 "geode_associated_block_polyhedron_facet";
         using stratigraphic_location_type = Point2D;
         StratigraphicModel();
-        StratigraphicModel( StratigraphicModel&& implicit_model );
-        StratigraphicModel( ImplicitStructuralModel&& structural_model );
-        StratigraphicModel( StructuralModel&& structural_model );
+        StratigraphicModel( StratigraphicModel&& implicit_model ) noexcept;
+        StratigraphicModel(
+            ImplicitStructuralModel&& structural_model ) noexcept;
+        StratigraphicModel( StructuralModel&& structural_model ) noexcept;
         ~StratigraphicModel();
 
         static constexpr absl::string_view native_extension_static()

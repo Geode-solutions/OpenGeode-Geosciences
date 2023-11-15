@@ -54,8 +54,8 @@ namespace geode
             "geode_implicit_attribute";
         using implicit_attribute_type = double;
         ImplicitCrossSection();
-        ImplicitCrossSection( ImplicitCrossSection&& implicit_model );
-        ImplicitCrossSection( CrossSection&& cross_section );
+        ImplicitCrossSection( ImplicitCrossSection&& implicit_model ) noexcept;
+        ImplicitCrossSection( CrossSection&& cross_section ) noexcept;
         virtual ~ImplicitCrossSection();
 
         static constexpr absl::string_view native_extension_static()

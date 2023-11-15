@@ -48,11 +48,6 @@ namespace geode
     {
     public:
         Impl() = default;
-        Impl( Impl&& other )
-            : horizons_stack_{ std::move( other.horizons_stack_ ) },
-              horizon_isovalues_{ std::move( other.horizon_isovalues_ ) }
-        {
-        }
 
         void initialize_implicit_query_trees(
             const ImplicitStructuralModel& model )
@@ -327,21 +322,16 @@ namespace geode
     }
 
     ImplicitStructuralModel::ImplicitStructuralModel(
-        ImplicitStructuralModel&& implicit_model )
-        : StructuralModel{ std::move( implicit_model ) },
-          impl_{ std::move( implicit_model.impl_ ) }
-    {
-        impl_->initialize_implicit_query_trees( *this );
-    }
+        ImplicitStructuralModel&& ) noexcept = default;
 
     ImplicitStructuralModel::ImplicitStructuralModel(
-        StructuralModel&& structural_model )
+        StructuralModel&& structural_model ) noexcept
         : StructuralModel{ std::move( structural_model ) }
     {
         impl_->initialize_implicit_query_trees( *this );
     }
 
-    ImplicitStructuralModel::~ImplicitStructuralModel() {}
+    ImplicitStructuralModel::~ImplicitStructuralModel() = default;
 
     double ImplicitStructuralModel::implicit_value(
         const Block3D& block, index_t vertex_id ) const

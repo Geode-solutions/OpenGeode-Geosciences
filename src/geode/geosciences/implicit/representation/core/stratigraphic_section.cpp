@@ -468,26 +468,23 @@ namespace geode
     }
 
     StratigraphicSection::StratigraphicSection(
-        StratigraphicSection&& stratigraphic_section )
+        StratigraphicSection&& stratigraphic_section ) noexcept = default;
+
+    StratigraphicSection::StratigraphicSection(
+        ImplicitCrossSection&& stratigraphic_section ) noexcept
         : ImplicitCrossSection{ std::move( stratigraphic_section ) }
     {
         impl_->initialize_stratigraphic_query_trees( *this );
     }
 
     StratigraphicSection::StratigraphicSection(
-        ImplicitCrossSection&& stratigraphic_section )
-        : ImplicitCrossSection{ std::move( stratigraphic_section ) }
-    {
-        impl_->initialize_stratigraphic_query_trees( *this );
-    }
-
-    StratigraphicSection::StratigraphicSection( CrossSection&& cross_section )
+        CrossSection&& cross_section ) noexcept
         : ImplicitCrossSection{ std::move( cross_section ) }
     {
         impl_->initialize_stratigraphic_query_trees( *this );
     }
 
-    StratigraphicSection::~StratigraphicSection() {}
+    StratigraphicSection::~StratigraphicSection() = default;
 
     StratigraphicPoint2D StratigraphicSection::stratigraphic_coordinates(
         const Surface2D& surface, index_t vertex_id ) const

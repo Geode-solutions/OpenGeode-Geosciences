@@ -58,7 +58,7 @@ namespace geode
         ~HorizonsStack();
 
         HorizonsStack< dimension >& operator=(
-            HorizonsStack< dimension >&& other );
+            HorizonsStack< dimension >&& other ) noexcept;
 
         static absl::string_view native_extension_static()
         {

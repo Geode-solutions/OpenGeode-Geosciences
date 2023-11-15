@@ -142,8 +142,8 @@ namespace geode
                 StratigraphicUnit2D > >;
 
         CrossSection() = default;
-        CrossSection( CrossSection&& ) = default;
-        CrossSection( Section&& section );
+        CrossSection( CrossSection&& ) noexcept = default;
+        CrossSection( Section&& section ) noexcept;
 
         static constexpr absl::string_view native_extension_static()
         {

@@ -105,10 +105,10 @@ namespace geode
     protected:
         friend class StratigraphicUnitsBuilder< dimension >;
         StratigraphicUnits();
-        StratigraphicUnits( StratigraphicUnits&& );
+        StratigraphicUnits( StratigraphicUnits&& other ) noexcept;
 
         StratigraphicUnits< dimension >& operator=(
-            StratigraphicUnits< dimension >&& other );
+            StratigraphicUnits< dimension >&& other ) noexcept;
 
     private:
         class ModifiableStratigraphicUnitRange

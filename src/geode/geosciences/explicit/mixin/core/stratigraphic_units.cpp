@@ -47,18 +47,11 @@ namespace geode
 
     template < index_t dimension >
     StratigraphicUnits< dimension >::StratigraphicUnits(
-        StratigraphicUnits&& other )
-        : impl_( std::move( other.impl_ ) )
-    {
-    }
+        StratigraphicUnits&& ) noexcept = default;
 
     template < index_t dimension >
     StratigraphicUnits< dimension >& StratigraphicUnits< dimension >::operator=(
-        StratigraphicUnits< dimension >&& other )
-    {
-        impl_ = std::move( other.impl_ );
-        return *this;
-    }
+        StratigraphicUnits< dimension >&& ) noexcept = default;
 
     template < index_t dimension >
     index_t StratigraphicUnits< dimension >::nb_stratigraphic_units() const
@@ -183,10 +176,7 @@ namespace geode
     template < index_t dimension >
     StratigraphicUnits< dimension >::StratigraphicUnitRangeBase::
         StratigraphicUnitRangeBase(
-            StratigraphicUnitRangeBase&& other ) noexcept
-        : impl_( std::move( other.impl_ ) )
-    {
-    }
+            StratigraphicUnitRangeBase&& ) noexcept = default;
 
     template < index_t dimension >
     StratigraphicUnits< dimension >::StratigraphicUnitRangeBase::

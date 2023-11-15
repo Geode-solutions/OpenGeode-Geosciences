@@ -347,18 +347,10 @@ namespace geode
 
     StratigraphicRelationships::StratigraphicRelationships() = default;
     StratigraphicRelationships::StratigraphicRelationships(
-        StratigraphicRelationships&& other )
-        : impl_( std::move( other.impl_ ) )
-    {
-    }
-    StratigraphicRelationships::~StratigraphicRelationships() = default;
-
+        StratigraphicRelationships&& ) noexcept = default;
     StratigraphicRelationships& StratigraphicRelationships::operator=(
-        StratigraphicRelationships&& other )
-    {
-        impl_ = std::move( other.impl_ );
-        return *this;
-    }
+        StratigraphicRelationships&& ) noexcept = default;
+    StratigraphicRelationships::~StratigraphicRelationships() = default;
 
     void StratigraphicRelationships::remove_component(
         const uuid& id, StratigraphicRelationshipsBuilderKey )

@@ -144,8 +144,8 @@ namespace geode
                 StratigraphicUnit3D > >;
 
         StructuralModel() = default;
-        StructuralModel( StructuralModel&& ) = default;
-        StructuralModel( BRep&& brep );
+        StructuralModel( StructuralModel&& ) noexcept = default;
+        StructuralModel( BRep&& brep ) noexcept;
 
         static constexpr absl::string_view native_extension_static()
         {

@@ -39,7 +39,7 @@ namespace geode
     {
     }
 
-    StructuralModel::HorizonItemRange::~HorizonItemRange() {}
+    StructuralModel::HorizonItemRange::~HorizonItemRange() = default;
 
     auto StructuralModel::HorizonItemRange::begin() const
         -> const HorizonItemRange&
@@ -79,7 +79,7 @@ namespace geode
     {
     }
 
-    StructuralModel::FaultItemRange::~FaultItemRange() {}
+    StructuralModel::FaultItemRange::~FaultItemRange() = default;
 
     auto StructuralModel::FaultItemRange::begin() const -> const FaultItemRange&
     {
@@ -119,7 +119,7 @@ namespace geode
     {
     }
 
-    StructuralModel::FaultBlockItemRange::~FaultBlockItemRange() {}
+    StructuralModel::FaultBlockItemRange::~FaultBlockItemRange() = default;
 
     auto StructuralModel::FaultBlockItemRange::begin() const
         -> const FaultBlockItemRange&
@@ -161,9 +161,8 @@ namespace geode
     {
     }
 
-    StructuralModel::StratigraphicUnitItemRange::~StratigraphicUnitItemRange()
-    {
-    }
+    StructuralModel::StratigraphicUnitItemRange::~StratigraphicUnitItemRange() =
+        default;
 
     auto StructuralModel::StratigraphicUnitItemRange::begin() const
         -> const StratigraphicUnitItemRange&
@@ -191,7 +190,8 @@ namespace geode
         return { *this, stratigraphic_unit };
     }
 
-    StructuralModel::StructuralModel( BRep&& brep ) : BRep{ std::move( brep ) }
+    StructuralModel::StructuralModel( BRep&& brep ) noexcept
+        : BRep{ std::move( brep ) }
     {
     }
 } // namespace geode

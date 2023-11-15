@@ -32,29 +32,14 @@ namespace geode
 
     template < index_t dimension >
     HorizonsStack< dimension >::HorizonsStack(
-        HorizonsStack< dimension >&& horizons_stack ) noexcept
-        : StratigraphicRelationships{ std::move( horizons_stack ) },
-          Horizons< dimension >{ std::move( horizons_stack ) },
-          StratigraphicUnits< dimension >{ std::move( horizons_stack ) },
-          Identifier{ std::move( horizons_stack ) }
-    {
-    }
+        HorizonsStack< dimension >&& ) noexcept = default;
 
     template < index_t dimension >
-    HorizonsStack< dimension >::~HorizonsStack()
-    {
-    }
+    HorizonsStack< dimension >::~HorizonsStack() = default;
 
     template < index_t dimension >
     HorizonsStack< dimension >& HorizonsStack< dimension >::operator=(
-        HorizonsStack< dimension >&& other )
-    {
-        StratigraphicRelationships::operator=( std::move( other ) );
-        Horizons< dimension >::operator=( std::move( other ) );
-        StratigraphicUnits< dimension >::operator=( std::move( other ) );
-        Identifier::operator=( std::move( other ) );
-        return *this;
-    }
+        HorizonsStack< dimension >&& ) noexcept = default;
 
     template class opengeode_geosciences_implicit_api HorizonsStack< 2 >;
     template class opengeode_geosciences_implicit_api HorizonsStack< 3 >;
