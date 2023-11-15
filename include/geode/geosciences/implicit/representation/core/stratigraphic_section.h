@@ -60,8 +60,10 @@ namespace geode
 
         using stratigraphic_location_type = Point1D;
         StratigraphicSection();
-        StratigraphicSection( StratigraphicSection&& implicit_model ) noexcept;
-        StratigraphicSection( ImplicitCrossSection&& implicit_model ) noexcept;
+        StratigraphicSection(
+            StratigraphicSection&& stratigraphic_section ) noexcept;
+        StratigraphicSection(
+            ImplicitCrossSection&& implicit_section ) noexcept;
         StratigraphicSection( CrossSection&& cross_section ) noexcept;
         ~StratigraphicSection();
 

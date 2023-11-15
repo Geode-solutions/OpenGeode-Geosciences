@@ -330,7 +330,11 @@ namespace geode
     }
 
     ImplicitCrossSection::ImplicitCrossSection(
-        ImplicitCrossSection&& ) noexcept = default;
+        ImplicitCrossSection&& other ) noexcept
+        : CrossSection{ std::move( other ) }, impl_{ std::move( other.impl_ ) }
+    {
+        impl_->initialize_implicit_query_trees( *this );
+    }
 
     ImplicitCrossSection::ImplicitCrossSection(
         CrossSection&& cross_section ) noexcept
