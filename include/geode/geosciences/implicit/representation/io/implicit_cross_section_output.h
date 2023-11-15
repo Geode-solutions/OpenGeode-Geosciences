@@ -60,6 +60,9 @@ namespace geode
         }
     };
 
+    bool opengeode_geosciences_implicit_api is_implicit_cross_section_saveable(
+        const ImplicitCrossSection& section, absl::string_view filename );
+
     using ImplicitCrossSectionOutputFactory =
         Factory< std::string, ImplicitCrossSectionOutput, absl::string_view >;
 } // namespace geode

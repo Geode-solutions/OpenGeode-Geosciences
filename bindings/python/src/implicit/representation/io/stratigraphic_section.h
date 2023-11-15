@@ -35,6 +35,8 @@ namespace geode
         module.def( "load_stratigraphic_section", &load_stratigraphic_section );
         module.def( "check_stratigraphic_section_missing_files",
             &check_stratigraphic_section_missing_files );
+        module.def( "is_stratigraphic_section_saveable",
+            &is_stratigraphic_section_saveable );
         PYTHON_INPUT_CLASS( StratigraphicSection, "StratigraphicSection" );
         PYTHON_FACTORY_CLASS( StratigraphicSectionInputFactory );
         PYTHON_FACTORY_CLASS( StratigraphicSectionOutputFactory );
