@@ -59,6 +59,9 @@ namespace geode
         }
     };
 
+    bool opengeode_geosciences_explicit_api is_structural_model_saveable(
+        const StructuralModel& structural_model, absl::string_view filename );
+
     using StructuralModelOutputFactory =
         Factory< std::string, StructuralModelOutput, absl::string_view >;
 } // namespace geode

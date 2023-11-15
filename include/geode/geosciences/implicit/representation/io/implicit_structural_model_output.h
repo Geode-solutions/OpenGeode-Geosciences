@@ -61,6 +61,11 @@ namespace geode
         }
     };
 
+    bool opengeode_geosciences_implicit_api
+        is_implicit_structural_model_saveable(
+            const ImplicitStructuralModel& implicit_model,
+            absl::string_view filename );
+
     using ImplicitStructuralModelOutputFactory = Factory< std::string,
         ImplicitStructuralModelOutput,
         absl::string_view >;

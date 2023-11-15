@@ -61,6 +61,10 @@ namespace geode
         }
     };
 
+    bool opengeode_geosciences_implicit_api is_stratigraphic_model_saveable(
+        const StratigraphicModel& stratigraphic_model,
+        absl::string_view filename );
+
     using StratigraphicModelOutputFactory =
         Factory< std::string, StratigraphicModelOutput, absl::string_view >;
 } // namespace geode
