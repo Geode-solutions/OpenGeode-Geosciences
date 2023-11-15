@@ -468,11 +468,15 @@ namespace geode
     }
 
     StratigraphicSection::StratigraphicSection(
-        StratigraphicSection&& stratigraphic_section ) noexcept = default;
+        StratigraphicSection&& other ) noexcept
+        : ImplicitCrossSection{ std::move( other ) }
+    {
+        impl_->initialize_stratigraphic_query_trees( *this );
+    }
 
     StratigraphicSection::StratigraphicSection(
-        ImplicitCrossSection&& stratigraphic_section ) noexcept
-        : ImplicitCrossSection{ std::move( stratigraphic_section ) }
+        ImplicitCrossSection&& implicit_section ) noexcept
+        : ImplicitCrossSection{ std::move( implicit_section ) }
     {
         impl_->initialize_stratigraphic_query_trees( *this );
     }

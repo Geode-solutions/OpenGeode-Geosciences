@@ -147,14 +147,14 @@ namespace geode
             const Block3D& block,
             const StratigraphicPoint3D& stratigraphic_point ) const
         {
-            auto closest_tetrahedron = std::get< 0 >(
-                block_stratigraphic_aabb_trees_
-                    .at( block.id() )(
-                        create_stratigraphic_aabb_tree, model, block )
-                    .closest_element_box(
-                        stratigraphic_point.stratigraphic_coordinates(),
-                        block_stratigraphic_distance_to_tetras_.at(
-                            block.id() ) ) );
+            const auto& block_stratigraphic_aabb =
+                block_stratigraphic_aabb_trees_.at( block.id() )(
+                    create_stratigraphic_aabb_tree, model, block );
+            auto closest_tetrahedron =
+                std::get< 0 >( block_stratigraphic_aabb.closest_element_box(
+                    stratigraphic_point.stratigraphic_coordinates(),
+                    block_stratigraphic_distance_to_tetras_.at(
+                        block.id() ) ) );
             if( std::get< 0 >( block_stratigraphic_distance_to_tetras_.at(
                     block.id() )( stratigraphic_point, closest_tetrahedron ) )
                 < global_epsilon )
@@ -300,10 +300,12 @@ namespace geode
             std::tuple< double, Point3D > operator()(
                 const StratigraphicPoint3D& query, index_t cur_box ) const
             {
-                return point_tetrahedron_distance(
+                auto positive_tetra =
+                    PositiveStratigraphicTetrahedron{ model_, block_, cur_box };
+                auto dist = point_tetrahedron_distance(
                     query.stratigraphic_coordinates(),
-                    PositiveStratigraphicTetrahedron{ model_, block_, cur_box }
-                        .positive_tetra_ );
+                    positive_tetra.positive_tetra_ );
+                return dist;
             }
 
         private:
@@ -481,11 +483,15 @@ namespace geode
     }
 
     StratigraphicModel::StratigraphicModel(
-        StratigraphicModel&& ) noexcept = default;
+        StratigraphicModel&& other ) noexcept
+        : ImplicitStructuralModel{ std::move( other ) }
+    {
+        impl_->initialize_stratigraphic_query_trees( *this );
+    }
 
     StratigraphicModel::StratigraphicModel(
-        ImplicitStructuralModel&& structural_model ) noexcept
-        : ImplicitStructuralModel{ std::move( structural_model ) }
+        ImplicitStructuralModel&& implicit_model ) noexcept
+        : ImplicitStructuralModel{ std::move( implicit_model ) }
     {
         impl_->initialize_stratigraphic_query_trees( *this );
     }

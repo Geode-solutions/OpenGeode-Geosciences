@@ -322,7 +322,12 @@ namespace geode
     }
 
     ImplicitStructuralModel::ImplicitStructuralModel(
-        ImplicitStructuralModel&& ) noexcept = default;
+        ImplicitStructuralModel&& other ) noexcept
+        : StructuralModel{ std::move( other ) },
+          impl_{ std::move( other.impl_ ) }
+    {
+        impl_->initialize_implicit_query_trees( *this );
+    }
 
     ImplicitStructuralModel::ImplicitStructuralModel(
         StructuralModel&& structural_model ) noexcept
