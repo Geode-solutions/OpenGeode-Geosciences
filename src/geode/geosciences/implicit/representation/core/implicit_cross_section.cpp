@@ -50,11 +50,6 @@ namespace geode
     {
     public:
         Impl() = default;
-        Impl( Impl&& other )
-            : horizons_stack_{ std::move( other.horizons_stack_ ) },
-              horizon_isovalues_{ std::move( other.horizon_isovalues_ ) }
-        {
-        }
 
         void initialize_implicit_query_trees(
             const ImplicitCrossSection& model )
@@ -335,20 +330,16 @@ namespace geode
     }
 
     ImplicitCrossSection::ImplicitCrossSection(
-        ImplicitCrossSection&& implicit_model )
-        : CrossSection{ std::move( implicit_model ) },
-          impl_{ std::move( implicit_model.impl_ ) }
-    {
-        impl_->initialize_implicit_query_trees( *this );
-    }
+        ImplicitCrossSection&& ) noexcept = default;
 
-    ImplicitCrossSection::ImplicitCrossSection( CrossSection&& cross_section )
+    ImplicitCrossSection::ImplicitCrossSection(
+        CrossSection&& cross_section ) noexcept
         : CrossSection{ std::move( cross_section ) }
     {
         impl_->initialize_implicit_query_trees( *this );
     }
 
-    ImplicitCrossSection::~ImplicitCrossSection() {}
+    ImplicitCrossSection::~ImplicitCrossSection() = default;
 
     double ImplicitCrossSection::implicit_value(
         const Surface2D& surface, index_t vertex_id ) const

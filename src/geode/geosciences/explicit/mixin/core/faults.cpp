@@ -46,18 +46,11 @@ namespace geode
     Faults< dimension >::~Faults() = default;
 
     template < index_t dimension >
-    Faults< dimension >::Faults( Faults&& other )
-        : impl_( std::move( other.impl_ ) )
-    {
-    }
+    Faults< dimension >::Faults( Faults&& ) noexcept = default;
 
     template < index_t dimension >
     Faults< dimension >& Faults< dimension >::operator=(
-        Faults< dimension >&& other )
-    {
-        impl_ = std::move( other.impl_ );
-        return *this;
-    }
+        Faults< dimension >&& ) noexcept = default;
 
     template < index_t dimension >
     index_t Faults< dimension >::nb_faults() const
@@ -186,10 +179,7 @@ namespace geode
 
     template < index_t dimension >
     Faults< dimension >::FaultRangeBase::FaultRangeBase(
-        FaultRangeBase&& other ) noexcept
-        : impl_( std::move( other.impl_ ) )
-    {
-    }
+        FaultRangeBase&& ) noexcept = default;
 
     template < index_t dimension >
     Faults< dimension >::FaultRangeBase::FaultRangeBase(

@@ -46,18 +46,11 @@ namespace geode
     Horizons< dimension >::~Horizons() = default;
 
     template < index_t dimension >
-    Horizons< dimension >::Horizons( Horizons&& other )
-        : impl_( std::move( other.impl_ ) )
-    {
-    }
+    Horizons< dimension >::Horizons( Horizons&& ) noexcept = default;
 
     template < index_t dimension >
     Horizons< dimension >& Horizons< dimension >::operator=(
-        Horizons< dimension >&& other )
-    {
-        impl_ = std::move( other.impl_ );
-        return *this;
-    }
+        Horizons< dimension >&& ) noexcept = default;
 
     template < index_t dimension >
     index_t Horizons< dimension >::nb_horizons() const
@@ -194,10 +187,7 @@ namespace geode
 
     template < index_t dimension >
     Horizons< dimension >::HorizonRangeBase::HorizonRangeBase(
-        HorizonRangeBase&& other ) noexcept
-        : impl_( std::move( other.impl_ ) )
-    {
-    }
+        HorizonRangeBase&& ) noexcept = default;
 
     template < index_t dimension >
     Horizons< dimension >::HorizonRangeBase::HorizonRangeBase(

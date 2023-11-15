@@ -54,8 +54,9 @@ namespace geode
             "geode_implicit_attribute";
         using implicit_attribute_type = double;
         ImplicitStructuralModel();
-        ImplicitStructuralModel( ImplicitStructuralModel&& implicit_model );
-        ImplicitStructuralModel( StructuralModel&& structural_model );
+        ImplicitStructuralModel(
+            ImplicitStructuralModel&& implicit_model ) noexcept;
+        ImplicitStructuralModel( StructuralModel&& structural_model ) noexcept;
         virtual ~ImplicitStructuralModel();
 
         static constexpr absl::string_view native_extension_static()

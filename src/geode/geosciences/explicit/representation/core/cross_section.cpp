@@ -38,7 +38,7 @@ namespace geode
     {
     }
 
-    CrossSection::HorizonItemRange::~HorizonItemRange() {}
+    CrossSection::HorizonItemRange::~HorizonItemRange() = default;
 
     auto CrossSection::HorizonItemRange::begin() const
         -> const HorizonItemRange&
@@ -76,7 +76,7 @@ namespace geode
     {
     }
 
-    CrossSection::FaultItemRange::~FaultItemRange() {}
+    CrossSection::FaultItemRange::~FaultItemRange() = default;
 
     auto CrossSection::FaultItemRange::begin() const -> const FaultItemRange&
     {
@@ -114,7 +114,7 @@ namespace geode
     {
     }
 
-    CrossSection::FaultBlockItemRange::~FaultBlockItemRange() {}
+    CrossSection::FaultBlockItemRange::~FaultBlockItemRange() = default;
 
     auto CrossSection::FaultBlockItemRange::begin() const
         -> const FaultBlockItemRange&
@@ -156,7 +156,8 @@ namespace geode
     {
     }
 
-    CrossSection::StratigraphicUnitItemRange::~StratigraphicUnitItemRange() {}
+    CrossSection::StratigraphicUnitItemRange::~StratigraphicUnitItemRange() =
+        default;
 
     auto CrossSection::StratigraphicUnitItemRange::begin() const
         -> const StratigraphicUnitItemRange&
@@ -183,7 +184,7 @@ namespace geode
         return { *this, stratigraphic_unit };
     }
 
-    CrossSection::CrossSection( Section&& section )
+    CrossSection::CrossSection( Section&& section ) noexcept
         : Section{ std::move( section ) }
     {
     }

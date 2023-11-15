@@ -121,10 +121,11 @@ namespace geode
             absl::string_view directory, StratigraphicRelationshipsBuilderKey );
 
     protected:
-        StratigraphicRelationships( StratigraphicRelationships&& );
+        StratigraphicRelationships(
+            StratigraphicRelationships&& other ) noexcept;
 
         StratigraphicRelationships& operator=(
-            StratigraphicRelationships&& other );
+            StratigraphicRelationships&& other ) noexcept;
 
     private:
         IMPLEMENTATION_MEMBER( impl_ );

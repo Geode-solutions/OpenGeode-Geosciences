@@ -481,26 +481,23 @@ namespace geode
     }
 
     StratigraphicModel::StratigraphicModel(
-        StratigraphicModel&& implicit_model )
-        : ImplicitStructuralModel{ std::move( implicit_model ) }
+        StratigraphicModel&& ) noexcept = default;
+
+    StratigraphicModel::StratigraphicModel(
+        ImplicitStructuralModel&& structural_model ) noexcept
+        : ImplicitStructuralModel{ std::move( structural_model ) }
     {
         impl_->initialize_stratigraphic_query_trees( *this );
     }
 
     StratigraphicModel::StratigraphicModel(
-        ImplicitStructuralModel&& structural_model )
+        StructuralModel&& structural_model ) noexcept
         : ImplicitStructuralModel{ std::move( structural_model ) }
     {
         impl_->initialize_stratigraphic_query_trees( *this );
     }
 
-    StratigraphicModel::StratigraphicModel( StructuralModel&& structural_model )
-        : ImplicitStructuralModel{ std::move( structural_model ) }
-    {
-        impl_->initialize_stratigraphic_query_trees( *this );
-    }
-
-    StratigraphicModel::~StratigraphicModel() {}
+    StratigraphicModel::~StratigraphicModel() = default;
 
     StratigraphicPoint3D StratigraphicModel::stratigraphic_coordinates(
         const Block3D& block, index_t vertex_id ) const

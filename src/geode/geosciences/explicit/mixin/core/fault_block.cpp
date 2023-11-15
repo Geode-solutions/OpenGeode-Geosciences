@@ -31,6 +31,9 @@ namespace geode
     FaultBlock< dimension >::FaultBlock() = default;
 
     template < index_t dimension >
+    FaultBlock< dimension >::FaultBlock( FaultBlock&& ) noexcept = default;
+
+    template < index_t dimension >
     FaultBlock< dimension >::~FaultBlock() = default;
 
     template < index_t dimension >

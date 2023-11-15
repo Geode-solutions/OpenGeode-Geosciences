@@ -62,11 +62,10 @@ namespace geode
         const HorizonsStack< dimension >& horizons_stack )
     {
         ModelCopyMapping mappings;
-        mappings.emplace( Horizon< dimension >::component_type_static(),
-            detail::copy_horizons( horizons_stack, *this ) );
-        mappings.emplace(
-            StratigraphicUnit< dimension >::component_type_static(),
-            detail::copy_stratigraphic_units( horizons_stack, *this ) );
+        detail::copy_horizons( horizons_stack, *this,
+            mappings[Horizon< dimension >::component_type_static()] );
+        detail::copy_stratigraphic_units( horizons_stack, *this,
+            mappings[Horizon< dimension >::component_type_static()] );
         return mappings;
     }
 
@@ -89,30 +88,10 @@ namespace geode
         ModelCopyMapping& mapping,
         const HorizonsStack< dimension >& horizons_stack )
     {
-        if( !mapping.has_mapping_type(
-                Horizon< dimension >::component_type_static() ) )
-        {
-            mapping.emplace( Horizon< dimension >::component_type_static(),
-                detail::copy_horizons( horizons_stack, *this ) );
-        }
-        else
-        {
-            detail::copy_horizons( horizons_stack, *this,
-                mapping.at( Horizon< dimension >::component_type_static() ) );
-        }
-        if( !mapping.has_mapping_type(
-                StratigraphicUnit< dimension >::component_type_static() ) )
-        {
-            mapping.emplace(
-                StratigraphicUnit< dimension >::component_type_static(),
-                detail::copy_stratigraphic_units( horizons_stack, *this ) );
-        }
-        else
-        {
-            detail::copy_stratigraphic_units( horizons_stack, *this,
-                mapping.at(
-                    StratigraphicUnit< dimension >::component_type_static() ) );
-        }
+        detail::copy_horizons( horizons_stack, *this,
+            mapping[Horizon< dimension >::component_type_static()] );
+        detail::copy_stratigraphic_units( horizons_stack, *this,
+            mapping[StratigraphicUnit< dimension >::component_type_static()] );
     }
 
     template < index_t dimension >

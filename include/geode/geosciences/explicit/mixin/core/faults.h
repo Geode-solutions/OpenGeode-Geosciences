@@ -99,9 +99,9 @@ namespace geode
     protected:
         friend class FaultsBuilder< dimension >;
         Faults();
-        Faults( Faults&& );
+        Faults( Faults&& other ) noexcept;
 
-        Faults& operator=( Faults&& other );
+        Faults& operator=( Faults&& other ) noexcept;
 
     private:
         class ModifiableFaultRange : public FaultRangeBase

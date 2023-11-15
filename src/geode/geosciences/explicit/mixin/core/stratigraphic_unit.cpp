@@ -29,6 +29,9 @@ namespace geode
 {
     template < index_t dimension >
     StratigraphicUnit< dimension >::StratigraphicUnit() = default;
+    template < index_t dimension >
+    StratigraphicUnit< dimension >::StratigraphicUnit(
+        StratigraphicUnit&& ) noexcept = default;
 
     template < index_t dimension >
     StratigraphicUnit< dimension >::~StratigraphicUnit() = default;

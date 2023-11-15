@@ -99,9 +99,10 @@ namespace geode
     protected:
         friend class HorizonsBuilder< dimension >;
         Horizons();
-        Horizons( Horizons&& );
+        Horizons( Horizons&& other ) noexcept;
 
-        Horizons< dimension >& operator=( Horizons< dimension >&& other );
+        Horizons< dimension >& operator=(
+            Horizons< dimension >&& other ) noexcept;
 
     private:
         class ModifiableHorizonRange : public HorizonRangeBase

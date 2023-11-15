@@ -48,7 +48,7 @@ namespace geode
             StratigraphicUnitsBuilderKey );
 
     public:
-        StratigraphicUnit( StratigraphicUnit&& other ) noexcept = default;
+        StratigraphicUnit( StratigraphicUnit&& other ) noexcept;
         ~StratigraphicUnit();
 
         static ComponentType component_type_static()
