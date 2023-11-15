@@ -26,11 +26,12 @@
 #include <absl/strings/string_view.h>
 
 #include <geode/basic/detail/geode_output_impl.h>
+#include <geode/basic/io.h>
+#include <geode/basic/logger.h>
 
 #include <geode/model/representation/io/section_output.h>
 
 #include <geode/geosciences/explicit/representation/io/cross_section_output.h>
-
 #include <geode/geosciences/implicit/representation/core/implicit_cross_section.h>
 
 namespace geode
@@ -38,15 +39,21 @@ namespace geode
     void save_implicit_cross_section(
         const ImplicitCrossSection& section, absl::string_view filename )
     {
+        constexpr auto TYPE = "ImplicitCrossSection";
         try
         {
             detail::geode_object_output_impl<
-                ImplicitCrossSectionOutputFactory >(
-                "ImplicitCrossSection", section, filename );
+                ImplicitCrossSectionOutputFactory >( TYPE, section, filename );
         }
         catch( const OpenGeodeException& e )
         {
             Logger::error( e.what() );
+            print_available_extensions< ImplicitCrossSectionOutputFactory >(
+                TYPE );
+            Logger::info( "Other extensions are available in parent classes." );
+            print_available_extensions< CrossSectionOutputFactory >(
+                "CrossSection" );
+            print_available_extensions< SectionOutputFactory >( "Section" );
             throw OpenGeodeException{
                 "Cannot save ImplicitCrossSection in file: ", filename
             };

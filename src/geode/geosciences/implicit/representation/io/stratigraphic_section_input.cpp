@@ -23,23 +23,30 @@
 
 #include <geode/geosciences/implicit/representation/io/stratigraphic_section_input.h>
 
+#include <absl/strings/str_cat.h>
 #include <absl/strings/string_view.h>
 
 #include <geode/basic/detail/geode_input_impl.h>
+#include <geode/basic/io.h>
+#include <geode/basic/logger.h>
 
+#include <geode/model/representation/io/section_input.h>
+
+#include <geode/geosciences/explicit/representation/io/cross_section_input.h>
 #include <geode/geosciences/implicit/representation/core/stratigraphic_section.h>
+#include <geode/geosciences/implicit/representation/io/implicit_cross_section_input.h>
 
 namespace geode
 {
     StratigraphicSection load_stratigraphic_section(
         absl::string_view filename )
     {
+        constexpr auto TYPE = "StratigraphicSection";
         try
         {
-            constexpr auto type = "StratigraphicSection";
             auto stratigraphic_section = detail::geode_object_input_impl<
-                StratigraphicSectionInputFactory >( type, filename );
-            auto message = absl::StrCat( type, " has: " );
+                StratigraphicSectionInputFactory >( TYPE, filename );
+            auto message = absl::StrCat( TYPE, " has: " );
             detail::add_to_message(
                 message, stratigraphic_section.nb_surfaces(), " Surfaces, " );
             detail::add_to_message(
@@ -64,6 +71,14 @@ namespace geode
         catch( const OpenGeodeException& e )
         {
             Logger::error( e.what() );
+            print_available_extensions< StratigraphicSectionInputFactory >(
+                TYPE );
+            Logger::info( "Other extensions are available in parent classes." );
+            print_available_extensions< ImplicitCrossSectionInputFactory >(
+                "ImplicitCrossSection" );
+            print_available_extensions< CrossSectionInputFactory >(
+                "CrossSection" );
+            print_available_extensions< SectionInputFactory >( "Section" );
             throw OpenGeodeException{
                 "Cannot load StratigraphicSection from file: ", filename
             };

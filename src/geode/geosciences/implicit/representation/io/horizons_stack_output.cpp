@@ -26,6 +26,8 @@
 #include <absl/strings/string_view.h>
 
 #include <geode/basic/detail/geode_output_impl.h>
+#include <geode/basic/io.h>
+#include <geode/basic/logger.h>
 
 #include <geode/geosciences/implicit/representation/core/horizons_stack.h>
 
@@ -35,15 +37,18 @@ namespace geode
     void save_horizons_stack( const HorizonsStack< dimension >& horizons_stack,
         absl::string_view filename )
     {
+        constexpr auto TYPE = "HorizonsStack";
         try
         {
             detail::geode_object_output_impl<
                 HorizonsStackOutputFactory< dimension > >(
-                "HorizonsStack", horizons_stack, filename );
+                TYPE, horizons_stack, filename );
         }
         catch( const OpenGeodeException& e )
         {
             Logger::error( e.what() );
+            print_available_extensions<
+                HorizonsStackOutputFactory< dimension > >( TYPE );
             throw OpenGeodeException{ "Cannot save HorizonsStack in file: ",
                 filename };
         }

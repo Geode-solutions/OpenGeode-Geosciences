@@ -26,11 +26,12 @@
 #include <absl/strings/string_view.h>
 
 #include <geode/basic/detail/geode_output_impl.h>
+#include <geode/basic/io.h>
+#include <geode/basic/logger.h>
 
 #include <geode/model/representation/io/brep_output.h>
 
 #include <geode/geosciences/explicit/representation/io/structural_model_output.h>
-
 #include <geode/geosciences/implicit/representation/core/stratigraphic_model.h>
 #include <geode/geosciences/implicit/representation/io/implicit_structural_model_output.h>
 
@@ -40,14 +41,23 @@ namespace geode
         const StratigraphicModel& stratigraphic_model,
         absl::string_view filename )
     {
+        constexpr auto TYPE = "StratigraphicModel";
         try
         {
             detail::geode_object_output_impl< StratigraphicModelOutputFactory >(
-                "StratigraphicModel", stratigraphic_model, filename );
+                TYPE, stratigraphic_model, filename );
         }
         catch( const OpenGeodeException& e )
         {
             Logger::error( e.what() );
+            print_available_extensions< StratigraphicModelOutputFactory >(
+                TYPE );
+            Logger::info( "Other extensions are available in parent classes." );
+            print_available_extensions< ImplicitStructuralModelOutputFactory >(
+                "ImplicitStructuralModel" );
+            print_available_extensions< StructuralModelOutputFactory >(
+                "StructuralModel" );
+            print_available_extensions< BRepOutputFactory >( "BRep" );
             throw OpenGeodeException{
                 "Cannot save StratigraphicModel in file: ", filename
             };

@@ -23,24 +23,29 @@
 
 #include <geode/geosciences/implicit/representation/io/stratigraphic_model_input.h>
 
+#include <absl/strings/str_cat.h>
 #include <absl/strings/string_view.h>
 
 #include <geode/basic/detail/geode_input_impl.h>
+#include <geode/basic/io.h>
+#include <geode/basic/logger.h>
+
+#include <geode/model/representation/io/brep_input.h>
 
 #include <geode/geosciences/explicit/representation/io/structural_model_input.h>
-
 #include <geode/geosciences/implicit/representation/core/stratigraphic_model.h>
+#include <geode/geosciences/implicit/representation/io/implicit_structural_model_input.h>
 
 namespace geode
 {
     StratigraphicModel load_stratigraphic_model( absl::string_view filename )
     {
+        constexpr auto TYPE = "StratigraphicModel";
         try
         {
-            constexpr auto type = "StratigraphicModel";
             auto stratigraphic_model = detail::geode_object_input_impl<
-                StratigraphicModelInputFactory >( type, filename );
-            auto message = absl::StrCat( type, " has: " );
+                StratigraphicModelInputFactory >( TYPE, filename );
+            auto message = absl::StrCat( TYPE, " has: " );
             detail::add_to_message(
                 message, stratigraphic_model.nb_blocks(), " Blocks, " );
             detail::add_to_message(
@@ -67,6 +72,14 @@ namespace geode
         catch( const OpenGeodeException& e )
         {
             Logger::error( e.what() );
+            print_available_extensions< StratigraphicModelInputFactory >(
+                TYPE );
+            Logger::info( "Other extensions are available in parent classes." );
+            print_available_extensions< ImplicitStructuralModelInputFactory >(
+                "ImplicitStructuralModel" );
+            print_available_extensions< StructuralModelInputFactory >(
+                "StructuralModel" );
+            print_available_extensions< BRepInputFactory >( "BRep" );
             throw OpenGeodeException{
                 "Cannot load StratigraphicModel from file: ", filename
             };

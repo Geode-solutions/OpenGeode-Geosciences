@@ -26,6 +26,10 @@
 #include <absl/strings/string_view.h>
 
 #include <geode/basic/detail/geode_output_impl.h>
+#include <geode/basic/io.h>
+#include <geode/basic/logger.h>
+
+#include <geode/model/representation/io/section_output.h>
 
 #include <geode/geosciences/explicit/representation/core/cross_section.h>
 
@@ -34,14 +38,18 @@ namespace geode
     void save_cross_section(
         const CrossSection& cross_section, absl::string_view filename )
     {
+        constexpr auto TYPE = "CrossSection";
         try
         {
             detail::geode_object_output_impl< CrossSectionOutputFactory >(
-                "CrossSection", cross_section, filename );
+                TYPE, cross_section, filename );
         }
         catch( const OpenGeodeException& e )
         {
             Logger::error( e.what() );
+            print_available_extensions< CrossSectionOutputFactory >( TYPE );
+            Logger::info( "Other extensions are available in parent classes." );
+            print_available_extensions< SectionOutputFactory >( "Section" );
             throw OpenGeodeException{ "Cannot save CrossSection in file: ",
                 filename };
         }

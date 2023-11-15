@@ -26,11 +26,12 @@
 #include <absl/strings/string_view.h>
 
 #include <geode/basic/detail/geode_output_impl.h>
+#include <geode/basic/io.h>
+#include <geode/basic/logger.h>
 
 #include <geode/model/representation/io/brep_output.h>
 
 #include <geode/geosciences/explicit/representation/io/structural_model_output.h>
-
 #include <geode/geosciences/implicit/representation/core/implicit_structural_model.h>
 
 namespace geode
@@ -39,15 +40,22 @@ namespace geode
         const ImplicitStructuralModel& implicit_model,
         absl::string_view filename )
     {
+        constexpr auto TYPE = "ImplicitStructuralModel";
         try
         {
             detail::geode_object_output_impl<
                 ImplicitStructuralModelOutputFactory >(
-                "ImplicitStructuralModel", implicit_model, filename );
+                TYPE, implicit_model, filename );
         }
         catch( const OpenGeodeException& e )
         {
             Logger::error( e.what() );
+            print_available_extensions< ImplicitStructuralModelOutputFactory >(
+                TYPE );
+            Logger::info( "Other extensions are available in parent classes." );
+            print_available_extensions< StructuralModelOutputFactory >(
+                "StructuralModel" );
+            print_available_extensions< BRepOutputFactory >( "BRep" );
             throw OpenGeodeException{
                 "Cannot save ImplicitStructuralModel in file: ", filename
             };
