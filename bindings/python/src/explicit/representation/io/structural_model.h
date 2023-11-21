@@ -36,6 +36,8 @@ namespace geode
         module.def( "check_structural_model_missing_files",
             &check_structural_model_missing_files );
         module.def(
+            "is_structural_model_loadable", &is_structural_model_loadable );
+        module.def(
             "is_structural_model_saveable", &is_structural_model_saveable );
         PYTHON_INPUT_CLASS( StructuralModel, "StructuralModel" );
         PYTHON_FACTORY_CLASS( StructuralModelInputFactory );

@@ -35,6 +35,7 @@ namespace geode
         module.def( "load_cross_section", &load_cross_section );
         module.def( "check_cross_section_missing_files",
             &check_cross_section_missing_files );
+        module.def( "is_cross_section_loadable", &is_cross_section_loadable );
         module.def( "is_cross_section_saveable", &is_cross_section_saveable );
         PYTHON_INPUT_CLASS( CrossSection, "CrossSection" );
         PYTHON_FACTORY_CLASS( CrossSectionInputFactory );

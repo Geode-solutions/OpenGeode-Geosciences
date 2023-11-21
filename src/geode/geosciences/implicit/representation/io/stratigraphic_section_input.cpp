@@ -85,11 +85,18 @@ namespace geode
         }
     }
 
-    StratigraphicSectionInput::MissingFiles opengeode_geosciences_implicit_api
+    StratigraphicSectionInput::MissingFiles
         check_stratigraphic_section_missing_files( absl::string_view filename )
     {
         const auto input = detail::geode_object_input_reader<
             StratigraphicSectionInputFactory >( filename );
         return input->check_missing_files();
+    }
+
+    bool is_stratigraphic_section_loadable( absl::string_view filename )
+    {
+        const auto input = detail::geode_object_input_reader<
+            StratigraphicSectionInputFactory >( filename );
+        return input->is_loadable();
     }
 } // namespace geode

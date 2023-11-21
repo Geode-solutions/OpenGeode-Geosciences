@@ -63,6 +63,9 @@ namespace geode
         check_implicit_cross_section_missing_files(
             absl::string_view filename );
 
+    bool opengeode_geosciences_implicit_api is_implicit_cross_section_loadable(
+        absl::string_view filename );
+
     using ImplicitCrossSectionInputFactory =
         Factory< std::string, ImplicitCrossSectionInput, absl::string_view >;
 } // namespace geode

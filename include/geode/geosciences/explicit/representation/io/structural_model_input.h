@@ -64,6 +64,9 @@ namespace geode
     StructuralModelInput::MissingFiles opengeode_geosciences_explicit_api
         check_structural_model_missing_files( absl::string_view filename );
 
+    bool opengeode_geosciences_explicit_api is_structural_model_loadable(
+        absl::string_view filename );
+
     using StructuralModelInputFactory =
         Factory< std::string, StructuralModelInput, absl::string_view >;
 } // namespace geode

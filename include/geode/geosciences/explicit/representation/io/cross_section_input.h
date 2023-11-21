@@ -64,6 +64,9 @@ namespace geode
     CrossSectionInput::MissingFiles opengeode_geosciences_explicit_api
         check_cross_section_missing_files( absl::string_view filename );
 
+    bool opengeode_geosciences_explicit_api is_cross_section_loadable(
+        absl::string_view filename );
+
     using CrossSectionInputFactory =
         Factory< std::string, CrossSectionInput, absl::string_view >;
 } // namespace geode

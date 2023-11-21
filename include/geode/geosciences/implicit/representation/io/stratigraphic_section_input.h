@@ -62,6 +62,9 @@ namespace geode
     StratigraphicSectionInput::MissingFiles opengeode_geosciences_implicit_api
         check_stratigraphic_section_missing_files( absl::string_view filename );
 
+    bool opengeode_geosciences_implicit_api is_stratigraphic_section_loadable(
+        absl::string_view filename );
+
     using StratigraphicSectionInputFactory =
         Factory< std::string, StratigraphicSectionInput, absl::string_view >;
 } // namespace geode

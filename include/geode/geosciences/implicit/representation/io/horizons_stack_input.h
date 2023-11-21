@@ -68,6 +68,9 @@ namespace geode
         check_horizons_stack_missing_files( absl::string_view filename );
 
     template < index_t dimension >
+    bool is_horizons_stack_loadable( absl::string_view filename );
+
+    template < index_t dimension >
     using HorizonsStackInputFactory = Factory< std::string,
         HorizonsStackInput< dimension >,
         absl::string_view >;
