@@ -37,6 +37,8 @@ namespace geode
             "load_implicit_structural_model", &load_implicit_structural_model );
         module.def( "check_implicit_structural_model_missing_files",
             &check_implicit_structural_model_missing_files );
+        module.def( "is_implicit_structural_model_loadable",
+            &is_implicit_structural_model_loadable );
         module.def( "is_implicit_structural_model_saveable",
             &is_implicit_structural_model_saveable );
         PYTHON_INPUT_CLASS(

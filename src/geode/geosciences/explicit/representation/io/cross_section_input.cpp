@@ -84,4 +84,12 @@ namespace geode
                 filename );
         return input->check_missing_files();
     }
+
+    bool is_cross_section_loadable( absl::string_view filename )
+    {
+        const auto input =
+            detail::geode_object_input_reader< CrossSectionInputFactory >(
+                filename );
+        return input->is_loadable();
+    }
 } // namespace geode

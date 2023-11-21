@@ -71,6 +71,14 @@ namespace geode
         return input->check_missing_files();
     }
 
+    template < index_t dimension >
+    bool is_horizons_stack_loadable( absl::string_view filename )
+    {
+        const auto input = detail::geode_object_input_reader<
+            HorizonsStackInputFactory< dimension > >( filename );
+        return input->is_loadable();
+    }
+
     template HorizonsStack< 2 > opengeode_geosciences_implicit_api
         load_horizons_stack( absl::string_view );
     template HorizonsStack< 3 > opengeode_geosciences_implicit_api
@@ -82,4 +90,9 @@ namespace geode
     template HorizonsStackInput< 3 >::MissingFiles
         opengeode_geosciences_implicit_api
             check_horizons_stack_missing_files< 3 >( absl::string_view );
+
+    template bool opengeode_geosciences_implicit_api
+        is_horizons_stack_loadable< 2 >( absl::string_view );
+    template bool opengeode_geosciences_implicit_api
+        is_horizons_stack_loadable< 3 >( absl::string_view );
 } // namespace geode

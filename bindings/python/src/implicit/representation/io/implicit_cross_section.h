@@ -37,6 +37,8 @@ namespace geode
             "load_implicit_cross_section", &load_implicit_cross_section );
         module.def( "check_implicit_cross_section_missing_files",
             &check_implicit_cross_section_missing_files );
+        module.def( "is_implicit_cross_section_loadable",
+            &is_implicit_cross_section_loadable );
         module.def( "is_implicit_cross_section_saveable",
             &is_implicit_cross_section_saveable );
         PYTHON_INPUT_CLASS( ImplicitCrossSection, "ImplicitCrossSection" );
