@@ -39,9 +39,9 @@
     module.def( check##dimension.c_str(),                                      \
         &check_horizons_stack_missing_files< dimension > );                    \
     const auto loadable##dimension =                                           \
-        "is_horizons_stack_missing_files" + std::to_string( dimension ) + "D"; \
+        "is_horizons_stack_loadable" + std::to_string( dimension ) + "D";      \
     module.def( loadable##dimension.c_str(),                                   \
-        &is_horizons_stack_missing_files< dimension > );                       \
+        &is_horizons_stack_loadable< dimension > );                            \
     PYTHON_INPUT_CLASS( HorizonsStack< dimension >,                            \
         "HorizonsStack" + std::to_string( dimension ) + "D" );                 \
     PYTHON_FACTORY_CLASS( HorizonsStackInputFactory##dimension##D );           \
