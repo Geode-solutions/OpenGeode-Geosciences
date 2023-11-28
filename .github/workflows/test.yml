@@ -1,13 +1,13 @@
 name: Test
 
-on: 
+on:
   push:
     branches-ignore:
       - master
 
 jobs:
   test:
-    uses: Geode-solutions/actions/.github/workflows/test.yml@master
+    uses: Geode-solutions/actions/.github/workflows/cpp-test.yml@master
     with:
       name: OPENGEODE_GEOSCIENCES
       repos: OpenGeode
