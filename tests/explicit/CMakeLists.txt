@@ -39,4 +39,5 @@ add_geode_test(
         OpenGeode::basic
         OpenGeode::model
         ${PROJECT_NAME}::explicit
+    ESSENTIAL
 )
