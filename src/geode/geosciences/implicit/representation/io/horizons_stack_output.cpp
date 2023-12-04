@@ -65,10 +65,10 @@ namespace geode
         return output->is_saveable( horizons_stack );
     }
 
-    template void opengeode_geosciences_implicit_api save_horizons_stack(
-        const HorizonsStack< 2 >&, absl::string_view );
-    template void opengeode_geosciences_implicit_api save_horizons_stack(
-        const HorizonsStack< 3 >&, absl::string_view );
+    template std::vector< std::string > opengeode_geosciences_implicit_api
+        save_horizons_stack( const HorizonsStack< 2 >&, absl::string_view );
+    template std::vector< std::string > opengeode_geosciences_implicit_api
+        save_horizons_stack( const HorizonsStack< 3 >&, absl::string_view );
 
     template bool opengeode_geosciences_implicit_api is_horizons_stack_saveable(
         const HorizonsStack< 2 >&, absl::string_view );
