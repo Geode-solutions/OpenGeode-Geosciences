@@ -35,13 +35,14 @@
 
 namespace geode
 {
-    void save_structural_model(
+    std::vector< std::string > save_structural_model(
         const StructuralModel& structural_model, absl::string_view filename )
     {
         constexpr auto TYPE = "StructuralModel";
         try
         {
-            detail::geode_object_output_impl< StructuralModelOutputFactory >(
+            return detail::geode_object_output_impl<
+                StructuralModelOutputFactory >(
                 TYPE, structural_model, filename );
         }
         catch( const OpenGeodeException& e )

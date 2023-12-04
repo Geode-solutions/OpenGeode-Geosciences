@@ -35,14 +35,14 @@
 
 namespace geode
 {
-    void save_cross_section(
+    std::vector< std::string > save_cross_section(
         const CrossSection& cross_section, absl::string_view filename )
     {
         constexpr auto TYPE = "CrossSection";
         try
         {
-            detail::geode_object_output_impl< CrossSectionOutputFactory >(
-                TYPE, cross_section, filename );
+            return detail::geode_object_output_impl<
+                CrossSectionOutputFactory >( TYPE, cross_section, filename );
         }
         catch( const OpenGeodeException& e )
         {

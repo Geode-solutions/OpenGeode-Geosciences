@@ -23,6 +23,9 @@
 
 #pragma once
 
+#include <string>
+#include <vector>
+
 #include <async++.h>
 
 #include <ghc/filesystem.hpp>
@@ -77,12 +80,13 @@ namespace geode
                 } );
         }
 
-        void write(
+        std::vector< std::string > write(
             const HorizonsStack< dimension >& horizons_stack ) const final
         {
             const ZipFile zip_writer{ this->filename(), uuid{}.string() };
             save_horizons_stack_files( horizons_stack, zip_writer.directory() );
             archive_horizons_stack_files( zip_writer );
+            return { to_string( this->filename() ) };
         }
     };
     ALIAS_2D_AND_3D( OpenGeodeHorizonsStackOutput );

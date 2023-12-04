@@ -69,12 +69,13 @@ namespace geode
         section_output.archive_section_files( zip_writer );
     }
 
-    void OpenGeodeCrossSectionOutput::write(
+    std::vector< std::string > OpenGeodeCrossSectionOutput::write(
         const CrossSection& cross_section ) const
     {
         const ZipFile zip_writer{ filename(), uuid{}.string() };
         save_cross_section_files(
             cross_section, to_string( zip_writer.directory() ) );
         archive_cross_section_files( zip_writer );
+        return { to_string( filename() ) };
     }
 } // namespace geode

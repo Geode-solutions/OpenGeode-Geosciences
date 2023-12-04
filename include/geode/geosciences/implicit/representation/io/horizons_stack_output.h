@@ -23,6 +23,9 @@
 
 #pragma once
 
+#include <string>
+#include <vector>
+
 #include <absl/strings/string_view.h>
 
 #include <geode/basic/factory.h>
@@ -45,7 +48,8 @@ namespace geode
      * @param[in] filename Path to the file where save the brep.
      */
     template < index_t dimension >
-    void save_horizons_stack( const HorizonsStack< dimension >& horizons_stack,
+    std::vector< std::string > save_horizons_stack(
+        const HorizonsStack< dimension >& horizons_stack,
         absl::string_view filename );
 
     template < index_t dimension >

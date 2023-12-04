@@ -34,13 +34,14 @@
 namespace geode
 {
     template < index_t dimension >
-    void save_horizons_stack( const HorizonsStack< dimension >& horizons_stack,
+    std::vector< std::string > save_horizons_stack(
+        const HorizonsStack< dimension >& horizons_stack,
         absl::string_view filename )
     {
         constexpr auto TYPE = "HorizonsStack";
         try
         {
-            detail::geode_object_output_impl<
+            return detail::geode_object_output_impl<
                 HorizonsStackOutputFactory< dimension > >(
                 TYPE, horizons_stack, filename );
         }
