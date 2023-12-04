@@ -23,6 +23,9 @@
 
 #include <geode/geosciences/explicit/representation/io/geode/geode_cross_section_output.h>
 
+#include <string>
+#include <vector>
+
 #include <async++.h>
 
 #include <fstream>

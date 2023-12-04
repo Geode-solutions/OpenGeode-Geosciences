@@ -23,6 +23,9 @@
 
 #include <geode/geosciences/explicit/representation/io/structural_model_output.h>
 
+#include <string>
+#include <vector>
+
 #include <absl/strings/string_view.h>
 
 #include <geode/basic/detail/geode_output_impl.h>
