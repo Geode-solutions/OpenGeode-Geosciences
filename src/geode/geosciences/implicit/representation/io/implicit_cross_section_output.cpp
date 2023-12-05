@@ -23,6 +23,9 @@
 
 #include <geode/geosciences/implicit/representation/io/implicit_cross_section_output.h>
 
+#include <string>
+#include <vector>
+
 #include <absl/strings/string_view.h>
 
 #include <geode/basic/detail/geode_output_impl.h>
@@ -36,13 +39,13 @@
 
 namespace geode
 {
-    void save_implicit_cross_section(
+    std::vector< std::string > save_implicit_cross_section(
         const ImplicitCrossSection& section, absl::string_view filename )
     {
         constexpr auto TYPE = "ImplicitCrossSection";
         try
         {
-            detail::geode_object_output_impl<
+            return detail::geode_object_output_impl<
                 ImplicitCrossSectionOutputFactory >( TYPE, section, filename );
         }
         catch( const OpenGeodeException& e )

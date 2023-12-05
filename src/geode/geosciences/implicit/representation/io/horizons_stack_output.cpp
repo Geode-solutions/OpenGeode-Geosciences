@@ -23,6 +23,9 @@
 
 #include <geode/geosciences/implicit/representation/io/horizons_stack_output.h>
 
+#include <string>
+#include <vector>
+
 #include <absl/strings/string_view.h>
 
 #include <geode/basic/detail/geode_output_impl.h>
@@ -34,13 +37,14 @@
 namespace geode
 {
     template < index_t dimension >
-    void save_horizons_stack( const HorizonsStack< dimension >& horizons_stack,
+    std::vector< std::string > save_horizons_stack(
+        const HorizonsStack< dimension >& horizons_stack,
         absl::string_view filename )
     {
         constexpr auto TYPE = "HorizonsStack";
         try
         {
-            detail::geode_object_output_impl<
+            return detail::geode_object_output_impl<
                 HorizonsStackOutputFactory< dimension > >(
                 TYPE, horizons_stack, filename );
         }
@@ -64,10 +68,10 @@ namespace geode
         return output->is_saveable( horizons_stack );
     }
 
-    template void opengeode_geosciences_implicit_api save_horizons_stack(
-        const HorizonsStack< 2 >&, absl::string_view );
-    template void opengeode_geosciences_implicit_api save_horizons_stack(
-        const HorizonsStack< 3 >&, absl::string_view );
+    template std::vector< std::string > opengeode_geosciences_implicit_api
+        save_horizons_stack( const HorizonsStack< 2 >&, absl::string_view );
+    template std::vector< std::string > opengeode_geosciences_implicit_api
+        save_horizons_stack( const HorizonsStack< 3 >&, absl::string_view );
 
     template bool opengeode_geosciences_implicit_api is_horizons_stack_saveable(
         const HorizonsStack< 2 >&, absl::string_view );

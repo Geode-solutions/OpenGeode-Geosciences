@@ -23,6 +23,9 @@
 
 #pragma once
 
+#include <string>
+#include <vector>
+
 #include <geode/geosciences/explicit/representation/core/structural_model.h>
 #include <geode/geosciences/explicit/representation/io/structural_model_output.h>
 
@@ -50,6 +53,7 @@ namespace geode
 
         void archive_structural_model_files( const ZipFile& zip_writer ) const;
 
-        void write( const StructuralModel& structural_model ) const final;
+        std::vector< std::string > write(
+            const StructuralModel& structural_model ) const final;
     };
 } // namespace geode

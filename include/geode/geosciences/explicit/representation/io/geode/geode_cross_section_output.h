@@ -23,6 +23,9 @@
 
 #pragma once
 
+#include <string>
+#include <vector>
+
 #include <geode/geosciences/explicit/representation/core/cross_section.h>
 #include <geode/geosciences/explicit/representation/io/cross_section_output.h>
 
@@ -49,6 +52,7 @@ namespace geode
 
         void archive_cross_section_files( const ZipFile& zip_writer ) const;
 
-        void write( const CrossSection& cross_section ) const final;
+        std::vector< std::string > write(
+            const CrossSection& cross_section ) const final;
     };
 } // namespace geode

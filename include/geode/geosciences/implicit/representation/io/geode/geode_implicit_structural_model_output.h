@@ -23,6 +23,9 @@
 
 #pragma once
 
+#include <string>
+#include <vector>
+
 #include <geode/geosciences/implicit/representation/core/implicit_structural_model.h>
 #include <geode/geosciences/implicit/representation/io/implicit_structural_model_output.h>
 
@@ -54,6 +57,7 @@ namespace geode
             const ImplicitStructuralModel& implicit_model,
             absl::string_view directory ) const;
 
-        void write( const ImplicitStructuralModel& implicit_model ) const final;
+        std::vector< std::string > write(
+            const ImplicitStructuralModel& implicit_model ) const final;
     };
 } // namespace geode

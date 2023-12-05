@@ -23,6 +23,9 @@
 
 #include <geode/geosciences/explicit/representation/io/geode/geode_structural_model_output.h>
 
+#include <string>
+#include <vector>
+
 #include <async++.h>
 
 #include <fstream>
@@ -70,12 +73,13 @@ namespace geode
         brep_output.archive_brep_files( zip_writer );
     }
 
-    void OpenGeodeStructuralModelOutput::write(
+    std::vector< std::string > OpenGeodeStructuralModelOutput::write(
         const StructuralModel& structural_model ) const
     {
         const ZipFile zip_writer{ filename(), uuid{}.string() };
         save_structural_model_files(
             structural_model, to_string( zip_writer.directory() ) );
         archive_structural_model_files( zip_writer );
+        return { to_string( filename() ) };
     }
 } // namespace geode

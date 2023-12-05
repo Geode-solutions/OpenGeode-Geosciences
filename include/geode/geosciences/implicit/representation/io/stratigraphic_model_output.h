@@ -23,6 +23,9 @@
 
 #pragma once
 
+#include <string>
+#include <vector>
+
 #include <absl/strings/string_view.h>
 
 #include <geode/basic/factory.h>
@@ -44,9 +47,9 @@ namespace geode
      * @param[in] filename Path to the file where save the
      * StratigraphicModel.
      */
-    void opengeode_geosciences_implicit_api save_stratigraphic_model(
-        const StratigraphicModel& stratigraphic_model,
-        absl::string_view filename );
+    std::vector< std::string > opengeode_geosciences_implicit_api
+        save_stratigraphic_model( const StratigraphicModel& stratigraphic_model,
+            absl::string_view filename );
 
     class opengeode_geosciences_implicit_api StratigraphicModelOutput
         : public Output< StratigraphicModel >

@@ -23,6 +23,9 @@
 
 #include <geode/geosciences/implicit/representation/io/geode/geode_implicit_structural_model_output.h>
 
+#include <string>
+#include <vector>
+
 #include <async++.h>
 
 #include <ghc/filesystem.hpp>
@@ -80,11 +83,12 @@ namespace geode
             } );
     }
 
-    void OpenGeodeImplicitStructuralModelOutput::write(
+    std::vector< std::string > OpenGeodeImplicitStructuralModelOutput::write(
         const ImplicitStructuralModel& implicit_model ) const
     {
         const ZipFile zip_writer{ this->filename(), uuid{}.string() };
         save_implicit_model_files( implicit_model, zip_writer.directory() );
         archive_implicit_model_files( zip_writer );
+        return { to_string( this->filename() ) };
     }
 } // namespace geode

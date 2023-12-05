@@ -23,6 +23,9 @@
 
 #include <geode/geosciences/implicit/representation/io/stratigraphic_section_output.h>
 
+#include <string>
+#include <vector>
+
 #include <absl/strings/string_view.h>
 
 #include <geode/basic/detail/geode_output_impl.h>
@@ -37,14 +40,14 @@
 
 namespace geode
 {
-    void save_stratigraphic_section(
+    std::vector< std::string > save_stratigraphic_section(
         const StratigraphicSection& stratigraphic_section,
         absl::string_view filename )
     {
         constexpr auto TYPE = "StratigraphicSection";
         try
         {
-            detail::geode_object_output_impl<
+            return detail::geode_object_output_impl<
                 StratigraphicSectionOutputFactory >(
                 TYPE, stratigraphic_section, filename );
         }

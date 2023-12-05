@@ -23,6 +23,9 @@
 
 #pragma once
 
+#include <string>
+#include <vector>
+
 #include <absl/strings/string_view.h>
 
 #include <geode/basic/factory.h>
@@ -44,9 +47,9 @@ namespace geode
      * @param[in] filename Path to the file where save the
      * ImplicitCrossSection.
      */
-    void opengeode_geosciences_implicit_api save_implicit_cross_section(
-        const ImplicitCrossSection& implicit_model,
-        absl::string_view filename );
+    std::vector< std::string > opengeode_geosciences_implicit_api
+        save_implicit_cross_section( const ImplicitCrossSection& implicit_model,
+            absl::string_view filename );
 
     class ImplicitCrossSectionOutput : public Output< ImplicitCrossSection >
     {

@@ -23,6 +23,9 @@
 
 #pragma once
 
+#include <string>
+#include <vector>
+
 #include <geode/geosciences/implicit/representation/core/implicit_cross_section.h>
 #include <geode/geosciences/implicit/representation/io/implicit_cross_section_output.h>
 
@@ -53,6 +56,7 @@ namespace geode
             const ImplicitCrossSection& implicit_section,
             absl::string_view directory ) const;
 
-        void write( const ImplicitCrossSection& implicit_section ) const final;
+        std::vector< std::string > write(
+            const ImplicitCrossSection& implicit_section ) const final;
     };
 } // namespace geode
