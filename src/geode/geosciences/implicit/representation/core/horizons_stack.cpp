@@ -41,6 +41,44 @@ namespace geode
     HorizonsStack< dimension >& HorizonsStack< dimension >::operator=(
         HorizonsStack< dimension >&& ) noexcept = default;
 
+    template < index_t dimension >
+    uuid HorizonsStack< dimension >::top_horizon() const
+    {
+        OPENGEODE_EXCEPTION( this->nb_horizons() != 0,
+            "[HorizonsStack::top_horizon] Cannot determine top horizon: "
+            "no horizons were provided in the HorizonsStack." );
+        auto current_horizon_id = ( *this->horizons().begin() ).id();
+        while( const auto su_above = this->above( current_horizon_id ) )
+        {
+            const auto horizon_above = this->above( su_above.value() );
+            if( !horizon_above )
+            {
+                break;
+            }
+            current_horizon_id = horizon_above.value();
+        }
+        return current_horizon_id;
+    }
+
+    template < index_t dimension >
+    uuid HorizonsStack< dimension >::bottom_horizon() const
+    {
+        OPENGEODE_EXCEPTION( this->nb_horizons() != 0,
+            "[HorizonsStack::bottom_horizon] Cannot determine bottom horizon: "
+            "no horizons were provided in the HorizonsStack." );
+        auto current_horizon_id = ( *this->horizons().begin() ).id();
+        while( const auto su_under = this->under( current_horizon_id ) )
+        {
+            const auto horizon_under = this->under( su_under.value() );
+            if( !horizon_under )
+            {
+                break;
+            }
+            current_horizon_id = horizon_under.value();
+        }
+        return current_horizon_id;
+    }
+
     template class opengeode_geosciences_implicit_api HorizonsStack< 2 >;
     template class opengeode_geosciences_implicit_api HorizonsStack< 3 >;
 } // namespace geode
