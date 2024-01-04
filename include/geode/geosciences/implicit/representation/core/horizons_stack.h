@@ -71,6 +71,10 @@ namespace geode
         {
             return native_extension_static();
         }
+
+        uuid top_horizon() const;
+
+        uuid bottom_horizon() const;
     };
     ALIAS_2D_AND_3D( HorizonsStack );
 } // namespace geode
