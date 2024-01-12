@@ -65,7 +65,7 @@ namespace geode
         detail::copy_horizons( horizons_stack, *this,
             mappings[Horizon< dimension >::component_type_static()] );
         detail::copy_stratigraphic_units( horizons_stack, *this,
-            mappings[Horizon< dimension >::component_type_static()] );
+            mappings[StratigraphicUnit< dimension >::component_type_static()] );
         return mappings;
     }
 
