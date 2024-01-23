@@ -45,9 +45,9 @@ namespace geode
 namespace geode
 {
     /*!
-     * A Structural Model is a Boundary Representation composed of
-     * Faults and Horizons (as Surfaces) and FaultBlocks and StratigraphicUnits
-     * (as Blocks).
+     * A Structural Model is a Boundary Representation composed of Faults and
+     * Horizons (as Surfaces) and FaultBlocks and StratigraphicUnits (as
+     * Blocks).
      */
     class opengeode_geosciences_explicit_api StructuralModel
         : public BRep,
