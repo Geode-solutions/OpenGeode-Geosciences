@@ -26,10 +26,14 @@
 #include <geode/basic/algorithm.h>
 
 #include <geode/model/mixin/core/block.h>
+#include <geode/model/mixin/core/block_collection.h>
 #include <geode/model/mixin/core/corner.h>
+#include <geode/model/mixin/core/corner_collection.h>
 #include <geode/model/mixin/core/line.h>
+#include <geode/model/mixin/core/line_collection.h>
 #include <geode/model/mixin/core/model_boundary.h>
 #include <geode/model/mixin/core/surface.h>
+#include <geode/model/mixin/core/surface_collection.h>
 #include <geode/model/representation/core/brep.h>
 
 #include <geode/geosciences/explicit/mixin/core/fault_blocks.h>
@@ -45,9 +49,9 @@ namespace geode
 namespace geode
 {
     /*!
-     * A Structural Model is a Boundary Representation composed of
-     * Faults and Horizons (as Surfaces) and FaultBlocks and StratigraphicUnits
-     * (as Blocks).
+     * A Structural Model is a Boundary Representation composed of Faults and
+     * Horizons (as Surfaces) and FaultBlocks and StratigraphicUnits (as
+     * Blocks).
      */
     class opengeode_geosciences_explicit_api StructuralModel
         : public BRep,
