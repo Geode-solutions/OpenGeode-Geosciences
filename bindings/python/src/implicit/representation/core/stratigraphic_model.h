@@ -39,10 +39,10 @@ namespace geode
             module, "StratigraphicModel" )
             .def( pybind11::init<>() )
             .def( pybind11::init( []( ImplicitStructuralModel& model ) {
-                return StratigraphicModel{ std::move( model ) };
+                return StratigraphicModel{ std::move( model.clone() ) };
             } ) )
             .def( pybind11::init( []( StructuralModel& model ) {
-                return StratigraphicModel{ std::move( model ) };
+                return StratigraphicModel{ std::move( model.clone() ) };
             } ) )
             .def( "stratigraphic_coordinates_from_vertex_id",
                 static_cast< StratigraphicPoint3D ( StratigraphicModel::* )(

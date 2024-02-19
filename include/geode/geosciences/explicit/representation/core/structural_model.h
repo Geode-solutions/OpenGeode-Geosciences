@@ -151,6 +151,8 @@ namespace geode
         StructuralModel( StructuralModel&& ) noexcept = default;
         StructuralModel( BRep&& brep ) noexcept;
 
+        StructuralModel clone() const;
+
         static constexpr absl::string_view native_extension_static()
         {
             return "og_strm";

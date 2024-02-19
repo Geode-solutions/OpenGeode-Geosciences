@@ -67,6 +67,8 @@ namespace geode
         StratigraphicSection( CrossSection&& cross_section ) noexcept;
         ~StratigraphicSection();
 
+        StratigraphicSection clone() const;
+
         static constexpr absl::string_view native_extension_static()
         {
             return "og_stgs";

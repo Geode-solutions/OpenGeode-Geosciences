@@ -39,10 +39,12 @@ namespace geode
             module, "StratigraphicSection" )
             .def( pybind11::init<>() )
             .def( pybind11::init( []( ImplicitCrossSection& cross_section ) {
-                return StratigraphicSection{ std::move( cross_section ) };
+                return StratigraphicSection{ std::move(
+                    cross_section.clone() ) };
             } ) )
             .def( pybind11::init( []( CrossSection& cross_section ) {
-                return StratigraphicSection{ std::move( cross_section ) };
+                return StratigraphicSection{ std::move(
+                    cross_section.clone() ) };
             } ) )
             .def( "stratigraphic_coordinates_from_vertex_id",
                 static_cast< StratigraphicPoint2D ( StratigraphicSection::* )(

@@ -490,6 +490,12 @@ namespace geode
 
     StratigraphicSection::~StratigraphicSection() = default;
 
+    StratigraphicSection StratigraphicSection::clone() const
+    {
+        return StratigraphicSection{ std::move(
+            ImplicitCrossSection::clone() ) };
+    }
+
     StratigraphicPoint2D StratigraphicSection::stratigraphic_coordinates(
         const Surface2D& surface, index_t vertex_id ) const
     {

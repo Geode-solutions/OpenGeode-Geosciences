@@ -23,6 +23,11 @@
 
 #include <geode/geosciences/explicit/representation/core/structural_model.h>
 
+#include <geode/model/representation/core/detail/clone.h>
+
+#include <geode/geosciences/explicit/representation/builder/structural_model_builder.h>
+#include <geode/geosciences/explicit/representation/core/detail/clone.h>
+
 namespace geode
 {
     StructuralModel::HorizonItemRange::HorizonItemRange(
@@ -193,5 +198,19 @@ namespace geode
     StructuralModel::StructuralModel( BRep&& brep ) noexcept
         : BRep{ std::move( brep ) }
     {
+    }
+
+    StructuralModel StructuralModel::clone() const
+    {
+        StructuralModel model_clone{ std::move( BRep::clone() ) };
+        StructuralModelBuilder clone_builder{ model_clone };
+        clone_builder.copy_identifier( *this );
+        auto mappings = detail::brep_clone_mapping( *this );
+        detail::add_geology_clone_mapping( mappings, *this );
+        clone_builder.copy_components( mappings, *this );
+        clone_builder.copy_component_geometry( mappings, *this );
+        clone_builder.copy_geological_components( mappings, *this );
+        clone_builder.copy_relationships( mappings, *this );
+        return model_clone;
     }
 } // namespace geode

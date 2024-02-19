@@ -65,6 +65,8 @@ namespace geode
         StratigraphicModel( StructuralModel&& structural_model ) noexcept;
         ~StratigraphicModel();
 
+        StratigraphicModel clone() const;
+
         static constexpr absl::string_view native_extension_static()
         {
             return "og_stgm";

@@ -58,6 +58,8 @@ namespace geode
         ImplicitCrossSection( CrossSection&& cross_section ) noexcept;
         virtual ~ImplicitCrossSection();
 
+        ImplicitCrossSection clone() const;
+
         static constexpr absl::string_view native_extension_static()
         {
             return "og_ixsctn";

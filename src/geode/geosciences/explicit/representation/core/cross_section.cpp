@@ -23,6 +23,11 @@
 
 #include <geode/geosciences/explicit/representation/core/cross_section.h>
 
+#include <geode/model/representation/core/detail/clone.h>
+
+#include <geode/geosciences/explicit/representation/builder/cross_section_builder.h>
+#include <geode/geosciences/explicit/representation/core/detail/clone.h>
+
 namespace geode
 {
     CrossSection::HorizonItemRange::HorizonItemRange(
@@ -187,5 +192,19 @@ namespace geode
     CrossSection::CrossSection( Section&& section ) noexcept
         : Section{ std::move( section ) }
     {
+    }
+
+    CrossSection CrossSection::clone() const
+    {
+        CrossSection model_clone{ std::move( Section::clone() ) };
+        CrossSectionBuilder clone_builder{ model_clone };
+        clone_builder.copy_identifier( *this );
+        auto mappings = detail::section_clone_mapping( *this );
+        detail::add_geology_clone_mapping( mappings, *this );
+        clone_builder.copy_components( mappings, *this );
+        clone_builder.copy_component_geometry( mappings, *this );
+        clone_builder.copy_geological_components( mappings, *this );
+        clone_builder.copy_relationships( mappings, *this );
+        return model_clone;
     }
 } // namespace geode
