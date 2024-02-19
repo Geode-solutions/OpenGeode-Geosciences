@@ -507,8 +507,7 @@ namespace geode
 
     StratigraphicModel StratigraphicModel::clone() const
     {
-        return StratigraphicModel{ std::move(
-            ImplicitStructuralModel::clone() ) };
+        return StratigraphicModel{ ImplicitStructuralModel::clone() };
     }
 
     StratigraphicPoint3D StratigraphicModel::stratigraphic_coordinates(

@@ -342,8 +342,7 @@ namespace geode
 
     ImplicitStructuralModel ImplicitStructuralModel::clone() const
     {
-        ImplicitStructuralModel model_clone{ std::move(
-            StructuralModel::clone() ) };
+        ImplicitStructuralModel model_clone{ StructuralModel::clone() };
         ImplicitStructuralModelBuilder clone_builder{ model_clone };
         ModelCopyMapping clone_mappings;
         detail::add_geology_clone_mapping< StructuralModel >(

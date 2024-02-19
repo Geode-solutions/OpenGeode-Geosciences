@@ -349,7 +349,7 @@ namespace geode
 
     ImplicitCrossSection ImplicitCrossSection::clone() const
     {
-        ImplicitCrossSection model_clone{ std::move( CrossSection::clone() ) };
+        ImplicitCrossSection model_clone{ CrossSection::clone() };
         ImplicitCrossSectionBuilder clone_builder{ model_clone };
         ModelCopyMapping clone_mappings;
         detail::add_geology_clone_mapping< CrossSection >(

@@ -196,7 +196,7 @@ namespace geode
 
     CrossSection CrossSection::clone() const
     {
-        CrossSection model_clone{ std::move( Section::clone() ) };
+        CrossSection model_clone{ Section::clone() };
         CrossSectionBuilder clone_builder{ model_clone };
         clone_builder.copy_identifier( *this );
         auto mappings = detail::section_clone_mapping( *this );

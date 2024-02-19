@@ -492,8 +492,7 @@ namespace geode
 
     StratigraphicSection StratigraphicSection::clone() const
     {
-        return StratigraphicSection{ std::move(
-            ImplicitCrossSection::clone() ) };
+        return StratigraphicSection{ ImplicitCrossSection::clone() };
     }
 
     StratigraphicPoint2D StratigraphicSection::stratigraphic_coordinates(

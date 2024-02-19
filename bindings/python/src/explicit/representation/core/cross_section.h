@@ -33,7 +33,7 @@ namespace geode
             FaultBlocks2D, StratigraphicUnits2D >( module, "CrossSection" )
             .def( pybind11::init<>() )
             .def( pybind11::init( []( Section& section ) {
-                return CrossSection{ std::move( section.clone() ) };
+                return CrossSection{ section.clone() };
             } ) )
             .def(
                 "horizon_items",

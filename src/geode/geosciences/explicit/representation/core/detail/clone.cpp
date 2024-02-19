@@ -57,28 +57,27 @@ namespace
     }
 
     template < typename Model >
-    geode::BijectiveMapping< geode::uuid > clone_horizon_mapping(
-        const Model& model )
+    void add_stack_geology_clone_mapping(
+        geode::ModelCopyMapping& clone_mapping, const Model& model )
     {
-        geode::BijectiveMapping< geode::uuid > horizon_clone_mapping;
-        for( const auto& horizon : model.horizons() )
-        {
-            horizon_clone_mapping.map( horizon.id(), horizon.id() );
-        }
-        return horizon_clone_mapping;
+        clone_mapping.emplace(
+            geode::Horizon< Model::dim >::component_type_static(),
+            geode::detail::clone_horizon_mapping( model ) );
+        clone_mapping.emplace(
+            geode::StratigraphicUnit< Model::dim >::component_type_static(),
+            geode::detail::clone_stratigraphic_unit_mapping( model ) );
     }
 
     template < typename Model >
-    geode::BijectiveMapping< geode::uuid > clone_stratigraphic_unit_mapping(
-        const Model& model )
+    void add_faults_geology_clone_mapping(
+        geode::ModelCopyMapping& clone_mapping, const Model& model )
     {
-        geode::BijectiveMapping< geode::uuid > stratigraphic_unit_clone_mapping;
-        for( const auto& stratigraphic_unit : model.stratigraphic_units() )
-        {
-            stratigraphic_unit_clone_mapping.map(
-                stratigraphic_unit.id(), stratigraphic_unit.id() );
-        }
-        return stratigraphic_unit_clone_mapping;
+        clone_mapping.emplace(
+            geode::Fault< Model::dim >::component_type_static(),
+            clone_fault_mapping( model ) );
+        clone_mapping.emplace(
+            geode::FaultBlock< Model::dim >::component_type_static(),
+            clone_fault_block_mapping( model ) );
     }
 } // namespace
 
@@ -90,18 +89,8 @@ namespace geode
         void add_geology_clone_mapping(
             ModelCopyMapping& clone_mapping, const Model& model )
         {
-            clone_mapping.emplace(
-                geode::Fault< Model::dim >::component_type_static(),
-                clone_fault_mapping( model ) );
-            clone_mapping.emplace(
-                geode::FaultBlock< Model::dim >::component_type_static(),
-                clone_fault_block_mapping( model ) );
-            clone_mapping.emplace(
-                geode::Horizon< Model::dim >::component_type_static(),
-                clone_horizon_mapping( model ) );
-            clone_mapping.emplace(
-                geode::StratigraphicUnit< Model::dim >::component_type_static(),
-                clone_stratigraphic_unit_mapping( model ) );
+            add_stack_geology_clone_mapping( clone_mapping, model );
+            add_faults_geology_clone_mapping( clone_mapping, model );
         }
 
         template void opengeode_geosciences_explicit_api

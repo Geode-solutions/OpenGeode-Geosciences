@@ -40,5 +40,29 @@ namespace geode
         template < typename Model >
         void add_geology_clone_mapping(
             ModelCopyMapping& mapping, const Model& model );
+
+        template < typename Model >
+        BijectiveMapping< uuid > clone_horizon_mapping( const Model& model )
+        {
+            BijectiveMapping< uuid > horizon_clone_mapping;
+            for( const auto& horizon : model.horizons() )
+            {
+                horizon_clone_mapping.map( horizon.id(), horizon.id() );
+            }
+            return horizon_clone_mapping;
+        }
+
+        template < typename Model >
+        BijectiveMapping< uuid > clone_stratigraphic_unit_mapping(
+            const Model& model )
+        {
+            BijectiveMapping< uuid > stratigraphic_unit_clone_mapping;
+            for( const auto& stratigraphic_unit : model.stratigraphic_units() )
+            {
+                stratigraphic_unit_clone_mapping.map(
+                    stratigraphic_unit.id(), stratigraphic_unit.id() );
+            }
+            return stratigraphic_unit_clone_mapping;
+        }
     } // namespace detail
 } // namespace geode

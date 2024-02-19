@@ -54,20 +54,19 @@ namespace geode
                     []( CrossSection& model,
                         absl::string_view attribute_name ) {
                         return implicit_section_from_cross_section_scalar_field(
-                            std::move( model.clone() ), attribute_name );
+                            model.clone(), attribute_name );
                     } )
                 .def( "implicit_model_from_structural_model_scalar_field",
                     []( StructuralModel& model,
                         absl::string_view attribute_name ) {
                         return implicit_model_from_structural_model_scalar_field(
-                            std::move( model.clone() ), attribute_name );
+                            model.clone(), attribute_name );
                     } )
                 .def( "stratigraphic_model_from_implicit_model_and_coords",
                     []( ImplicitStructuralModel& implicit_model,
                         local_index_t implicit_axis ) {
                         return stratigraphic_model_from_implicit_model_and_coords(
-                            std::move( implicit_model.clone() ),
-                            implicit_axis );
+                            implicit_model.clone(), implicit_axis );
                     } );
         }
     } // namespace detail

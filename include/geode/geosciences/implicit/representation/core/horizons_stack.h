@@ -53,12 +53,17 @@ namespace geode
         PASSKEY( HorizonsStackBuilder< dimension >, HorizonsStackBuilderKey );
 
     public:
+        using Builder = HorizonsStackBuilder< dimension >;
+        static constexpr auto dim = dimension;
+
         HorizonsStack();
-        HorizonsStack( HorizonsStack&& horizons_stack ) noexcept;
+        HorizonsStack( HorizonsStack< dimension >&& horizons_stack ) noexcept;
         ~HorizonsStack();
 
         HorizonsStack< dimension >& operator=(
             HorizonsStack< dimension >&& other ) noexcept;
+
+        HorizonsStack< dimension > clone() const;
 
         static absl::string_view native_extension_static()
         {

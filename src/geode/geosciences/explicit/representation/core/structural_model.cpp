@@ -202,7 +202,7 @@ namespace geode
 
     StructuralModel StructuralModel::clone() const
     {
-        StructuralModel model_clone{ std::move( BRep::clone() ) };
+        StructuralModel model_clone{ BRep::clone() };
         StructuralModelBuilder clone_builder{ model_clone };
         clone_builder.copy_identifier( *this );
         auto mappings = detail::brep_clone_mapping( *this );
