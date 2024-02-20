@@ -148,6 +148,8 @@ namespace geode
         CrossSection( CrossSection&& ) noexcept = default;
         CrossSection( Section&& section ) noexcept;
 
+        CrossSection clone() const;
+
         static constexpr absl::string_view native_extension_static()
         {
             return "og_xsctn";

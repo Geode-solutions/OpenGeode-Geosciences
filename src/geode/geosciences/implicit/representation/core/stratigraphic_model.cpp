@@ -505,6 +505,11 @@ namespace geode
 
     StratigraphicModel::~StratigraphicModel() = default;
 
+    StratigraphicModel StratigraphicModel::clone() const
+    {
+        return StratigraphicModel{ ImplicitStructuralModel::clone() };
+    }
+
     StratigraphicPoint3D StratigraphicModel::stratigraphic_coordinates(
         const Block3D& block, index_t vertex_id ) const
     {

@@ -40,6 +40,8 @@
 
 #include <geode/model/mixin/core/block.h>
 
+#include <geode/geosciences/explicit/representation/core/detail/clone.h>
+#include <geode/geosciences/implicit/representation/builder/implicit_structural_model_builder.h>
 #include <geode/geosciences/implicit/representation/core/horizons_stack.h>
 
 namespace geode
@@ -337,6 +339,17 @@ namespace geode
     }
 
     ImplicitStructuralModel::~ImplicitStructuralModel() = default;
+
+    ImplicitStructuralModel ImplicitStructuralModel::clone() const
+    {
+        ImplicitStructuralModel model_clone{ StructuralModel::clone() };
+        ImplicitStructuralModelBuilder clone_builder{ model_clone };
+        ModelCopyMapping clone_mappings;
+        detail::add_geology_clone_mapping< StructuralModel >(
+            clone_mappings, *this );
+        clone_builder.copy_implicit_information( clone_mappings, *this );
+        return model_clone;
+    }
 
     double ImplicitStructuralModel::implicit_value(
         const Block3D& block, index_t vertex_id ) const

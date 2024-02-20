@@ -33,7 +33,7 @@ namespace geode
             module, "ImplicitCrossSection" )
             .def( pybind11::init<>() )
             .def( pybind11::init( []( CrossSection& cross_section ) {
-                return ImplicitCrossSection{ std::move( cross_section ) };
+                return ImplicitCrossSection{ cross_section.clone() };
             } ) )
             .def( "native_extension", &ImplicitCrossSection::native_extension )
             .def( "implicit_value_from_vertex_id",

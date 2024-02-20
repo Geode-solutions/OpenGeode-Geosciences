@@ -59,6 +59,8 @@ namespace geode
         ImplicitStructuralModel( StructuralModel&& structural_model ) noexcept;
         virtual ~ImplicitStructuralModel();
 
+        ImplicitStructuralModel clone() const;
+
         static constexpr absl::string_view native_extension_static()
         {
             return "og_istrm";

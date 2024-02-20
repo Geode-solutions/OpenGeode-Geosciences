@@ -33,7 +33,7 @@ namespace geode
             FaultBlocks3D, StratigraphicUnits3D >( module, "StructuralModel" )
             .def( pybind11::init<>() )
             .def( pybind11::init( []( BRep& model ) {
-                return StructuralModel{ std::move( model ) };
+                return StructuralModel{ model.clone() };
             } ) )
             .def(
                 "horizon_items",

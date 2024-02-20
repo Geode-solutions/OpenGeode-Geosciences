@@ -23,6 +23,9 @@
 
 #include <geode/geosciences/implicit/representation/core/horizons_stack.h>
 
+#include <geode/geosciences/explicit/representation/core/detail/clone.h>
+#include <geode/geosciences/implicit/representation/builder/horizons_stack_builder.h>
+
 namespace geode
 {
     template < index_t dimension >
@@ -40,6 +43,23 @@ namespace geode
     template < index_t dimension >
     HorizonsStack< dimension >& HorizonsStack< dimension >::operator=(
         HorizonsStack< dimension >&& ) noexcept = default;
+
+    template < index_t dimension >
+    HorizonsStack< dimension > HorizonsStack< dimension >::clone() const
+    {
+        HorizonsStack< dimension > stack_clone;
+        HorizonsStackBuilder< dimension > clone_builder{ stack_clone };
+        clone_builder.copy_identifier( *this );
+        ModelCopyMapping clone_mapping;
+        clone_mapping.emplace(
+            geode::Horizon< dimension >::component_type_static(),
+            detail::clone_horizon_mapping( *this ) );
+        clone_mapping.emplace(
+            geode::StratigraphicUnit< dimension >::component_type_static(),
+            detail::clone_stratigraphic_unit_mapping( *this ) );
+        clone_builder.copy( clone_mapping, *this );
+        return stack_clone;
+    }
 
     template < index_t dimension >
     uuid HorizonsStack< dimension >::top_horizon() const

@@ -42,6 +42,8 @@
 
 #include <geode/model/mixin/core/surface.h>
 
+#include <geode/geosciences/explicit/representation/core/detail/clone.h>
+#include <geode/geosciences/implicit/representation/builder/implicit_cross_section_builder.h>
 #include <geode/geosciences/implicit/representation/core/horizons_stack.h>
 
 namespace geode
@@ -344,6 +346,17 @@ namespace geode
     }
 
     ImplicitCrossSection::~ImplicitCrossSection() = default;
+
+    ImplicitCrossSection ImplicitCrossSection::clone() const
+    {
+        ImplicitCrossSection model_clone{ CrossSection::clone() };
+        ImplicitCrossSectionBuilder clone_builder{ model_clone };
+        ModelCopyMapping clone_mappings;
+        detail::add_geology_clone_mapping< CrossSection >(
+            clone_mappings, *this );
+        clone_builder.copy_implicit_information( clone_mappings, *this );
+        return model_clone;
+    }
 
     double ImplicitCrossSection::implicit_value(
         const Surface2D& surface, index_t vertex_id ) const

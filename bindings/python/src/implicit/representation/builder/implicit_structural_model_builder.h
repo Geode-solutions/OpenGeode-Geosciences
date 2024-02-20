@@ -45,7 +45,7 @@ namespace geode
             .def( "set_horizons_stack",
                 []( ImplicitStructuralModelBuilder& builder,
                     HorizonsStack3D& horizons_stack ) {
-                    builder.set_horizons_stack( std::move( horizons_stack ) );
+                    builder.set_horizons_stack( horizons_stack.clone() );
                 } )
             .def( "set_horizon_implicit_value",
                 &ImplicitStructuralModelBuilder::set_horizon_implicit_value )

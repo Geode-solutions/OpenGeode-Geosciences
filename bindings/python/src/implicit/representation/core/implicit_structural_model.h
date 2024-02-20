@@ -35,7 +35,7 @@ namespace geode
             module, "ImplicitStructuralModel" )
             .def( pybind11::init<>() )
             .def( pybind11::init( []( StructuralModel& model ) {
-                return ImplicitStructuralModel{ std::move( model ) };
+                return ImplicitStructuralModel{ model.clone() };
             } ) )
             .def(
                 "native_extension", &ImplicitStructuralModel::native_extension )
