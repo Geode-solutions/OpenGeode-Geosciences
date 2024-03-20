@@ -11,7 +11,7 @@ jobs:
     uses: Geode-solutions/actions/.github/workflows/cpp-schedule.yml@master
     with:
       name: OPENGEODE_GEOSCIENCES
-      repos: OpenGeode
+      repos: ${{ vars.REPOS }}
       branch: next
     secrets: 
       TOKEN: ${{ secrets.TOKEN }}
@@ -22,7 +22,7 @@ jobs:
     uses: Geode-solutions/actions/.github/workflows/cpp-schedule.yml@master
     with:
       name: OPENGEODE_GEOSCIENCES
-      repos: OpenGeode
+      repos: ${{ vars.REPOS }}
       branch: master
     secrets: 
       TOKEN: ${{ secrets.TOKEN }}

@@ -11,5 +11,5 @@ jobs:
     uses: Geode-solutions/actions/.github/workflows/cpp-test.yml@master
     with:
       name: OPENGEODE_GEOSCIENCES
-      repos: OpenGeode
+      repos: ${{ vars.REPOS }}
     secrets: inherit
