@@ -50,6 +50,14 @@ namespace geode
                 .def( "save_stratigraphic_surfaces",
                     &save_stratigraphic_surfaces )
                 .def( "save_stratigraphic_blocks", &save_stratigraphic_blocks )
+                .def( "horizons_stack_from_name_list_2d",
+                    &horizons_stack_from_name_list< 2 > )
+                .def( "horizons_stack_from_name_list_3d",
+                    &horizons_stack_from_name_list< 3 > )
+                .def( "repair_horizon_stack_if_possible_2d",
+                    &repair_horizon_stack_if_possible< 2 > )
+                .def( "repair_horizon_stack_if_possible_3d",
+                    &repair_horizon_stack_if_possible< 3 > )
                 .def( "implicit_section_from_cross_section_scalar_field",
                     []( CrossSection& model,
                         absl::string_view attribute_name ) {

@@ -42,13 +42,31 @@
 #include <geode/model/mixin/core/surface.h>
 
 #include <geode/geosciences/implicit/geometry/stratigraphic_point.h>
+#include <geode/geosciences/implicit/representation/builder/horizons_stack_builder.h>
 #include <geode/geosciences/implicit/representation/builder/implicit_cross_section_builder.h>
 #include <geode/geosciences/implicit/representation/builder/implicit_structural_model_builder.h>
 #include <geode/geosciences/implicit/representation/builder/stratigraphic_model_builder.h>
+#include <geode/geosciences/implicit/representation/core/horizons_stack.h>
 #include <geode/geosciences/implicit/representation/core/implicit_cross_section.h>
 #include <geode/geosciences/implicit/representation/core/implicit_structural_model.h>
 #include <geode/geosciences/implicit/representation/core/stratigraphic_model.h>
 #include <geode/geosciences/implicit/representation/core/stratigraphic_section.h>
+
+namespace
+{
+    void check_number_of_horizons_and_stratigraphic_units(
+        geode::index_t nb_horizons, geode::index_t nb_units )
+    {
+        OPENGEODE_EXCEPTION( nb_horizons < nb_units + 2,
+            "[repair_horizon_stack_if_possible] Too many horizons compared "
+            "to stratigraphic units (",
+            nb_horizons, ", should be less than ", nb_units, ")" );
+        OPENGEODE_EXCEPTION( nb_units < nb_horizons + 2,
+            "[repair_horizon_stack_if_possible] Too many stratigraphic "
+            "units compared to horizons (",
+            nb_units, ", should be less than ", nb_horizons, ")" );
+    }
+} // namespace
 
 namespace geode
 {
@@ -259,6 +277,97 @@ namespace geode
             return { std::move( implicit_model ) };
         }
 
+        template < index_t dimension >
+        HorizonsStack< dimension > horizons_stack_from_name_list(
+            absl::Span< const std::string > horizons_names,
+            absl::Span< const std::string > units_names )
+        {
+            OPENGEODE_EXCEPTION( !horizons_names.empty(),
+                "[horizons_stack_from_name_list] Cannot create HorizonsStack: "
+                "horizons_names list is empty." );
+            const auto nb_horizons = horizons_names.size();
+            const auto nb_units = units_names.size();
+            check_number_of_horizons_and_stratigraphic_units(
+                nb_horizons, nb_units );
+            HorizonsStack< dimension > stack;
+            HorizonsStackBuilder< dimension > builder{ stack };
+            auto current_horizon = builder.add_horizon();
+            builder.set_horizon_name( current_horizon, horizons_names[0] );
+            const auto& su_under = builder.add_stratigraphic_unit();
+            builder.add_horizon_above( stack.horizon( current_horizon ),
+                stack.stratigraphic_unit( su_under ) );
+            bool lowest_unit_to_create{ nb_units < nb_horizons };
+            if( !lowest_unit_to_create )
+            {
+                builder.set_stratigraphic_unit_name( su_under, units_names[0] );
+            }
+            for( const auto counter : Range{ 1, horizons_names.size() } )
+            {
+                const auto& su_above = builder.add_stratigraphic_unit();
+                builder.set_stratigraphic_unit_name( su_above,
+                    units_names[counter + lowest_unit_to_create ? -1 : 0] );
+                builder.add_horizon_under( stack.horizon( current_horizon ),
+                    stack.stratigraphic_unit( su_above ) );
+                current_horizon = builder.add_horizon();
+                builder.set_horizon_name(
+                    current_horizon, horizons_names[counter] );
+                builder.add_horizon_above( stack.horizon( current_horizon ),
+                    stack.stratigraphic_unit( su_above ) );
+            }
+            const auto& su_above = builder.add_stratigraphic_unit();
+            builder.add_horizon_under( stack.horizon( current_horizon ),
+                stack.stratigraphic_unit( su_above ) );
+            if( nb_units > nb_horizons )
+            {
+                builder.set_stratigraphic_unit_name(
+                    su_above, units_names.back() );
+            }
+            return stack;
+        }
+
+        template < index_t dimension >
+        void repair_horizon_stack_if_possible(
+            HorizonsStack< dimension >& horizon_stack )
+        {
+            const auto nb_horizons = horizon_stack.nb_horizons();
+            check_number_of_horizons_and_stratigraphic_units(
+                nb_horizons, horizon_stack.nb_stratigraphic_units() );
+            const auto bottom_horizon = horizon_stack.bottom_horizon();
+            if( !horizon_stack.under( bottom_horizon ) )
+            {
+                HorizonsStackBuilder< dimension > builder{ horizon_stack };
+                const auto& unit_under = builder.add_stratigraphic_unit();
+                builder.add_horizon_above(
+                    horizon_stack.horizon( bottom_horizon ),
+                    horizon_stack.stratigraphic_unit( unit_under ) );
+            }
+            index_t horizon_counter{ 1 };
+            auto su_above = horizon_stack.above( bottom_horizon );
+            absl::optional< uuid > current_horizon = bottom_horizon;
+            while( su_above )
+            {
+                current_horizon = horizon_stack.above( su_above.value() );
+                if( !current_horizon )
+                {
+                    break;
+                }
+                su_above = horizon_stack.above( current_horizon.value() );
+                horizon_counter++;
+            }
+            OPENGEODE_EXCEPTION( horizon_counter == nb_horizons,
+                "[repair_horizon_stack_if_possible] Missing or wrong "
+                "above/under relations between horizons and stratigraphic "
+                "units." );
+            if( !su_above )
+            {
+                HorizonsStackBuilder< dimension > builder{ horizon_stack };
+                const auto& unit_above = builder.add_stratigraphic_unit();
+                builder.add_horizon_under(
+                    horizon_stack.horizon( current_horizon.value() ),
+                    horizon_stack.stratigraphic_unit( unit_above ) );
+            }
+        }
+
         std::vector< MeshElement > invalid_stratigraphic_tetrahedra(
             const StratigraphicModel& implicit_model )
         {
@@ -301,5 +410,21 @@ namespace geode
             }
             return invalid_tetrahedra;
         }
+
+        template HorizonsStack< 2 > opengeode_geosciences_implicit_api
+            horizons_stack_from_name_list< 2 >(
+                absl::Span< const std::string > horizons_names,
+                absl::Span< const std::string > units_names );
+        template HorizonsStack< 3 > opengeode_geosciences_implicit_api
+            horizons_stack_from_name_list< 3 >(
+                absl::Span< const std::string > horizons_names,
+                absl::Span< const std::string > units_names );
+
+        template void opengeode_geosciences_implicit_api
+            repair_horizon_stack_if_possible< 2 >(
+                HorizonsStack< 2 >& horizon_stack );
+        template void opengeode_geosciences_implicit_api
+            repair_horizon_stack_if_possible< 3 >(
+                HorizonsStack< 3 >& horizon_stack );
     } // namespace detail
 } // namespace geode
