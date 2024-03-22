@@ -23,10 +23,14 @@
 
 #pragma once
 
+#include <absl/types/span.h>
+
 #include <geode/geosciences/implicit/common.h>
 
 namespace geode
 {
+    FORWARD_DECLARATION_DIMENSION_CLASS( HorizonsStack );
+    ALIAS_2D_AND_3D( HorizonsStack );
     class CrossSection;
     class StructuralModel;
     class ImplicitCrossSection;
@@ -73,6 +77,19 @@ namespace geode
             stratigraphic_model_from_implicit_model_and_coords(
                 ImplicitStructuralModel&& implicit_model,
                 local_index_t implicit_axis );
+
+        /*!
+         * Creates a HorizonsStack from a list of names of Horizons and
+         * StratigraphicUnits.
+         */
+        template < index_t dimension >
+        HorizonsStack< dimension > horizons_stack_from_name_list(
+            absl::Span< const std::string > horizons_names,
+            absl::Span< const std::string > units_names );
+
+        template < index_t dimension >
+        void repair_horizon_stack_if_possible(
+            HorizonsStack< dimension >& horizon_stack );
 
         std::vector< MeshElement > opengeode_geosciences_implicit_api
             invalid_stratigraphic_tetrahedra( const StratigraphicModel& model );
