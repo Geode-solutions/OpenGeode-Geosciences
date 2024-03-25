@@ -57,11 +57,11 @@ namespace
     void check_number_of_horizons_and_stratigraphic_units(
         geode::index_t nb_horizons, geode::index_t nb_units )
     {
-        OPENGEODE_EXCEPTION( nb_horizons < nb_units + 2,
+        OPENGEODE_EXCEPTION( nb_horizons <= nb_units + 1,
             "[repair_horizon_stack_if_possible] Too many horizons compared "
             "to stratigraphic units (",
             nb_horizons, ", should be less than ", nb_units, ")" );
-        OPENGEODE_EXCEPTION( nb_units < nb_horizons + 2,
+        OPENGEODE_EXCEPTION( nb_units <= nb_horizons + 1,
             "[repair_horizon_stack_if_possible] Too many stratigraphic "
             "units compared to horizons (",
             nb_units, ", should be less than ", nb_horizons, ")" );
@@ -304,8 +304,9 @@ namespace geode
             for( const auto counter : Range{ 1, horizons_names.size() } )
             {
                 const auto& su_above = builder.add_stratigraphic_unit();
-                builder.set_stratigraphic_unit_name( su_above,
-                    units_names[counter + lowest_unit_to_create ? -1 : 0] );
+                builder.set_stratigraphic_unit_name(
+                    su_above, units_names[lowest_unit_to_create ? counter - 1
+                                                                : counter] );
                 builder.add_horizon_under( stack.horizon( current_horizon ),
                     stack.stratigraphic_unit( su_above ) );
                 current_horizon = builder.add_horizon();
