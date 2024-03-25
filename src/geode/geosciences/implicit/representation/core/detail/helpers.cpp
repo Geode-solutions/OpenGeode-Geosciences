@@ -57,11 +57,11 @@ namespace
     void check_number_of_horizons_and_stratigraphic_units(
         geode::index_t nb_horizons, geode::index_t nb_units )
     {
-        OPENGEODE_EXCEPTION( nb_horizons < nb_units + 1,
+        OPENGEODE_EXCEPTION( nb_horizons <= nb_units + 1,
             "[repair_horizon_stack_if_possible] Too many horizons compared "
             "to stratigraphic units (",
             nb_horizons, ", should be less than ", nb_units, ")" );
-        OPENGEODE_EXCEPTION( nb_units < nb_horizons + 2,
+        OPENGEODE_EXCEPTION( nb_units <= nb_horizons + 1,
             "[repair_horizon_stack_if_possible] Too many stratigraphic "
             "units compared to horizons (",
             nb_units, ", should be less than ", nb_horizons, ")" );
