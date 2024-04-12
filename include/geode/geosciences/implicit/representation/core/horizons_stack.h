@@ -33,6 +33,10 @@
 namespace geode
 {
     FORWARD_DECLARATION_DIMENSION_CLASS( HorizonsStackBuilder );
+    FORWARD_DECLARATION_DIMENSION_CLASS( Horizon );
+    FORWARD_DECLARATION_DIMENSION_CLASS( StratigraphicUnit );
+    ALIAS_2D_AND_3D( Horizon );
+    ALIAS_2D_AND_3D( StratigraphicUnit );
     struct uuid;
 } // namespace geode
 
