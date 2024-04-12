@@ -99,6 +99,24 @@ namespace geode
         return current_horizon_id;
     }
 
+    template < index_t dimension >
+    bool HorizonsStack< dimension >::is_eroded_by(
+        const StratigraphicUnit< dimension >& eroded,
+        const Horizon< dimension >& erosion ) const
+    {
+        return StratigraphicRelationships::is_eroded_by(
+            eroded.id(), erosion.id() );
+    }
+
+    template < index_t dimension >
+    bool HorizonsStack< dimension >::is_baselap_of(
+        const Horizon< dimension >& baselap,
+        const StratigraphicUnit< dimension >& baselap_top ) const
+    {
+        return StratigraphicRelationships::is_baselap_of(
+            baselap.id(), baselap_top.id() );
+    }
+
     template class opengeode_geosciences_implicit_api HorizonsStack< 2 >;
     template class opengeode_geosciences_implicit_api HorizonsStack< 3 >;
 } // namespace geode
