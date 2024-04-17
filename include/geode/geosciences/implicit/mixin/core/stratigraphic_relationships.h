@@ -56,11 +56,6 @@ namespace geode
 
         bool is_above( const uuid& above, const uuid& under ) const;
 
-        bool is_eroded_by( const uuid& eroded, const uuid& erosion ) const;
-
-        bool is_baselap_of(
-            const uuid& baselap, const uuid& baselap_top ) const;
-
         absl::optional< uuid > above( const uuid& element ) const;
 
         absl::optional< uuid > under( const uuid& element ) const;
@@ -126,6 +121,11 @@ namespace geode
 
         StratigraphicRelationships& operator=(
             StratigraphicRelationships&& other ) noexcept;
+
+        bool is_eroded_by( const uuid& eroded, const uuid& erosion ) const;
+
+        bool is_baselap_of(
+            const uuid& baselap, const uuid& baselap_top ) const;
 
     private:
         IMPLEMENTATION_MEMBER( impl_ );

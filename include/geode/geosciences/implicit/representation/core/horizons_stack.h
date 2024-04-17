@@ -33,6 +33,10 @@
 namespace geode
 {
     FORWARD_DECLARATION_DIMENSION_CLASS( HorizonsStackBuilder );
+    FORWARD_DECLARATION_DIMENSION_CLASS( Horizon );
+    FORWARD_DECLARATION_DIMENSION_CLASS( StratigraphicUnit );
+    ALIAS_2D_AND_3D( Horizon );
+    ALIAS_2D_AND_3D( StratigraphicUnit );
     struct uuid;
 } // namespace geode
 
@@ -80,6 +84,12 @@ namespace geode
         uuid top_horizon() const;
 
         uuid bottom_horizon() const;
+
+        bool is_eroded_by( const StratigraphicUnit< dimension >& eroded,
+            const Horizon< dimension >& erosion ) const;
+
+        bool is_baselap_of( const Horizon< dimension >& baselap,
+            const StratigraphicUnit< dimension >& baselap_top ) const;
     };
     ALIAS_2D_AND_3D( HorizonsStack );
 } // namespace geode
