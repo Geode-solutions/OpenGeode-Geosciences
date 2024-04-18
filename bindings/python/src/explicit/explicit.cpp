@@ -21,6 +21,8 @@
  *
  */
 
+#include "../common.h"
+
 #include <pybind11/iostream.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
@@ -50,24 +52,6 @@
 
 #include "representation/io/cross_section.h"
 #include "representation/io/structural_model.h"
-
-namespace pybind11
-{
-    namespace detail
-    {
-        template <>
-        struct type_caster< absl::string_view >
-            : string_caster< absl::string_view, true >
-        {
-        };
-
-        template < typename Type >
-        struct type_caster< absl::FixedArray< Type > >
-            : list_caster< absl::FixedArray< Type >, Type >
-        {
-        };
-    } // namespace detail
-} // namespace pybind11
 
 PYBIND11_MODULE( opengeode_geosciences_py_explicit, module )
 {

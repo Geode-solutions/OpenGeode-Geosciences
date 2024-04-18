@@ -81,6 +81,8 @@ namespace geode
         /*!
          * Creates a HorizonsStack from a list of names of Horizons and
          * StratigraphicUnits.
+         * The bottom horizon and stratigraphic unit will be the first in the
+         * lists, respectively.
          */
         template < index_t dimension >
         HorizonsStack< dimension > horizons_stack_from_name_list(

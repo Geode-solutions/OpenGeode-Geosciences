@@ -33,7 +33,11 @@
         Identifier >( module, name##dimension.c_str() )                        \
         .def( pybind11::init<>() )                                             \
         .def( "native_extension",                                              \
-            &HorizonsStack##dimension##D::native_extension )
+            &HorizonsStack##dimension##D::native_extension )                   \
+        .def( "top_horizon", &HorizonsStack##dimension##D::top_horizon )       \
+        .def( "bottom_horizon", &HorizonsStack##dimension##D::bottom_horizon ) \
+        .def( "is_eroded_by", &HorizonsStack##dimension##D::is_eroded_by )     \
+        .def( "is_baselap_of", &HorizonsStack##dimension##D::is_baselap_of )
 
 namespace geode
 {
