@@ -21,6 +21,8 @@
  *
  */
 
+#include "../common.h"
+
 #include <pybind11/iostream.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
@@ -44,30 +46,6 @@
 #include "representation/io/implicit_structural_model.h"
 #include "representation/io/stratigraphic_model.h"
 #include "representation/io/stratigraphic_section.h"
-
-namespace pybind11
-{
-    namespace detail
-    {
-        template <>
-        struct type_caster< absl::string_view >
-            : string_caster< absl::string_view, true >
-        {
-        };
-
-        template < typename Type, size_t dimension >
-        struct type_caster< absl::InlinedVector< Type, dimension > >
-            : list_caster< absl::InlinedVector< Type, dimension >, Type >
-        {
-        };
-
-        template < typename T >
-        struct type_caster< absl::optional< T > >
-            : public optional_caster< absl::optional< T > >
-        {
-        };
-    } // namespace detail
-} // namespace pybind11
 
 PYBIND11_MODULE( opengeode_geosciences_py_implicit, module )
 {
