@@ -54,15 +54,20 @@ namespace geode
         void initialize_implicit_query_trees(
             const ImplicitStructuralModel& model )
         {
-            implicit_attributes_.reserve( model.nb_blocks() );
             instantiate_implicit_attribute_on_blocks( model );
             block_mesh_aabb_trees_.reserve( model.nb_blocks() );
+            block_distance_to_tetras_.reserve( model.nb_blocks() );
             for( const auto& block : model.blocks() )
             {
+                if( !block_is_meshed( block ) )
+                {
+                    continue;
+                }
                 block_mesh_aabb_trees_.try_emplace( block.id() );
+                block_distance_to_tetras_.try_emplace(
+                    block.id(), DistanceToTetrahedron3D{
+                                    block.mesh< TetrahedralSolid3D >() } );
             }
-            block_distance_to_tetras_.reserve( model.nb_blocks() );
-            build_model_distance_to_mesh_elements( model );
         }
 
         double implicit_value( const Block3D& block, index_t vertex_id ) const
@@ -205,8 +210,13 @@ namespace geode
         void instantiate_implicit_attribute_on_blocks(
             const ImplicitStructuralModel& model )
         {
+            implicit_attributes_.reserve( model.nb_blocks() );
             for( const auto& block : model.blocks() )
             {
+                if( !block_is_meshed( block ) )
+                {
+                    continue;
+                }
                 OPENGEODE_EXCEPTION(
                     ( block.mesh().type_name()
                         == TetrahedralSolid3D::type_name_static() ),
@@ -260,15 +270,9 @@ namespace geode
         }
 
     private:
-        void build_model_distance_to_mesh_elements(
-            const ImplicitStructuralModel& model )
+        bool block_is_meshed( const Block3D& block )
         {
-            for( const auto& block : model.blocks() )
-            {
-                block_distance_to_tetras_.try_emplace(
-                    block.id(), DistanceToTetrahedron3D{
-                                    block.mesh< TetrahedralSolid3D >() } );
-            }
+            return block.mesh().nb_polyhedra() != 0;
         }
 
         absl::optional< bool > increasing_stack_isovalues() const
