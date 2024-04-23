@@ -56,15 +56,16 @@ namespace geode
         void initialize_implicit_query_trees(
             const ImplicitCrossSection& model )
         {
-            implicit_attributes_.reserve( model.nb_surfaces() );
             instantiate_implicit_attribute_on_surfaces( model );
             surface_mesh_aabb_trees_.reserve( model.nb_surfaces() );
+            surface_distance_to_triangles_.reserve( model.nb_surfaces() );
             for( const auto& surface : model.surfaces() )
             {
                 surface_mesh_aabb_trees_.try_emplace( surface.id() );
+                surface_distance_to_triangles_.try_emplace( surface.id(),
+                    DistanceToTriangle2D{
+                        surface.mesh< TriangulatedSurface2D >() } );
             }
-            surface_distance_to_triangles_.reserve( model.nb_surfaces() );
-            build_model_distance_to_mesh_elements( model );
         }
 
         double implicit_value(
@@ -210,6 +211,7 @@ namespace geode
         void instantiate_implicit_attribute_on_surfaces(
             const ImplicitCrossSection& model )
         {
+            implicit_attributes_.reserve( model.nb_surfaces() );
             for( const auto& surface : model.surfaces() )
             {
                 OPENGEODE_EXCEPTION(
@@ -268,17 +270,6 @@ namespace geode
         }
 
     private:
-        void build_model_distance_to_mesh_elements(
-            const ImplicitCrossSection& model )
-        {
-            for( const auto& surface : model.surfaces() )
-            {
-                surface_distance_to_triangles_.try_emplace( surface.id(),
-                    DistanceToTriangle2D{
-                        surface.mesh< TriangulatedSurface2D >() } );
-            }
-        }
-
         absl::optional< bool > increasing_stack_isovalues() const
         {
             for( const auto& unit : horizons_stack_.stratigraphic_units() )
