@@ -28,6 +28,119 @@
 #include <geode/geosciences/explicit/representation/builder/cross_section_builder.h>
 #include <geode/geosciences/explicit/representation/core/detail/clone.h>
 
+namespace
+{
+    void copy_faults_items_from_mappings(
+        const geode::CrossSection& initial_model,
+        const geode::CrossSection& current_model,
+        geode::CrossSectionBuilder& builder,
+        const geode::GenericMapping< geode::uuid >& line_mappings ) noexcept
+    {
+        for( const auto& fault : initial_model.faults() )
+        {
+            const auto& this_fault = current_model.fault( fault.id() );
+            for( const auto& fault_line : initial_model.fault_items( fault ) )
+            {
+                if( !line_mappings.has_mapping_input( fault_line.id() ) )
+                {
+                    continue;
+                }
+                for( const auto& out_line_id :
+                    line_mappings.in2out( fault_line.id() ) )
+                {
+                    builder.add_line_in_fault(
+                        current_model.line( out_line_id ), this_fault );
+                }
+            }
+        }
+    }
+
+    void copy_horizons_items_from_mappings(
+        const geode::CrossSection& initial_model,
+        const geode::CrossSection& current_model,
+        geode::CrossSectionBuilder& builder,
+        const geode::GenericMapping< geode::uuid >& line_mappings ) noexcept
+    {
+        for( const auto& horizon : initial_model.horizons() )
+        {
+            const auto& this_horizon = current_model.horizon( horizon.id() );
+            for( const auto& horizon_line :
+                initial_model.horizon_items( horizon ) )
+            {
+                if( !line_mappings.has_mapping_input( horizon_line.id() ) )
+                {
+                    continue;
+                }
+                for( const auto& out_line_id :
+                    line_mappings.in2out( horizon_line.id() ) )
+                {
+                    builder.add_line_in_horizon(
+                        current_model.line( out_line_id ), this_horizon );
+                }
+            }
+        }
+    }
+
+    void copy_fault_blocks_items_from_mappings(
+        const geode::CrossSection& initial_model,
+        const geode::CrossSection& current_model,
+        geode::CrossSectionBuilder& builder,
+        const geode::GenericMapping< geode::uuid >& surface_mappings ) noexcept
+    {
+        for( const auto& fault_block : initial_model.fault_blocks() )
+        {
+            const auto& this_fault_block =
+                current_model.fault_block( fault_block.id() );
+            for( const auto& fault_block_surface :
+                initial_model.fault_block_items( fault_block ) )
+            {
+                if( !surface_mappings.has_mapping_input(
+                        fault_block_surface.id() ) )
+                {
+                    continue;
+                }
+                for( const auto& out_surface_id :
+                    surface_mappings.in2out( fault_block_surface.id() ) )
+                {
+                    builder.add_surface_in_fault_block(
+                        current_model.surface( out_surface_id ),
+                        this_fault_block );
+                }
+            }
+        }
+    }
+
+    void copy_stratigraphic_units_items_from_mappings(
+        const geode::CrossSection& initial_model,
+        const geode::CrossSection& current_model,
+        geode::CrossSectionBuilder& builder,
+        const geode::GenericMapping< geode::uuid >& surface_mappings ) noexcept
+    {
+        for( const auto& stratigraphic_unit :
+            initial_model.stratigraphic_units() )
+        {
+            const auto& this_stratigraphic_unit =
+                current_model.stratigraphic_unit( stratigraphic_unit.id() );
+            for( const auto& stratigraphic_unit_surface :
+                initial_model.stratigraphic_unit_items( stratigraphic_unit ) )
+            {
+                if( !surface_mappings.has_mapping_input(
+                        stratigraphic_unit_surface.id() ) )
+                {
+                    continue;
+                }
+                for( const auto& out_surface_id :
+                    surface_mappings.in2out( stratigraphic_unit_surface.id() ) )
+                {
+                    builder.add_surface_in_stratigraphic_unit(
+                        current_model.surface( out_surface_id ),
+                        this_stratigraphic_unit );
+                }
+            }
+        }
+    }
+} // namespace
+
 namespace geode
 {
     CrossSection::HorizonItemRange::HorizonItemRange(
@@ -192,6 +305,37 @@ namespace geode
     CrossSection::CrossSection( Section&& section ) noexcept
         : Section{ std::move( section ) }
     {
+    }
+
+    CrossSection::CrossSection( const CrossSection& initial_model,
+        Section&& section,
+        const ModelGenericMapping& initial_to_section_mappings ) noexcept
+        : Section{ std::move( section ) }
+    {
+        CrossSectionBuilder builder{ *this };
+        ModelCopyMapping mappings;
+        detail::add_geology_clone_mapping( mappings, *this );
+        builder.copy_geological_components( mappings, *this );
+        if( initial_to_section_mappings.has_mapping_type(
+                Line2D::component_type_static() ) )
+        {
+            const auto& line_mappings = initial_to_section_mappings.at(
+                Line2D::component_type_static() );
+            copy_faults_items_from_mappings(
+                initial_model, *this, builder, line_mappings );
+            copy_horizons_items_from_mappings(
+                initial_model, *this, builder, line_mappings );
+        }
+        if( initial_to_section_mappings.has_mapping_type(
+                Surface2D::component_type_static() ) )
+        {
+            const auto& surface_mappings = initial_to_section_mappings.at(
+                Surface2D::component_type_static() );
+            copy_fault_blocks_items_from_mappings(
+                initial_model, *this, builder, surface_mappings );
+            copy_stratigraphic_units_items_from_mappings(
+                initial_model, *this, builder, surface_mappings );
+        }
     }
 
     CrossSection CrossSection::clone() const

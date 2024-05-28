@@ -56,6 +56,9 @@ namespace geode
         ImplicitCrossSection();
         ImplicitCrossSection( ImplicitCrossSection&& implicit_model ) noexcept;
         ImplicitCrossSection( CrossSection&& cross_section ) noexcept;
+        ImplicitCrossSection( const ImplicitCrossSection& initial_model,
+            Section&& section,
+            const ModelGenericMapping& initial_to_section_mappings ) noexcept;
         virtual ~ImplicitCrossSection();
 
         ImplicitCrossSection clone() const;

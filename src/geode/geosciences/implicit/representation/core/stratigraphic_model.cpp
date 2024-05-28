@@ -503,6 +503,16 @@ namespace geode
         impl_->initialize_stratigraphic_query_trees( *this );
     }
 
+    StratigraphicModel::StratigraphicModel(
+        const StratigraphicModel& initial_model,
+        BRep&& brep,
+        const ModelGenericMapping& initial_to_brep_mappings ) noexcept
+        : ImplicitStructuralModel{ initial_model, std::move( brep ),
+              initial_to_brep_mappings }
+    {
+        impl_->initialize_stratigraphic_query_trees( *this );
+    }
+
     StratigraphicModel::~StratigraphicModel() = default;
 
     StratigraphicModel StratigraphicModel::clone() const
