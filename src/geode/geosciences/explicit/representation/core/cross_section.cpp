@@ -45,8 +45,8 @@ namespace geode
 
     CrossSection::HorizonItemRange::~HorizonItemRange() = default;
 
-    auto
-        CrossSection::HorizonItemRange::begin() const -> const HorizonItemRange&
+    auto CrossSection::HorizonItemRange::begin() const
+        -> const HorizonItemRange&
     {
         return *this;
     }
@@ -149,7 +149,7 @@ namespace geode
         const CrossSection& cross_section,
         const StratigraphicUnit2D& stratigraphic_unit )
         : Relationships::ItemRangeIterator(
-              cross_section, stratigraphic_unit.id() ),
+            cross_section, stratigraphic_unit.id() ),
           cross_section_( cross_section )
     {
     }
