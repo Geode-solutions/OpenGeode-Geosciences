@@ -35,6 +35,7 @@
 #include <geode/model/mixin/core/surface.h>
 #include <geode/model/mixin/core/surface_collection.h>
 #include <geode/model/representation/core/brep.h>
+#include <geode/model/representation/core/mapping.h>
 
 #include <geode/geosciences/explicit/mixin/core/fault_blocks.h>
 #include <geode/geosciences/explicit/mixin/core/faults.h>
@@ -150,6 +151,9 @@ namespace geode
         StructuralModel() = default;
         StructuralModel( StructuralModel&& ) noexcept = default;
         StructuralModel( BRep&& brep ) noexcept;
+        StructuralModel( StructuralModel& initial_model,
+            BRep&& brep,
+            const ModelGenericMapping& initial_to_brep_mappings ) noexcept;
 
         StructuralModel clone() const;
 

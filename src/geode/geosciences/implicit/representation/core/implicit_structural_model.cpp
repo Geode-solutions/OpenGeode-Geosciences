@@ -342,6 +342,20 @@ namespace geode
         impl_->initialize_implicit_query_trees( *this );
     }
 
+    ImplicitStructuralModel::ImplicitStructuralModel(
+        ImplicitStructuralModel& initial_model,
+        BRep&& brep,
+        const ModelGenericMapping& initial_to_brep_mappings ) noexcept
+        : StructuralModel{ initial_model, std::move( brep ),
+              initial_to_brep_mappings }
+    {
+        impl_->initialize_implicit_query_trees( *this );
+        ModelCopyMapping mappings;
+        detail::add_geology_clone_mapping< StructuralModel >( mappings, *this );
+        ImplicitStructuralModelBuilder builder{ *this };
+        builder.copy_implicit_information( mappings, *this );
+    }
+
     ImplicitStructuralModel::~ImplicitStructuralModel() = default;
 
     ImplicitStructuralModel ImplicitStructuralModel::clone() const

@@ -488,6 +488,16 @@ namespace geode
         impl_->initialize_stratigraphic_query_trees( *this );
     }
 
+    StratigraphicSection::StratigraphicSection(
+        StratigraphicSection& initial_model,
+        Section&& section,
+        const ModelGenericMapping& initial_to_section_mappings ) noexcept
+        : ImplicitCrossSection{ initial_model, std::move( section ),
+              initial_to_section_mappings }
+    {
+        impl_->initialize_stratigraphic_query_trees( *this );
+    }
+
     StratigraphicSection::~StratigraphicSection() = default;
 
     StratigraphicSection StratigraphicSection::clone() const

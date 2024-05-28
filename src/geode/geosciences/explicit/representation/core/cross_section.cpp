@@ -45,8 +45,8 @@ namespace geode
 
     CrossSection::HorizonItemRange::~HorizonItemRange() = default;
 
-    auto CrossSection::HorizonItemRange::begin() const
-        -> const HorizonItemRange&
+    auto
+        CrossSection::HorizonItemRange::begin() const -> const HorizonItemRange&
     {
         return *this;
     }
@@ -149,7 +149,7 @@ namespace geode
         const CrossSection& cross_section,
         const StratigraphicUnit2D& stratigraphic_unit )
         : Relationships::ItemRangeIterator(
-            cross_section, stratigraphic_unit.id() ),
+              cross_section, stratigraphic_unit.id() ),
           cross_section_( cross_section )
     {
     }
@@ -192,6 +192,80 @@ namespace geode
     CrossSection::CrossSection( Section&& section ) noexcept
         : Section{ std::move( section ) }
     {
+    }
+
+    CrossSection::CrossSection( CrossSection& initial_model,
+        Section&& section,
+        const ModelGenericMapping& initial_to_section_mappings ) noexcept
+        : Section{ std::move( section ) }
+    {
+        CrossSectionBuilder builder{ *this };
+        ModelCopyMapping mappings;
+        detail::add_geology_clone_mapping( mappings, *this );
+        builder.copy_geological_components( mappings, *this );
+        const auto& line_mappings =
+            initial_to_section_mappings.at( Line3D::component_type_static() );
+        const auto& surface_mappings = initial_to_section_mappings.at(
+            Surface3D::component_type_static() );
+        for( const auto& fault : initial_model.faults() )
+        {
+            const auto& this_fault = this->fault( fault.id() );
+            for( const auto& fault_line : initial_model.fault_items( fault ) )
+            {
+                for( const auto& out_line_id :
+                    line_mappings.in2out( fault_line.id() ) )
+                {
+                    builder.add_line_in_fault(
+                        this->line( out_line_id ), this_fault );
+                }
+            }
+        }
+        for( const auto& horizon : initial_model.horizons() )
+        {
+            const auto& this_horizon = this->horizon( horizon.id() );
+            for( const auto& horizon_line :
+                initial_model.horizon_items( horizon ) )
+            {
+                for( const auto& out_line_id :
+                    line_mappings.in2out( horizon_line.id() ) )
+                {
+                    builder.add_line_in_horizon(
+                        this->line( out_line_id ), this_horizon );
+                }
+            }
+        }
+        for( const auto& fault_surface : initial_model.fault_blocks() )
+        {
+            const auto& this_fault_surface =
+                this->fault_block( fault_surface.id() );
+            for( const auto& fault_surface_surface :
+                initial_model.fault_block_items( fault_surface ) )
+            {
+                for( const auto& out_surface_id :
+                    surface_mappings.in2out( fault_surface_surface.id() ) )
+                {
+                    builder.add_surface_in_fault_block(
+                        this->surface( out_surface_id ), this_fault_surface );
+                }
+            }
+        }
+        for( const auto& stratigraphic_unit :
+            initial_model.stratigraphic_units() )
+        {
+            const auto& this_stratigraphic_unit =
+                this->stratigraphic_unit( stratigraphic_unit.id() );
+            for( const auto& stratigraphic_unit_surface :
+                initial_model.stratigraphic_unit_items( stratigraphic_unit ) )
+            {
+                for( const auto& out_surface_id :
+                    surface_mappings.in2out( stratigraphic_unit_surface.id() ) )
+                {
+                    builder.add_surface_in_stratigraphic_unit(
+                        this->surface( out_surface_id ),
+                        this_stratigraphic_unit );
+                }
+            }
+        }
     }
 
     CrossSection CrossSection::clone() const

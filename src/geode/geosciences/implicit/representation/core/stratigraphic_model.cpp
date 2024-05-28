@@ -262,7 +262,7 @@ namespace geode
                 const Block3D& block,
                 index_t tetrahedron_id )
                 : indices_{ block.mesh().polyhedron_vertices(
-                    tetrahedron_id ) },
+                      tetrahedron_id ) },
                   positive_tetra_{
                       model.stratigraphic_coordinates( block, indices_[0] )
                           .stratigraphic_coordinates(),
@@ -499,6 +499,15 @@ namespace geode
     StratigraphicModel::StratigraphicModel(
         StructuralModel&& structural_model ) noexcept
         : ImplicitStructuralModel{ std::move( structural_model ) }
+    {
+        impl_->initialize_stratigraphic_query_trees( *this );
+    }
+
+    StratigraphicModel::StratigraphicModel( StratigraphicModel& initial_model,
+        BRep&& brep,
+        const ModelGenericMapping& initial_to_brep_mappings ) noexcept
+        : ImplicitStructuralModel{ initial_model, std::move( brep ),
+              initial_to_brep_mappings }
     {
         impl_->initialize_stratigraphic_query_trees( *this );
     }

@@ -112,7 +112,7 @@ namespace geode
         const StructuralModel& structural_model,
         const FaultBlock3D& fault_block )
         : Relationships::ItemRangeIterator(
-            structural_model, fault_block.id() ),
+              structural_model, fault_block.id() ),
           structural_model_( structural_model )
     {
     }
@@ -154,7 +154,7 @@ namespace geode
         const StructuralModel& structural_model,
         const StratigraphicUnit3D& stratigraphic_unit )
         : Relationships::ItemRangeIterator(
-            structural_model, stratigraphic_unit.id() ),
+              structural_model, stratigraphic_unit.id() ),
           structural_model_( structural_model )
     {
     }
@@ -198,6 +198,80 @@ namespace geode
     StructuralModel::StructuralModel( BRep&& brep ) noexcept
         : BRep{ std::move( brep ) }
     {
+    }
+
+    StructuralModel::StructuralModel( StructuralModel& initial_model,
+        BRep&& brep,
+        const ModelGenericMapping& initial_to_brep_mappings ) noexcept
+        : BRep{ std::move( brep ) }
+    {
+        StructuralModelBuilder builder{ *this };
+        ModelCopyMapping mappings;
+        detail::add_geology_clone_mapping( mappings, *this );
+        builder.copy_geological_components( mappings, *this );
+        const auto& surface_mappings =
+            initial_to_brep_mappings.at( Surface3D::component_type_static() );
+        const auto& block_mappings =
+            initial_to_brep_mappings.at( Block3D::component_type_static() );
+        for( const auto& fault : initial_model.faults() )
+        {
+            const auto& this_fault = this->fault( fault.id() );
+            for( const auto& fault_surface :
+                initial_model.fault_items( fault ) )
+            {
+                for( const auto& out_surface_id :
+                    surface_mappings.in2out( fault_surface.id() ) )
+                {
+                    builder.add_surface_in_fault(
+                        this->surface( out_surface_id ), this_fault );
+                }
+            }
+        }
+        for( const auto& horizon : initial_model.horizons() )
+        {
+            const auto& this_horizon = this->horizon( horizon.id() );
+            for( const auto& horizon_surface :
+                initial_model.horizon_items( horizon ) )
+            {
+                for( const auto& out_surface_id :
+                    surface_mappings.in2out( horizon_surface.id() ) )
+                {
+                    builder.add_surface_in_horizon(
+                        this->surface( out_surface_id ), this_horizon );
+                }
+            }
+        }
+        for( const auto& fault_block : initial_model.fault_blocks() )
+        {
+            const auto& this_fault_block =
+                this->fault_block( fault_block.id() );
+            for( const auto& fault_block_block :
+                initial_model.fault_block_items( fault_block ) )
+            {
+                for( const auto& out_block_id :
+                    block_mappings.in2out( fault_block_block.id() ) )
+                {
+                    builder.add_block_in_fault_block(
+                        this->block( out_block_id ), this_fault_block );
+                }
+            }
+        }
+        for( const auto& stratigraphic_unit :
+            initial_model.stratigraphic_units() )
+        {
+            const auto& this_stratigraphic_unit =
+                this->stratigraphic_unit( stratigraphic_unit.id() );
+            for( const auto& stratigraphic_unit_block :
+                initial_model.stratigraphic_unit_items( stratigraphic_unit ) )
+            {
+                for( const auto& out_block_id :
+                    block_mappings.in2out( stratigraphic_unit_block.id() ) )
+                {
+                    builder.add_block_in_stratigraphic_unit(
+                        this->block( out_block_id ), this_stratigraphic_unit );
+                }
+            }
+        }
     }
 
     StructuralModel StructuralModel::clone() const

@@ -32,6 +32,7 @@
 #include <geode/model/mixin/core/model_boundary.h>
 #include <geode/model/mixin/core/surface.h>
 #include <geode/model/mixin/core/surface_collection.h>
+#include <geode/model/representation/core/mapping.h>
 #include <geode/model/representation/core/section.h>
 
 #include <geode/geosciences/explicit/mixin/core/fault_blocks.h>
@@ -147,6 +148,9 @@ namespace geode
         CrossSection() = default;
         CrossSection( CrossSection&& ) noexcept = default;
         CrossSection( Section&& section ) noexcept;
+        CrossSection( CrossSection& initial_model,
+            Section&& section,
+            const ModelGenericMapping& initial_to_section_mappings ) noexcept;
 
         CrossSection clone() const;
 
