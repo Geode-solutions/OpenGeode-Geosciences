@@ -489,7 +489,7 @@ namespace geode
     }
 
     StratigraphicSection::StratigraphicSection(
-        StratigraphicSection& initial_model,
+        const StratigraphicSection& initial_model,
         Section&& section,
         const ModelGenericMapping& initial_to_section_mappings ) noexcept
         : ImplicitCrossSection{ initial_model, std::move( section ),

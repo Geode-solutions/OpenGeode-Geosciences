@@ -148,7 +148,7 @@ namespace geode
         CrossSection() = default;
         CrossSection( CrossSection&& ) noexcept = default;
         CrossSection( Section&& section ) noexcept;
-        CrossSection( CrossSection& initial_model,
+        CrossSection( const CrossSection& initial_model,
             Section&& section,
             const ModelGenericMapping& initial_to_section_mappings ) noexcept;
 

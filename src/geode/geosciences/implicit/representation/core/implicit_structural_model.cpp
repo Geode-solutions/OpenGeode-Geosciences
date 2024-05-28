@@ -343,7 +343,7 @@ namespace geode
     }
 
     ImplicitStructuralModel::ImplicitStructuralModel(
-        ImplicitStructuralModel& initial_model,
+        const ImplicitStructuralModel& initial_model,
         BRep&& brep,
         const ModelGenericMapping& initial_to_brep_mappings ) noexcept
         : StructuralModel{ initial_model, std::move( brep ),

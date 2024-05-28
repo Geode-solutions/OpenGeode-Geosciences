@@ -57,7 +57,7 @@ namespace geode
         ImplicitStructuralModel(
             ImplicitStructuralModel&& implicit_model ) noexcept;
         ImplicitStructuralModel( StructuralModel&& structural_model ) noexcept;
-        ImplicitStructuralModel( ImplicitStructuralModel& initial_model,
+        ImplicitStructuralModel( const ImplicitStructuralModel& initial_model,
             BRep&& brep,
             const ModelGenericMapping& initial_to_brep_mappings ) noexcept;
         virtual ~ImplicitStructuralModel();

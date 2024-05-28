@@ -63,7 +63,7 @@ namespace geode
         StratigraphicModel(
             ImplicitStructuralModel&& structural_model ) noexcept;
         StratigraphicModel( StructuralModel&& structural_model ) noexcept;
-        StratigraphicModel( StratigraphicModel& initial_model,
+        StratigraphicModel( const StratigraphicModel& initial_model,
             BRep&& brep,
             const ModelGenericMapping& initial_to_brep_mappings ) noexcept;
         ~StratigraphicModel();

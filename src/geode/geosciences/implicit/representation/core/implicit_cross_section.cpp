@@ -337,7 +337,7 @@ namespace geode
     }
 
     ImplicitCrossSection::ImplicitCrossSection(
-        ImplicitCrossSection& initial_model,
+        const ImplicitCrossSection& initial_model,
         Section&& section,
         const ModelGenericMapping& initial_to_section_mappings ) noexcept
         : CrossSection{ initial_model, std::move( section ),
