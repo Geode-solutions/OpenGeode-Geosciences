@@ -226,7 +226,7 @@ namespace geode
         const StructuralModel& structural_model,
         const FaultBlock3D& fault_block )
         : Relationships::ItemRangeIterator(
-            structural_model, fault_block.id() ),
+              structural_model, fault_block.id() ),
           structural_model_( structural_model )
     {
     }
@@ -268,7 +268,7 @@ namespace geode
         const StructuralModel& structural_model,
         const StratigraphicUnit3D& stratigraphic_unit )
         : Relationships::ItemRangeIterator(
-            structural_model, stratigraphic_unit.id() ),
+              structural_model, stratigraphic_unit.id() ),
           structural_model_( structural_model )
     {
     }
@@ -321,8 +321,8 @@ namespace geode
     {
         StructuralModelBuilder builder{ *this };
         ModelCopyMapping mappings;
-        detail::add_geology_clone_mapping( mappings, *this );
-        builder.copy_geological_components( mappings, *this );
+        detail::add_geology_clone_mapping( mappings, initial_model );
+        builder.copy_geological_components( mappings, initial_model );
         if( initial_to_brep_mappings.has_mapping_type(
                 Surface3D::component_type_static() ) )
         {
@@ -347,7 +347,7 @@ namespace geode
 
     StructuralModel StructuralModel::clone() const
     {
-        StructuralModel model_clone{ BRep::clone() };
+        StructuralModel model_clone;
         StructuralModelBuilder clone_builder{ model_clone };
         clone_builder.copy_identifier( *this );
         auto mappings = detail::brep_clone_mapping( *this );

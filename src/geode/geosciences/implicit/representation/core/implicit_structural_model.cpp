@@ -351,9 +351,10 @@ namespace geode
     {
         impl_->initialize_implicit_query_trees( *this );
         ModelCopyMapping mappings;
-        detail::add_geology_clone_mapping< StructuralModel >( mappings, *this );
+        detail::add_geology_clone_mapping< StructuralModel >(
+            mappings, initial_model );
         ImplicitStructuralModelBuilder builder{ *this };
-        builder.copy_implicit_information( mappings, *this );
+        builder.copy_implicit_information( mappings, initial_model );
     }
 
     ImplicitStructuralModel::~ImplicitStructuralModel() = default;
