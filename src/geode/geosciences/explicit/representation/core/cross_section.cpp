@@ -314,8 +314,8 @@ namespace geode
     {
         CrossSectionBuilder builder{ *this };
         ModelCopyMapping mappings;
-        detail::add_geology_clone_mapping( mappings, *this );
-        builder.copy_geological_components( mappings, *this );
+        detail::add_geology_clone_mapping( mappings, initial_model );
+        builder.copy_geological_components( mappings, initial_model );
         if( initial_to_section_mappings.has_mapping_type(
                 Line2D::component_type_static() ) )
         {

@@ -345,9 +345,10 @@ namespace geode
     {
         impl_->initialize_implicit_query_trees( *this );
         ModelCopyMapping mappings;
-        detail::add_geology_clone_mapping< CrossSection >( mappings, *this );
+        detail::add_geology_clone_mapping< CrossSection >(
+            mappings, initial_model );
         ImplicitCrossSectionBuilder builder{ *this };
-        builder.copy_implicit_information( mappings, *this );
+        builder.copy_implicit_information( mappings, initial_model );
     }
 
     ImplicitCrossSection::~ImplicitCrossSection() = default;
