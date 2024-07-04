@@ -92,7 +92,7 @@ namespace geode
          * polyhedron containing the given point in the given block, if there is
          * any.
          */
-        absl::optional< StratigraphicPoint3D > stratigraphic_coordinates(
+        std::optional< StratigraphicPoint3D > stratigraphic_coordinates(
             const Block3D& block, const Point3D& geometric_point ) const;
 
         /*!
@@ -109,7 +109,7 @@ namespace geode
          * coordinates in the stratigraphic space in the given block, if there
          * is any.
          */
-        absl::optional< Point3D > geometric_coordinates( const Block3D& block,
+        std::optional< Point3D > geometric_coordinates( const Block3D& block,
             const StratigraphicPoint3D& stratigraphic_point ) const;
 
         /*!
@@ -124,7 +124,7 @@ namespace geode
          * Returns the block polyhedron containing the given stratigraphic
          * point, if there is any.
          */
-        absl::optional< index_t > stratigraphic_containing_polyhedron(
+        std::optional< index_t > stratigraphic_containing_polyhedron(
             const Block3D& block,
             const StratigraphicPoint3D& stratigraphic_point ) const;
 

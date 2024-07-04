@@ -113,12 +113,12 @@ namespace geode
                    == baselap;
         }
 
-        absl::optional< uuid > above( const uuid& element ) const
+        std::optional< uuid > above( const uuid& element ) const
         {
             const auto index_from = vertex_id( element );
             if( !index_from )
             {
-                return absl::nullopt;
+                return std::nullopt;
             }
             for( const auto& edge_vertex :
                 this->graph().edges_around_vertex( index_from.value() ) )
@@ -133,15 +133,15 @@ namespace geode
                         .id();
                 }
             }
-            return absl::nullopt;
+            return std::nullopt;
         }
 
-        absl::optional< uuid > under( const uuid& element ) const
+        std::optional< uuid > under( const uuid& element ) const
         {
             const auto index_from = vertex_id( element );
             if( !index_from )
             {
-                return absl::nullopt;
+                return std::nullopt;
             }
             for( const auto& edge_vertex :
                 this->graph().edges_around_vertex( index_from.value() ) )
@@ -156,7 +156,7 @@ namespace geode
                         .id();
                 }
             }
-            return absl::nullopt;
+            return std::nullopt;
         }
 
         index_t add_above_relation(
@@ -292,18 +292,18 @@ namespace geode
                         "geode_unconformities", NO_UNCONFORMITY );
         }
 
-        absl::optional< index_t > relation_edge(
+        std::optional< index_t > relation_edge(
             const uuid& from, const uuid& to ) const
         {
             const auto index_from = vertex_id( from );
             if( !index_from )
             {
-                return absl::nullopt;
+                return std::nullopt;
             }
             const auto index_to = vertex_id( to );
             if( !index_to )
             {
-                return absl::nullopt;
+                return std::nullopt;
             }
             for( const auto& edge_vertex :
                 this->graph().edges_around_vertex( index_from.value() ) )
@@ -315,7 +315,7 @@ namespace geode
                     return edge_vertex.edge_id;
                 }
             }
-            return absl::nullopt;
+            return std::nullopt;
         }
 
         void remove_relation_edge( index_t relation_edge_id )
@@ -376,13 +376,13 @@ namespace geode
         return impl_->is_baselap_of( baselap, baselap_top );
     }
 
-    absl::optional< uuid > StratigraphicRelationships::above(
+    std::optional< uuid > StratigraphicRelationships::above(
         const uuid& element ) const
     {
         return impl_->above( element );
     }
 
-    absl::optional< uuid > StratigraphicRelationships::under(
+    std::optional< uuid > StratigraphicRelationships::under(
         const uuid& element ) const
     {
         return impl_->under( element );

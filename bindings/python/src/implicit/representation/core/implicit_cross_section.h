@@ -41,7 +41,7 @@ namespace geode
                     const Surface2D&, index_t ) const >(
                     &ImplicitCrossSection::implicit_value ) )
             .def( "implicit_value_from_geometric_point",
-                static_cast< absl::optional< double > (
+                static_cast< std::optional< double > (
                     ImplicitCrossSection::* )(
                     const Surface2D&, const Point2D& ) const >(
                     &ImplicitCrossSection::implicit_value ) )

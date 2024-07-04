@@ -80,7 +80,7 @@ namespace geode
                 model.implicit_value( surface, vertex_id ) };
         }
 
-        absl::optional< StratigraphicPoint2D > stratigraphic_coordinates(
+        std::optional< StratigraphicPoint2D > stratigraphic_coordinates(
             const StratigraphicSection& model,
             const Surface2D& surface,
             const Point2D& geometric_point ) const
@@ -91,7 +91,7 @@ namespace geode
                 return stratigraphic_coordinates( model, surface,
                     geometric_point, containing_polygon.value() );
             }
-            return absl::nullopt;
+            return std::nullopt;
         }
 
         StratigraphicPoint2D stratigraphic_coordinates(
@@ -105,7 +105,7 @@ namespace geode
                 model.implicit_value( surface, geometric_point, triangle_id ) };
         }
 
-        absl::optional< Point2D > geometric_coordinates(
+        std::optional< Point2D > geometric_coordinates(
             const StratigraphicSection& model,
             const Surface2D& surface,
             const StratigraphicPoint2D& stratigraphic_point ) const
@@ -117,7 +117,7 @@ namespace geode
                 return geometric_coordinates( model, surface,
                     stratigraphic_point, containing_polygon.value() );
             }
-            return absl::nullopt;
+            return std::nullopt;
         }
 
         Point2D geometric_coordinates( const StratigraphicSection& model,
@@ -142,7 +142,7 @@ namespace geode
             return geometric_point;
         }
 
-        absl::optional< index_t > stratigraphic_containing_polygon(
+        std::optional< index_t > stratigraphic_containing_polygon(
             const StratigraphicSection& model,
             const Surface2D& surface,
             const StratigraphicPoint2D& stratigraphic_point ) const
@@ -161,7 +161,7 @@ namespace geode
             {
                 return closest_triangle;
             }
-            return absl::nullopt;
+            return std::nullopt;
         }
 
         absl::InlinedVector< std::unique_ptr< EdgedCurve2D >, 2 >
@@ -511,7 +511,7 @@ namespace geode
         return impl_->stratigraphic_coordinates( *this, surface, vertex_id );
     }
 
-    absl::optional< StratigraphicPoint2D >
+    std::optional< StratigraphicPoint2D >
         StratigraphicSection::stratigraphic_coordinates(
             const Surface2D& surface, const Point2D& geometric_point ) const
     {
@@ -528,7 +528,7 @@ namespace geode
             *this, surface, geometric_point, polygon_id );
     }
 
-    absl::optional< Point2D > StratigraphicSection::geometric_coordinates(
+    std::optional< Point2D > StratigraphicSection::geometric_coordinates(
         const Surface2D& surface,
         const StratigraphicPoint2D& stratigraphic_point ) const
     {
@@ -545,7 +545,7 @@ namespace geode
             *this, surface, stratigraphic_point, polygon_id );
     }
 
-    absl::optional< index_t >
+    std::optional< index_t >
         StratigraphicSection::stratigraphic_containing_polygon(
             const Surface2D& surface,
             const StratigraphicPoint2D& stratigraphic_point ) const
