@@ -63,7 +63,7 @@ namespace geode
         StratigraphicPoint(
             const Point< dimension >& stratigraphic_coordinates )
             : implicit_value_{ stratigraphic_coordinates.value(
-                  dimension - 1 ) }
+                dimension - 1 ) }
         {
             for( const auto d : LRange{ location_dim } )
             {
