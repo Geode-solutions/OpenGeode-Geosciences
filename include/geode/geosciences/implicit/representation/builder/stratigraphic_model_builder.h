@@ -44,7 +44,8 @@ namespace geode
         : public ImplicitStructuralModelBuilder
     {
     public:
-        StratigraphicModelBuilder( StratigraphicModel& stratigraphic_model_ );
+        explicit StratigraphicModelBuilder(
+            StratigraphicModel& stratigraphic_model_ );
 
         ModelCopyMapping copy( const StratigraphicModel& implicit_model );
 
