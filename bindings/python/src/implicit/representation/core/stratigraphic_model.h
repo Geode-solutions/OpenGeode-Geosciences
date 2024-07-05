@@ -49,7 +49,7 @@ namespace geode
                     const Block3D&, index_t ) const >(
                     &StratigraphicModel::stratigraphic_coordinates ) )
             .def( "stratigraphic_coordinates_from_geometric_point",
-                static_cast< absl::optional< StratigraphicPoint3D > (
+                static_cast< std::optional< StratigraphicPoint3D > (
                     StratigraphicModel::* )( const Block3D&, const Point3D& )
                         const >(
                     &StratigraphicModel::stratigraphic_coordinates ) )
@@ -58,8 +58,7 @@ namespace geode
                     const Block3D&, const Point3D&, index_t ) const >(
                     &StratigraphicModel::stratigraphic_coordinates ) )
             .def( "geometric_coordinates_from_stratigraphic_point",
-                static_cast< absl::optional< Point3D > (
-                    StratigraphicModel::* )(
+                static_cast< std::optional< Point3D > ( StratigraphicModel::* )(
                     const Block3D&, const StratigraphicPoint3D& ) const >(
                     &StratigraphicModel::geometric_coordinates ) )
             .def( "geometric_coordinates_from_stratigraphic_point_and_tetra_id",

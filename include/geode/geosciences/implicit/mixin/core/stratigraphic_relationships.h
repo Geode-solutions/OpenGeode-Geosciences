@@ -23,6 +23,8 @@
 
 #pragma once
 
+#include <optional>
+
 #include <geode/basic/passkey.h>
 #include <geode/basic/pimpl.h>
 
@@ -56,9 +58,9 @@ namespace geode
 
         bool is_above( const uuid& above, const uuid& under ) const;
 
-        absl::optional< uuid > above( const uuid& element ) const;
+        std::optional< uuid > above( const uuid& element ) const;
 
-        absl::optional< uuid > under( const uuid& element ) const;
+        std::optional< uuid > under( const uuid& element ) const;
 
         void save_stratigraphic_relationships(
             absl::string_view directory ) const;

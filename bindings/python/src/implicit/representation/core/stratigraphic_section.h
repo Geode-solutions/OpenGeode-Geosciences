@@ -49,7 +49,7 @@ namespace geode
                     const Surface2D&, index_t ) const >(
                     &StratigraphicSection::stratigraphic_coordinates ) )
             .def( "stratigraphic_coordinates_from_geometric_point",
-                static_cast< absl::optional< StratigraphicPoint2D > (
+                static_cast< std::optional< StratigraphicPoint2D > (
                     StratigraphicSection::* )(
                     const Surface2D&, const Point2D& ) const >(
                     &StratigraphicSection::stratigraphic_coordinates ) )
@@ -59,7 +59,7 @@ namespace geode
                     const Surface2D&, const Point2D&, index_t ) const >(
                     &StratigraphicSection::stratigraphic_coordinates ) )
             .def( "geometric_coordinates_from_stratigraphic_point",
-                static_cast< absl::optional< Point2D > (
+                static_cast< std::optional< Point2D > (
                     StratigraphicSection::* )(
                     const Surface2D&, const StratigraphicPoint2D& ) const >(
                     &StratigraphicSection::geometric_coordinates ) )

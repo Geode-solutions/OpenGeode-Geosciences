@@ -344,7 +344,7 @@ namespace geode
             }
             index_t horizon_counter{ 1 };
             auto su_above = horizon_stack.above( bottom_horizon );
-            absl::optional< uuid > current_horizon = bottom_horizon;
+            std::optional< uuid > current_horizon = bottom_horizon;
             while( su_above )
             {
                 current_horizon = horizon_stack.above( su_above.value() );

@@ -74,7 +74,7 @@ namespace geode
             return implicit_attributes_.at( surface.id() ).value( vertex_id );
         }
 
-        absl::optional< double > implicit_value(
+        std::optional< double > implicit_value(
             const Surface2D& surface, const Point2D& point ) const
         {
             if( const auto containing_triangle =
@@ -83,7 +83,7 @@ namespace geode
                 return implicit_value(
                     surface, point, containing_triangle.value() );
             }
-            return absl::nullopt;
+            return std::nullopt;
         }
 
         double implicit_value( const Surface2D& surface,
@@ -94,7 +94,7 @@ namespace geode
                 .value( point, triangle_id );
         }
 
-        absl::optional< index_t > containing_polygon(
+        std::optional< index_t > containing_polygon(
             const Surface2D& surface, const Point2D& point ) const
         {
             const auto closest_triangle = std::get< 0 >(
@@ -108,7 +108,7 @@ namespace geode
             {
                 return closest_triangle;
             }
-            return absl::nullopt;
+            return std::nullopt;
         }
 
         const HorizonsStack2D& horizons_stack() const
@@ -121,7 +121,7 @@ namespace geode
             return horizons_stack_;
         }
 
-        absl::optional< double > horizon_implicit_value(
+        std::optional< double > horizon_implicit_value(
             const Horizon2D& horizon ) const
         {
             OPENGEODE_EXCEPTION( horizons_stack_.has_horizon( horizon.id() ),
@@ -133,7 +133,7 @@ namespace geode
             const auto value = horizon_isovalues_.find( horizon.id() );
             if( value == horizon_isovalues_.end() )
             {
-                return absl::nullopt;
+                return std::nullopt;
             }
             return value->second;
         }
@@ -154,17 +154,17 @@ namespace geode
                    == ( implicit_function_value >= it->second );
         }
 
-        absl::optional< uuid > containing_stratigraphic_unit(
+        std::optional< uuid > containing_stratigraphic_unit(
             double implicit_function_value ) const
         {
             if( horizon_isovalues_.empty() )
             {
-                return absl::nullopt;
+                return std::nullopt;
             }
             const auto increasing = increasing_stack_isovalues();
             if( !increasing.has_value() )
             {
-                return absl::nullopt;
+                return std::nullopt;
             }
             auto horizon_id = horizon_isovalues_.begin()->first;
             while( true )
@@ -176,7 +176,7 @@ namespace geode
                     const auto unit_above = horizons_stack_.above( horizon_id );
                     if( !unit_above )
                     {
-                        return absl::nullopt;
+                        return std::nullopt;
                     }
                     const auto horizon_above =
                         horizons_stack_.above( unit_above.value() );
@@ -193,7 +193,7 @@ namespace geode
                 const auto unit_under = horizons_stack_.under( horizon_id );
                 if( !unit_under )
                 {
-                    return absl::nullopt;
+                    return std::nullopt;
                 }
                 const auto horizon_under =
                     horizons_stack_.under( unit_under.value() );
@@ -270,7 +270,7 @@ namespace geode
         }
 
     private:
-        absl::optional< bool > increasing_stack_isovalues() const
+        std::optional< bool > increasing_stack_isovalues() const
         {
             for( const auto& unit : horizons_stack_.stratigraphic_units() )
             {
@@ -283,12 +283,12 @@ namespace geode
                     if( it0 == horizon_isovalues_.end()
                         || it1 == horizon_isovalues_.end() )
                     {
-                        return absl::nullopt;
+                        return std::nullopt;
                     }
                     return it0->second > it1->second;
                 }
             }
-            return absl::nullopt;
+            return std::nullopt;
         }
 
         friend class bitsery::Access;
@@ -370,7 +370,7 @@ namespace geode
         return impl_->implicit_value( surface, vertex_id );
     }
 
-    absl::optional< double > ImplicitCrossSection::implicit_value(
+    std::optional< double > ImplicitCrossSection::implicit_value(
         const Surface2D& surface, const Point2D& point ) const
     {
         return impl_->implicit_value( surface, point );
@@ -383,7 +383,7 @@ namespace geode
         return impl_->implicit_value( surface, point, polygon_id );
     }
 
-    absl::optional< index_t > ImplicitCrossSection::containing_polygon(
+    std::optional< index_t > ImplicitCrossSection::containing_polygon(
         const Surface2D& surface, const Point2D& point ) const
     {
         return impl_->containing_polygon( surface, point );
@@ -394,7 +394,7 @@ namespace geode
         return impl_->horizons_stack();
     }
 
-    absl::optional< double > ImplicitCrossSection::horizon_implicit_value(
+    std::optional< double > ImplicitCrossSection::horizon_implicit_value(
         const Horizon2D& horizon ) const
     {
         return horizon_implicit_value( horizon );
@@ -407,7 +407,7 @@ namespace geode
             implicit_function_value, horizon );
     }
 
-    absl::optional< uuid > ImplicitCrossSection::containing_stratigraphic_unit(
+    std::optional< uuid > ImplicitCrossSection::containing_stratigraphic_unit(
         double implicit_function_value ) const
     {
         return impl_->containing_stratigraphic_unit( implicit_function_value );
