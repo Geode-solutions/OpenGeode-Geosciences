@@ -94,7 +94,7 @@ namespace geode
          * in the polygon containing the given point in the given surface, if
          * there is any.
          */
-        absl::optional< StratigraphicPoint2D > stratigraphic_coordinates(
+        std::optional< StratigraphicPoint2D > stratigraphic_coordinates(
             const Surface2D& surface, const Point2D& geometric_point ) const;
 
         /*!
@@ -112,7 +112,7 @@ namespace geode
          * coordinates in the stratigraphic space in the given surface, if there
          * is any.
          */
-        absl::optional< Point2D > geometric_coordinates(
+        std::optional< Point2D > geometric_coordinates(
             const Surface2D& surface,
             const StratigraphicPoint2D& stratigraphic_point ) const;
 
@@ -129,7 +129,7 @@ namespace geode
          * Returns a surface polygon containing the given stratigraphic point,
          * if there is any.
          */
-        absl::optional< index_t > stratigraphic_containing_polygon(
+        std::optional< index_t > stratigraphic_containing_polygon(
             const Surface2D& surface,
             const StratigraphicPoint2D& stratigraphic_point ) const;
 
