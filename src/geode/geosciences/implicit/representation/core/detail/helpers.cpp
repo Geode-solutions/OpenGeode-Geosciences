@@ -132,7 +132,7 @@ namespace geode
 
         void save_stratigraphic_surfaces(
             const StratigraphicSection& implicit_model,
-            absl::string_view prefix )
+            std::string_view prefix )
         {
             index_t counter{ 0 };
             for( const auto& surface : implicit_model.surfaces() )
@@ -163,7 +163,7 @@ namespace geode
 
         void save_stratigraphic_blocks(
             const geode::StratigraphicModel& implicit_model,
-            absl::string_view prefix )
+            std::string_view prefix )
         {
             index_t counter{ 0 };
             for( const auto& block : implicit_model.blocks() )
@@ -192,7 +192,7 @@ namespace geode
         }
 
         ImplicitCrossSection implicit_section_from_cross_section_scalar_field(
-            CrossSection&& section, absl::string_view scalar_attribute_name )
+            CrossSection&& section, std::string_view scalar_attribute_name )
         {
             for( const auto& surface : section.surfaces() )
             {
@@ -221,7 +221,7 @@ namespace geode
         ImplicitStructuralModel
             implicit_model_from_structural_model_scalar_field(
                 StructuralModel&& model,
-                absl::string_view scalar_attribute_name )
+                std::string_view scalar_attribute_name )
         {
             for( const auto& block : model.blocks() )
             {

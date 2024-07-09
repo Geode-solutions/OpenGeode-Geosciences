@@ -23,8 +23,9 @@
 
 #include <geode/geosciences/implicit/representation/io/stratigraphic_model_input.h>
 
+#include <string_view>
+
 #include <absl/strings/str_cat.h>
-#include <absl/strings/string_view.h>
 
 #include <geode/basic/detail/geode_input_impl.h>
 #include <geode/basic/io.h>
@@ -38,7 +39,7 @@
 
 namespace geode
 {
-    StratigraphicModel load_stratigraphic_model( absl::string_view filename )
+    StratigraphicModel load_stratigraphic_model( std::string_view filename )
     {
         constexpr auto TYPE = "StratigraphicModel";
         try
@@ -87,7 +88,7 @@ namespace geode
     }
 
     typename StratigraphicModelInput::MissingFiles
-        check_stratigraphic_model_missing_files( absl::string_view filename )
+        check_stratigraphic_model_missing_files( std::string_view filename )
     {
         const auto input =
             detail::geode_object_input_reader< StratigraphicModelInputFactory >(
@@ -95,7 +96,7 @@ namespace geode
         return input->check_missing_files();
     }
 
-    bool is_stratigraphic_model_loadable( absl::string_view filename )
+    bool is_stratigraphic_model_loadable( std::string_view filename )
     {
         const auto input =
             detail::geode_object_input_reader< StratigraphicModelInputFactory >(

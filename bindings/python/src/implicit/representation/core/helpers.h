@@ -59,14 +59,13 @@ namespace geode
                 .def( "repair_horizon_stack_if_possible_3d",
                     &repair_horizon_stack_if_possible< 3 > )
                 .def( "implicit_section_from_cross_section_scalar_field",
-                    []( CrossSection& model,
-                        absl::string_view attribute_name ) {
+                    []( CrossSection& model, std::string_view attribute_name ) {
                         return implicit_section_from_cross_section_scalar_field(
                             model.clone(), attribute_name );
                     } )
                 .def( "implicit_model_from_structural_model_scalar_field",
                     []( StructuralModel& model,
-                        absl::string_view attribute_name ) {
+                        std::string_view attribute_name ) {
                         return implicit_model_from_structural_model_scalar_field(
                             model.clone(), attribute_name );
                     } )

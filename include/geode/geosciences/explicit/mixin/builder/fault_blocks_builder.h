@@ -39,9 +39,9 @@ namespace geode
     class FaultBlocksBuilder
     {
     public:
-        void load_fault_blocks( absl::string_view directory );
+        void load_fault_blocks( std::string_view directory );
 
-        void set_fault_block_name( const uuid& id, absl::string_view name );
+        void set_fault_block_name( const uuid& id, std::string_view name );
 
     protected:
         FaultBlocksBuilder( FaultBlocks< dimension >& fault_blocks )

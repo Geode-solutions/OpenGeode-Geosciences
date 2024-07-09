@@ -64,12 +64,12 @@ namespace geode
 
         ImplicitStructuralModel clone() const;
 
-        static constexpr absl::string_view native_extension_static()
+        static constexpr std::string_view native_extension_static()
         {
             return "og_istrm";
         }
 
-        absl::string_view native_extension() const
+        std::string_view native_extension() const
         {
             return native_extension_static();
         }

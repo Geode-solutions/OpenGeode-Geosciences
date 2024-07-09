@@ -53,7 +53,7 @@ namespace geode
 
     void OpenGeodeImplicitCrossSectionOutput::save_implicit_section_files(
         const ImplicitCrossSection& implicit_section,
-        absl::string_view directory ) const
+        std::string_view directory ) const
     {
         async::parallel_invoke(
             [&directory, &implicit_section] {

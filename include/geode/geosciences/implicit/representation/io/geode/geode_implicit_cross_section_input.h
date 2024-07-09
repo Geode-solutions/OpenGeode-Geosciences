@@ -32,18 +32,18 @@ namespace geode
         final : public ImplicitCrossSectionInput
     {
     public:
-        OpenGeodeImplicitCrossSectionInput( absl::string_view filename )
+        OpenGeodeImplicitCrossSectionInput( std::string_view filename )
             : ImplicitCrossSectionInput( filename )
         {
         }
 
-        static absl::string_view extension()
+        static std::string_view extension()
         {
             return ImplicitCrossSection::native_extension_static();
         }
 
         void load_implicit_cross_section_files(
-            ImplicitCrossSection& section, absl::string_view directory );
+            ImplicitCrossSection& section, std::string_view directory );
 
         ImplicitCrossSection read() final;
     };

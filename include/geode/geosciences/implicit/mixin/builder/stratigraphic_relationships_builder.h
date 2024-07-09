@@ -64,7 +64,7 @@ namespace geode
         void copy_stratigraphic_relationships( const ModelCopyMapping& mapping,
             const StratigraphicRelationships& relationships );
 
-        void load_stratigraphic_relationships( absl::string_view directory );
+        void load_stratigraphic_relationships( std::string_view directory );
 
     protected:
         /*!

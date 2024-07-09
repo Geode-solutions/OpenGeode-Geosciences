@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include <absl/strings/string_view.h>
+#include <string_view>
 
 #include <geode/basic/factory.h>
 
@@ -45,7 +45,7 @@ namespace geode
      * @param[in] filename Path to the file to load.
      */
     CrossSection opengeode_geosciences_explicit_api load_cross_section(
-        absl::string_view filename );
+        std::string_view filename );
 
     class CrossSectionInput : public Input< CrossSection >
     {
@@ -55,18 +55,18 @@ namespace geode
         using typename Base::MissingFiles;
 
     protected:
-        explicit CrossSectionInput( absl::string_view filename )
+        explicit CrossSectionInput( std::string_view filename )
             : Base{ filename }
         {
         }
     };
 
     CrossSectionInput::MissingFiles opengeode_geosciences_explicit_api
-        check_cross_section_missing_files( absl::string_view filename );
+        check_cross_section_missing_files( std::string_view filename );
 
     bool opengeode_geosciences_explicit_api is_cross_section_loadable(
-        absl::string_view filename );
+        std::string_view filename );
 
     using CrossSectionInputFactory =
-        Factory< std::string, CrossSectionInput, absl::string_view >;
+        Factory< std::string, CrossSectionInput, std::string_view >;
 } // namespace geode

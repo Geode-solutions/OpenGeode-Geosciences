@@ -39,10 +39,10 @@ namespace geode
     class StratigraphicUnitsBuilder
     {
     public:
-        void load_stratigraphic_units( absl::string_view directory );
+        void load_stratigraphic_units( std::string_view directory );
 
         void set_stratigraphic_unit_name(
-            const uuid& id, absl::string_view name );
+            const uuid& id, std::string_view name );
 
     protected:
         StratigraphicUnitsBuilder(

@@ -24,9 +24,8 @@
 #pragma once
 
 #include <string>
+#include <string_view>
 #include <vector>
-
-#include <absl/strings/string_view.h>
 
 #include <geode/basic/factory.h>
 #include <geode/basic/output.h>
@@ -49,7 +48,7 @@ namespace geode
      */
     std::vector< std::string > opengeode_geosciences_implicit_api
         save_stratigraphic_model( const StratigraphicModel& stratigraphic_model,
-            absl::string_view filename );
+            std::string_view filename );
 
     class opengeode_geosciences_implicit_api StratigraphicModelOutput
         : public Output< StratigraphicModel >
@@ -58,7 +57,7 @@ namespace geode
         virtual ~StratigraphicModelOutput() = default;
 
     protected:
-        StratigraphicModelOutput( absl::string_view filename )
+        StratigraphicModelOutput( std::string_view filename )
             : Output< StratigraphicModel >{ filename }
         {
         }
@@ -66,8 +65,8 @@ namespace geode
 
     bool opengeode_geosciences_implicit_api is_stratigraphic_model_saveable(
         const StratigraphicModel& stratigraphic_model,
-        absl::string_view filename );
+        std::string_view filename );
 
     using StratigraphicModelOutputFactory =
-        Factory< std::string, StratigraphicModelOutput, absl::string_view >;
+        Factory< std::string, StratigraphicModelOutput, std::string_view >;
 } // namespace geode

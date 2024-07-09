@@ -38,13 +38,13 @@
 namespace geode
 {
     OpenGeodeCrossSectionOutput::OpenGeodeCrossSectionOutput(
-        absl::string_view filename )
+        std::string_view filename )
         : CrossSectionOutput( filename )
     {
     }
 
     void OpenGeodeCrossSectionOutput::save_cross_section_files(
-        const CrossSection& cross_section, absl::string_view directory ) const
+        const CrossSection& cross_section, std::string_view directory ) const
     {
         async::parallel_invoke(
             [&directory, &cross_section] {

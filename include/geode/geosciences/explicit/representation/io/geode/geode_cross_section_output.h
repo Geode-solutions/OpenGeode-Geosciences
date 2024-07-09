@@ -40,15 +40,15 @@ namespace geode
         : public CrossSectionOutput
     {
     public:
-        OpenGeodeCrossSectionOutput( absl::string_view filename );
+        OpenGeodeCrossSectionOutput( std::string_view filename );
 
-        static absl::string_view extension()
+        static std::string_view extension()
         {
             return CrossSection::native_extension_static();
         }
 
         void save_cross_section_files( const CrossSection& cross_section,
-            absl::string_view directory ) const;
+            std::string_view directory ) const;
 
         void archive_cross_section_files( const ZipFile& zip_writer ) const;
 

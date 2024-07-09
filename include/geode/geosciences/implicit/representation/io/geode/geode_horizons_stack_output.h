@@ -43,12 +43,12 @@ namespace geode
         : public HorizonsStackOutput< dimension >
     {
     public:
-        OpenGeodeHorizonsStackOutput( absl::string_view filename )
+        OpenGeodeHorizonsStackOutput( std::string_view filename )
             : HorizonsStackOutput< dimension >( filename )
         {
         }
 
-        static absl::string_view extension()
+        static std::string_view extension()
         {
             return HorizonsStack< dimension >::native_extension_static();
         }
@@ -64,7 +64,7 @@ namespace geode
 
         void save_horizons_stack_files(
             const HorizonsStack< dimension >& horizons_stack,
-            absl::string_view directory ) const
+            std::string_view directory ) const
         {
             async::parallel_invoke(
                 [&directory, &horizons_stack] {

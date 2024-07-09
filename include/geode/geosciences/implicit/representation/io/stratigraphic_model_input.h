@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include <absl/strings/string_view.h>
+#include <string_view>
 
 #include <geode/basic/factory.h>
 #include <geode/basic/input.h>
@@ -43,7 +43,7 @@ namespace geode
      * @param[in] filename Path to the file to load.
      */
     StratigraphicModel opengeode_geosciences_implicit_api
-        load_stratigraphic_model( absl::string_view filename );
+        load_stratigraphic_model( std::string_view filename );
 
     class StratigraphicModelInput : public Input< StratigraphicModel >
     {
@@ -53,18 +53,18 @@ namespace geode
         using typename Base::MissingFiles;
 
     protected:
-        explicit StratigraphicModelInput( absl::string_view filename )
+        explicit StratigraphicModelInput( std::string_view filename )
             : Base{ filename }
         {
         }
     };
 
     StratigraphicModelInput::MissingFiles opengeode_geosciences_implicit_api
-        check_stratigraphic_model_missing_files( absl::string_view filename );
+        check_stratigraphic_model_missing_files( std::string_view filename );
 
     bool opengeode_geosciences_implicit_api is_stratigraphic_model_loadable(
-        absl::string_view filename );
+        std::string_view filename );
 
     using StratigraphicModelInputFactory =
-        Factory< std::string, StratigraphicModelInput, absl::string_view >;
+        Factory< std::string, StratigraphicModelInput, std::string_view >;
 } // namespace geode

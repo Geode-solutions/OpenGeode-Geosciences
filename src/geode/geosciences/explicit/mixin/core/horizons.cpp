@@ -80,13 +80,13 @@ namespace geode
 
     template < index_t dimension >
     void Horizons< dimension >::save_horizons(
-        absl::string_view directory ) const
+        std::string_view directory ) const
     {
         impl_->save_components( absl::StrCat( directory, "/horizons" ) );
     }
 
     template < index_t dimension >
-    void Horizons< dimension >::load_horizons( absl::string_view directory )
+    void Horizons< dimension >::load_horizons( std::string_view directory )
     {
         impl_->load_components( absl::StrCat( directory, "/horizons" ) );
     }

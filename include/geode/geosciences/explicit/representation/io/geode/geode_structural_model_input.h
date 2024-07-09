@@ -32,15 +32,15 @@ namespace geode
         : public StructuralModelInput
     {
     public:
-        OpenGeodeStructuralModelInput( absl::string_view filename );
+        OpenGeodeStructuralModelInput( std::string_view filename );
 
-        static absl::string_view extension()
+        static std::string_view extension()
         {
             return StructuralModel::native_extension_static();
         }
 
         void load_structural_model_files(
-            StructuralModel& structural_model, absl::string_view directory );
+            StructuralModel& structural_model, std::string_view directory );
 
         StructuralModel read() final;
     };

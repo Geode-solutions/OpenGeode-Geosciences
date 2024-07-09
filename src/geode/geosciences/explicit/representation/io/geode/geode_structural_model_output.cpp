@@ -38,14 +38,14 @@
 namespace geode
 {
     OpenGeodeStructuralModelOutput::OpenGeodeStructuralModelOutput(
-        absl::string_view filename )
+        std::string_view filename )
         : StructuralModelOutput( filename )
     {
     }
 
     void OpenGeodeStructuralModelOutput::save_structural_model_files(
         const StructuralModel& structural_model,
-        absl::string_view directory ) const
+        std::string_view directory ) const
     {
         async::parallel_invoke(
             [&directory, &structural_model] {
