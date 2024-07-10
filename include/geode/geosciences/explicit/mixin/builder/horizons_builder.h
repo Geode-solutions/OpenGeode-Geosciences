@@ -47,7 +47,7 @@ namespace geode
         void set_horizon_name( const uuid& id, absl::string_view name );
 
     protected:
-        HorizonsBuilder( Horizons< dimension >& horizons )
+        explicit HorizonsBuilder( Horizons< dimension >& horizons )
             : horizons_( horizons )
         {
         }

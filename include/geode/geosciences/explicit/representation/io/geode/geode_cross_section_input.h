@@ -32,7 +32,7 @@ namespace geode
         : public CrossSectionInput
     {
     public:
-        OpenGeodeCrossSectionInput( absl::string_view filename );
+        explicit OpenGeodeCrossSectionInput( absl::string_view filename );
 
         static absl::string_view extension()
         {

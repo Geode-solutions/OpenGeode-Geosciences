@@ -45,7 +45,7 @@ namespace geode
             const uuid& id, absl::string_view name );
 
     protected:
-        StratigraphicUnitsBuilder(
+        explicit StratigraphicUnitsBuilder(
             StratigraphicUnits< dimension >& stratigraphic_units )
             : stratigraphic_units_( stratigraphic_units )
         {

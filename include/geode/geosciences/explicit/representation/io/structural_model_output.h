@@ -57,7 +57,7 @@ namespace geode
         virtual ~StructuralModelOutput() = default;
 
     protected:
-        StructuralModelOutput( absl::string_view filename )
+        explicit StructuralModelOutput( absl::string_view filename )
             : Output< StructuralModel >{ filename }
         {
         }

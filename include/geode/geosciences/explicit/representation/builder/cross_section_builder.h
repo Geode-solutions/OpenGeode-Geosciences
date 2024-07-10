@@ -58,7 +58,7 @@ namespace geode
         OPENGEODE_DISABLE_COPY_AND_MOVE( CrossSectionBuilder );
 
     public:
-        CrossSectionBuilder( CrossSection& cross_section );
+        explicit CrossSectionBuilder( CrossSection& cross_section );
 
         ModelCopyMapping copy( const CrossSection& cross_section );
 
