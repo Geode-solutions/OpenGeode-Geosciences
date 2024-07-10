@@ -57,7 +57,7 @@ namespace geode
         virtual ~CrossSectionOutput() = default;
 
     protected:
-        CrossSectionOutput( absl::string_view filename )
+        explicit CrossSectionOutput( absl::string_view filename )
             : Output< CrossSection >{ filename }
         {
         }

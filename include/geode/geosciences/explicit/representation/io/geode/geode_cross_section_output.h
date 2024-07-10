@@ -40,7 +40,7 @@ namespace geode
         : public CrossSectionOutput
     {
     public:
-        OpenGeodeCrossSectionOutput( absl::string_view filename );
+        explicit OpenGeodeCrossSectionOutput( absl::string_view filename );
 
         static absl::string_view extension()
         {

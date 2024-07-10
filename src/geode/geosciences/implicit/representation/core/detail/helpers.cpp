@@ -144,7 +144,7 @@ namespace geode
                 auto xyz_attribute =
                     strati_surface->vertex_attribute_manager()
                         .find_or_create_attribute< VariableAttribute, Point2D >(
-                            "geode_xyz", { { 0, 0 } }, { false, true } );
+                            "geode_xyz", Point2D{ { 0, 0 } }, { false, true } );
                 for( const auto pt_id : Range{ strati_surface->nb_vertices() } )
                 {
                     xyz_attribute->set_value(
@@ -174,7 +174,8 @@ namespace geode
                 auto xyz_attribute =
                     strati_solid->vertex_attribute_manager()
                         .find_or_create_attribute< VariableAttribute, Point3D >(
-                            "geode_xyz", { { 0, 0, 0 } }, { false, true } );
+                            "geode_xyz", Point3D{ { 0, 0, 0 } },
+                            { false, true } );
                 for( const auto pt_id : Range{ strati_solid->nb_vertices() } )
                 {
                     xyz_attribute->set_value(
@@ -265,12 +266,12 @@ namespace geode
                             StratigraphicModel::stratigraphic_location_type >(
                             StratigraphicModel::
                                 stratigraphic_location_attribute_name,
-                            { { 0, 0 } }, { false, true } );
+                            Point2D{ { 0, 0 } }, { false, true } );
                 for( const auto vertex_id : Range{ block_mesh.nb_vertices() } )
                 {
                     const auto& vertex_point = block_mesh.point( vertex_id );
                     strati_location_attribute->set_value(
-                        vertex_id, { { vertex_point.value( first_axis ),
+                        vertex_id, Point2D{ { vertex_point.value( first_axis ),
                                        vertex_point.value( second_axis ) } } );
                 }
             }

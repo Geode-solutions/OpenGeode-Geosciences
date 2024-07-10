@@ -40,7 +40,7 @@ namespace geode
         final : public StructuralModelOutput
     {
     public:
-        OpenGeodeStructuralModelOutput( absl::string_view filename );
+        explicit OpenGeodeStructuralModelOutput( absl::string_view filename );
 
         static absl::string_view extension()
         {

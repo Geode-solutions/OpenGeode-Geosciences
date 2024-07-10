@@ -47,7 +47,10 @@ namespace geode
         void set_fault_name( const uuid& id, absl::string_view name );
 
     protected:
-        FaultsBuilder( Faults< dimension >& faults ) : faults_( faults ) {}
+        explicit FaultsBuilder( Faults< dimension >& faults )
+            : faults_( faults )
+        {
+        }
 
         const uuid& create_fault();
 

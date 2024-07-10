@@ -32,7 +32,7 @@ namespace geode
         : public StructuralModelInput
     {
     public:
-        OpenGeodeStructuralModelInput( absl::string_view filename );
+        explicit OpenGeodeStructuralModelInput( absl::string_view filename );
 
         static absl::string_view extension()
         {

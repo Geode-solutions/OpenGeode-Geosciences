@@ -44,7 +44,7 @@ namespace geode
         : public ImplicitCrossSectionBuilder
     {
     public:
-        StratigraphicSectionBuilder(
+        explicit StratigraphicSectionBuilder(
             StratigraphicSection& stratigraphic_section );
 
         ModelCopyMapping copy(
