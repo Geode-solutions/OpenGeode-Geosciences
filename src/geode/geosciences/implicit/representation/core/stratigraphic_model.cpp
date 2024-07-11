@@ -157,7 +157,7 @@ namespace geode
                         block.id() ) ) );
             if( std::get< 0 >( block_stratigraphic_distance_to_tetras_.at(
                     block.id() )( stratigraphic_point, closest_tetrahedron ) )
-                < global_epsilon )
+                < GLOBAL_EPSILON )
             {
                 return closest_tetrahedron;
             }
