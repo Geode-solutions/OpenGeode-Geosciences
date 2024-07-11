@@ -53,11 +53,11 @@ namespace geode
         enum struct HORIZON_TYPE
         {
             /// Default value - No horizon type defined
-            NO_TYPE,
-            CONFORMAL,
-            NON_CONFORMAL,
-            TOPOGRAPHY,
-            INTRUSION
+            no_type,
+            conformal,
+            non_conformal,
+            topography,
+            intrusion
         };
 
     public:

@@ -52,7 +52,7 @@ namespace geode
         }
 
     private:
-        HORIZON_TYPE horizon_type_{ HORIZON_TYPE::NO_TYPE };
+        HORIZON_TYPE horizon_type_{ HORIZON_TYPE::no_type };
     };
 
     template < index_t dimension >
@@ -73,7 +73,7 @@ namespace geode
     template < index_t dimension >
     bool Horizon< dimension >::has_type() const
     {
-        return type() != HORIZON_TYPE::NO_TYPE;
+        return type() != HORIZON_TYPE::no_type;
     }
 
     template < index_t dimension >
