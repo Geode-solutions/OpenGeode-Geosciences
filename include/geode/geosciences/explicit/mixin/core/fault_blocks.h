@@ -94,7 +94,7 @@ namespace geode
 
         FaultBlockRange fault_blocks() const;
 
-        void save_fault_blocks( absl::string_view directory ) const;
+        void save_fault_blocks( std::string_view directory ) const;
 
     protected:
         friend class FaultBlocksBuilder< dimension >;
@@ -129,7 +129,7 @@ namespace geode
 
         void delete_fault_block( const FaultBlock< dimension >& fault_block );
 
-        void load_fault_blocks( absl::string_view directory );
+        void load_fault_blocks( std::string_view directory );
 
         ModifiableFaultBlockRange modifiable_fault_blocks();
 

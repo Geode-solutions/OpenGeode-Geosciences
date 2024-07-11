@@ -24,9 +24,8 @@
 #include <geode/geosciences/implicit/representation/io/implicit_structural_model_output.h>
 
 #include <string>
+#include <string_view>
 #include <vector>
-
-#include <absl/strings/string_view.h>
 
 #include <geode/basic/detail/geode_output_impl.h>
 #include <geode/basic/io.h>
@@ -41,7 +40,7 @@ namespace geode
 {
     std::vector< std::string > save_implicit_structural_model(
         const ImplicitStructuralModel& implicit_model,
-        absl::string_view filename )
+        std::string_view filename )
     {
         constexpr auto TYPE = "ImplicitStructuralModel";
         try
@@ -67,7 +66,7 @@ namespace geode
 
     bool is_implicit_structural_model_saveable(
         const ImplicitStructuralModel& implicit_model,
-        absl::string_view filename )
+        std::string_view filename )
     {
         const auto output = detail::geode_object_output_writer<
             ImplicitStructuralModelOutputFactory >( filename );

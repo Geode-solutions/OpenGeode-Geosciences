@@ -35,8 +35,7 @@ namespace geode
 {
     template < index_t dimension >
     void OpenGeodeHorizonsStackInput< dimension >::load_horizons_stack_files(
-        HorizonsStack< dimension >& horizons_stack,
-        absl::string_view directory )
+        HorizonsStack< dimension >& horizons_stack, std::string_view directory )
     {
         HorizonsStackBuilder< dimension > builder{ horizons_stack };
         async::parallel_invoke(

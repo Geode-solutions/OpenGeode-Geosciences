@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include <absl/strings/string_view.h>
+#include <string_view>
 
 #include <geode/basic/factory.h>
 #include <geode/basic/input.h>
@@ -45,8 +45,7 @@ namespace geode
      * @return Loaded HorizonsStack.
      */
     template < index_t dimension >
-    HorizonsStack< dimension > load_horizons_stack(
-        absl::string_view filename );
+    HorizonsStack< dimension > load_horizons_stack( std::string_view filename );
 
     template < index_t dimension >
     class HorizonsStackInput : public Input< HorizonsStack< dimension > >
@@ -57,7 +56,7 @@ namespace geode
         using typename Base::MissingFiles;
 
     protected:
-        explicit HorizonsStackInput( absl::string_view filename )
+        explicit HorizonsStackInput( std::string_view filename )
             : Base{ filename }
         {
         }
@@ -65,14 +64,14 @@ namespace geode
 
     template < index_t dimension >
     typename HorizonsStackInput< dimension >::MissingFiles
-        check_horizons_stack_missing_files( absl::string_view filename );
+        check_horizons_stack_missing_files( std::string_view filename );
 
     template < index_t dimension >
-    bool is_horizons_stack_loadable( absl::string_view filename );
+    bool is_horizons_stack_loadable( std::string_view filename );
 
     template < index_t dimension >
     using HorizonsStackInputFactory = Factory< std::string,
         HorizonsStackInput< dimension >,
-        absl::string_view >;
+        std::string_view >;
     ALIAS_2D_AND_3D( HorizonsStackInputFactory );
 } // namespace geode

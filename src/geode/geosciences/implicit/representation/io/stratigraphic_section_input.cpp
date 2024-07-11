@@ -23,8 +23,9 @@
 
 #include <geode/geosciences/implicit/representation/io/stratigraphic_section_input.h>
 
+#include <string_view>
+
 #include <absl/strings/str_cat.h>
-#include <absl/strings/string_view.h>
 
 #include <geode/basic/detail/geode_input_impl.h>
 #include <geode/basic/io.h>
@@ -38,8 +39,7 @@
 
 namespace geode
 {
-    StratigraphicSection load_stratigraphic_section(
-        absl::string_view filename )
+    StratigraphicSection load_stratigraphic_section( std::string_view filename )
     {
         constexpr auto TYPE = "StratigraphicSection";
         try
@@ -86,14 +86,14 @@ namespace geode
     }
 
     StratigraphicSectionInput::MissingFiles
-        check_stratigraphic_section_missing_files( absl::string_view filename )
+        check_stratigraphic_section_missing_files( std::string_view filename )
     {
         const auto input = detail::geode_object_input_reader<
             StratigraphicSectionInputFactory >( filename );
         return input->check_missing_files();
     }
 
-    bool is_stratigraphic_section_loadable( absl::string_view filename )
+    bool is_stratigraphic_section_loadable( std::string_view filename )
     {
         const auto input = detail::geode_object_input_reader<
             StratigraphicSectionInputFactory >( filename );

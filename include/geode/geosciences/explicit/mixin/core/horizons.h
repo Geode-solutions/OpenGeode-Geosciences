@@ -94,7 +94,7 @@ namespace geode
 
         HorizonRange horizons() const;
 
-        void save_horizons( absl::string_view directory ) const;
+        void save_horizons( std::string_view directory ) const;
 
     protected:
         friend class HorizonsBuilder< dimension >;
@@ -136,7 +136,7 @@ namespace geode
 
         void delete_horizon( const Horizon< dimension >& horizon );
 
-        void load_horizons( absl::string_view directory );
+        void load_horizons( std::string_view directory );
 
         ModifiableHorizonRange modifiable_horizons();
 

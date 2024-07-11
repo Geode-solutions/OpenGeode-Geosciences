@@ -80,14 +80,14 @@ namespace geode
 
     template < index_t dimension >
     void FaultBlocks< dimension >::save_fault_blocks(
-        absl::string_view directory ) const
+        std::string_view directory ) const
     {
         impl_->save_components( absl::StrCat( directory, "/fault_blocks" ) );
     }
 
     template < index_t dimension >
     void FaultBlocks< dimension >::load_fault_blocks(
-        absl::string_view directory )
+        std::string_view directory )
     {
         impl_->load_components( absl::StrCat( directory, "/fault_blocks" ) );
     }

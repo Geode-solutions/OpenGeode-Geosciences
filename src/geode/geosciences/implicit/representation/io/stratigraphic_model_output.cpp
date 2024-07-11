@@ -24,9 +24,8 @@
 #include <geode/geosciences/implicit/representation/io/stratigraphic_model_output.h>
 
 #include <string>
+#include <string_view>
 #include <vector>
-
-#include <absl/strings/string_view.h>
 
 #include <geode/basic/detail/geode_output_impl.h>
 #include <geode/basic/io.h>
@@ -42,7 +41,7 @@ namespace geode
 {
     std::vector< std::string > save_stratigraphic_model(
         const StratigraphicModel& stratigraphic_model,
-        absl::string_view filename )
+        std::string_view filename )
     {
         constexpr auto TYPE = "StratigraphicModel";
         try
@@ -70,7 +69,7 @@ namespace geode
 
     bool is_stratigraphic_model_saveable(
         const StratigraphicModel& stratigraphic_model,
-        absl::string_view filename )
+        std::string_view filename )
     {
         const auto output = detail::geode_object_output_writer<
             StratigraphicModelOutputFactory >( filename );

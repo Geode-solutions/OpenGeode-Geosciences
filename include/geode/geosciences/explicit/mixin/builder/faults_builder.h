@@ -39,12 +39,12 @@ namespace geode
     class FaultsBuilder
     {
     public:
-        void load_faults( absl::string_view directory );
+        void load_faults( std::string_view directory );
 
         void set_fault_type( const uuid& fault_id,
             typename Fault< dimension >::FAULT_TYPE type );
 
-        void set_fault_name( const uuid& id, absl::string_view name );
+        void set_fault_name( const uuid& id, std::string_view name );
 
     protected:
         explicit FaultsBuilder( Faults< dimension >& faults )

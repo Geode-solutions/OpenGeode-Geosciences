@@ -63,7 +63,7 @@ namespace geode
         std::optional< uuid > under( const uuid& element ) const;
 
         void save_stratigraphic_relationships(
-            absl::string_view directory ) const;
+            std::string_view directory ) const;
 
     public:
         /*!
@@ -115,7 +115,7 @@ namespace geode
             StratigraphicRelationshipsBuilderKey );
 
         void load_stratigraphic_relationships(
-            absl::string_view directory, StratigraphicRelationshipsBuilderKey );
+            std::string_view directory, StratigraphicRelationshipsBuilderKey );
 
     protected:
         StratigraphicRelationships(

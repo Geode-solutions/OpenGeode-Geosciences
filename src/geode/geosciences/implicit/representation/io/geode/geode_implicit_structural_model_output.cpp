@@ -53,7 +53,7 @@ namespace geode
 
     void OpenGeodeImplicitStructuralModelOutput::save_implicit_model_files(
         const ImplicitStructuralModel& implicit_model,
-        absl::string_view directory ) const
+        std::string_view directory ) const
     {
         async::parallel_invoke(
             [&directory, &implicit_model] {

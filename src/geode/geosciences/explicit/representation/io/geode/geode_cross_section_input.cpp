@@ -45,13 +45,13 @@
 namespace geode
 {
     OpenGeodeCrossSectionInput::OpenGeodeCrossSectionInput(
-        absl::string_view filename )
+        std::string_view filename )
         : CrossSectionInput{ filename }
     {
     }
 
     void OpenGeodeCrossSectionInput::load_cross_section_files(
-        CrossSection& cross_section, absl::string_view directory )
+        CrossSection& cross_section, std::string_view directory )
     {
         CrossSectionBuilder builder{ cross_section };
         async::parallel_invoke(

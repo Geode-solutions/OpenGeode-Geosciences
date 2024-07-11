@@ -70,7 +70,7 @@ namespace geode
         StratigraphicUnit( StratigraphicUnitsKey ) : StratigraphicUnit() {}
 
         void set_stratigraphic_unit_name(
-            absl::string_view name, StratigraphicUnitsBuilderKey )
+            std::string_view name, StratigraphicUnitsBuilderKey )
         {
             this->set_name( name );
         }

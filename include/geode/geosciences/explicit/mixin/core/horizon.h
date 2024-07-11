@@ -88,7 +88,7 @@ namespace geode
 
         void set_type( HORIZON_TYPE type, HorizonsBuilderKey );
 
-        void set_horizon_name( absl::string_view name, HorizonsBuilderKey )
+        void set_horizon_name( std::string_view name, HorizonsBuilderKey )
         {
             this->set_name( name );
         }

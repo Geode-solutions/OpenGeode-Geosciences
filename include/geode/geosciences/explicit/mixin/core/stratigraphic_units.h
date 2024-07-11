@@ -100,7 +100,7 @@ namespace geode
 
         StratigraphicUnitRange stratigraphic_units() const;
 
-        void save_stratigraphic_units( absl::string_view directory ) const;
+        void save_stratigraphic_units( std::string_view directory ) const;
 
     protected:
         friend class StratigraphicUnitsBuilder< dimension >;
@@ -139,7 +139,7 @@ namespace geode
         void delete_stratigraphic_unit(
             const StratigraphicUnit< dimension >& stratigraphic_unit );
 
-        void load_stratigraphic_units( absl::string_view directory );
+        void load_stratigraphic_units( std::string_view directory );
 
         ModifiableStratigraphicUnitRange modifiable_stratigraphic_units();
 

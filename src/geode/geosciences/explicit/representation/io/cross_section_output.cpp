@@ -24,9 +24,8 @@
 #include <geode/geosciences/explicit/representation/io/cross_section_output.h>
 
 #include <string>
+#include <string_view>
 #include <vector>
-
-#include <absl/strings/string_view.h>
 
 #include <geode/basic/detail/geode_output_impl.h>
 #include <geode/basic/io.h>
@@ -39,7 +38,7 @@
 namespace geode
 {
     std::vector< std::string > save_cross_section(
-        const CrossSection& cross_section, absl::string_view filename )
+        const CrossSection& cross_section, std::string_view filename )
     {
         constexpr auto TYPE = "CrossSection";
         try
@@ -59,7 +58,7 @@ namespace geode
     }
 
     bool is_cross_section_saveable(
-        const CrossSection& cross_section, absl::string_view filename )
+        const CrossSection& cross_section, std::string_view filename )
     {
         const auto output =
             detail::geode_object_output_writer< CrossSectionOutputFactory >(

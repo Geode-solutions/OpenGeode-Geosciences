@@ -24,9 +24,8 @@
 #pragma once
 
 #include <string>
+#include <string_view>
 #include <vector>
-
-#include <absl/strings/string_view.h>
 
 #include <geode/basic/factory.h>
 
@@ -49,7 +48,7 @@ namespace geode
      */
     std::vector< std::string >
         opengeode_geosciences_explicit_api save_cross_section(
-            const CrossSection& cross_section, absl::string_view filename );
+            const CrossSection& cross_section, std::string_view filename );
 
     class CrossSectionOutput : public Output< CrossSection >
     {
@@ -57,15 +56,15 @@ namespace geode
         virtual ~CrossSectionOutput() = default;
 
     protected:
-        explicit CrossSectionOutput( absl::string_view filename )
+        explicit CrossSectionOutput( std::string_view filename )
             : Output< CrossSection >{ filename }
         {
         }
     };
 
     bool opengeode_geosciences_explicit_api is_cross_section_saveable(
-        const CrossSection& cross_section, absl::string_view filename );
+        const CrossSection& cross_section, std::string_view filename );
 
     using CrossSectionOutputFactory =
-        Factory< std::string, CrossSectionOutput, absl::string_view >;
+        Factory< std::string, CrossSectionOutput, std::string_view >;
 } // namespace geode

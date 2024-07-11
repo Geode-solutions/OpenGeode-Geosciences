@@ -58,20 +58,20 @@ namespace geode
             rescale_implicit_value_to_bbox_scale( StratigraphicModel& model );
 
         void opengeode_geosciences_implicit_api save_stratigraphic_surfaces(
-            const StratigraphicSection& section, absl::string_view prefix );
+            const StratigraphicSection& section, std::string_view prefix );
 
         void opengeode_geosciences_implicit_api save_stratigraphic_blocks(
-            const StratigraphicModel& model, absl::string_view prefix );
+            const StratigraphicModel& model, std::string_view prefix );
 
         ImplicitCrossSection opengeode_geosciences_implicit_api
             implicit_section_from_cross_section_scalar_field(
                 CrossSection&& section,
-                absl::string_view scalar_attribute_name );
+                std::string_view scalar_attribute_name );
 
         ImplicitStructuralModel opengeode_geosciences_implicit_api
             implicit_model_from_structural_model_scalar_field(
                 StructuralModel&& model,
-                absl::string_view scalar_attribute_name );
+                std::string_view scalar_attribute_name );
 
         StratigraphicModel opengeode_geosciences_implicit_api
             stratigraphic_model_from_implicit_model_and_coords(
