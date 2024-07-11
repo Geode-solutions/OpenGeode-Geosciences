@@ -40,7 +40,7 @@ namespace geode
         : public CrossSectionOutput
     {
     public:
-        OpenGeodeCrossSectionOutput( std::string_view filename );
+        explicit OpenGeodeCrossSectionOutput( std::string_view filename );
 
         static std::string_view extension()
         {

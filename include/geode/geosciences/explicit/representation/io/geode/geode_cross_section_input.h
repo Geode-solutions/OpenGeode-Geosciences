@@ -32,7 +32,7 @@ namespace geode
         : public CrossSectionInput
     {
     public:
-        OpenGeodeCrossSectionInput( std::string_view filename );
+        explicit OpenGeodeCrossSectionInput( std::string_view filename );
 
         static std::string_view extension()
         {

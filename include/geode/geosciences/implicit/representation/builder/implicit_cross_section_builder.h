@@ -44,7 +44,8 @@ namespace geode
         : public CrossSectionBuilder
     {
     public:
-        ImplicitCrossSectionBuilder( ImplicitCrossSection& implicit_section );
+        explicit ImplicitCrossSectionBuilder(
+            ImplicitCrossSection& implicit_section );
 
         ModelCopyMapping copy( const ImplicitCrossSection& implicit_model );
 

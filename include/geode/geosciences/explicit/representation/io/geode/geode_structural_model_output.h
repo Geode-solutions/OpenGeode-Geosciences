@@ -40,7 +40,7 @@ namespace geode
         final : public StructuralModelOutput
     {
     public:
-        OpenGeodeStructuralModelOutput( std::string_view filename );
+        explicit OpenGeodeStructuralModelOutput( std::string_view filename );
 
         static std::string_view extension()
         {

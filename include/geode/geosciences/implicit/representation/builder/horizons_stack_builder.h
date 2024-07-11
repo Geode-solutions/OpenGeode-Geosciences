@@ -65,7 +65,8 @@ namespace geode
         };
 
     public:
-        HorizonsStackBuilder( HorizonsStack< dimension >& horizons_stack );
+        explicit HorizonsStackBuilder(
+            HorizonsStack< dimension >& horizons_stack );
         HorizonsStackBuilder( HorizonsStackBuilder< dimension >&& ) = default;
 
         ModelCopyMapping copy(

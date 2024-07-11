@@ -208,7 +208,7 @@ namespace geode
                         TetrahedralSolidPointFunction< 3, 2 >::create(
                             block.mesh< TetrahedralSolid3D >(),
                             stratigraphic_location_attribute_name,
-                            { { 0, 0 } } ) );
+                            Point2D{ { 0, 0 } } ) );
                 }
                 else
                 {
@@ -334,7 +334,7 @@ namespace geode
                     }
                     box_vector[p] = std::move( bbox );
                 } );
-            return { box_vector };
+            return AABBTree3D{ std::move( box_vector ) };
         }
 
         void build_model_stratigraphic_distance_to_mesh_elements(

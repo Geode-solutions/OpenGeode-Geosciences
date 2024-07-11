@@ -56,7 +56,7 @@ namespace geode
         virtual ~StructuralModelOutput() = default;
 
     protected:
-        StructuralModelOutput( std::string_view filename )
+        explicit StructuralModelOutput( std::string_view filename )
             : Output< StructuralModel >{ filename }
         {
         }

@@ -45,7 +45,7 @@ namespace geode
             const uuid& id, std::string_view name );
 
     protected:
-        StratigraphicUnitsBuilder(
+        explicit StratigraphicUnitsBuilder(
             StratigraphicUnits< dimension >& stratigraphic_units )
             : stratigraphic_units_( stratigraphic_units )
         {

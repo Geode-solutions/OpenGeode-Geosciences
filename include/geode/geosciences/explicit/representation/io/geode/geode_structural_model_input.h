@@ -32,7 +32,7 @@ namespace geode
         : public StructuralModelInput
     {
     public:
-        OpenGeodeStructuralModelInput( std::string_view filename );
+        explicit OpenGeodeStructuralModelInput( std::string_view filename );
 
         static std::string_view extension()
         {

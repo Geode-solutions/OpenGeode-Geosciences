@@ -83,23 +83,24 @@ void test_model(
 {
     const auto& block = model.block( block1_id );
     const auto& strati_pt1 = model.stratigraphic_coordinates( block, 59 );
-    OPENGEODE_EXCEPTION( strati_pt1.stratigraphic_coordinates().inexact_equal(
-                             { { -0.213112, -0.188148, 0.472047 } } ),
+    OPENGEODE_EXCEPTION(
+        strati_pt1.stratigraphic_coordinates().inexact_equal(
+            geode::Point3D{ { -0.213112, -0.188148, 0.472047 } } ),
         "[Test] Wrong stratigraphic coordinates for point 59 at position [",
         model.block( block1_id ).mesh().point( 59 ).string(),
         "] with stratigraphic coordinates [", strati_pt1.string(), "]." );
     const geode::Point3D query2{ { 1, 0, 1 } };
     const auto strati_pt2 = model.stratigraphic_coordinates( block, query2 );
     OPENGEODE_EXCEPTION( strati_pt2->stratigraphic_coordinates().inexact_equal(
-                             { { 0.386272, -0.109477, 0. } } ),
+                             geode::Point3D{ { 0.386272, -0.109477, 0. } } ),
         "[Test] Wrong stratigraphic coordinates for point at position [",
         query2.string(), "] with stratigraphic coordinates [",
         strati_pt2->string(), "]." );
     const geode::Point3D query3{ { 0.480373621, 0.5420120955, 0.6765933633 } };
     const auto strati_pt3 = model.stratigraphic_coordinates( block, query3 );
     OPENGEODE_EXCEPTION(
-        strati_pt3->stratigraphic_coordinates().inexact_equal(
-            { { 0.03380647978, -0.002759957825, 0.3080064376 } } ),
+        strati_pt3->stratigraphic_coordinates().inexact_equal( geode::Point3D{
+            { 0.03380647978, -0.002759957825, 0.3080064376 } } ),
         "[Test] Wrong stratigraphic coordinates for point at position [",
         query3.string(), "] with stratigraphic coordinates [",
         strati_pt3->string(), "]." );
@@ -127,10 +128,10 @@ void test_model(
 
     const auto stratigraphic_bbox = model.stratigraphic_bounding_box();
     OPENGEODE_EXCEPTION( stratigraphic_bbox.min().inexact_equal(
-                             { { -0.8098155, -0.5378192, 0 } } ),
+                             geode::Point3D{ { -0.8098155, -0.5378192, 0 } } ),
         "[Test] Wrong stratigraphic coordinates bounding box minimum." );
     OPENGEODE_EXCEPTION( stratigraphic_bbox.max().inexact_equal(
-                             { { 0.5643514, 0.6411656, 1 } } ),
+                             geode::Point3D{ { 0.5643514, 0.6411656, 1 } } ),
         "[Test] Wrong stratigraphic coordinates bounding box minimum." );
 
     for( const auto& horizon : model.horizons() )

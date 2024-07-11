@@ -36,7 +36,7 @@ namespace geode
     class opengeode_geosciences_implicit_api StratigraphicRelationshipsBuilder
     {
     public:
-        StratigraphicRelationshipsBuilder(
+        explicit StratigraphicRelationshipsBuilder(
             StratigraphicRelationships& relationships );
 
         /*!

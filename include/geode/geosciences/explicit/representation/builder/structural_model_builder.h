@@ -58,7 +58,7 @@ namespace geode
         OPENGEODE_DISABLE_COPY_AND_MOVE( StructuralModelBuilder );
 
     public:
-        StructuralModelBuilder( StructuralModel& structural_model );
+        explicit StructuralModelBuilder( StructuralModel& structural_model );
 
         ModelCopyMapping copy( const StructuralModel& structural_model );
 

@@ -23,6 +23,8 @@
 
 #pragma once
 
+#include <optional>
+
 #include <geode/basic/pimpl.h>
 
 #include <geode/geosciences/explicit/representation/core/cross_section.h>
