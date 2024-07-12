@@ -23,9 +23,10 @@
 
 #include <geode/geosciences/implicit/representation/io/geode/geode_implicit_cross_section_input.h>
 
-#include <async++.h>
+#include <filesystem>
+#include <fstream>
 
-#include <ghc/filesystem.hpp>
+#include <async++.h>
 
 #include <geode/basic/uuid.h>
 #include <geode/basic/zip_file.h>
@@ -58,7 +59,7 @@ namespace geode
         const auto impl_filename = absl::StrCat(
             zip_reader.directory(), "/implicit_section_impl.og_ixsctn" );
         OPENGEODE_EXCEPTION(
-            ghc::filesystem::exists( to_string( impl_filename ) ),
+            std::filesystem::exists( to_string( impl_filename ) ),
             "[OpenGeodeImplicitCrossSectionInput::read] Error in reading "
             "files: Could not find stored impl." );
         std::ifstream file{ impl_filename, std::ifstream::binary };
