@@ -24,6 +24,7 @@
 #include <geode/geosciences/implicit/representation/io/geode/geode_implicit_structural_model_output.h>
 
 #include <filesystem>
+#include <fstream>
 #include <string>
 #include <vector>
 

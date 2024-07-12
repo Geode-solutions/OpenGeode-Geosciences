@@ -24,6 +24,7 @@
 #include <geode/geosciences/implicit/representation/io/geode/geode_implicit_cross_section_input.h>
 
 #include <filesystem>
+#include <fstream>
 
 #include <async++.h>
 
