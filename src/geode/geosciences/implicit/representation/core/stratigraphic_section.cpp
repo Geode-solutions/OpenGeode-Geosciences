@@ -216,13 +216,13 @@ namespace geode
                     "with uuid '",
                     surface.id().string(), "'." );
                 if( !surface.mesh().vertex_attribute_manager().attribute_exists(
-                        stratigraphic_location_attribute_name ) )
+                        STRATIGRAPHIC_LOCATION_ATTRIBUTE_NAME ) )
                 {
                     stratigraphic_location_attributes_.try_emplace(
                         surface.id(),
                         TriangulatedSurfacePointFunction< 2, 1 >::create(
                             surface.mesh< TriangulatedSurface2D >(),
-                            stratigraphic_location_attribute_name,
+                            STRATIGRAPHIC_LOCATION_ATTRIBUTE_NAME,
                             Point1D{ { 0 } } ) );
                 }
                 else
@@ -231,7 +231,7 @@ namespace geode
                         surface.id(),
                         TriangulatedSurfacePointFunction< 2, 1 >::find(
                             surface.mesh< TriangulatedSurface2D >(),
-                            stratigraphic_location_attribute_name ) );
+                            STRATIGRAPHIC_LOCATION_ATTRIBUTE_NAME ) );
                 }
             }
         }
@@ -354,7 +354,7 @@ namespace geode
             auto associated_polygon_edge_attribute =
                 strati_line->edge_attribute_manager()
                     .find_or_create_attribute< VariableAttribute, PolygonEdge >(
-                        stratigraphic_line_polygon_edge_attribute_name, {} );
+                        STRATIGRAPHIC_LINE_POLYGON_EDGE_ATTRIBUTE_NAME, {} );
             const auto& line_mesh = line.mesh();
             std::vector< bool > vertices_checked(
                 line_mesh.nb_vertices(), false );
@@ -410,7 +410,7 @@ namespace geode
                         ->edge_attribute_manager()
                         .find_or_create_attribute< VariableAttribute,
                             PolygonEdge >(
-                            stratigraphic_line_polygon_edge_attribute_name,
+                            STRATIGRAPHIC_LINE_POLYGON_EDGE_ATTRIBUTE_NAME,
                             {} );
             }
             std::vector< bool > vertices_checked(

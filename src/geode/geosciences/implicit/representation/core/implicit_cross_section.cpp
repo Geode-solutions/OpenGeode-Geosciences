@@ -223,19 +223,19 @@ namespace geode
                     "with uuid '",
                     surface.id().string(), "'." );
                 if( !surface.mesh().vertex_attribute_manager().attribute_exists(
-                        implicit_attribute_name ) )
+                        IMPLICIT_ATTRIBUTE_NAME ) )
                 {
                     implicit_attributes_.try_emplace( surface.id(),
                         TriangulatedSurfaceScalarFunction2D::create(
                             surface.mesh< TriangulatedSurface2D >(),
-                            implicit_attribute_name, 0 ) );
+                            IMPLICIT_ATTRIBUTE_NAME, 0 ) );
                 }
                 else
                 {
                     implicit_attributes_.try_emplace( surface.id(),
                         TriangulatedSurfaceScalarFunction2D::find(
                             surface.mesh< TriangulatedSurface2D >(),
-                            implicit_attribute_name ) );
+                            IMPLICIT_ATTRIBUTE_NAME ) );
                 }
             }
         }

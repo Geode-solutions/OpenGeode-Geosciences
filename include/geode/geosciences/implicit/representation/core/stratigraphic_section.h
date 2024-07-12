@@ -55,9 +55,9 @@ namespace geode
         PASSKEY( StratigraphicSectionBuilder, StratigraphicSectionBuilderKey );
 
     public:
-        static constexpr auto stratigraphic_location_attribute_name =
+        static constexpr auto STRATIGRAPHIC_LOCATION_ATTRIBUTE_NAME =
             "geode_stratigraphic_location";
-        static constexpr auto stratigraphic_line_polygon_edge_attribute_name =
+        static constexpr auto STRATIGRAPHIC_LINE_POLYGON_EDGE_ATTRIBUTE_NAME =
             "geode_associated_surface_polygon_edge";
 
         using stratigraphic_location_type = Point1D;

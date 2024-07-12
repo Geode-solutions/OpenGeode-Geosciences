@@ -41,7 +41,7 @@
 void test_bitsery()
 {
     auto surf = geode::load_triangulated_surface< 2 >(
-        absl::StrCat( geode::data_path, "3patches.og_tsf2d" ) );
+        absl::StrCat( geode::DATA_PATH, "3patches.og_tsf2d" ) );
     auto builder = geode::TriangulatedSurfaceBuilder2D::create( *surf );
     geode::assign_surface_mesh_geographic_coordinate_system_info(
         *surf, *builder, "test", { "EPSG", "2005", "test" } );
@@ -57,26 +57,26 @@ void test_crs()
     OPENGEODE_EXCEPTION(
         infos.size() == 13181, "[Test] Wrong number of supported CRS" );
 
-    constexpr geode::index_t nb_points{ 4 };
+    constexpr geode::index_t NB_POINTS{ 4 };
     geode::AttributeManager manager;
-    manager.resize( nb_points );
+    manager.resize( NB_POINTS );
 
     geode::GeographicCoordinateSystem3D lambert1{ manager,
         { "EPSG", "27571", "I" } };
-    for( const auto p : geode::TRange< double >{ nb_points } )
+    for( const auto p : geode::TRange< double >{ NB_POINTS } )
     {
         lambert1.set_point( p, geode::Point3D{ { p, p, p } } );
     }
     geode::GeographicCoordinateSystem3D lambert2{ manager,
         { "EPSG", "27572", "II" } };
     lambert2.import_coordinates( lambert1 );
-    std::array< geode::Point3D, nb_points > answers{
+    std::array< geode::Point3D, NB_POINTS > answers{
         geode::Point3D{ { 4273.64251995017, 1302920.55457198, 0 } },
         geode::Point3D{ { 4274.63159306906, 1302921.55102308, 1 } },
         geode::Point3D{ { 4275.62066620018, 1302922.54747419, 2 } },
         geode::Point3D{ { 4276.60973934352, 1302923.5439253, 3 } },
     };
-    for( const auto p : geode::Range{ nb_points } )
+    for( const auto p : geode::Range{ NB_POINTS } )
     {
         OPENGEODE_EXCEPTION( lambert2.point( p ).inexact_equal( answers[p] ),
             "[Test] Wrong coordinate conversion" );
