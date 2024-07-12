@@ -41,12 +41,12 @@ namespace geode
         : public ImplicitStructuralModelOutput
     {
     public:
-        OpenGeodeImplicitStructuralModelOutput( absl::string_view filename )
+        OpenGeodeImplicitStructuralModelOutput( std::string_view filename )
             : ImplicitStructuralModelOutput( filename )
         {
         }
 
-        static absl::string_view extension()
+        static std::string_view extension()
         {
             return ImplicitStructuralModel::native_extension_static();
         }
@@ -55,7 +55,7 @@ namespace geode
 
         void save_implicit_model_files(
             const ImplicitStructuralModel& implicit_model,
-            absl::string_view directory ) const;
+            std::string_view directory ) const;
 
         std::vector< std::string > write(
             const ImplicitStructuralModel& implicit_model ) const final;

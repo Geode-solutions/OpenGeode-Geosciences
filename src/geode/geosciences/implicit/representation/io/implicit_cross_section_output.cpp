@@ -24,9 +24,8 @@
 #include <geode/geosciences/implicit/representation/io/implicit_cross_section_output.h>
 
 #include <string>
+#include <string_view>
 #include <vector>
-
-#include <absl/strings/string_view.h>
 
 #include <geode/basic/detail/geode_output_impl.h>
 #include <geode/basic/io.h>
@@ -40,7 +39,7 @@
 namespace geode
 {
     std::vector< std::string > save_implicit_cross_section(
-        const ImplicitCrossSection& section, absl::string_view filename )
+        const ImplicitCrossSection& section, std::string_view filename )
     {
         constexpr auto TYPE = "ImplicitCrossSection";
         try
@@ -64,7 +63,7 @@ namespace geode
     }
 
     bool is_implicit_cross_section_saveable(
-        const ImplicitCrossSection& section, absl::string_view filename )
+        const ImplicitCrossSection& section, std::string_view filename )
     {
         const auto output = detail::geode_object_output_writer<
             ImplicitCrossSectionOutputFactory >( filename );

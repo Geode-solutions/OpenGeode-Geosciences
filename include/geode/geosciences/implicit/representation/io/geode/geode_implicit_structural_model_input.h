@@ -33,18 +33,18 @@ namespace geode
         : public ImplicitStructuralModelInput
     {
     public:
-        OpenGeodeImplicitStructuralModelInput( absl::string_view filename )
+        OpenGeodeImplicitStructuralModelInput( std::string_view filename )
             : ImplicitStructuralModelInput( filename )
         {
         }
 
-        static absl::string_view extension()
+        static std::string_view extension()
         {
             return ImplicitStructuralModel::native_extension_static();
         }
 
         void load_implicit_structural_model_files(
-            ImplicitStructuralModel& model, absl::string_view directory );
+            ImplicitStructuralModel& model, std::string_view directory );
 
         ImplicitStructuralModel read() final;
     };

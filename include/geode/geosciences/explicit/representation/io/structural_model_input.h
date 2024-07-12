@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include <absl/strings/string_view.h>
+#include <string_view>
 
 #include <geode/basic/factory.h>
 
@@ -45,7 +45,7 @@ namespace geode
      * @param[in] filename Path to the file to load.
      */
     StructuralModel opengeode_geosciences_explicit_api load_structural_model(
-        absl::string_view filename );
+        std::string_view filename );
 
     class StructuralModelInput : public Input< StructuralModel >
     {
@@ -55,18 +55,18 @@ namespace geode
         using typename Base::MissingFiles;
 
     protected:
-        explicit StructuralModelInput( absl::string_view filename )
+        explicit StructuralModelInput( std::string_view filename )
             : Base{ filename }
         {
         }
     };
 
     StructuralModelInput::MissingFiles opengeode_geosciences_explicit_api
-        check_structural_model_missing_files( absl::string_view filename );
+        check_structural_model_missing_files( std::string_view filename );
 
     bool opengeode_geosciences_explicit_api is_structural_model_loadable(
-        absl::string_view filename );
+        std::string_view filename );
 
     using StructuralModelInputFactory =
-        Factory< std::string, StructuralModelInput, absl::string_view >;
+        Factory< std::string, StructuralModelInput, std::string_view >;
 } // namespace geode

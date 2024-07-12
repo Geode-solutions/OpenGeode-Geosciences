@@ -102,8 +102,8 @@ namespace geode
                     .at( surface.id() )( create_aabb_tree, surface.mesh() )
                     .closest_element_box( point,
                         surface_distance_to_triangles_.at( surface.id() ) ) );
-            if( std::get< 0 >( surface_distance_to_triangles_.at(
-                    surface.id() )( point, closest_triangle ) )
+            if( surface_distance_to_triangles_.at( surface.id() )(
+                    point, closest_triangle )
                 < GLOBAL_EPSILON )
             {
                 return closest_triangle;

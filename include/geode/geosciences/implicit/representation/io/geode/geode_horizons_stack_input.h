@@ -33,19 +33,19 @@ namespace geode
         : public HorizonsStackInput< dimension >
     {
     public:
-        OpenGeodeHorizonsStackInput( absl::string_view filename )
+        OpenGeodeHorizonsStackInput( std::string_view filename )
             : HorizonsStackInput< dimension >( filename )
         {
         }
 
-        static absl::string_view extension()
+        static std::string_view extension()
         {
             return HorizonsStack< dimension >::native_extension_static();
         }
 
         void load_horizons_stack_files(
             HorizonsStack< dimension >& horizons_stack,
-            absl::string_view directory );
+            std::string_view directory );
 
         HorizonsStack< dimension > read() final;
     };

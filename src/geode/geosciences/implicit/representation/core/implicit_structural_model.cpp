@@ -102,8 +102,8 @@ namespace geode
                     .at( block.id() )( create_aabb_tree, block.mesh() )
                     .closest_element_box(
                         point, block_distance_to_tetras_.at( block.id() ) ) );
-            if( std::get< 0 >( block_distance_to_tetras_.at( block.id() )(
-                    point, closest_tetrahedron ) )
+            if( block_distance_to_tetras_.at( block.id() )(
+                    point, closest_tetrahedron )
                 < GLOBAL_EPSILON )
             {
                 return closest_tetrahedron;

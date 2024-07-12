@@ -245,7 +245,7 @@ namespace geode
             initialize_relation_attributes();
         }
 
-        void save( absl::string_view directory ) const
+        void save( std::string_view directory ) const
         {
             const auto filename =
                 absl::StrCat( directory, "/stratigraphic_relationships" );
@@ -260,7 +260,7 @@ namespace geode
                 "[Relationships::save] Error while writing file: ", filename );
         }
 
-        void load( absl::string_view directory )
+        void load( std::string_view directory )
         {
             const auto filename =
                 absl::StrCat( directory, "/stratigraphic_relationships" );
@@ -431,7 +431,7 @@ namespace geode
     }
 
     void StratigraphicRelationships::save_stratigraphic_relationships(
-        absl::string_view directory ) const
+        std::string_view directory ) const
     {
         impl_->save( directory );
     }
@@ -445,7 +445,7 @@ namespace geode
     }
 
     void StratigraphicRelationships::load_stratigraphic_relationships(
-        absl::string_view directory, StratigraphicRelationshipsBuilderKey )
+        std::string_view directory, StratigraphicRelationshipsBuilderKey )
     {
         return impl_->load( directory );
     }

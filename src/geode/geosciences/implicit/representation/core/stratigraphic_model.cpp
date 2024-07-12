@@ -155,8 +155,8 @@ namespace geode
                     stratigraphic_point.stratigraphic_coordinates(),
                     block_stratigraphic_distance_to_tetras_.at(
                         block.id() ) ) );
-            if( std::get< 0 >( block_stratigraphic_distance_to_tetras_.at(
-                    block.id() )( stratigraphic_point, closest_tetrahedron ) )
+            if( block_stratigraphic_distance_to_tetras_.at( block.id() )(
+                    stratigraphic_point, closest_tetrahedron )
                 < GLOBAL_EPSILON )
             {
                 return closest_tetrahedron;
@@ -262,7 +262,7 @@ namespace geode
                 const Block3D& block,
                 index_t tetrahedron_id )
                 : indices_{ block.mesh().polyhedron_vertices(
-                    tetrahedron_id ) },
+                      tetrahedron_id ) },
                   positive_tetra_{
                       model.stratigraphic_coordinates( block, indices_[0] )
                           .stratigraphic_coordinates(),
@@ -297,15 +297,15 @@ namespace geode
             {
             }
 
-            std::tuple< double, Point3D > operator()(
+            double operator()(
                 const StratigraphicPoint3D& query, index_t cur_box ) const
             {
                 auto positive_tetra =
                     PositiveStratigraphicTetrahedron{ model_, block_, cur_box };
-                auto dist = point_tetrahedron_distance(
+                auto output = point_tetrahedron_distance(
                     query.stratigraphic_coordinates(),
                     positive_tetra.positive_tetra_ );
-                return dist;
+                return std::get< 0 >( output );
             }
 
         private:
