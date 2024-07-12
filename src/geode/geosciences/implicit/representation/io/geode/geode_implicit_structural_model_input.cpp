@@ -42,7 +42,7 @@ namespace geode
 {
     void OpenGeodeImplicitStructuralModelInput::
         load_implicit_structural_model_files(
-            ImplicitStructuralModel& model, absl::string_view directory )
+            ImplicitStructuralModel& model, std::string_view directory )
     {
         ImplicitStructuralModelBuilder builder{ model };
         builder.set_horizons_stack( std::move( load_horizons_stack< 3 >(

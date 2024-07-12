@@ -40,12 +40,12 @@ namespace geode
         final : public ImplicitCrossSectionOutput
     {
     public:
-        OpenGeodeImplicitCrossSectionOutput( absl::string_view filename )
+        OpenGeodeImplicitCrossSectionOutput( std::string_view filename )
             : ImplicitCrossSectionOutput( filename )
         {
         }
 
-        static absl::string_view extension()
+        static std::string_view extension()
         {
             return ImplicitCrossSection::native_extension_static();
         }
@@ -54,7 +54,7 @@ namespace geode
 
         void save_implicit_section_files(
             const ImplicitCrossSection& implicit_section,
-            absl::string_view directory ) const;
+            std::string_view directory ) const;
 
         std::vector< std::string > write(
             const ImplicitCrossSection& implicit_section ) const final;

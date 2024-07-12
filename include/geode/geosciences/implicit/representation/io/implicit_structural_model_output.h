@@ -24,9 +24,8 @@
 #pragma once
 
 #include <string>
+#include <string_view>
 #include <vector>
-
-#include <absl/strings/string_view.h>
 
 #include <geode/basic/factory.h>
 #include <geode/basic/output.h>
@@ -50,7 +49,7 @@ namespace geode
     std::vector< std::string >
         opengeode_geosciences_implicit_api save_implicit_structural_model(
             const ImplicitStructuralModel& implicit_model,
-            absl::string_view filename );
+            std::string_view filename );
 
     class opengeode_geosciences_implicit_api ImplicitStructuralModelOutput
         : public Output< ImplicitStructuralModel >
@@ -59,7 +58,7 @@ namespace geode
         virtual ~ImplicitStructuralModelOutput() = default;
 
     protected:
-        ImplicitStructuralModelOutput( absl::string_view filename )
+        ImplicitStructuralModelOutput( std::string_view filename )
             : Output< ImplicitStructuralModel >{ filename }
         {
         }
@@ -68,9 +67,8 @@ namespace geode
     bool opengeode_geosciences_implicit_api
         is_implicit_structural_model_saveable(
             const ImplicitStructuralModel& implicit_model,
-            absl::string_view filename );
+            std::string_view filename );
 
-    using ImplicitStructuralModelOutputFactory = Factory< std::string,
-        ImplicitStructuralModelOutput,
-        absl::string_view >;
+    using ImplicitStructuralModelOutputFactory =
+        Factory< std::string, ImplicitStructuralModelOutput, std::string_view >;
 } // namespace geode

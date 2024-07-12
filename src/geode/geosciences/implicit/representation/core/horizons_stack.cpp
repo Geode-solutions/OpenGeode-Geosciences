@@ -29,9 +29,7 @@
 namespace geode
 {
     template < index_t dimension >
-    HorizonsStack< dimension >::HorizonsStack()
-    {
-    }
+    HorizonsStack< dimension >::HorizonsStack() = default;
 
     template < index_t dimension >
     HorizonsStack< dimension >::HorizonsStack(

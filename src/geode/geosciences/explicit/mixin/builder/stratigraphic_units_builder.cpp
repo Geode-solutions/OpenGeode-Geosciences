@@ -51,14 +51,14 @@ namespace geode
 
     template < index_t dimension >
     void StratigraphicUnitsBuilder< dimension >::load_stratigraphic_units(
-        absl::string_view directory )
+        std::string_view directory )
     {
         return stratigraphic_units_.load_stratigraphic_units( directory );
     }
 
     template < index_t dimension >
     void StratigraphicUnitsBuilder< dimension >::set_stratigraphic_unit_name(
-        const uuid& id, absl::string_view name )
+        const uuid& id, std::string_view name )
     {
         stratigraphic_units_.modifiable_stratigraphic_unit( id )
             .set_stratigraphic_unit_name(

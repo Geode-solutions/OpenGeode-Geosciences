@@ -24,9 +24,8 @@
 #include <geode/geosciences/explicit/representation/io/structural_model_output.h>
 
 #include <string>
+#include <string_view>
 #include <vector>
-
-#include <absl/strings/string_view.h>
 
 #include <geode/basic/detail/geode_output_impl.h>
 #include <geode/basic/io.h>
@@ -39,7 +38,7 @@
 namespace geode
 {
     std::vector< std::string > save_structural_model(
-        const StructuralModel& structural_model, absl::string_view filename )
+        const StructuralModel& structural_model, std::string_view filename )
     {
         constexpr auto TYPE = "StructuralModel";
         try
@@ -60,7 +59,7 @@ namespace geode
     }
 
     bool is_structural_model_saveable(
-        const StructuralModel& structural_model, absl::string_view filename )
+        const StructuralModel& structural_model, std::string_view filename )
     {
         const auto output =
             detail::geode_object_output_writer< StructuralModelOutputFactory >(

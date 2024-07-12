@@ -155,8 +155,8 @@ namespace geode
                         stratigraphic_point.stratigraphic_coordinates(),
                         surface_stratigraphic_distance_to_triangles_.at(
                             surface.id() ) ) );
-            if( std::get< 0 >( surface_stratigraphic_distance_to_triangles_.at(
-                    surface.id() )( stratigraphic_point, closest_triangle ) )
+            if( surface_stratigraphic_distance_to_triangles_.at( surface.id() )(
+                    stratigraphic_point, closest_triangle )
                 < global_epsilon )
             {
                 return closest_triangle;
@@ -295,13 +295,13 @@ namespace geode
             {
             }
 
-            std::tuple< double, Point2D > operator()(
+            double operator()(
                 const StratigraphicPoint2D& query, index_t cur_box ) const
             {
-                return point_triangle_distance< 2 >(
+                return std::get< 0 >( point_triangle_distance< 2 >(
                     query.stratigraphic_coordinates(),
                     PositiveStratigraphicTriangle{ model_, surface_, cur_box }
-                        .positive_triangle_ );
+                        .positive_triangle_ ) );
             }
 
         private:

@@ -89,7 +89,7 @@ namespace geode
 
         void set_type( FAULT_TYPE type, FaultsBuilderKey );
 
-        void set_fault_name( absl::string_view name, FaultsBuilderKey )
+        void set_fault_name( std::string_view name, FaultsBuilderKey )
         {
             this->set_name( name );
         }

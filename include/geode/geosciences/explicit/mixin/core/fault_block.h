@@ -71,7 +71,7 @@ namespace geode
         FaultBlock( FaultBlocksKey ) : FaultBlock(){};
 
         void set_fault_block_name(
-            absl::string_view name, FaultBlocksBuilderKey )
+            std::string_view name, FaultBlocksBuilderKey )
         {
             this->set_name( name );
         }

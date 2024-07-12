@@ -23,8 +23,9 @@
 
 #include <geode/geosciences/explicit/representation/io/structural_model_input.h>
 
+#include <string_view>
+
 #include <absl/strings/str_cat.h>
-#include <absl/strings/string_view.h>
 
 #include <geode/basic/detail/geode_input_impl.h>
 #include <geode/basic/io.h>
@@ -36,7 +37,7 @@
 
 namespace geode
 {
-    StructuralModel load_structural_model( absl::string_view filename )
+    StructuralModel load_structural_model( std::string_view filename )
     {
         constexpr auto TYPE = "StructuralModel";
         try
@@ -79,7 +80,7 @@ namespace geode
     }
 
     typename StructuralModelInput::MissingFiles
-        check_structural_model_missing_files( absl::string_view filename )
+        check_structural_model_missing_files( std::string_view filename )
     {
         const auto input =
             detail::geode_object_input_reader< StructuralModelInputFactory >(
@@ -87,7 +88,7 @@ namespace geode
         return input->check_missing_files();
     }
 
-    bool is_structural_model_loadable( absl::string_view filename )
+    bool is_structural_model_loadable( std::string_view filename )
     {
         const auto input =
             detail::geode_object_input_reader< StructuralModelInputFactory >(

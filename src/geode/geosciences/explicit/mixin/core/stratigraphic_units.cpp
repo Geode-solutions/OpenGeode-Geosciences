@@ -84,7 +84,7 @@ namespace geode
 
     template < index_t dimension >
     void StratigraphicUnits< dimension >::save_stratigraphic_units(
-        absl::string_view directory ) const
+        std::string_view directory ) const
     {
         impl_->save_components(
             absl::StrCat( directory, "/stratigraphic_units" ) );
@@ -92,7 +92,7 @@ namespace geode
 
     template < index_t dimension >
     void StratigraphicUnits< dimension >::load_stratigraphic_units(
-        absl::string_view directory )
+        std::string_view directory )
     {
         impl_->load_components(
             absl::StrCat( directory, "/stratigraphic_units" ) );

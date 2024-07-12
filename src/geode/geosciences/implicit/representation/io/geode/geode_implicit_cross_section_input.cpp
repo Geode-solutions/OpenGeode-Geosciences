@@ -41,7 +41,7 @@
 namespace geode
 {
     void OpenGeodeImplicitCrossSectionInput::load_implicit_cross_section_files(
-        ImplicitCrossSection& section, absl::string_view directory )
+        ImplicitCrossSection& section, std::string_view directory )
     {
         ImplicitCrossSectionBuilder builder{ section };
         builder.set_horizons_stack( load_horizons_stack< 2 >(
