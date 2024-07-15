@@ -104,7 +104,7 @@ namespace geode
                         surface_distance_to_triangles_.at( surface.id() ) ) );
             if( surface_distance_to_triangles_.at( surface.id() )(
                     point, closest_triangle )
-                < global_epsilon )
+                < GLOBAL_EPSILON )
             {
                 return closest_triangle;
             }

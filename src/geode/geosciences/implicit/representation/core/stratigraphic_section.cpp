@@ -157,7 +157,7 @@ namespace geode
                             surface.id() ) ) );
             if( surface_stratigraphic_distance_to_triangles_.at( surface.id() )(
                     stratigraphic_point, closest_triangle )
-                < global_epsilon )
+                < GLOBAL_EPSILON )
             {
                 return closest_triangle;
             }

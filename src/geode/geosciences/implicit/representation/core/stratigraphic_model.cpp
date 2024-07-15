@@ -157,7 +157,7 @@ namespace geode
                         block.id() ) ) );
             if( block_stratigraphic_distance_to_tetras_.at( block.id() )(
                     stratigraphic_point, closest_tetrahedron )
-                < global_epsilon )
+                < GLOBAL_EPSILON )
             {
                 return closest_tetrahedron;
             }
@@ -262,7 +262,7 @@ namespace geode
                 const Block3D& block,
                 index_t tetrahedron_id )
                 : indices_{ block.mesh().polyhedron_vertices(
-                    tetrahedron_id ) },
+                      tetrahedron_id ) },
                   positive_tetra_{
                       model.stratigraphic_coordinates( block, indices_[0] )
                           .stratigraphic_coordinates(),

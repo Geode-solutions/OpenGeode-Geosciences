@@ -104,7 +104,7 @@ namespace geode
                         point, block_distance_to_tetras_.at( block.id() ) ) );
             if( block_distance_to_tetras_.at( block.id() )(
                     point, closest_tetrahedron )
-                < global_epsilon )
+                < GLOBAL_EPSILON )
             {
                 return closest_tetrahedron;
             }
