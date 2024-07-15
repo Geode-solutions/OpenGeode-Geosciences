@@ -52,10 +52,10 @@ namespace geode
         PASSKEY( StratigraphicModelBuilder, StratigraphicModelBuilderKey );
 
     public:
-        static constexpr auto stratigraphic_location_attribute_name =
+        static constexpr auto STRATIGRAPHIC_LOCATION_ATTRIBUTE_NAME =
             "geode_stratigraphic_location";
         static constexpr auto
-            stratigraphic_surface_polyhedron_facet_attribute_name =
+            STRATIGRAPHIC_SURFACE_POLYHEDRON_FACET_ATTRIBUTE_NAME =
                 "geode_associated_block_polyhedron_facet";
         using stratigraphic_location_type = Point2D;
         StratigraphicModel();

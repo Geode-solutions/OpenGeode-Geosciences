@@ -52,7 +52,7 @@ namespace geode
         PASSKEY( ImplicitCrossSectionBuilder, ImplicitCrossSectionBuilderKey );
 
     public:
-        static constexpr auto implicit_attribute_name =
+        static constexpr auto IMPLICIT_ATTRIBUTE_NAME =
             "geode_implicit_attribute";
         using implicit_attribute_type = double;
         ImplicitCrossSection();

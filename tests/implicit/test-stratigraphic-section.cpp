@@ -50,7 +50,7 @@ geode::StratigraphicSection import_section_with_stratigraphy()
 {
     geode::StratigraphicSection implicit_model{ geode::CrossSection(
         geode::load_section(
-            absl::StrCat( geode::data_path, "test_section.og_sctn" ) ) ) };
+            absl::StrCat( geode::DATA_PATH, "test_section.og_sctn" ) ) ) };
     geode::StratigraphicSectionBuilder model_builder{ implicit_model };
     for( const auto& surface : implicit_model.surfaces() )
     {
