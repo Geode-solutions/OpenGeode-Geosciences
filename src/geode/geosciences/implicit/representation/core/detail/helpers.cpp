@@ -207,7 +207,7 @@ namespace geode
                     surface_mesh.vertex_attribute_manager()
                         .find_or_create_attribute< VariableAttribute,
                             ImplicitCrossSection::implicit_attribute_type >(
-                            ImplicitCrossSection::implicit_attribute_name, 0,
+                            ImplicitCrossSection::IMPLICIT_ATTRIBUTE_NAME, 0,
                             { false, true } );
                 for( const auto vertex_id :
                     Range{ surface_mesh.nb_vertices() } )
@@ -236,7 +236,7 @@ namespace geode
                     block_mesh.vertex_attribute_manager()
                         .find_or_create_attribute< VariableAttribute,
                             ImplicitStructuralModel::implicit_attribute_type >(
-                            ImplicitStructuralModel::implicit_attribute_name, 0,
+                            ImplicitStructuralModel::IMPLICIT_ATTRIBUTE_NAME, 0,
                             { false, true } );
                 for( const auto vertex_id : Range{ block_mesh.nb_vertices() } )
                 {
@@ -265,7 +265,7 @@ namespace geode
                         .find_or_create_attribute< VariableAttribute,
                             StratigraphicModel::stratigraphic_location_type >(
                             StratigraphicModel::
-                                stratigraphic_location_attribute_name,
+                                STRATIGRAPHIC_LOCATION_ATTRIBUTE_NAME,
                             Point2D{ { 0, 0 } }, { false, true } );
                 for( const auto vertex_id : Range{ block_mesh.nb_vertices() } )
                 {

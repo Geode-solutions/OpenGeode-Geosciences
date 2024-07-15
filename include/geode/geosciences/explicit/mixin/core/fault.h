@@ -53,12 +53,12 @@ namespace geode
         enum struct FAULT_TYPE
         {
             /// Default value - No fault type defined
-            NO_TYPE,
-            NORMAL,
-            REVERSE,
-            STRIKE_SLIP,
-            LISTRIC,
-            DECOLLEMENT
+            no_type,
+            normal,
+            reverse,
+            strike_slip,
+            listric,
+            decollement
         };
 
     public:

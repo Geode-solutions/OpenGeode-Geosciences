@@ -35,13 +35,13 @@
                                                                                \
     pybind11::enum_< Horizon##dimension##D::HORIZON_TYPE >(                    \
         horizon##dimension##D, "HORIZON_TYPE" )                                \
-        .value( "NO_TYPE", Horizon##dimension##D::HORIZON_TYPE::NO_TYPE )      \
-        .value( "CONFORMAL", Horizon##dimension##D::HORIZON_TYPE::CONFORMAL )  \
+        .value( "NO_TYPE", Horizon##dimension##D::HORIZON_TYPE::no_type )      \
+        .value( "CONFORMAL", Horizon##dimension##D::HORIZON_TYPE::conformal )  \
         .value( "NON_CONFORMAL",                                               \
-            Horizon##dimension##D::HORIZON_TYPE::NON_CONFORMAL )               \
+            Horizon##dimension##D::HORIZON_TYPE::non_conformal )               \
         .value(                                                                \
-            "TOPOGRAPHY", Horizon##dimension##D::HORIZON_TYPE::TOPOGRAPHY )    \
-        .value( "INTRUSION", Horizon##dimension##D::HORIZON_TYPE::INTRUSION )
+            "TOPOGRAPHY", Horizon##dimension##D::HORIZON_TYPE::topography )    \
+        .value( "INTRUSION", Horizon##dimension##D::HORIZON_TYPE::intrusion )
 
 namespace geode
 {

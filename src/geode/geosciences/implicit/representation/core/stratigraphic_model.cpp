@@ -157,7 +157,7 @@ namespace geode
                         block.id() ) ) );
             if( block_stratigraphic_distance_to_tetras_.at( block.id() )(
                     stratigraphic_point, closest_tetrahedron )
-                < global_epsilon )
+                < GLOBAL_EPSILON )
             {
                 return closest_tetrahedron;
             }
@@ -202,12 +202,12 @@ namespace geode
                     "with uuid '",
                     block.id().string(), "'." );
                 if( !block.mesh().vertex_attribute_manager().attribute_exists(
-                        stratigraphic_location_attribute_name ) )
+                        STRATIGRAPHIC_LOCATION_ATTRIBUTE_NAME ) )
                 {
                     stratigraphic_location_attributes_.try_emplace( block.id(),
                         TetrahedralSolidPointFunction< 3, 2 >::create(
                             block.mesh< TetrahedralSolid3D >(),
-                            stratigraphic_location_attribute_name,
+                            STRATIGRAPHIC_LOCATION_ATTRIBUTE_NAME,
                             Point2D{ { 0, 0 } } ) );
                 }
                 else
@@ -215,7 +215,7 @@ namespace geode
                     stratigraphic_location_attributes_.try_emplace( block.id(),
                         TetrahedralSolidPointFunction< 3, 2 >::find(
                             block.mesh< TetrahedralSolid3D >(),
-                            stratigraphic_location_attribute_name ) );
+                            STRATIGRAPHIC_LOCATION_ATTRIBUTE_NAME ) );
                 }
             }
         }
@@ -360,7 +360,7 @@ namespace geode
                 strati_surface->polygon_attribute_manager()
                     .find_or_create_attribute< VariableAttribute,
                         PolyhedronFacet >(
-                        stratigraphic_surface_polyhedron_facet_attribute_name,
+                        STRATIGRAPHIC_SURFACE_POLYHEDRON_FACET_ATTRIBUTE_NAME,
                         {} );
             const auto& surface_mesh = surface.mesh< TriangulatedSurface3D >();
             std::vector< bool > vertices_checked(
@@ -419,7 +419,7 @@ namespace geode
                         ->polygon_attribute_manager()
                         .find_or_create_attribute< VariableAttribute,
                             PolyhedronFacet >(
-                            stratigraphic_surface_polyhedron_facet_attribute_name,
+                            STRATIGRAPHIC_SURFACE_POLYHEDRON_FACET_ATTRIBUTE_NAME,
                             {} );
             }
             std::vector< bool > vertices_checked(

@@ -104,7 +104,7 @@ namespace geode
                         point, block_distance_to_tetras_.at( block.id() ) ) );
             if( block_distance_to_tetras_.at( block.id() )(
                     point, closest_tetrahedron )
-                < global_epsilon )
+                < GLOBAL_EPSILON )
             {
                 return closest_tetrahedron;
             }
@@ -225,19 +225,19 @@ namespace geode
                     "which is not the case for block with uuid '",
                     block.id().string(), "'." );
                 if( !block.mesh().vertex_attribute_manager().attribute_exists(
-                        implicit_attribute_name ) )
+                        IMPLICIT_ATTRIBUTE_NAME ) )
                 {
                     implicit_attributes_.try_emplace(
                         block.id(), TetrahedralSolidScalarFunction3D::create(
                                         block.mesh< TetrahedralSolid3D >(),
-                                        implicit_attribute_name, 0 ) );
+                                        IMPLICIT_ATTRIBUTE_NAME, 0 ) );
                 }
                 else
                 {
                     implicit_attributes_.try_emplace(
                         block.id(), TetrahedralSolidScalarFunction3D::find(
                                         block.mesh< TetrahedralSolid3D >(),
-                                        implicit_attribute_name ) );
+                                        IMPLICIT_ATTRIBUTE_NAME ) );
                 }
             }
         }
