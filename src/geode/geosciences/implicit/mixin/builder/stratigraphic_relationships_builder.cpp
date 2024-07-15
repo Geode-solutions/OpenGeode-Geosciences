@@ -82,7 +82,7 @@ namespace geode
     }
 
     void StratigraphicRelationshipsBuilder::load_stratigraphic_relationships(
-        absl::string_view directory )
+        std::string_view directory )
     {
         relationships_.load_stratigraphic_relationships( directory, {} );
     }

@@ -23,12 +23,11 @@
 
 #pragma once
 
+#include <filesystem>
 #include <string>
 #include <vector>
 
 #include <async++.h>
-
-#include <ghc/filesystem.hpp>
 
 #include <geode/basic/uuid.h>
 #include <geode/basic/zip_file.h>
@@ -43,12 +42,12 @@ namespace geode
         : public HorizonsStackOutput< dimension >
     {
     public:
-        OpenGeodeHorizonsStackOutput( absl::string_view filename )
+        OpenGeodeHorizonsStackOutput( std::string_view filename )
             : HorizonsStackOutput< dimension >( filename )
         {
         }
 
-        static absl::string_view extension()
+        static std::string_view extension()
         {
             return HorizonsStack< dimension >::native_extension_static();
         }
@@ -56,7 +55,7 @@ namespace geode
         void archive_horizons_stack_files( const ZipFile& zip_writer ) const
         {
             for( const auto& file :
-                ghc::filesystem::directory_iterator( zip_writer.directory() ) )
+                std::filesystem::directory_iterator( zip_writer.directory() ) )
             {
                 zip_writer.archive_file( file.path().string() );
             }
@@ -64,7 +63,7 @@ namespace geode
 
         void save_horizons_stack_files(
             const HorizonsStack< dimension >& horizons_stack,
-            absl::string_view directory ) const
+            std::string_view directory ) const
         {
             async::parallel_invoke(
                 [&directory, &horizons_stack] {

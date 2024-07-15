@@ -24,9 +24,8 @@
 #pragma once
 
 #include <string>
+#include <string_view>
 #include <vector>
-
-#include <absl/strings/string_view.h>
 
 #include <geode/basic/factory.h>
 #include <geode/basic/output.h>
@@ -50,13 +49,13 @@ namespace geode
     template < index_t dimension >
     std::vector< std::string > save_horizons_stack(
         const HorizonsStack< dimension >& horizons_stack,
-        absl::string_view filename );
+        std::string_view filename );
 
     template < index_t dimension >
     class HorizonsStackOutput : public Output< HorizonsStack< dimension > >
     {
     protected:
-        HorizonsStackOutput( absl::string_view filename )
+        HorizonsStackOutput( std::string_view filename )
             : Output< HorizonsStack< dimension > >{ filename }
         {
         }
@@ -66,6 +65,6 @@ namespace geode
     template < index_t dimension >
     using HorizonsStackOutputFactory = Factory< std::string,
         HorizonsStackOutput< dimension >,
-        absl::string_view >;
+        std::string_view >;
     ALIAS_2D_AND_3D( HorizonsStackOutputFactory );
 } // namespace geode

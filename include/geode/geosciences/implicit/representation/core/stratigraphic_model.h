@@ -52,10 +52,10 @@ namespace geode
         PASSKEY( StratigraphicModelBuilder, StratigraphicModelBuilderKey );
 
     public:
-        static constexpr auto stratigraphic_location_attribute_name =
+        static constexpr auto STRATIGRAPHIC_LOCATION_ATTRIBUTE_NAME =
             "geode_stratigraphic_location";
         static constexpr auto
-            stratigraphic_surface_polyhedron_facet_attribute_name =
+            STRATIGRAPHIC_SURFACE_POLYHEDRON_FACET_ATTRIBUTE_NAME =
                 "geode_associated_block_polyhedron_facet";
         using stratigraphic_location_type = Point2D;
         StratigraphicModel();
@@ -70,12 +70,12 @@ namespace geode
 
         StratigraphicModel clone() const;
 
-        static constexpr absl::string_view native_extension_static()
+        static constexpr std::string_view native_extension_static()
         {
             return "og_stgm";
         }
 
-        absl::string_view native_extension() const
+        std::string_view native_extension() const
         {
             return native_extension_static();
         }
@@ -92,7 +92,7 @@ namespace geode
          * polyhedron containing the given point in the given block, if there is
          * any.
          */
-        absl::optional< StratigraphicPoint3D > stratigraphic_coordinates(
+        std::optional< StratigraphicPoint3D > stratigraphic_coordinates(
             const Block3D& block, const Point3D& geometric_point ) const;
 
         /*!
@@ -109,7 +109,7 @@ namespace geode
          * coordinates in the stratigraphic space in the given block, if there
          * is any.
          */
-        absl::optional< Point3D > geometric_coordinates( const Block3D& block,
+        std::optional< Point3D > geometric_coordinates( const Block3D& block,
             const StratigraphicPoint3D& stratigraphic_point ) const;
 
         /*!
@@ -124,7 +124,7 @@ namespace geode
          * Returns the block polyhedron containing the given stratigraphic
          * point, if there is any.
          */
-        absl::optional< index_t > stratigraphic_containing_polyhedron(
+        std::optional< index_t > stratigraphic_containing_polyhedron(
             const Block3D& block,
             const StratigraphicPoint3D& stratigraphic_point ) const;
 

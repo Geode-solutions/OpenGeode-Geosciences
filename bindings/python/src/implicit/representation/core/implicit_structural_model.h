@@ -44,7 +44,7 @@ namespace geode
                     const Block3D&, index_t ) const >(
                     &ImplicitStructuralModel::implicit_value ) )
             .def( "implicit_value_from_geometric_point",
-                static_cast< absl::optional< double > (
+                static_cast< std::optional< double > (
                     ImplicitStructuralModel::* )(
                     const Block3D&, const Point3D& ) const >(
                     &ImplicitStructuralModel::implicit_value ) )

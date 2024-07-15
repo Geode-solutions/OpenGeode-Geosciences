@@ -62,7 +62,7 @@ namespace geode
     }
 
     template < index_t dimension >
-    void FaultsBuilder< dimension >::load_faults( absl::string_view directory )
+    void FaultsBuilder< dimension >::load_faults( std::string_view directory )
     {
         return faults_.load_faults( directory );
     }
@@ -77,7 +77,7 @@ namespace geode
 
     template < index_t dimension >
     void FaultsBuilder< dimension >::set_fault_name(
-        const uuid& id, absl::string_view name )
+        const uuid& id, std::string_view name )
     {
         faults_.modifiable_fault( id ).set_fault_name(
             name, typename Fault< dimension >::FaultsBuilderKey{} );

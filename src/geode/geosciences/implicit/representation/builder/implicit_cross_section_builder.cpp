@@ -100,6 +100,8 @@ namespace geode
 
     HorizonsStackBuilder2D ImplicitCrossSectionBuilder::horizons_stack_builder()
     {
-        return { implicit_section_.modifiable_horizons_stack( {} ) };
+        return HorizonsStackBuilder2D{
+            implicit_section_.modifiable_horizons_stack( {} )
+        };
     }
 } // namespace geode

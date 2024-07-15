@@ -53,11 +53,11 @@ namespace geode
         enum struct HORIZON_TYPE
         {
             /// Default value - No horizon type defined
-            NO_TYPE,
-            CONFORMAL,
-            NON_CONFORMAL,
-            TOPOGRAPHY,
-            INTRUSION
+            no_type,
+            conformal,
+            non_conformal,
+            topography,
+            intrusion
         };
 
     public:
@@ -88,7 +88,7 @@ namespace geode
 
         void set_type( HORIZON_TYPE type, HorizonsBuilderKey );
 
-        void set_horizon_name( absl::string_view name, HorizonsBuilderKey )
+        void set_horizon_name( std::string_view name, HorizonsBuilderKey )
         {
             this->set_name( name );
         }

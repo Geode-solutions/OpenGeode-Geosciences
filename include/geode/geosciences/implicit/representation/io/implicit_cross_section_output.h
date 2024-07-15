@@ -24,9 +24,8 @@
 #pragma once
 
 #include <string>
+#include <string_view>
 #include <vector>
-
-#include <absl/strings/string_view.h>
 
 #include <geode/basic/factory.h>
 #include <geode/basic/output.h>
@@ -49,7 +48,7 @@ namespace geode
      */
     std::vector< std::string > opengeode_geosciences_implicit_api
         save_implicit_cross_section( const ImplicitCrossSection& implicit_model,
-            absl::string_view filename );
+            std::string_view filename );
 
     class ImplicitCrossSectionOutput : public Output< ImplicitCrossSection >
     {
@@ -57,15 +56,15 @@ namespace geode
         virtual ~ImplicitCrossSectionOutput() = default;
 
     protected:
-        ImplicitCrossSectionOutput( absl::string_view filename )
+        ImplicitCrossSectionOutput( std::string_view filename )
             : Output< ImplicitCrossSection >{ filename }
         {
         }
     };
 
     bool opengeode_geosciences_implicit_api is_implicit_cross_section_saveable(
-        const ImplicitCrossSection& section, absl::string_view filename );
+        const ImplicitCrossSection& section, std::string_view filename );
 
     using ImplicitCrossSectionOutputFactory =
-        Factory< std::string, ImplicitCrossSectionOutput, absl::string_view >;
+        Factory< std::string, ImplicitCrossSectionOutput, std::string_view >;
 } // namespace geode

@@ -40,16 +40,16 @@ namespace geode
         final : public StructuralModelOutput
     {
     public:
-        OpenGeodeStructuralModelOutput( absl::string_view filename );
+        explicit OpenGeodeStructuralModelOutput( std::string_view filename );
 
-        static absl::string_view extension()
+        static std::string_view extension()
         {
             return StructuralModel::native_extension_static();
         }
 
         void save_structural_model_files(
             const StructuralModel& structural_model,
-            absl::string_view directory ) const;
+            std::string_view directory ) const;
 
         void archive_structural_model_files( const ZipFile& zip_writer ) const;
 

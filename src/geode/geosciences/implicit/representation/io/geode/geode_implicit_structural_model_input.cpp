@@ -23,9 +23,10 @@
 
 #include <geode/geosciences/implicit/representation/io/geode/geode_implicit_structural_model_input.h>
 
-#include <async++.h>
+#include <filesystem>
+#include <fstream>
 
-#include <ghc/filesystem.hpp>
+#include <async++.h>
 
 #include <geode/basic/uuid.h>
 #include <geode/basic/zip_file.h>
@@ -42,7 +43,7 @@ namespace geode
 {
     void OpenGeodeImplicitStructuralModelInput::
         load_implicit_structural_model_files(
-            ImplicitStructuralModel& model, absl::string_view directory )
+            ImplicitStructuralModel& model, std::string_view directory )
     {
         ImplicitStructuralModelBuilder builder{ model };
         builder.set_horizons_stack( std::move( load_horizons_stack< 3 >(
@@ -59,7 +60,7 @@ namespace geode
         const auto impl_filename = absl::StrCat(
             zip_reader.directory(), "/implicit_model_impl.og_istrm" );
         OPENGEODE_EXCEPTION(
-            ghc::filesystem::exists( to_string( impl_filename ) ),
+            std::filesystem::exists( to_string( impl_filename ) ),
             "[OpenGeodeImplicitStructuralModelInput::read] Error in reading "
             "files: Could not find stored impl." );
         std::ifstream file{ impl_filename, std::ifstream::binary };

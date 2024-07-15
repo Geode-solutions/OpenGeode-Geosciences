@@ -34,12 +34,12 @@
                                                                                \
     pybind11::enum_< Fault##dimension##D::FAULT_TYPE >(                        \
         fault##dimension##D, "FAULT_TYPE" )                                    \
-        .value( "NO_TYPE", Fault##dimension##D::FAULT_TYPE::NO_TYPE )          \
-        .value( "NORMAL", Fault##dimension##D::FAULT_TYPE::NORMAL )            \
-        .value( "REVERSE", Fault##dimension##D::FAULT_TYPE::REVERSE )          \
-        .value( "STRIKE_SLIP", Fault##dimension##D::FAULT_TYPE::STRIKE_SLIP )  \
-        .value( "LISTRIC", Fault##dimension##D::FAULT_TYPE::LISTRIC )          \
-        .value( "DECOLLEMENT", Fault##dimension##D::FAULT_TYPE::DECOLLEMENT )
+        .value( "NO_TYPE", Fault##dimension##D::FAULT_TYPE::no_type )          \
+        .value( "NORMAL", Fault##dimension##D::FAULT_TYPE::normal )            \
+        .value( "REVERSE", Fault##dimension##D::FAULT_TYPE::reverse )          \
+        .value( "STRIKE_SLIP", Fault##dimension##D::FAULT_TYPE::strike_slip )  \
+        .value( "LISTRIC", Fault##dimension##D::FAULT_TYPE::listric )          \
+        .value( "DECOLLEMENT", Fault##dimension##D::FAULT_TYPE::decollement )
 
 namespace geode
 {

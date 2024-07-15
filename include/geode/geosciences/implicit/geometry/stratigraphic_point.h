@@ -51,7 +51,8 @@ namespace geode
               implicit_value_{ implicit_value }
         {
         }
-        StratigraphicPoint( const std::array< double, dimension >& values )
+        explicit StratigraphicPoint(
+            const std::array< double, dimension >& values )
             : implicit_value_{ values[dimension - 1] }
         {
             for( const auto d : LRange{ location_dim } )

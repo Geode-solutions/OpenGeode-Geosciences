@@ -47,13 +47,13 @@
 namespace geode
 {
     OpenGeodeStructuralModelInput::OpenGeodeStructuralModelInput(
-        absl::string_view filename )
+        std::string_view filename )
         : StructuralModelInput{ filename }
     {
     }
 
     void OpenGeodeStructuralModelInput::load_structural_model_files(
-        StructuralModel& structural_model, absl::string_view directory )
+        StructuralModel& structural_model, std::string_view directory )
     {
         StructuralModelBuilder builder{ structural_model };
         async::parallel_invoke(

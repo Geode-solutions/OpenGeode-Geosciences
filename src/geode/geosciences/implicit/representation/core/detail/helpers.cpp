@@ -132,7 +132,7 @@ namespace geode
 
         void save_stratigraphic_surfaces(
             const StratigraphicSection& implicit_model,
-            absl::string_view prefix )
+            std::string_view prefix )
         {
             index_t counter{ 0 };
             for( const auto& surface : implicit_model.surfaces() )
@@ -144,7 +144,7 @@ namespace geode
                 auto xyz_attribute =
                     strati_surface->vertex_attribute_manager()
                         .find_or_create_attribute< VariableAttribute, Point2D >(
-                            "geode_xyz", { { 0, 0 } }, { false, true } );
+                            "geode_xyz", Point2D{ { 0, 0 } }, { false, true } );
                 for( const auto pt_id : Range{ strati_surface->nb_vertices() } )
                 {
                     xyz_attribute->set_value(
@@ -163,7 +163,7 @@ namespace geode
 
         void save_stratigraphic_blocks(
             const geode::StratigraphicModel& implicit_model,
-            absl::string_view prefix )
+            std::string_view prefix )
         {
             index_t counter{ 0 };
             for( const auto& block : implicit_model.blocks() )
@@ -174,7 +174,8 @@ namespace geode
                 auto xyz_attribute =
                     strati_solid->vertex_attribute_manager()
                         .find_or_create_attribute< VariableAttribute, Point3D >(
-                            "geode_xyz", { { 0, 0, 0 } }, { false, true } );
+                            "geode_xyz", Point3D{ { 0, 0, 0 } },
+                            { false, true } );
                 for( const auto pt_id : Range{ strati_solid->nb_vertices() } )
                 {
                     xyz_attribute->set_value(
@@ -192,7 +193,7 @@ namespace geode
         }
 
         ImplicitCrossSection implicit_section_from_cross_section_scalar_field(
-            CrossSection&& section, absl::string_view scalar_attribute_name )
+            CrossSection&& section, std::string_view scalar_attribute_name )
         {
             for( const auto& surface : section.surfaces() )
             {
@@ -206,7 +207,7 @@ namespace geode
                     surface_mesh.vertex_attribute_manager()
                         .find_or_create_attribute< VariableAttribute,
                             ImplicitCrossSection::implicit_attribute_type >(
-                            ImplicitCrossSection::implicit_attribute_name, 0,
+                            ImplicitCrossSection::IMPLICIT_ATTRIBUTE_NAME, 0,
                             { false, true } );
                 for( const auto vertex_id :
                     Range{ surface_mesh.nb_vertices() } )
@@ -221,7 +222,7 @@ namespace geode
         ImplicitStructuralModel
             implicit_model_from_structural_model_scalar_field(
                 StructuralModel&& model,
-                absl::string_view scalar_attribute_name )
+                std::string_view scalar_attribute_name )
         {
             for( const auto& block : model.blocks() )
             {
@@ -235,7 +236,7 @@ namespace geode
                     block_mesh.vertex_attribute_manager()
                         .find_or_create_attribute< VariableAttribute,
                             ImplicitStructuralModel::implicit_attribute_type >(
-                            ImplicitStructuralModel::implicit_attribute_name, 0,
+                            ImplicitStructuralModel::IMPLICIT_ATTRIBUTE_NAME, 0,
                             { false, true } );
                 for( const auto vertex_id : Range{ block_mesh.nb_vertices() } )
                 {
@@ -264,13 +265,13 @@ namespace geode
                         .find_or_create_attribute< VariableAttribute,
                             StratigraphicModel::stratigraphic_location_type >(
                             StratigraphicModel::
-                                stratigraphic_location_attribute_name,
-                            { { 0, 0 } }, { false, true } );
+                                STRATIGRAPHIC_LOCATION_ATTRIBUTE_NAME,
+                            Point2D{ { 0, 0 } }, { false, true } );
                 for( const auto vertex_id : Range{ block_mesh.nb_vertices() } )
                 {
                     const auto& vertex_point = block_mesh.point( vertex_id );
                     strati_location_attribute->set_value(
-                        vertex_id, { { vertex_point.value( first_axis ),
+                        vertex_id, Point2D{ { vertex_point.value( first_axis ),
                                        vertex_point.value( second_axis ) } } );
                 }
             }
@@ -344,7 +345,7 @@ namespace geode
             }
             index_t horizon_counter{ 1 };
             auto su_above = horizon_stack.above( bottom_horizon );
-            absl::optional< uuid > current_horizon = bottom_horizon;
+            std::optional< uuid > current_horizon = bottom_horizon;
             while( su_above )
             {
                 current_horizon = horizon_stack.above( su_above.value() );

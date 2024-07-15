@@ -104,6 +104,8 @@ namespace geode
     HorizonsStackBuilder3D
         ImplicitStructuralModelBuilder::horizons_stack_builder()
     {
-        return { implicit_model_.modifiable_horizons_stack( {} ) };
+        return HorizonsStackBuilder3D{
+            implicit_model_.modifiable_horizons_stack( {} )
+        };
     }
 } // namespace geode

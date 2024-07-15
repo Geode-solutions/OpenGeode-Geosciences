@@ -23,6 +23,8 @@
 
 #pragma once
 
+#include <optional>
+
 #include <geode/basic/pimpl.h>
 
 #include <geode/geosciences/explicit/representation/core/structural_model.h>
@@ -50,7 +52,7 @@ namespace geode
             ImplicitStructuralModelBuilder, ImplicitStructuralModelBuilderKey );
 
     public:
-        static constexpr auto implicit_attribute_name =
+        static constexpr auto IMPLICIT_ATTRIBUTE_NAME =
             "geode_implicit_attribute";
         using implicit_attribute_type = double;
         ImplicitStructuralModel();
@@ -64,12 +66,12 @@ namespace geode
 
         ImplicitStructuralModel clone() const;
 
-        static constexpr absl::string_view native_extension_static()
+        static constexpr std::string_view native_extension_static()
         {
             return "og_istrm";
         }
 
-        absl::string_view native_extension() const
+        std::string_view native_extension() const
         {
             return native_extension_static();
         }
@@ -84,7 +86,7 @@ namespace geode
          * Return the implicit value on the point, computed in the polyhedron
          * containing the given point in the given block, if there is any.
          */
-        absl::optional< implicit_attribute_type > implicit_value(
+        std::optional< implicit_attribute_type > implicit_value(
             const Block3D& block, const Point3D& point ) const;
 
         /*!
@@ -99,18 +101,18 @@ namespace geode
          * Returns the block polyhedron containing the given point, if there is
          * any.
          */
-        absl::optional< index_t > containing_polyhedron(
+        std::optional< index_t > containing_polyhedron(
             const Block3D& block, const Point3D& point ) const;
 
         const HorizonsStack3D& horizons_stack() const;
 
-        absl::optional< implicit_attribute_type > horizon_implicit_value(
+        std::optional< implicit_attribute_type > horizon_implicit_value(
             const Horizon3D& horizon ) const;
 
         bool implicit_value_is_above_horizon(
             double implicit_function_value, const Horizon3D& horizon ) const;
 
-        absl::optional< uuid > containing_stratigraphic_unit(
+        std::optional< uuid > containing_stratigraphic_unit(
             implicit_attribute_type implicit_function_value ) const;
 
     public:

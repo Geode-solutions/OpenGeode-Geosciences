@@ -44,7 +44,7 @@ namespace geode
         : public StructuralModelBuilder
     {
     public:
-        ImplicitStructuralModelBuilder(
+        explicit ImplicitStructuralModelBuilder(
             ImplicitStructuralModel& implicit_model );
 
         ModelCopyMapping copy( const ImplicitStructuralModel& implicit_model );

@@ -23,12 +23,12 @@
 
 #include <geode/geosciences/implicit/representation/io/geode/geode_implicit_structural_model_output.h>
 
+#include <filesystem>
+#include <fstream>
 #include <string>
 #include <vector>
 
 #include <async++.h>
-
-#include <ghc/filesystem.hpp>
 
 #include <geode/basic/uuid.h>
 #include <geode/basic/zip_file.h>
@@ -45,7 +45,7 @@ namespace geode
         const ZipFile& zip_writer ) const
     {
         for( const auto& file :
-            ghc::filesystem::directory_iterator( zip_writer.directory() ) )
+            std::filesystem::directory_iterator( zip_writer.directory() ) )
         {
             zip_writer.archive_file( file.path().string() );
         }
@@ -53,7 +53,7 @@ namespace geode
 
     void OpenGeodeImplicitStructuralModelOutput::save_implicit_model_files(
         const ImplicitStructuralModel& implicit_model,
-        absl::string_view directory ) const
+        std::string_view directory ) const
     {
         async::parallel_invoke(
             [&directory, &implicit_model] {

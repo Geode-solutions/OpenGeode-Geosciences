@@ -53,12 +53,12 @@ namespace geode
         enum struct FAULT_TYPE
         {
             /// Default value - No fault type defined
-            NO_TYPE,
-            NORMAL,
-            REVERSE,
-            STRIKE_SLIP,
-            LISTRIC,
-            DECOLLEMENT
+            no_type,
+            normal,
+            reverse,
+            strike_slip,
+            listric,
+            decollement
         };
 
     public:
@@ -89,7 +89,7 @@ namespace geode
 
         void set_type( FAULT_TYPE type, FaultsBuilderKey );
 
-        void set_fault_name( absl::string_view name, FaultsBuilderKey )
+        void set_fault_name( std::string_view name, FaultsBuilderKey )
         {
             this->set_name( name );
         }

@@ -55,10 +55,10 @@ void add_faults(
         "[Test] Addition of a Fault in StructuralModel is not correct" );
 
     const auto& fault1 =
-        builder.add_fault( geode::Fault3D::FAULT_TYPE::REVERSE );
+        builder.add_fault( geode::Fault3D::FAULT_TYPE::reverse );
     builder.set_fault_name( fault1, "fault1" );
     OPENGEODE_EXCEPTION(
-        model.fault( fault1 ).type() == geode::Fault3D::FAULT_TYPE::REVERSE,
+        model.fault( fault1 ).type() == geode::Fault3D::FAULT_TYPE::reverse,
         "[Test] Addition of a Fault in StructuralModel is not correct (wrong "
         "type)" );
     OPENGEODE_EXCEPTION( model.nb_faults() == 2,
@@ -88,14 +88,14 @@ void add_horizons(
         "[Test] Addition of a Horizon in StructuralModel is not correct" );
 
     const auto& horizon1 =
-        builder.add_horizon( geode::Horizon3D::HORIZON_TYPE::CONFORMAL );
+        builder.add_horizon( geode::Horizon3D::HORIZON_TYPE::conformal );
     OPENGEODE_EXCEPTION( model.horizon( horizon1 ).type()
-                             == geode::Horizon3D::HORIZON_TYPE::CONFORMAL,
+                             == geode::Horizon3D::HORIZON_TYPE::conformal,
         "[Test] Addition of a Horizon in StructuralModel is not correct (wrong "
         "type)" );
 
     const auto& horizon2 =
-        builder.add_horizon( geode::Horizon3D::HORIZON_TYPE::NO_TYPE );
+        builder.add_horizon( geode::Horizon3D::HORIZON_TYPE::no_type );
     builder.set_horizon_name( horizon2, "horizon2" );
     OPENGEODE_EXCEPTION( !model.horizon( horizon2 ).has_type(),
         "[Test] Addition of a Horizon in StructuralModel is not correct (no "
@@ -324,7 +324,7 @@ void modify_model(
         if( !fault.has_type() )
         {
             builder.set_fault_type(
-                fault.id(), geode::Fault3D::FAULT_TYPE::STRIKE_SLIP );
+                fault.id(), geode::Fault3D::FAULT_TYPE::strike_slip );
         }
         OPENGEODE_EXCEPTION(
             fault.has_type(), "[Test] All faults should have a type" );
@@ -334,7 +334,7 @@ void modify_model(
         if( !horizon.has_type() )
         {
             builder.set_horizon_type(
-                horizon.id(), geode::Horizon3D::HORIZON_TYPE::NON_CONFORMAL );
+                horizon.id(), geode::Horizon3D::HORIZON_TYPE::non_conformal );
         }
         OPENGEODE_EXCEPTION(
             horizon.has_type(), "[Test] All horizons should have a type" );

@@ -50,14 +50,14 @@ namespace geode
 
     template < index_t dimension >
     void FaultBlocksBuilder< dimension >::load_fault_blocks(
-        absl::string_view directory )
+        std::string_view directory )
     {
         return fault_blocks_.load_fault_blocks( directory );
     }
 
     template < index_t dimension >
     void FaultBlocksBuilder< dimension >::set_fault_block_name(
-        const uuid& id, absl::string_view name )
+        const uuid& id, std::string_view name )
     {
         fault_blocks_.modifiable_fault_block( id ).set_fault_block_name(
             name, typename FaultBlock< dimension >::FaultBlocksBuilderKey{} );

@@ -32,15 +32,15 @@ namespace geode
         : public CrossSectionInput
     {
     public:
-        OpenGeodeCrossSectionInput( absl::string_view filename );
+        explicit OpenGeodeCrossSectionInput( std::string_view filename );
 
-        static absl::string_view extension()
+        static std::string_view extension()
         {
             return CrossSection::native_extension_static();
         }
 
         void load_cross_section_files(
-            CrossSection& cross_section, absl::string_view directory );
+            CrossSection& cross_section, std::string_view directory );
 
         CrossSection read() final;
     };

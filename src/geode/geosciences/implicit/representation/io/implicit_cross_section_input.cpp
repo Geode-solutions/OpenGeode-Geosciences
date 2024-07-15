@@ -23,8 +23,9 @@
 
 #include <geode/geosciences/implicit/representation/io/implicit_cross_section_input.h>
 
+#include <string_view>
+
 #include <absl/strings/str_cat.h>
-#include <absl/strings/string_view.h>
 
 #include <geode/basic/detail/geode_input_impl.h>
 #include <geode/basic/io.h>
@@ -38,7 +39,7 @@
 namespace geode
 {
     ImplicitCrossSection load_implicit_cross_section(
-        absl::string_view filename )
+        std::string_view filename )
     {
         constexpr auto TYPE = "ImplicitCrossSection";
         try
@@ -82,14 +83,14 @@ namespace geode
     }
 
     typename ImplicitCrossSectionInput::MissingFiles
-        check_implicit_cross_section_missing_files( absl::string_view filename )
+        check_implicit_cross_section_missing_files( std::string_view filename )
     {
         const auto input = detail::geode_object_input_reader<
             ImplicitCrossSectionInputFactory >( filename );
         return input->check_missing_files();
     }
 
-    bool is_implicit_cross_section_loadable( absl::string_view filename )
+    bool is_implicit_cross_section_loadable( std::string_view filename )
     {
         const auto input = detail::geode_object_input_reader<
             ImplicitCrossSectionInputFactory >( filename );

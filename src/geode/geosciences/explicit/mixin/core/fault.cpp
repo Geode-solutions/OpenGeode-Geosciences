@@ -52,7 +52,7 @@ namespace geode
         }
 
     private:
-        FAULT_TYPE fault_type_{ FAULT_TYPE::NO_TYPE };
+        FAULT_TYPE fault_type_{ FAULT_TYPE::no_type };
     };
 
     template < index_t dimension >
@@ -73,7 +73,7 @@ namespace geode
     template < index_t dimension >
     bool Fault< dimension >::has_type() const
     {
-        return type() != FAULT_TYPE::NO_TYPE;
+        return type() != FAULT_TYPE::no_type;
     }
 
     template < index_t dimension >
