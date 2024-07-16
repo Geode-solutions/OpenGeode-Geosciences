@@ -21,26 +21,28 @@
  *
  */
 
-#include "../../../factory.h"
-#include "../../../input.h"
+#include "../../../factory.hpp"
+#include "../../../input.hpp"
 
-#include <geode/geosciences/implicit/representation/io/stratigraphic_section_input.hpp>
-#include <geode/geosciences/implicit/representation/io/stratigraphic_section_output.hpp>
+#include <geode/geosciences/implicit/representation/io/implicit_cross_section_input.hpp>
+#include <geode/geosciences/implicit/representation/io/implicit_cross_section_output.hpp>
 
 namespace geode
 {
-    void define_stratigraphic_section_io( pybind11::module& module )
+    void define_implicit_cross_section_io( pybind11::module& module )
     {
-        module.def( "save_stratigraphic_section", &save_stratigraphic_section );
-        module.def( "load_stratigraphic_section", &load_stratigraphic_section );
-        module.def( "check_stratigraphic_section_missing_files",
-            &check_stratigraphic_section_missing_files );
-        module.def( "is_stratigraphic_section_loadable",
-            &is_stratigraphic_section_loadable );
-        module.def( "is_stratigraphic_section_saveable",
-            &is_stratigraphic_section_saveable );
-        PYTHON_INPUT_CLASS( StratigraphicSection, "StratigraphicSection" );
-        PYTHON_FACTORY_CLASS( StratigraphicSectionInputFactory );
-        PYTHON_FACTORY_CLASS( StratigraphicSectionOutputFactory );
+        module.def(
+            "save_implicit_cross_section", &save_implicit_cross_section );
+        module.def(
+            "load_implicit_cross_section", &load_implicit_cross_section );
+        module.def( "check_implicit_cross_section_missing_files",
+            &check_implicit_cross_section_missing_files );
+        module.def( "is_implicit_cross_section_loadable",
+            &is_implicit_cross_section_loadable );
+        module.def( "is_implicit_cross_section_saveable",
+            &is_implicit_cross_section_saveable );
+        PYTHON_INPUT_CLASS( ImplicitCrossSection, "ImplicitCrossSection" );
+        PYTHON_FACTORY_CLASS( ImplicitCrossSectionInputFactory );
+        PYTHON_FACTORY_CLASS( ImplicitCrossSectionOutputFactory );
     }
 } // namespace geode

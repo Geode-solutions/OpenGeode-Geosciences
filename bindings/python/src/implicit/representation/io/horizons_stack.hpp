@@ -21,8 +21,8 @@
  *
  */
 
-#include "../../../factory.h"
-#include "../../../input.h"
+#include "../../../factory.hpp"
+#include "../../../input.hpp"
 
 #include <geode/geosciences/implicit/representation/io/horizons_stack_input.hpp>
 #include <geode/geosciences/implicit/representation/io/horizons_stack_output.hpp>

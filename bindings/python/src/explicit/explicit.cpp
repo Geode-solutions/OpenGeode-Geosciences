@@ -21,37 +21,37 @@
  *
  */
 
-#include "../common.h"
+#include "../common.hpp"
 
 #include <pybind11/iostream.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
-#include "geometry/crs.h"
-#include "geometry/crs_helper.h"
+#include "geometry/crs.hpp"
+#include "geometry/crs_helper.hpp"
 
-#include "mixin/builder/fault_blocks_builder.h"
-#include "mixin/builder/faults_builder.h"
-#include "mixin/builder/horizons_builder.h"
-#include "mixin/builder/stratigraphic_units_builder.h"
+#include "mixin/builder/fault_blocks_builder.hpp"
+#include "mixin/builder/faults_builder.hpp"
+#include "mixin/builder/horizons_builder.hpp"
+#include "mixin/builder/stratigraphic_units_builder.hpp"
 
-#include "mixin/core/fault.h"
-#include "mixin/core/fault_block.h"
-#include "mixin/core/fault_blocks.h"
-#include "mixin/core/faults.h"
-#include "mixin/core/horizon.h"
-#include "mixin/core/horizons.h"
-#include "mixin/core/stratigraphic_unit.h"
-#include "mixin/core/stratigraphic_units.h"
+#include "mixin/core/fault.hpp"
+#include "mixin/core/fault_block.hpp"
+#include "mixin/core/fault_blocks.hpp"
+#include "mixin/core/faults.hpp"
+#include "mixin/core/horizon.hpp"
+#include "mixin/core/horizons.hpp"
+#include "mixin/core/stratigraphic_unit.hpp"
+#include "mixin/core/stratigraphic_units.hpp"
 
-#include "representation/builder/cross_section_builder.h"
-#include "representation/builder/structural_model_builder.h"
+#include "representation/builder/cross_section_builder.hpp"
+#include "representation/builder/structural_model_builder.hpp"
 
-#include "representation/core/cross_section.h"
-#include "representation/core/structural_model.h"
+#include "representation/core/cross_section.hpp"
+#include "representation/core/structural_model.hpp"
 
-#include "representation/io/cross_section.h"
-#include "representation/io/structural_model.h"
+#include "representation/io/cross_section.hpp"
+#include "representation/io/structural_model.hpp"
 
 PYBIND11_MODULE( opengeode_geosciences_py_explicit, module )
 {

@@ -21,26 +21,26 @@
  *
  */
 
-#include "../../../factory.h"
-#include "../../../input.h"
+#include "../../../factory.hpp"
+#include "../../../input.hpp"
 
-#include <geode/geosciences/implicit/representation/io/stratigraphic_model_input.hpp>
-#include <geode/geosciences/implicit/representation/io/stratigraphic_model_output.hpp>
+#include <geode/geosciences/implicit/representation/io/stratigraphic_section_input.hpp>
+#include <geode/geosciences/implicit/representation/io/stratigraphic_section_output.hpp>
 
 namespace geode
 {
-    void define_stratigraphic_model_io( pybind11::module& module )
+    void define_stratigraphic_section_io( pybind11::module& module )
     {
-        module.def( "save_stratigraphic_model", &save_stratigraphic_model );
-        module.def( "load_stratigraphic_model", &load_stratigraphic_model );
-        module.def( "check_stratigraphic_model_missing_files",
-            &check_stratigraphic_model_missing_files );
-        module.def( "is_stratigraphic_model_loadable",
-            &is_stratigraphic_model_loadable );
-        module.def( "is_stratigraphic_model_saveable",
-            &is_stratigraphic_model_saveable );
-        PYTHON_INPUT_CLASS( StratigraphicModel, "StratigraphicModel" );
-        PYTHON_FACTORY_CLASS( StratigraphicModelInputFactory );
-        PYTHON_FACTORY_CLASS( StratigraphicModelOutputFactory );
+        module.def( "save_stratigraphic_section", &save_stratigraphic_section );
+        module.def( "load_stratigraphic_section", &load_stratigraphic_section );
+        module.def( "check_stratigraphic_section_missing_files",
+            &check_stratigraphic_section_missing_files );
+        module.def( "is_stratigraphic_section_loadable",
+            &is_stratigraphic_section_loadable );
+        module.def( "is_stratigraphic_section_saveable",
+            &is_stratigraphic_section_saveable );
+        PYTHON_INPUT_CLASS( StratigraphicSection, "StratigraphicSection" );
+        PYTHON_FACTORY_CLASS( StratigraphicSectionInputFactory );
+        PYTHON_FACTORY_CLASS( StratigraphicSectionOutputFactory );
     }
 } // namespace geode

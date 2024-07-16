@@ -21,8 +21,8 @@
  *
  */
 
-#include "../../../factory.h"
-#include "../../../input.h"
+#include "../../../factory.hpp"
+#include "../../../input.hpp"
 
 #include <geode/geosciences/explicit/representation/io/structural_model_input.hpp>
 #include <geode/geosciences/explicit/representation/io/structural_model_output.hpp>

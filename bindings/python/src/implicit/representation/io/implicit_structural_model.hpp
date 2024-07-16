@@ -21,24 +21,29 @@
  *
  */
 
-#include "../../../factory.h"
-#include "../../../input.h"
+#include "../../../factory.hpp"
+#include "../../../input.hpp"
 
-#include <geode/geosciences/explicit/representation/io/cross_section_input.hpp>
-#include <geode/geosciences/explicit/representation/io/cross_section_output.hpp>
+#include <geode/geosciences/implicit/representation/io/implicit_structural_model_input.hpp>
+#include <geode/geosciences/implicit/representation/io/implicit_structural_model_output.hpp>
 
 namespace geode
 {
-    void define_cross_section_io( pybind11::module& module )
+    void define_implicit_structural_model_io( pybind11::module& module )
     {
-        module.def( "save_cross_section", &save_cross_section );
-        module.def( "load_cross_section", &load_cross_section );
-        module.def( "check_cross_section_missing_files",
-            &check_cross_section_missing_files );
-        module.def( "is_cross_section_loadable", &is_cross_section_loadable );
-        module.def( "is_cross_section_saveable", &is_cross_section_saveable );
-        PYTHON_INPUT_CLASS( CrossSection, "CrossSection" );
-        PYTHON_FACTORY_CLASS( CrossSectionInputFactory );
-        PYTHON_FACTORY_CLASS( CrossSectionOutputFactory );
+        module.def(
+            "save_implicit_structural_model", &save_implicit_structural_model );
+        module.def(
+            "load_implicit_structural_model", &load_implicit_structural_model );
+        module.def( "check_implicit_structural_model_missing_files",
+            &check_implicit_structural_model_missing_files );
+        module.def( "is_implicit_structural_model_loadable",
+            &is_implicit_structural_model_loadable );
+        module.def( "is_implicit_structural_model_saveable",
+            &is_implicit_structural_model_saveable );
+        PYTHON_INPUT_CLASS(
+            ImplicitStructuralModel, "ImplicitStructuralModel" );
+        PYTHON_FACTORY_CLASS( ImplicitStructuralModelInputFactory );
+        PYTHON_FACTORY_CLASS( ImplicitStructuralModelOutputFactory );
     }
 } // namespace geode
