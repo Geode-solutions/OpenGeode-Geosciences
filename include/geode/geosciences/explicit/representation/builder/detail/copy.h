@@ -34,23 +34,6 @@ namespace geode
     namespace detail
     {
         using Mapping = BijectiveMapping< uuid >;
-
-        template < typename ModelFrom, typename BuilderTo >
-        OPENGEODE_MODEL_DEPRECATED Mapping copy_faults(
-            const ModelFrom& from, BuilderTo& builder_to )
-        {
-            Mapping mapping;
-            mapping.reserve( from.nb_faults() );
-            for( const auto& fault : from.faults() )
-            {
-                const auto& fault_id = builder_to.add_fault();
-                mapping.map( fault.id(), fault_id );
-                builder_to.set_fault_name( fault_id, fault.name() );
-                builder_to.set_fault_type( fault_id, fault.type() );
-            }
-            return mapping;
-        }
-
         template < typename ModelFrom, typename BuilderTo >
         void copy_faults(
             const ModelFrom& from, BuilderTo& builder_to, Mapping& mapping )
@@ -72,22 +55,6 @@ namespace geode
                     mapping.map( fault.id(), fault_id );
                 }
             }
-        }
-
-        template < typename ModelFrom, typename BuilderTo >
-        OPENGEODE_MODEL_DEPRECATED Mapping copy_horizons(
-            const ModelFrom& from, BuilderTo& builder_to )
-        {
-            Mapping mapping;
-            mapping.reserve( from.nb_horizons() );
-            for( const auto& horizon : from.horizons() )
-            {
-                const auto& horizon_id = builder_to.add_horizon();
-                mapping.map( horizon.id(), horizon_id );
-                builder_to.set_horizon_name( horizon_id, horizon.name() );
-                builder_to.set_horizon_type( horizon_id, horizon.type() );
-            }
-            return mapping;
         }
 
         template < typename ModelFrom, typename BuilderTo >
@@ -114,22 +81,6 @@ namespace geode
         }
 
         template < typename ModelFrom, typename BuilderTo >
-        OPENGEODE_MODEL_DEPRECATED Mapping copy_fault_blocks(
-            const ModelFrom& from, BuilderTo& builder_to )
-        {
-            Mapping mapping;
-            mapping.reserve( from.nb_fault_blocks() );
-            for( const auto& fault_block : from.fault_blocks() )
-            {
-                const auto& fault_block_id = builder_to.add_fault_block();
-                mapping.map( fault_block.id(), fault_block_id );
-                builder_to.set_fault_block_name(
-                    fault_block_id, fault_block.name() );
-            }
-            return mapping;
-        }
-
-        template < typename ModelFrom, typename BuilderTo >
         void copy_fault_blocks(
             const ModelFrom& from, BuilderTo& builder_to, Mapping& mapping )
         {
@@ -151,23 +102,6 @@ namespace geode
                     mapping.map( fault_block.id(), fault_block_id );
                 }
             }
-        }
-
-        template < typename ModelFrom, typename BuilderTo >
-        OPENGEODE_MODEL_DEPRECATED Mapping copy_stratigraphic_units(
-            const ModelFrom& from, BuilderTo& builder_to )
-        {
-            Mapping mapping;
-            mapping.reserve( from.nb_stratigraphic_units() );
-            for( const auto& stratigraphic_unit : from.stratigraphic_units() )
-            {
-                const auto& stratigraphic_unit_id =
-                    builder_to.add_stratigraphic_unit();
-                mapping.map( stratigraphic_unit.id(), stratigraphic_unit_id );
-                builder_to.set_stratigraphic_unit_name(
-                    stratigraphic_unit_id, stratigraphic_unit.name() );
-            }
-            return mapping;
         }
 
         template < typename ModelFrom, typename BuilderTo >
