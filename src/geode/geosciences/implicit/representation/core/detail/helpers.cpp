@@ -21,36 +21,36 @@
  *
  */
 
-#include <geode/geosciences/implicit/representation/core/detail/helpers.h>
+#include <geode/geosciences/implicit/representation/core/detail/helpers.hpp>
 
-#include <geode/basic/attribute_manager.h>
+#include <geode/basic/attribute_manager.hpp>
 
-#include <geode/geometry/basic_objects/tetrahedron.h>
-#include <geode/geometry/bounding_box.h>
-#include <geode/geometry/information.h>
-#include <geode/geometry/point.h>
-#include <geode/geometry/sign.h>
+#include <geode/geometry/basic_objects/tetrahedron.hpp>
+#include <geode/geometry/bounding_box.hpp>
+#include <geode/geometry/information.hpp>
+#include <geode/geometry/point.hpp>
+#include <geode/geometry/sign.hpp>
 
-#include <geode/mesh/builder/tetrahedral_solid_builder.h>
-#include <geode/mesh/builder/triangulated_surface_builder.h>
-#include <geode/mesh/core/tetrahedral_solid.h>
-#include <geode/mesh/core/triangulated_surface.h>
-#include <geode/mesh/io/tetrahedral_solid_output.h>
-#include <geode/mesh/io/triangulated_surface_output.h>
+#include <geode/mesh/builder/tetrahedral_solid_builder.hpp>
+#include <geode/mesh/builder/triangulated_surface_builder.hpp>
+#include <geode/mesh/core/tetrahedral_solid.hpp>
+#include <geode/mesh/core/triangulated_surface.hpp>
+#include <geode/mesh/io/tetrahedral_solid_output.hpp>
+#include <geode/mesh/io/triangulated_surface_output.hpp>
 
-#include <geode/model/mixin/core/block.h>
-#include <geode/model/mixin/core/surface.h>
+#include <geode/model/mixin/core/block.hpp>
+#include <geode/model/mixin/core/surface.hpp>
 
-#include <geode/geosciences/implicit/geometry/stratigraphic_point.h>
-#include <geode/geosciences/implicit/representation/builder/horizons_stack_builder.h>
-#include <geode/geosciences/implicit/representation/builder/implicit_cross_section_builder.h>
-#include <geode/geosciences/implicit/representation/builder/implicit_structural_model_builder.h>
-#include <geode/geosciences/implicit/representation/builder/stratigraphic_model_builder.h>
-#include <geode/geosciences/implicit/representation/core/horizons_stack.h>
-#include <geode/geosciences/implicit/representation/core/implicit_cross_section.h>
-#include <geode/geosciences/implicit/representation/core/implicit_structural_model.h>
-#include <geode/geosciences/implicit/representation/core/stratigraphic_model.h>
-#include <geode/geosciences/implicit/representation/core/stratigraphic_section.h>
+#include <geode/geosciences/implicit/geometry/stratigraphic_point.hpp>
+#include <geode/geosciences/implicit/representation/builder/horizons_stack_builder.hpp>
+#include <geode/geosciences/implicit/representation/builder/implicit_cross_section_builder.hpp>
+#include <geode/geosciences/implicit/representation/builder/implicit_structural_model_builder.hpp>
+#include <geode/geosciences/implicit/representation/builder/stratigraphic_model_builder.hpp>
+#include <geode/geosciences/implicit/representation/core/horizons_stack.hpp>
+#include <geode/geosciences/implicit/representation/core/implicit_cross_section.hpp>
+#include <geode/geosciences/implicit/representation/core/implicit_structural_model.hpp>
+#include <geode/geosciences/implicit/representation/core/stratigraphic_model.hpp>
+#include <geode/geosciences/implicit/representation/core/stratigraphic_section.hpp>
 
 namespace
 {

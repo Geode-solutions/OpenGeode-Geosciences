@@ -21,15 +21,15 @@
  *
  */
 
-#include <geode/geosciences/implicit/representation/io/geode/geode_horizons_stack_input.h>
+#include <geode/geosciences/implicit/representation/io/geode/geode_horizons_stack_input.hpp>
 
 #include <async++.h>
 
-#include <geode/basic/uuid.h>
-#include <geode/basic/zip_file.h>
+#include <geode/basic/uuid.hpp>
+#include <geode/basic/zip_file.hpp>
 
-#include <geode/geosciences/implicit/representation/builder/horizons_stack_builder.h>
-#include <geode/geosciences/implicit/representation/core/horizons_stack.h>
+#include <geode/geosciences/implicit/representation/builder/horizons_stack_builder.hpp>
+#include <geode/geosciences/implicit/representation/core/horizons_stack.hpp>
 
 namespace geode
 {

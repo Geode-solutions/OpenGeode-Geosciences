@@ -21,19 +21,19 @@
  *
  */
 
-#include <geode/geosciences/explicit/representation/io/structural_model_input.h>
+#include <geode/geosciences/explicit/representation/io/structural_model_input.hpp>
 
 #include <string_view>
 
 #include <absl/strings/str_cat.h>
 
-#include <geode/basic/detail/geode_input_impl.h>
-#include <geode/basic/io.h>
-#include <geode/basic/logger.h>
+#include <geode/basic/detail/geode_input_impl.hpp>
+#include <geode/basic/io.hpp>
+#include <geode/basic/logger.hpp>
 
-#include <geode/model/representation/io/brep_input.h>
+#include <geode/model/representation/io/brep_input.hpp>
 
-#include <geode/geosciences/explicit/representation/core/structural_model.h>
+#include <geode/geosciences/explicit/representation/core/structural_model.hpp>
 
 namespace geode
 {

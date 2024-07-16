@@ -21,10 +21,10 @@
  *
  */
 
-#include <geode/geosciences/explicit/mixin/builder/stratigraphic_units_builder.h>
+#include <geode/geosciences/explicit/mixin/builder/stratigraphic_units_builder.hpp>
 
-#include <geode/geosciences/explicit/mixin/core/stratigraphic_unit.h>
-#include <geode/geosciences/explicit/mixin/core/stratigraphic_units.h>
+#include <geode/geosciences/explicit/mixin/core/stratigraphic_unit.hpp>
+#include <geode/geosciences/explicit/mixin/core/stratigraphic_units.hpp>
 
 namespace geode
 {

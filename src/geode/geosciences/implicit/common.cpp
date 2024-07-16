@@ -21,15 +21,15 @@
  *
  */
 
-#include <geode/geosciences/explicit/common.h>
+#include <geode/geosciences/explicit/common.hpp>
 
-#include <geode/geosciences/implicit/common.h>
-#include <geode/geosciences/implicit/representation/io/geode/geode_horizons_stack_input.h>
-#include <geode/geosciences/implicit/representation/io/geode/geode_horizons_stack_output.h>
-#include <geode/geosciences/implicit/representation/io/geode/geode_implicit_cross_section_input.h>
-#include <geode/geosciences/implicit/representation/io/geode/geode_implicit_cross_section_output.h>
-#include <geode/geosciences/implicit/representation/io/geode/geode_implicit_structural_model_input.h>
-#include <geode/geosciences/implicit/representation/io/geode/geode_implicit_structural_model_output.h>
+#include <geode/geosciences/implicit/common.hpp>
+#include <geode/geosciences/implicit/representation/io/geode/geode_horizons_stack_input.hpp>
+#include <geode/geosciences/implicit/representation/io/geode/geode_horizons_stack_output.hpp>
+#include <geode/geosciences/implicit/representation/io/geode/geode_implicit_cross_section_input.hpp>
+#include <geode/geosciences/implicit/representation/io/geode/geode_implicit_cross_section_output.hpp>
+#include <geode/geosciences/implicit/representation/io/geode/geode_implicit_structural_model_input.hpp>
+#include <geode/geosciences/implicit/representation/io/geode/geode_implicit_structural_model_output.hpp>
 
 namespace
 {

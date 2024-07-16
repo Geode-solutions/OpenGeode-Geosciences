@@ -21,9 +21,9 @@
  *
  */
 
-#include <geode/geosciences/implicit/representation/builder/stratigraphic_section_builder.h>
+#include <geode/geosciences/implicit/representation/builder/stratigraphic_section_builder.hpp>
 
-#include <geode/geometry/point.h>
+#include <geode/geometry/point.hpp>
 
 namespace geode
 {

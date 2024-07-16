@@ -21,11 +21,11 @@
  *
  */
 
-#include <geode/geosciences/implicit/representation/builder/horizons_stack_builder.h>
+#include <geode/geosciences/implicit/representation/builder/horizons_stack_builder.hpp>
 
-// #include <geode/geometry/point.h>
+// #include <geode/geometry/point.hpp>
 
-#include <geode/geosciences/implicit/representation/core/horizons_stack.h>
+#include <geode/geosciences/implicit/representation/core/horizons_stack.hpp>
 
 #define PYTHON_HORIZONS_STACK_BUILDER( dimension )                             \
     const auto name##dimension =                                               \

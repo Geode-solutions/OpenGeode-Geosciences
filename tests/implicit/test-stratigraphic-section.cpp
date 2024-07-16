@@ -21,30 +21,30 @@
  *
  */
 
-#include <geode/tests_config.h>
+#include <geode/tests_config.hpp>
 
-#include <geode/basic/assert.h>
-#include <geode/basic/attribute_manager.h>
-#include <geode/basic/logger.h>
+#include <geode/basic/assert.hpp>
+#include <geode/basic/attribute_manager.hpp>
+#include <geode/basic/logger.hpp>
 
-#include <geode/geometry/bounding_box.h>
-#include <geode/geometry/point.h>
+#include <geode/geometry/bounding_box.hpp>
+#include <geode/geometry/point.hpp>
 
-#include <geode/mesh/core/edged_curve.h>
-#include <geode/mesh/core/triangulated_surface.h>
-#include <geode/mesh/io/edged_curve_output.h>
+#include <geode/mesh/core/edged_curve.hpp>
+#include <geode/mesh/core/triangulated_surface.hpp>
+#include <geode/mesh/io/edged_curve_output.hpp>
 
-#include <geode/model/mixin/core/line.h>
-#include <geode/model/mixin/core/surface.h>
-#include <geode/model/representation/builder/section_builder.h>
-#include <geode/model/representation/core/section.h>
+#include <geode/model/mixin/core/line.hpp>
+#include <geode/model/mixin/core/surface.hpp>
+#include <geode/model/representation/builder/section_builder.hpp>
+#include <geode/model/representation/core/section.hpp>
 
-#include <geode/geosciences/explicit/representation/io/cross_section_input.h>
-#include <geode/geosciences/implicit/geometry/stratigraphic_point.h>
-#include <geode/geosciences/implicit/representation/builder/stratigraphic_section_builder.h>
-#include <geode/geosciences/implicit/representation/core/stratigraphic_section.h>
-#include <geode/geosciences/implicit/representation/io/implicit_cross_section_input.h>
-#include <geode/geosciences/implicit/representation/io/implicit_cross_section_output.h>
+#include <geode/geosciences/explicit/representation/io/cross_section_input.hpp>
+#include <geode/geosciences/implicit/geometry/stratigraphic_point.hpp>
+#include <geode/geosciences/implicit/representation/builder/stratigraphic_section_builder.hpp>
+#include <geode/geosciences/implicit/representation/core/stratigraphic_section.hpp>
+#include <geode/geosciences/implicit/representation/io/implicit_cross_section_input.hpp>
+#include <geode/geosciences/implicit/representation/io/implicit_cross_section_output.hpp>
 
 geode::StratigraphicSection import_section_with_stratigraphy()
 {

@@ -24,8 +24,8 @@
 #include "../../../factory.h"
 #include "../../../input.h"
 
-#include <geode/geosciences/implicit/representation/io/horizons_stack_input.h>
-#include <geode/geosciences/implicit/representation/io/horizons_stack_output.h>
+#include <geode/geosciences/implicit/representation/io/horizons_stack_input.hpp>
+#include <geode/geosciences/implicit/representation/io/horizons_stack_output.hpp>
 
 #define PYTHON_HORIZONS_STACK_IO( dimension )                                  \
     const auto save##dimension =                                               \

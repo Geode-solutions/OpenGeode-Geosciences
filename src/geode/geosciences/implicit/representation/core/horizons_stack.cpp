@@ -21,10 +21,10 @@
  *
  */
 
-#include <geode/geosciences/implicit/representation/core/horizons_stack.h>
+#include <geode/geosciences/implicit/representation/core/horizons_stack.hpp>
 
-#include <geode/geosciences/explicit/representation/core/detail/clone.h>
-#include <geode/geosciences/implicit/representation/builder/horizons_stack_builder.h>
+#include <geode/geosciences/explicit/representation/core/detail/clone.hpp>
+#include <geode/geosciences/implicit/representation/builder/horizons_stack_builder.hpp>
 
 namespace geode
 {

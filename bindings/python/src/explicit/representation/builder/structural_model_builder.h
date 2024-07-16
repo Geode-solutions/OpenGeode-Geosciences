@@ -21,12 +21,12 @@
  *
  */
 
-#include <geode/model/mixin/core/block.h>
-#include <geode/model/mixin/core/corner.h>
-#include <geode/model/mixin/core/line.h>
-#include <geode/model/mixin/core/surface.h>
+#include <geode/model/mixin/core/block.hpp>
+#include <geode/model/mixin/core/corner.hpp>
+#include <geode/model/mixin/core/line.hpp>
+#include <geode/model/mixin/core/surface.hpp>
 
-#include <geode/geosciences/explicit/representation/builder/structural_model_builder.h>
+#include <geode/geosciences/explicit/representation/builder/structural_model_builder.hpp>
 
 namespace geode
 {

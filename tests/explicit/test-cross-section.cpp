@@ -21,21 +21,21 @@
  *
  */
 
-#include <geode/basic/assert.h>
-#include <geode/basic/logger.h>
-#include <geode/basic/range.h>
+#include <geode/basic/assert.hpp>
+#include <geode/basic/logger.hpp>
+#include <geode/basic/range.hpp>
 
-#include <geode/model/mixin/core/line.h>
-#include <geode/model/mixin/core/surface.h>
+#include <geode/model/mixin/core/line.hpp>
+#include <geode/model/mixin/core/surface.hpp>
 
-#include <geode/geosciences/explicit/mixin/core/fault.h>
-#include <geode/geosciences/explicit/mixin/core/fault_block.h>
-#include <geode/geosciences/explicit/mixin/core/horizon.h>
-#include <geode/geosciences/explicit/mixin/core/stratigraphic_unit.h>
-#include <geode/geosciences/explicit/representation/builder/cross_section_builder.h>
-#include <geode/geosciences/explicit/representation/core/cross_section.h>
-#include <geode/geosciences/explicit/representation/io/cross_section_input.h>
-#include <geode/geosciences/explicit/representation/io/cross_section_output.h>
+#include <geode/geosciences/explicit/mixin/core/fault.hpp>
+#include <geode/geosciences/explicit/mixin/core/fault_block.hpp>
+#include <geode/geosciences/explicit/mixin/core/horizon.hpp>
+#include <geode/geosciences/explicit/mixin/core/stratigraphic_unit.hpp>
+#include <geode/geosciences/explicit/representation/builder/cross_section_builder.hpp>
+#include <geode/geosciences/explicit/representation/core/cross_section.hpp>
+#include <geode/geosciences/explicit/representation/io/cross_section_input.hpp>
+#include <geode/geosciences/explicit/representation/io/cross_section_output.hpp>
 
 template < class ItemRange >
 geode::index_t count_items( ItemRange items )

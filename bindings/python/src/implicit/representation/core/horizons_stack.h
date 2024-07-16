@@ -21,9 +21,9 @@
  *
  */
 
-#include <geode/geosciences/implicit/representation/core/horizons_stack.h>
+#include <geode/geosciences/implicit/representation/core/horizons_stack.hpp>
 
-#include <geode/geometry/point.h>
+#include <geode/geometry/point.hpp>
 
 #define PYTHON_HORIZONS_STACK( dimension )                                     \
     const auto name##dimension =                                               \

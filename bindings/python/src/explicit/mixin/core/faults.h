@@ -21,8 +21,8 @@
  *
  */
 
-#include <geode/geosciences/explicit/mixin/core/fault.h>
-#include <geode/geosciences/explicit/mixin/core/faults.h>
+#include <geode/geosciences/explicit/mixin/core/fault.hpp>
+#include <geode/geosciences/explicit/mixin/core/faults.hpp>
 
 #define PYTHON_FAULTS( dimension )                                             \
     const auto name##dimension = "Faults" + std::to_string( dimension ) + "D"; \

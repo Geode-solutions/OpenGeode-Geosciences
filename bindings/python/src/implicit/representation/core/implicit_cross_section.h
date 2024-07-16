@@ -21,9 +21,9 @@
  *
  */
 
-#include <geode/geosciences/implicit/representation/core/implicit_cross_section.h>
+#include <geode/geosciences/implicit/representation/core/implicit_cross_section.hpp>
 
-#include <geode/geometry/point.h>
+#include <geode/geometry/point.hpp>
 
 namespace geode
 {

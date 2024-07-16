@@ -21,30 +21,30 @@
  *
  */
 
-#include <geode/tests_config.h>
+#include <geode/tests_config.hpp>
 
-#include <geode/basic/assert.h>
-#include <geode/basic/attribute_manager.h>
-#include <geode/basic/logger.h>
+#include <geode/basic/assert.hpp>
+#include <geode/basic/attribute_manager.hpp>
+#include <geode/basic/logger.hpp>
 
-#include <geode/geometry/bounding_box.h>
-#include <geode/geometry/point.h>
+#include <geode/geometry/bounding_box.hpp>
+#include <geode/geometry/point.hpp>
 
-#include <geode/mesh/core/tetrahedral_solid.h>
-#include <geode/mesh/core/triangulated_surface.h>
-#include <geode/mesh/io/triangulated_surface_output.h>
+#include <geode/mesh/core/tetrahedral_solid.hpp>
+#include <geode/mesh/core/triangulated_surface.hpp>
+#include <geode/mesh/io/triangulated_surface_output.hpp>
 
-#include <geode/model/mixin/core/block.h>
-#include <geode/model/mixin/core/surface.h>
+#include <geode/model/mixin/core/block.hpp>
+#include <geode/model/mixin/core/surface.hpp>
 
-#include <geode/geosciences/explicit/representation/io/structural_model_input.h>
-#include <geode/geosciences/implicit/geometry/stratigraphic_point.h>
-#include <geode/geosciences/implicit/representation/builder/horizons_stack_builder.h>
-#include <geode/geosciences/implicit/representation/builder/stratigraphic_model_builder.h>
-#include <geode/geosciences/implicit/representation/core/horizons_stack.h>
-#include <geode/geosciences/implicit/representation/core/stratigraphic_model.h>
-#include <geode/geosciences/implicit/representation/io/implicit_structural_model_input.h>
-#include <geode/geosciences/implicit/representation/io/implicit_structural_model_output.h>
+#include <geode/geosciences/explicit/representation/io/structural_model_input.hpp>
+#include <geode/geosciences/implicit/geometry/stratigraphic_point.hpp>
+#include <geode/geosciences/implicit/representation/builder/horizons_stack_builder.hpp>
+#include <geode/geosciences/implicit/representation/builder/stratigraphic_model_builder.hpp>
+#include <geode/geosciences/implicit/representation/core/horizons_stack.hpp>
+#include <geode/geosciences/implicit/representation/core/stratigraphic_model.hpp>
+#include <geode/geosciences/implicit/representation/io/implicit_structural_model_input.hpp>
+#include <geode/geosciences/implicit/representation/io/implicit_structural_model_output.hpp>
 
 void add_horizons_stack_to_model(
     geode::StratigraphicModel& model, const geode::uuid& block1_id )

@@ -24,8 +24,8 @@
 #include "../../../factory.h"
 #include "../../../input.h"
 
-#include <geode/geosciences/explicit/representation/io/structural_model_input.h>
-#include <geode/geosciences/explicit/representation/io/structural_model_output.h>
+#include <geode/geosciences/explicit/representation/io/structural_model_input.hpp>
+#include <geode/geosciences/explicit/representation/io/structural_model_output.hpp>
 
 namespace geode
 {

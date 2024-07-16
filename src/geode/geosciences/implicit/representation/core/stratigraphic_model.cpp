@@ -21,34 +21,34 @@
  *
  */
 
-#include <geode/geosciences/implicit/representation/core/stratigraphic_model.h>
+#include <geode/geosciences/implicit/representation/core/stratigraphic_model.hpp>
 
 #include <async++.h>
 
-#include <geode/basic/attribute_manager.h>
-#include <geode/basic/cached_value.h>
-#include <geode/basic/logger.h>
-#include <geode/basic/pimpl_impl.h>
-#include <geode/basic/uuid.h>
+#include <geode/basic/attribute_manager.hpp>
+#include <geode/basic/cached_value.hpp>
+#include <geode/basic/logger.hpp>
+#include <geode/basic/pimpl_impl.hpp>
+#include <geode/basic/uuid.hpp>
 
-#include <geode/geometry/aabb.h>
-#include <geode/geometry/barycentric_coordinates.h>
-#include <geode/geometry/basic_objects/tetrahedron.h>
-#include <geode/geometry/distance.h>
-#include <geode/geometry/mensuration.h>
-#include <geode/geometry/point.h>
+#include <geode/geometry/aabb.hpp>
+#include <geode/geometry/barycentric_coordinates.hpp>
+#include <geode/geometry/basic_objects/tetrahedron.hpp>
+#include <geode/geometry/distance.hpp>
+#include <geode/geometry/mensuration.hpp>
+#include <geode/geometry/point.hpp>
 
-#include <geode/mesh/builder/triangulated_surface_builder.h>
-#include <geode/mesh/core/tetrahedral_solid.h>
-#include <geode/mesh/core/triangulated_surface.h>
-#include <geode/mesh/helpers/aabb_solid_helpers.h>
-#include <geode/mesh/helpers/tetrahedral_solid_point_function.h>
+#include <geode/mesh/builder/triangulated_surface_builder.hpp>
+#include <geode/mesh/core/tetrahedral_solid.hpp>
+#include <geode/mesh/core/triangulated_surface.hpp>
+#include <geode/mesh/helpers/aabb_solid_helpers.hpp>
+#include <geode/mesh/helpers/tetrahedral_solid_point_function.hpp>
 
-#include <geode/model/helpers/component_mesh_polygons.h>
-#include <geode/model/mixin/core/block.h>
-#include <geode/model/mixin/core/surface.h>
+#include <geode/model/helpers/component_mesh_polygons.hpp>
+#include <geode/model/mixin/core/block.hpp>
+#include <geode/model/mixin/core/surface.hpp>
 
-#include <geode/geosciences/implicit/geometry/stratigraphic_point.h>
+#include <geode/geosciences/implicit/geometry/stratigraphic_point.hpp>
 
 namespace geode
 {
@@ -262,7 +262,7 @@ namespace geode
                 const Block3D& block,
                 index_t tetrahedron_id )
                 : indices_{ block.mesh().polyhedron_vertices(
-                    tetrahedron_id ) },
+                      tetrahedron_id ) },
                   positive_tetra_{
                       model.stratigraphic_coordinates( block, indices_[0] )
                           .stratigraphic_coordinates(),

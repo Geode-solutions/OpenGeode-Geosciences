@@ -21,7 +21,7 @@
  *
  */
 
-#include <geode/geosciences/explicit/mixin/core/horizon.h>
+#include <geode/geosciences/explicit/mixin/core/horizon.hpp>
 
 #define PYTHON_HORIZON( dimension )                                            \
     const auto name##dimension =                                               \

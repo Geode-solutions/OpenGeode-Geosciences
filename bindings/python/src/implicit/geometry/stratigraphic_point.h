@@ -21,7 +21,7 @@
  *
  */
 
-#include <geode/geosciences/implicit/geometry/stratigraphic_point.h>
+#include <geode/geosciences/implicit/geometry/stratigraphic_point.hpp>
 
 #define PYTHON_STRATIGRAPHIC_POINT( dimension )                                \
     const auto name##dimension =                                               \

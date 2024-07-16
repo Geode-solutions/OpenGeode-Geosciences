@@ -21,9 +21,9 @@
  *
  */
 
-#include <geode/geometry/bounding_box.h>
+#include <geode/geometry/bounding_box.hpp>
 
-#include <geode/geosciences/explicit/representation/core/cross_section.h>
+#include <geode/geosciences/explicit/representation/core/cross_section.hpp>
 
 namespace geode
 {

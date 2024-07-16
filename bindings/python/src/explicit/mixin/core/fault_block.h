@@ -21,7 +21,7 @@
  *
  */
 
-#include <geode/geosciences/explicit/mixin/core/fault_block.h>
+#include <geode/geosciences/explicit/mixin/core/fault_block.hpp>
 
 #define PYTHON_FAULT_BLOCK( dimension )                                        \
     const auto name##dimension =                                               \

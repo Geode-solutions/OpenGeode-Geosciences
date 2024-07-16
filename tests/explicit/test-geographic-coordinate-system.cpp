@@ -21,22 +21,22 @@
  *
  */
 
-#include <geode/basic/assert.h>
-#include <geode/basic/attribute_manager.h>
-#include <geode/basic/logger.h>
-#include <geode/basic/range.h>
+#include <geode/basic/assert.hpp>
+#include <geode/basic/attribute_manager.hpp>
+#include <geode/basic/logger.hpp>
+#include <geode/basic/range.hpp>
 
-#include <geode/geometry/point.h>
+#include <geode/geometry/point.hpp>
 
-#include <geode/mesh/builder/triangulated_surface_builder.h>
-#include <geode/mesh/core/triangulated_surface.h>
-#include <geode/mesh/io/triangulated_surface_input.h>
-#include <geode/mesh/io/triangulated_surface_output.h>
+#include <geode/mesh/builder/triangulated_surface_builder.hpp>
+#include <geode/mesh/core/triangulated_surface.hpp>
+#include <geode/mesh/io/triangulated_surface_input.hpp>
+#include <geode/mesh/io/triangulated_surface_output.hpp>
 
-#include <geode/geosciences/explicit/geometry/geographic_coordinate_system.h>
-#include <geode/geosciences/explicit/geometry/geographic_coordinate_system_helper.h>
+#include <geode/geosciences/explicit/geometry/geographic_coordinate_system.hpp>
+#include <geode/geosciences/explicit/geometry/geographic_coordinate_system_helper.hpp>
 
-#include <geode/tests_config.h>
+#include <geode/tests_config.hpp>
 
 void test_bitsery()
 {

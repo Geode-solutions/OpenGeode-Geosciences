@@ -21,15 +21,15 @@
  *
  */
 
-#include <geode/geosciences/implicit/representation/core/stratigraphic_model.h>
+#include <geode/geosciences/implicit/representation/core/stratigraphic_model.hpp>
 
-#include <geode/geometry/bounding_box.h>
-#include <geode/geometry/point.h>
+#include <geode/geometry/bounding_box.hpp>
+#include <geode/geometry/point.hpp>
 
-#include <geode/mesh/core/triangulated_surface.h>
+#include <geode/mesh/core/triangulated_surface.hpp>
 
-#include <geode/model/mixin/core/block.h>
-#include <geode/model/mixin/core/surface.h>
+#include <geode/model/mixin/core/block.hpp>
+#include <geode/model/mixin/core/surface.hpp>
 
 namespace geode
 {

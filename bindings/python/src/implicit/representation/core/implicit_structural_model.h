@@ -21,11 +21,11 @@
  *
  */
 
-#include <geode/geosciences/implicit/representation/core/implicit_structural_model.h>
+#include <geode/geosciences/implicit/representation/core/implicit_structural_model.hpp>
 
-#include <geode/geometry/point.h>
+#include <geode/geometry/point.hpp>
 
-#include <geode/model/mixin/core/block.h>
+#include <geode/model/mixin/core/block.hpp>
 
 namespace geode
 {

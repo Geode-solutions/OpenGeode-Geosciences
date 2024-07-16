@@ -21,7 +21,7 @@
  *
  */
 
-#include <geode/geosciences/explicit/representation/io/geode/geode_cross_section_output.h>
+#include <geode/geosciences/explicit/representation/io/geode/geode_cross_section_output.hpp>
 
 #include <string>
 #include <vector>
@@ -30,10 +30,10 @@
 
 #include <fstream>
 
-#include <geode/basic/uuid.h>
-#include <geode/basic/zip_file.h>
+#include <geode/basic/uuid.hpp>
+#include <geode/basic/zip_file.hpp>
 
-#include <geode/model/representation/io/geode/geode_section_output.h>
+#include <geode/model/representation/io/geode/geode_section_output.hpp>
 
 namespace geode
 {

@@ -21,28 +21,28 @@
  *
  */
 
-#include <geode/geosciences/implicit/representation/core/implicit_structural_model.h>
+#include <geode/geosciences/implicit/representation/core/implicit_structural_model.hpp>
 
-#include <geode/basic/attribute_manager.h>
-#include <geode/basic/bitsery_archive.h>
-#include <geode/basic/cached_value.h>
-#include <geode/basic/logger.h>
-#include <geode/basic/pimpl_impl.h>
-#include <geode/basic/uuid.h>
+#include <geode/basic/attribute_manager.hpp>
+#include <geode/basic/bitsery_archive.hpp>
+#include <geode/basic/cached_value.hpp>
+#include <geode/basic/logger.hpp>
+#include <geode/basic/pimpl_impl.hpp>
+#include <geode/basic/uuid.hpp>
 
-#include <geode/geometry/aabb.h>
-#include <geode/geometry/distance.h>
-#include <geode/geometry/point.h>
+#include <geode/geometry/aabb.hpp>
+#include <geode/geometry/distance.hpp>
+#include <geode/geometry/point.hpp>
 
-#include <geode/mesh/core/tetrahedral_solid.h>
-#include <geode/mesh/helpers/aabb_solid_helpers.h>
-#include <geode/mesh/helpers/tetrahedral_solid_scalar_function.h>
+#include <geode/mesh/core/tetrahedral_solid.hpp>
+#include <geode/mesh/helpers/aabb_solid_helpers.hpp>
+#include <geode/mesh/helpers/tetrahedral_solid_scalar_function.hpp>
 
-#include <geode/model/mixin/core/block.h>
+#include <geode/model/mixin/core/block.hpp>
 
-#include <geode/geosciences/explicit/representation/core/detail/clone.h>
-#include <geode/geosciences/implicit/representation/builder/implicit_structural_model_builder.h>
-#include <geode/geosciences/implicit/representation/core/horizons_stack.h>
+#include <geode/geosciences/explicit/representation/core/detail/clone.hpp>
+#include <geode/geosciences/implicit/representation/builder/implicit_structural_model_builder.hpp>
+#include <geode/geosciences/implicit/representation/core/horizons_stack.hpp>
 
 namespace geode
 {

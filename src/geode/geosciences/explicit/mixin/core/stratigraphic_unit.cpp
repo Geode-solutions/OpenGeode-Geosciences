@@ -21,9 +21,9 @@
  *
  */
 
-#include <geode/geosciences/explicit/mixin/core/stratigraphic_unit.h>
+#include <geode/geosciences/explicit/mixin/core/stratigraphic_unit.hpp>
 
-#include <geode/basic/bitsery_archive.h>
+#include <geode/basic/bitsery_archive.hpp>
 
 namespace geode
 {

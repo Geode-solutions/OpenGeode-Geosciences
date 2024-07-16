@@ -21,9 +21,9 @@
  *
  */
 
-#include <geode/basic/attribute_manager.h>
+#include <geode/basic/attribute_manager.hpp>
 
-#include <geode/geosciences/explicit/geometry/geographic_coordinate_system.h>
+#include <geode/geosciences/explicit/geometry/geographic_coordinate_system.hpp>
 
 #define PYTHON_CRS( dimension )                                                \
     const auto info##dimension =                                               \

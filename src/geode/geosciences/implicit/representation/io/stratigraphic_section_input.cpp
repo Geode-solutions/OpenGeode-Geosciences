@@ -21,21 +21,21 @@
  *
  */
 
-#include <geode/geosciences/implicit/representation/io/stratigraphic_section_input.h>
+#include <geode/geosciences/implicit/representation/io/stratigraphic_section_input.hpp>
 
 #include <string_view>
 
 #include <absl/strings/str_cat.h>
 
-#include <geode/basic/detail/geode_input_impl.h>
-#include <geode/basic/io.h>
-#include <geode/basic/logger.h>
+#include <geode/basic/detail/geode_input_impl.hpp>
+#include <geode/basic/io.hpp>
+#include <geode/basic/logger.hpp>
 
-#include <geode/model/representation/io/section_input.h>
+#include <geode/model/representation/io/section_input.hpp>
 
-#include <geode/geosciences/explicit/representation/io/cross_section_input.h>
-#include <geode/geosciences/implicit/representation/core/stratigraphic_section.h>
-#include <geode/geosciences/implicit/representation/io/implicit_cross_section_input.h>
+#include <geode/geosciences/explicit/representation/io/cross_section_input.hpp>
+#include <geode/geosciences/implicit/representation/core/stratigraphic_section.hpp>
+#include <geode/geosciences/implicit/representation/io/implicit_cross_section_input.hpp>
 
 namespace geode
 {

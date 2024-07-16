@@ -21,8 +21,8 @@
  *
  */
 
-#include <geode/geosciences/explicit/mixin/core/stratigraphic_unit.h>
-#include <geode/geosciences/explicit/mixin/core/stratigraphic_units.h>
+#include <geode/geosciences/explicit/mixin/core/stratigraphic_unit.hpp>
+#include <geode/geosciences/explicit/mixin/core/stratigraphic_units.hpp>
 
 #define PYTHON_STRATIGRAPHIC_UNITS( dimension )                                \
     const auto name##dimension =                                               \

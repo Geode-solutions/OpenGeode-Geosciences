@@ -21,34 +21,34 @@
  *
  */
 
-#include <geode/geosciences/implicit/representation/core/stratigraphic_section.h>
+#include <geode/geosciences/implicit/representation/core/stratigraphic_section.hpp>
 
 #include <async++.h>
 
-#include <geode/basic/attribute_manager.h>
-#include <geode/basic/cached_value.h>
-#include <geode/basic/logger.h>
-#include <geode/basic/pimpl_impl.h>
-#include <geode/basic/uuid.h>
+#include <geode/basic/attribute_manager.hpp>
+#include <geode/basic/cached_value.hpp>
+#include <geode/basic/logger.hpp>
+#include <geode/basic/pimpl_impl.hpp>
+#include <geode/basic/uuid.hpp>
 
-#include <geode/geometry/aabb.h>
-#include <geode/geometry/barycentric_coordinates.h>
-#include <geode/geometry/basic_objects/triangle.h>
-#include <geode/geometry/distance.h>
-#include <geode/geometry/mensuration.h>
-#include <geode/geometry/point.h>
+#include <geode/geometry/aabb.hpp>
+#include <geode/geometry/barycentric_coordinates.hpp>
+#include <geode/geometry/basic_objects/triangle.hpp>
+#include <geode/geometry/distance.hpp>
+#include <geode/geometry/mensuration.hpp>
+#include <geode/geometry/point.hpp>
 
-#include <geode/mesh/builder/edged_curve_builder.h>
-#include <geode/mesh/core/edged_curve.h>
-#include <geode/mesh/core/triangulated_surface.h>
-#include <geode/mesh/helpers/aabb_surface_helpers.h>
-#include <geode/mesh/helpers/triangulated_surface_point_function.h>
+#include <geode/mesh/builder/edged_curve_builder.hpp>
+#include <geode/mesh/core/edged_curve.hpp>
+#include <geode/mesh/core/triangulated_surface.hpp>
+#include <geode/mesh/helpers/aabb_surface_helpers.hpp>
+#include <geode/mesh/helpers/triangulated_surface_point_function.hpp>
 
-#include <geode/model/helpers/component_mesh_polygons.h>
-#include <geode/model/mixin/core/line.h>
-#include <geode/model/mixin/core/surface.h>
+#include <geode/model/helpers/component_mesh_polygons.hpp>
+#include <geode/model/mixin/core/line.hpp>
+#include <geode/model/mixin/core/surface.hpp>
 
-#include <geode/geosciences/implicit/geometry/stratigraphic_point.h>
+#include <geode/geosciences/implicit/geometry/stratigraphic_point.hpp>
 
 namespace geode
 {

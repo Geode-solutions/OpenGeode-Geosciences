@@ -28,8 +28,8 @@ if(NOT TARGET OpenGeode-Geosciences::implicit)
 endif()
 
 set(DATA_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/data)
-set(test_config_file_in ${CMAKE_CURRENT_LIST_DIR}/tests_config.h.in)
-set(test_config_file ${PROJECT_BINARY_DIR}/geode/tests_config.h)
+set(test_config_file_in ${CMAKE_CURRENT_LIST_DIR}/tests_config.hpp.in)
+set(test_config_file ${PROJECT_BINARY_DIR}/geode/tests_config.hpp)
 configure_file(${test_config_file_in} ${test_config_file})
 include_directories(${PROJECT_BINARY_DIR})
 

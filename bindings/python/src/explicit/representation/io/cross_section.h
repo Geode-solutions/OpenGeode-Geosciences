@@ -24,8 +24,8 @@
 #include "../../../factory.h"
 #include "../../../input.h"
 
-#include <geode/geosciences/explicit/representation/io/cross_section_input.h>
-#include <geode/geosciences/explicit/representation/io/cross_section_output.h>
+#include <geode/geosciences/explicit/representation/io/cross_section_input.hpp>
+#include <geode/geosciences/explicit/representation/io/cross_section_output.hpp>
 
 namespace geode
 {

@@ -21,15 +21,15 @@
  *
  */
 
-#include <geode/geosciences/explicit/mixin/core/bitsery_archive.h>
+#include <geode/geosciences/explicit/mixin/core/bitsery_archive.hpp>
 
-#include <geode/model/mixin/core/bitsery_archive.h>
+#include <geode/model/mixin/core/bitsery_archive.hpp>
 
-#include <geode/geosciences/explicit/geometry/geographic_coordinate_system.h>
-#include <geode/geosciences/explicit/mixin/core/fault.h>
-#include <geode/geosciences/explicit/mixin/core/fault_block.h>
-#include <geode/geosciences/explicit/mixin/core/horizon.h>
-#include <geode/geosciences/explicit/mixin/core/stratigraphic_unit.h>
+#include <geode/geosciences/explicit/geometry/geographic_coordinate_system.hpp>
+#include <geode/geosciences/explicit/mixin/core/fault.hpp>
+#include <geode/geosciences/explicit/mixin/core/fault_block.hpp>
+#include <geode/geosciences/explicit/mixin/core/horizon.hpp>
+#include <geode/geosciences/explicit/mixin/core/stratigraphic_unit.hpp>
 
 namespace bitsery
 {

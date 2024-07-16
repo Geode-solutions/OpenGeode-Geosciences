@@ -21,7 +21,7 @@
  *
  */
 
-#include <geode/geosciences/implicit/mixin/builder/stratigraphic_relationships_builder.h>
+#include <geode/geosciences/implicit/mixin/builder/stratigraphic_relationships_builder.hpp>
 
 namespace geode
 {

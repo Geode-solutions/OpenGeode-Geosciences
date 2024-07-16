@@ -21,12 +21,12 @@
  *
  */
 
-#include <geode/geosciences/implicit/representation/core/detail/helpers.h>
+#include <geode/geosciences/implicit/representation/core/detail/helpers.hpp>
 
-#include <geode/model/representation/core/brep.h>
+#include <geode/model/representation/core/brep.hpp>
 
-#include <geode/geosciences/implicit/representation/core/stratigraphic_model.h>
-#include <geode/geosciences/implicit/representation/core/stratigraphic_section.h>
+#include <geode/geosciences/implicit/representation/core/stratigraphic_model.hpp>
+#include <geode/geosciences/implicit/representation/core/stratigraphic_section.hpp>
 
 namespace geode
 {
