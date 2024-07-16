@@ -169,7 +169,7 @@ namespace geode
         StratigraphicUnitRangeBase(
             const StratigraphicUnits& stratigraphic_units )
         : impl_( stratigraphic_units.impl_->begin(),
-              stratigraphic_units.impl_->end() )
+            stratigraphic_units.impl_->end() )
     {
     }
 
