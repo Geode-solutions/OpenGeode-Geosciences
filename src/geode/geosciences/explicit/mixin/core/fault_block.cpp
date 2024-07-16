@@ -21,9 +21,9 @@
  *
  */
 
-#include <geode/geosciences/explicit/mixin/core/fault_block.h>
+#include <geode/geosciences/explicit/mixin/core/fault_block.hpp>
 
-#include <geode/basic/bitsery_archive.h>
+#include <geode/basic/bitsery_archive.hpp>
 
 namespace geode
 {

@@ -21,23 +21,23 @@
  *
  */
 
-#include <geode/geosciences/implicit/representation/io/geode/geode_implicit_structural_model_input.h>
+#include <geode/geosciences/implicit/representation/io/geode/geode_implicit_structural_model_input.hpp>
 
 #include <filesystem>
 #include <fstream>
 
 #include <async++.h>
 
-#include <geode/basic/uuid.h>
-#include <geode/basic/zip_file.h>
+#include <geode/basic/uuid.hpp>
+#include <geode/basic/zip_file.hpp>
 
-#include <geode/model/representation/io/geode/geode_brep_input.h>
+#include <geode/model/representation/io/geode/geode_brep_input.hpp>
 
-#include <geode/geosciences/explicit/representation/io/geode/geode_structural_model_input.h>
-#include <geode/geosciences/implicit/representation/builder/implicit_structural_model_builder.h>
-#include <geode/geosciences/implicit/representation/core/horizons_stack.h>
-#include <geode/geosciences/implicit/representation/core/implicit_structural_model.h>
-#include <geode/geosciences/implicit/representation/io/horizons_stack_input.h>
+#include <geode/geosciences/explicit/representation/io/geode/geode_structural_model_input.hpp>
+#include <geode/geosciences/implicit/representation/builder/implicit_structural_model_builder.hpp>
+#include <geode/geosciences/implicit/representation/core/horizons_stack.hpp>
+#include <geode/geosciences/implicit/representation/core/implicit_structural_model.hpp>
+#include <geode/geosciences/implicit/representation/io/horizons_stack_input.hpp>
 
 namespace geode
 {

@@ -21,12 +21,12 @@
  *
  */
 
-#include <geode/geosciences/explicit/representation/core/cross_section.h>
+#include <geode/geosciences/explicit/representation/core/cross_section.hpp>
 
-#include <geode/model/representation/core/detail/clone.h>
+#include <geode/model/representation/core/detail/clone.hpp>
 
-#include <geode/geosciences/explicit/representation/builder/cross_section_builder.h>
-#include <geode/geosciences/explicit/representation/core/detail/clone.h>
+#include <geode/geosciences/explicit/representation/builder/cross_section_builder.hpp>
+#include <geode/geosciences/explicit/representation/core/detail/clone.hpp>
 
 namespace
 {

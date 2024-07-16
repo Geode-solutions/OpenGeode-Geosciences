@@ -21,14 +21,14 @@
  *
  */
 
-#include <geode/geosciences/explicit/representation/core/detail/clone.h>
+#include <geode/geosciences/explicit/representation/core/detail/clone.hpp>
 
-#include <geode/geosciences/explicit/mixin/core/fault.h>
-#include <geode/geosciences/explicit/mixin/core/fault_block.h>
-#include <geode/geosciences/explicit/mixin/core/horizon.h>
-#include <geode/geosciences/explicit/mixin/core/stratigraphic_unit.h>
-#include <geode/geosciences/explicit/representation/core/cross_section.h>
-#include <geode/geosciences/explicit/representation/core/structural_model.h>
+#include <geode/geosciences/explicit/mixin/core/fault.hpp>
+#include <geode/geosciences/explicit/mixin/core/fault_block.hpp>
+#include <geode/geosciences/explicit/mixin/core/horizon.hpp>
+#include <geode/geosciences/explicit/mixin/core/stratigraphic_unit.hpp>
+#include <geode/geosciences/explicit/representation/core/cross_section.hpp>
+#include <geode/geosciences/explicit/representation/core/structural_model.hpp>
 
 namespace
 {

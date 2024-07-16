@@ -21,31 +21,31 @@
  *
  */
 
-#include "../common.h"
+#include "../common.hpp"
 
 #include <pybind11/iostream.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
-#include "geometry/stratigraphic_point.h"
-#include "mixin/builder/stratigraphic_relationships_builder.h"
-#include "mixin/core/stratigraphic_relationships.h"
-#include "representation/builder/horizons_stack_builder.h"
-#include "representation/builder/implicit_cross_section_builder.h"
-#include "representation/builder/implicit_structural_model_builder.h"
-#include "representation/builder/stratigraphic_model_builder.h"
-#include "representation/builder/stratigraphic_section_builder.h"
-#include "representation/core/helpers.h"
-#include "representation/core/horizons_stack.h"
-#include "representation/core/implicit_cross_section.h"
-#include "representation/core/implicit_structural_model.h"
-#include "representation/core/stratigraphic_model.h"
-#include "representation/core/stratigraphic_section.h"
-#include "representation/io/horizons_stack.h"
-#include "representation/io/implicit_cross_section.h"
-#include "representation/io/implicit_structural_model.h"
-#include "representation/io/stratigraphic_model.h"
-#include "representation/io/stratigraphic_section.h"
+#include "geometry/stratigraphic_point.hpp"
+#include "mixin/builder/stratigraphic_relationships_builder.hpp"
+#include "mixin/core/stratigraphic_relationships.hpp"
+#include "representation/builder/horizons_stack_builder.hpp"
+#include "representation/builder/implicit_cross_section_builder.hpp"
+#include "representation/builder/implicit_structural_model_builder.hpp"
+#include "representation/builder/stratigraphic_model_builder.hpp"
+#include "representation/builder/stratigraphic_section_builder.hpp"
+#include "representation/core/helpers.hpp"
+#include "representation/core/horizons_stack.hpp"
+#include "representation/core/implicit_cross_section.hpp"
+#include "representation/core/implicit_structural_model.hpp"
+#include "representation/core/stratigraphic_model.hpp"
+#include "representation/core/stratigraphic_section.hpp"
+#include "representation/io/horizons_stack.hpp"
+#include "representation/io/implicit_cross_section.hpp"
+#include "representation/io/implicit_structural_model.hpp"
+#include "representation/io/stratigraphic_model.hpp"
+#include "representation/io/stratigraphic_section.hpp"
 
 PYBIND11_MODULE( opengeode_geosciences_py_implicit, module )
 {

@@ -21,16 +21,16 @@
  *
  */
 
-#include <geode/geosciences/implicit/representation/builder/implicit_structural_model_builder.h>
+#include <geode/geosciences/implicit/representation/builder/implicit_structural_model_builder.hpp>
 
-#include <geode/geometry/point.h>
+#include <geode/geometry/point.hpp>
 
-#include <geode/model/mixin/core/block.h>
-#include <geode/model/representation/builder/detail/copy.h>
+#include <geode/model/mixin/core/block.hpp>
+#include <geode/model/representation/builder/detail/copy.hpp>
 
-#include <geode/geosciences/implicit/representation/builder/horizons_stack_builder.h>
-#include <geode/geosciences/implicit/representation/core/horizons_stack.h>
-#include <geode/geosciences/implicit/representation/core/implicit_structural_model.h>
+#include <geode/geosciences/implicit/representation/builder/horizons_stack_builder.hpp>
+#include <geode/geosciences/implicit/representation/core/horizons_stack.hpp>
+#include <geode/geosciences/implicit/representation/core/implicit_structural_model.hpp>
 
 namespace geode
 {

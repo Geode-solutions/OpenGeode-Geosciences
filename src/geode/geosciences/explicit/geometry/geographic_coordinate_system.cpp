@@ -21,15 +21,15 @@
  *
  */
 
-#include <geode/geosciences/explicit/geometry/geographic_coordinate_system.h>
+#include <geode/geosciences/explicit/geometry/geographic_coordinate_system.hpp>
 
 #include <ogr_spatialref.h>
 #include <ogr_srs_api.h>
 
-#include <geode/basic/logger.h>
-#include <geode/basic/pimpl_impl.h>
+#include <geode/basic/logger.hpp>
+#include <geode/basic/pimpl_impl.hpp>
 
-#include <geode/mesh/core/internal/points_impl.h>
+#include <geode/mesh/core/internal/points_impl.hpp>
 
 namespace geode
 {

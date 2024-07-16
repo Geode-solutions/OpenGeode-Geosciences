@@ -21,18 +21,18 @@
  *
  */
 
-#include <geode/geosciences/implicit/representation/io/horizons_stack_input.h>
+#include <geode/geosciences/implicit/representation/io/horizons_stack_input.hpp>
 
 #include <string_view>
 
 #include <absl/strings/str_cat.h>
 
-#include <geode/basic/detail/geode_input_impl.h>
-#include <geode/basic/io.h>
-#include <geode/basic/logger.h>
+#include <geode/basic/detail/geode_input_impl.hpp>
+#include <geode/basic/io.hpp>
+#include <geode/basic/logger.hpp>
 
-#include <geode/geosciences/implicit/representation/builder/horizons_stack_builder.h>
-#include <geode/geosciences/implicit/representation/core/horizons_stack.h>
+#include <geode/geosciences/implicit/representation/builder/horizons_stack_builder.hpp>
+#include <geode/geosciences/implicit/representation/core/horizons_stack.hpp>
 
 namespace geode
 {

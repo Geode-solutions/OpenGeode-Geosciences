@@ -21,19 +21,19 @@
  *
  */
 
-#include <geode/basic/assert.h>
-#include <geode/basic/logger.h>
-#include <geode/basic/range.h>
+#include <geode/basic/assert.hpp>
+#include <geode/basic/logger.hpp>
+#include <geode/basic/range.hpp>
 
-#include <geode/model/mixin/core/line.h>
-#include <geode/model/mixin/core/surface.h>
+#include <geode/model/mixin/core/line.hpp>
+#include <geode/model/mixin/core/surface.hpp>
 
-#include <geode/geosciences/explicit/mixin/core/fault.h>
-#include <geode/geosciences/explicit/mixin/core/horizon.h>
-#include <geode/geosciences/explicit/representation/builder/structural_model_builder.h>
-#include <geode/geosciences/explicit/representation/core/structural_model.h>
-#include <geode/geosciences/explicit/representation/io/structural_model_input.h>
-#include <geode/geosciences/explicit/representation/io/structural_model_output.h>
+#include <geode/geosciences/explicit/mixin/core/fault.hpp>
+#include <geode/geosciences/explicit/mixin/core/horizon.hpp>
+#include <geode/geosciences/explicit/representation/builder/structural_model_builder.hpp>
+#include <geode/geosciences/explicit/representation/core/structural_model.hpp>
+#include <geode/geosciences/explicit/representation/io/structural_model_input.hpp>
+#include <geode/geosciences/explicit/representation/io/structural_model_output.hpp>
 
 template < class ItemRange >
 geode::index_t count_items( ItemRange items )

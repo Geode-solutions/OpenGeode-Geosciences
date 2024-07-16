@@ -21,13 +21,13 @@
  *
  */
 
-#include <geode/geosciences/implicit/representation/builder/horizons_stack_builder.h>
+#include <geode/geosciences/implicit/representation/builder/horizons_stack_builder.hpp>
 
-#include <geode/geosciences/explicit/mixin/core/horizon.h>
-#include <geode/geosciences/explicit/mixin/core/stratigraphic_unit.h>
-#include <geode/geosciences/explicit/representation/builder/detail/copy.h>
+#include <geode/geosciences/explicit/mixin/core/horizon.hpp>
+#include <geode/geosciences/explicit/mixin/core/stratigraphic_unit.hpp>
+#include <geode/geosciences/explicit/representation/builder/detail/copy.hpp>
 
-#include <geode/geosciences/implicit/representation/core/horizons_stack.h>
+#include <geode/geosciences/implicit/representation/core/horizons_stack.hpp>
 
 namespace geode
 {

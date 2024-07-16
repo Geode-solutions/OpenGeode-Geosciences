@@ -21,12 +21,12 @@
  *
  */
 
-#include <geode/geosciences/explicit/representation/core/structural_model.h>
+#include <geode/geosciences/explicit/representation/core/structural_model.hpp>
 
-#include <geode/model/representation/core/detail/clone.h>
+#include <geode/model/representation/core/detail/clone.hpp>
 
-#include <geode/geosciences/explicit/representation/builder/structural_model_builder.h>
-#include <geode/geosciences/explicit/representation/core/detail/clone.h>
+#include <geode/geosciences/explicit/representation/builder/structural_model_builder.hpp>
+#include <geode/geosciences/explicit/representation/core/detail/clone.hpp>
 
 namespace
 {

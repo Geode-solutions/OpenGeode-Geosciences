@@ -21,17 +21,17 @@
  *
  */
 
-#include <geode/basic/common.h>
-#include <geode/basic/logger.h>
+#include <geode/basic/common.hpp>
+#include <geode/basic/logger.hpp>
 
-#include <geode/model/common.h>
+#include <geode/model/common.hpp>
 
-#include <geode/geosciences/explicit/common.h>
-#include <geode/geosciences/explicit/mixin/core/bitsery_archive.h>
-#include <geode/geosciences/explicit/representation/io/geode/geode_cross_section_input.h>
-#include <geode/geosciences/explicit/representation/io/geode/geode_cross_section_output.h>
-#include <geode/geosciences/explicit/representation/io/geode/geode_structural_model_input.h>
-#include <geode/geosciences/explicit/representation/io/geode/geode_structural_model_output.h>
+#include <geode/geosciences/explicit/common.hpp>
+#include <geode/geosciences/explicit/mixin/core/bitsery_archive.hpp>
+#include <geode/geosciences/explicit/representation/io/geode/geode_cross_section_input.hpp>
+#include <geode/geosciences/explicit/representation/io/geode/geode_cross_section_output.hpp>
+#include <geode/geosciences/explicit/representation/io/geode/geode_structural_model_input.hpp>
+#include <geode/geosciences/explicit/representation/io/geode/geode_structural_model_output.hpp>
 
 namespace
 {

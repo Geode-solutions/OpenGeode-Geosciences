@@ -21,15 +21,15 @@
  *
  */
 
-#include <geode/geosciences/explicit/mixin/core/faults.h>
+#include <geode/geosciences/explicit/mixin/core/faults.hpp>
 
-#include <geode/basic/identifier_builder.h>
-#include <geode/basic/pimpl_impl.h>
-#include <geode/basic/range.h>
+#include <geode/basic/identifier_builder.hpp>
+#include <geode/basic/pimpl_impl.hpp>
+#include <geode/basic/range.hpp>
 
-#include <geode/model/mixin/core/detail/components_storage.h>
+#include <geode/model/mixin/core/detail/components_storage.hpp>
 
-#include <geode/geosciences/explicit/mixin/core/fault.h>
+#include <geode/geosciences/explicit/mixin/core/fault.hpp>
 
 namespace geode
 {

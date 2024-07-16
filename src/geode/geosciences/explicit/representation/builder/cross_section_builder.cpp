@@ -21,19 +21,19 @@
  *
  */
 
-#include <geode/geosciences/explicit/representation/builder/cross_section_builder.h>
+#include <geode/geosciences/explicit/representation/builder/cross_section_builder.hpp>
 
-#include <geode/model/mixin/core/line.h>
-#include <geode/model/mixin/core/relationships.h>
-#include <geode/model/mixin/core/surface.h>
-#include <geode/model/representation/builder/detail/copy.h>
+#include <geode/model/mixin/core/line.hpp>
+#include <geode/model/mixin/core/relationships.hpp>
+#include <geode/model/mixin/core/surface.hpp>
+#include <geode/model/representation/builder/detail/copy.hpp>
 
-#include <geode/geosciences/explicit/mixin/core/fault.h>
-#include <geode/geosciences/explicit/mixin/core/fault_block.h>
-#include <geode/geosciences/explicit/mixin/core/horizon.h>
-#include <geode/geosciences/explicit/mixin/core/stratigraphic_unit.h>
-#include <geode/geosciences/explicit/representation/builder/detail/copy.h>
-#include <geode/geosciences/explicit/representation/core/cross_section.h>
+#include <geode/geosciences/explicit/mixin/core/fault.hpp>
+#include <geode/geosciences/explicit/mixin/core/fault_block.hpp>
+#include <geode/geosciences/explicit/mixin/core/horizon.hpp>
+#include <geode/geosciences/explicit/mixin/core/stratigraphic_unit.hpp>
+#include <geode/geosciences/explicit/representation/builder/detail/copy.hpp>
+#include <geode/geosciences/explicit/representation/core/cross_section.hpp>
 
 namespace geode
 {

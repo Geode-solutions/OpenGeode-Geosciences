@@ -21,7 +21,7 @@
  *
  */
 
-#include <geode/geosciences/implicit/representation/io/geode/geode_implicit_cross_section_output.h>
+#include <geode/geosciences/implicit/representation/io/geode/geode_implicit_cross_section_output.hpp>
 
 #include <filesystem>
 #include <fstream>
@@ -30,14 +30,14 @@
 
 #include <async++.h>
 
-#include <geode/basic/uuid.h>
-#include <geode/basic/zip_file.h>
+#include <geode/basic/uuid.hpp>
+#include <geode/basic/zip_file.hpp>
 
-#include <geode/model/representation/io/geode/geode_section_output.h>
+#include <geode/model/representation/io/geode/geode_section_output.hpp>
 
-#include <geode/geosciences/explicit/representation/io/geode/geode_cross_section_output.h>
-#include <geode/geosciences/implicit/representation/core/horizons_stack.h>
-#include <geode/geosciences/implicit/representation/io/horizons_stack_output.h>
+#include <geode/geosciences/explicit/representation/io/geode/geode_cross_section_output.hpp>
+#include <geode/geosciences/implicit/representation/core/horizons_stack.hpp>
+#include <geode/geosciences/implicit/representation/io/horizons_stack_output.hpp>
 
 namespace geode
 {
