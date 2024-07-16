@@ -21,14 +21,14 @@
  *
  */
 
-#include <geode/geosciences/implicit/representation/builder/stratigraphic_section_builder.h>
+#include <geode/geosciences/implicit/representation/builder/stratigraphic_section_builder.hpp>
 
-#include <geode/geometry/point.h>
+#include <geode/geometry/point.hpp>
 
-#include <geode/model/mixin/core/surface.h>
+#include <geode/model/mixin/core/surface.hpp>
 
-#include <geode/geosciences/implicit/geometry/stratigraphic_point.h>
-#include <geode/geosciences/implicit/representation/core/stratigraphic_section.h>
+#include <geode/geosciences/implicit/geometry/stratigraphic_point.hpp>
+#include <geode/geosciences/implicit/representation/core/stratigraphic_section.hpp>
 
 namespace geode
 {

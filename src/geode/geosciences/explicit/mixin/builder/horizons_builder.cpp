@@ -21,10 +21,10 @@
  *
  */
 
-#include <geode/geosciences/explicit/mixin/builder/horizons_builder.h>
+#include <geode/geosciences/explicit/mixin/builder/horizons_builder.hpp>
 
-#include <geode/geosciences/explicit/mixin/core/horizon.h>
-#include <geode/geosciences/explicit/mixin/core/horizons.h>
+#include <geode/geosciences/explicit/mixin/core/horizon.hpp>
+#include <geode/geosciences/explicit/mixin/core/horizons.hpp>
 
 namespace geode
 {

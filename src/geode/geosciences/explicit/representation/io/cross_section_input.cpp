@@ -21,19 +21,19 @@
  *
  */
 
-#include <geode/geosciences/explicit/representation/io/cross_section_input.h>
+#include <geode/geosciences/explicit/representation/io/cross_section_input.hpp>
 
 #include <absl/strings/str_cat.h>
 #include <string_view>
 
-#include <geode/basic/detail/geode_input_impl.h>
-#include <geode/basic/io.h>
-#include <geode/basic/logger.h>
+#include <geode/basic/detail/geode_input_impl.hpp>
+#include <geode/basic/io.hpp>
+#include <geode/basic/logger.hpp>
 
-#include <geode/model/representation/io/section_input.h>
+#include <geode/model/representation/io/section_input.hpp>
 
-#include <geode/geosciences/explicit/representation/builder/cross_section_builder.h>
-#include <geode/geosciences/explicit/representation/core/cross_section.h>
+#include <geode/geosciences/explicit/representation/builder/cross_section_builder.hpp>
+#include <geode/geosciences/explicit/representation/core/cross_section.hpp>
 
 namespace geode
 {

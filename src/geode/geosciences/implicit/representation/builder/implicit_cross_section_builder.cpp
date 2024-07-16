@@ -21,14 +21,14 @@
  *
  */
 
-#include <geode/geosciences/implicit/representation/builder/implicit_cross_section_builder.h>
+#include <geode/geosciences/implicit/representation/builder/implicit_cross_section_builder.hpp>
 
-#include <geode/model/mixin/core/surface.h>
-#include <geode/model/representation/builder/detail/copy.h>
+#include <geode/model/mixin/core/surface.hpp>
+#include <geode/model/representation/builder/detail/copy.hpp>
 
-#include <geode/geosciences/implicit/representation/builder/horizons_stack_builder.h>
-#include <geode/geosciences/implicit/representation/core/horizons_stack.h>
-#include <geode/geosciences/implicit/representation/core/implicit_cross_section.h>
+#include <geode/geosciences/implicit/representation/builder/horizons_stack_builder.hpp>
+#include <geode/geosciences/implicit/representation/core/horizons_stack.hpp>
+#include <geode/geosciences/implicit/representation/core/implicit_cross_section.hpp>
 
 namespace geode
 {

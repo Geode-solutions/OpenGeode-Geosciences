@@ -21,15 +21,15 @@
  *
  */
 
-#include <geode/geosciences/explicit/representation/builder/structural_model_builder.h>
+#include <geode/geosciences/explicit/representation/builder/structural_model_builder.hpp>
 
-#include <geode/model/mixin/core/block.h>
-#include <geode/model/mixin/core/relationships.h>
-#include <geode/model/mixin/core/surface.h>
-#include <geode/model/representation/builder/detail/copy.h>
+#include <geode/model/mixin/core/block.hpp>
+#include <geode/model/mixin/core/relationships.hpp>
+#include <geode/model/mixin/core/surface.hpp>
+#include <geode/model/representation/builder/detail/copy.hpp>
 
-#include <geode/geosciences/explicit/representation/builder/detail/copy.h>
-#include <geode/geosciences/explicit/representation/core/structural_model.h>
+#include <geode/geosciences/explicit/representation/builder/detail/copy.hpp>
+#include <geode/geosciences/explicit/representation/core/structural_model.hpp>
 
 namespace geode
 {
