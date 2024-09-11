@@ -262,7 +262,7 @@ namespace geode
                 const Block3D& block,
                 index_t tetrahedron_id )
                 : indices_{ block.mesh().polyhedron_vertices(
-                    tetrahedron_id ) },
+                      tetrahedron_id ) },
                   positive_tetra_{
                       model.stratigraphic_coordinates( block, indices_[0] )
                           .stratigraphic_coordinates(),
