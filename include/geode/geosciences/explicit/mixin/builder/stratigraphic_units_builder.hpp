@@ -51,7 +51,7 @@ namespace geode
         {
         }
 
-        const uuid& create_stratigraphic_unit();
+        [[nodiscard]] const uuid& create_stratigraphic_unit();
 
         void create_stratigraphic_unit( uuid stratigraphic_unit_id );
 

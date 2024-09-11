@@ -34,7 +34,7 @@ namespace geode
     public:
         explicit OpenGeodeStructuralModelInput( std::string_view filename );
 
-        static std::string_view extension()
+        [[nodiscard]] static std::string_view extension()
         {
             return StructuralModel::native_extension_static();
         }
@@ -42,6 +42,6 @@ namespace geode
         void load_structural_model_files(
             StructuralModel& structural_model, std::string_view directory );
 
-        StructuralModel read() final;
+        [[nodiscard]] StructuralModel read() final;
     };
 } // namespace geode

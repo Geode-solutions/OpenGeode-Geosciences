@@ -68,11 +68,11 @@ namespace geode
             HorizonItemRange( const HorizonItemRange& range );
             ~HorizonItemRange();
 
-            const HorizonItemRange& begin() const;
+            [[nodiscard]] const HorizonItemRange& begin() const;
 
-            const HorizonItemRange& end() const;
+            [[nodiscard]] const HorizonItemRange& end() const;
 
-            const Line2D& operator*() const;
+            [[nodiscard]] const Line2D& operator*() const;
 
         private:
             const CrossSection& cross_section_;
@@ -87,11 +87,11 @@ namespace geode
             FaultItemRange( const FaultItemRange& range );
             ~FaultItemRange();
 
-            const FaultItemRange& begin() const;
+            [[nodiscard]] const FaultItemRange& begin() const;
 
-            const FaultItemRange& end() const;
+            [[nodiscard]] const FaultItemRange& end() const;
 
-            const Line2D& operator*() const;
+            [[nodiscard]] const Line2D& operator*() const;
 
         private:
             const CrossSection& cross_section_;
@@ -106,11 +106,11 @@ namespace geode
             FaultBlockItemRange( const FaultBlockItemRange& range );
             ~FaultBlockItemRange();
 
-            const FaultBlockItemRange& begin() const;
+            [[nodiscard]] const FaultBlockItemRange& begin() const;
 
-            const FaultBlockItemRange& end() const;
+            [[nodiscard]] const FaultBlockItemRange& end() const;
 
-            const Surface2D& operator*() const;
+            [[nodiscard]] const Surface2D& operator*() const;
 
         private:
             const CrossSection& cross_section_;
@@ -126,11 +126,11 @@ namespace geode
                 const StratigraphicUnitItemRange& range );
             ~StratigraphicUnitItemRange();
 
-            const StratigraphicUnitItemRange& begin() const;
+            [[nodiscard]] const StratigraphicUnitItemRange& begin() const;
 
-            const StratigraphicUnitItemRange& end() const;
+            [[nodiscard]] const StratigraphicUnitItemRange& end() const;
 
-            const Surface2D& operator*() const;
+            [[nodiscard]] const Surface2D& operator*() const;
 
         private:
             const CrossSection& cross_section_;
@@ -152,26 +152,28 @@ namespace geode
             Section&& section,
             const ModelGenericMapping& initial_to_section_mappings ) noexcept;
 
-        CrossSection clone() const;
+        [[nodiscard]] CrossSection clone() const;
 
-        static constexpr std::string_view native_extension_static()
+        [[nodiscard]] static constexpr std::string_view
+            native_extension_static()
         {
             return "og_xsctn";
         }
 
-        std::string_view native_extension() const
+        [[nodiscard]] std::string_view native_extension() const
         {
             return native_extension_static();
         }
 
-        HorizonItemRange horizon_items( const Horizon2D& horizon ) const;
+        [[nodiscard]] HorizonItemRange horizon_items(
+            const Horizon2D& horizon ) const;
 
-        FaultItemRange fault_items( const Fault2D& fault ) const;
+        [[nodiscard]] FaultItemRange fault_items( const Fault2D& fault ) const;
 
-        FaultBlockItemRange fault_block_items(
+        [[nodiscard]] FaultBlockItemRange fault_block_items(
             const FaultBlock2D& fault_block ) const;
 
-        StratigraphicUnitItemRange stratigraphic_unit_items(
+        [[nodiscard]] StratigraphicUnitItemRange stratigraphic_unit_items(
             const StratigraphicUnit2D& stratigraphic_unit ) const;
     };
 } // namespace geode

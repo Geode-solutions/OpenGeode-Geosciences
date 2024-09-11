@@ -51,7 +51,8 @@ namespace geode
         public:
             ~FaultRangeBase();
 
-            bool operator!=( const FaultRangeBase& /*unused*/ ) const;
+            [[nodiscard]] bool operator!=(
+                const FaultRangeBase& /*unused*/ ) const;
 
             void operator++();
 
@@ -70,29 +71,29 @@ namespace geode
         public:
             FaultRange( const Faults& faults );
 
-            const FaultRange& begin() const
+            [[nodiscard]] const FaultRange& begin() const
             {
                 return *this;
             }
 
-            const FaultRange& end() const
+            [[nodiscard]] const FaultRange& end() const
             {
                 return *this;
             }
 
-            const Fault< dimension >& operator*() const;
+            [[nodiscard]] const Fault< dimension >& operator*() const;
         };
 
     public:
         ~Faults();
 
-        index_t nb_faults() const;
+        [[nodiscard]] index_t nb_faults() const;
 
-        bool has_fault( const uuid& id ) const;
+        [[nodiscard]] bool has_fault( const uuid& id ) const;
 
-        const Fault< dimension >& fault( const uuid& id ) const;
+        [[nodiscard]] const Fault< dimension >& fault( const uuid& id ) const;
 
-        FaultRange faults() const;
+        [[nodiscard]] FaultRange faults() const;
 
         void save_faults( std::string_view directory ) const;
 
@@ -109,23 +110,23 @@ namespace geode
         public:
             ModifiableFaultRange( const Faults& faults );
 
-            const ModifiableFaultRange& begin() const
+            [[nodiscard]] const ModifiableFaultRange& begin() const
             {
                 return *this;
             }
 
-            const ModifiableFaultRange& end() const
+            [[nodiscard]] const ModifiableFaultRange& end() const
             {
                 return *this;
             }
 
-            Fault< dimension >& operator*() const;
+            [[nodiscard]] Fault< dimension >& operator*() const;
         };
 
     private:
-        const uuid& create_fault();
+        [[nodiscard]] const uuid& create_fault();
 
-        const uuid& create_fault(
+        [[nodiscard]] const uuid& create_fault(
             typename Fault< dimension >::FAULT_TYPE type );
 
         void create_fault( uuid fault_id );
@@ -137,9 +138,9 @@ namespace geode
 
         void load_faults( std::string_view directory );
 
-        ModifiableFaultRange modifiable_faults();
+        [[nodiscard]] ModifiableFaultRange modifiable_faults();
 
-        Fault< dimension >& modifiable_fault( const uuid& id );
+        [[nodiscard]] Fault< dimension >& modifiable_fault( const uuid& id );
 
     private:
         IMPLEMENTATION_MEMBER( impl_ );

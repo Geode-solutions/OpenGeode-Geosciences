@@ -51,7 +51,8 @@ namespace geode
         public:
             ~HorizonRangeBase();
 
-            bool operator!=( const HorizonRangeBase& /*unused*/ ) const;
+            [[nodiscard]] bool operator!=(
+                const HorizonRangeBase& /*unused*/ ) const;
 
             void operator++();
 
@@ -70,29 +71,30 @@ namespace geode
         public:
             HorizonRange( const Horizons& horizons );
 
-            const HorizonRange& begin() const
+            [[nodiscard]] const HorizonRange& begin() const
             {
                 return *this;
             }
 
-            const HorizonRange& end() const
+            [[nodiscard]] const HorizonRange& end() const
             {
                 return *this;
             }
 
-            const Horizon< dimension >& operator*() const;
+            [[nodiscard]] const Horizon< dimension >& operator*() const;
         };
 
     public:
         ~Horizons();
 
-        index_t nb_horizons() const;
+        [[nodiscard]] index_t nb_horizons() const;
 
-        bool has_horizon( const uuid& id ) const;
+        [[nodiscard]] bool has_horizon( const uuid& id ) const;
 
-        const Horizon< dimension >& horizon( const uuid& id ) const;
+        [[nodiscard]] const Horizon< dimension >& horizon(
+            const uuid& id ) const;
 
-        HorizonRange horizons() const;
+        [[nodiscard]] HorizonRange horizons() const;
 
         void save_horizons( std::string_view directory ) const;
 
@@ -110,23 +112,23 @@ namespace geode
         public:
             ModifiableHorizonRange( const Horizons& horizons );
 
-            const ModifiableHorizonRange& begin() const
+            [[nodiscard]] const ModifiableHorizonRange& begin() const
             {
                 return *this;
             }
 
-            const ModifiableHorizonRange& end() const
+            [[nodiscard]] const ModifiableHorizonRange& end() const
             {
                 return *this;
             }
 
-            Horizon< dimension >& operator*() const;
+            [[nodiscard]] Horizon< dimension >& operator*() const;
         };
 
     private:
-        const uuid& create_horizon();
+        [[nodiscard]] const uuid& create_horizon();
 
-        const uuid& create_horizon(
+        [[nodiscard]] const uuid& create_horizon(
             typename Horizon< dimension >::HORIZON_TYPE type );
 
         void create_horizon( uuid horizon_id );
@@ -138,9 +140,10 @@ namespace geode
 
         void load_horizons( std::string_view directory );
 
-        ModifiableHorizonRange modifiable_horizons();
+        [[nodiscard]] ModifiableHorizonRange modifiable_horizons();
 
-        Horizon< dimension >& modifiable_horizon( const uuid& id );
+        [[nodiscard]] Horizon< dimension >& modifiable_horizon(
+            const uuid& id );
 
     private:
         IMPLEMENTATION_MEMBER( impl_ );

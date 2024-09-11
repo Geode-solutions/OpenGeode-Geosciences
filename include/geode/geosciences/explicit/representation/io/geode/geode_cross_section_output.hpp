@@ -42,7 +42,7 @@ namespace geode
     public:
         explicit OpenGeodeCrossSectionOutput( std::string_view filename );
 
-        static std::string_view extension()
+        [[nodiscard]] static std::string_view extension()
         {
             return CrossSection::native_extension_static();
         }

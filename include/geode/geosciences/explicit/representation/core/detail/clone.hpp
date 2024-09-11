@@ -42,7 +42,8 @@ namespace geode
             ModelCopyMapping& mapping, const Model& model );
 
         template < typename Model >
-        BijectiveMapping< uuid > clone_horizon_mapping( const Model& model )
+        [[nodiscard]] BijectiveMapping< uuid > clone_horizon_mapping(
+            const Model& model )
         {
             BijectiveMapping< uuid > horizon_clone_mapping;
             for( const auto& horizon : model.horizons() )
@@ -53,7 +54,7 @@ namespace geode
         }
 
         template < typename Model >
-        BijectiveMapping< uuid > clone_stratigraphic_unit_mapping(
+        [[nodiscard]] BijectiveMapping< uuid > clone_stratigraphic_unit_mapping(
             const Model& model )
         {
             BijectiveMapping< uuid > stratigraphic_unit_clone_mapping;

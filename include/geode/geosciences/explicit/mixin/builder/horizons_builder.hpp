@@ -52,9 +52,9 @@ namespace geode
         {
         }
 
-        const uuid& create_horizon();
+        [[nodiscard]] const uuid& create_horizon();
 
-        const uuid& create_horizon(
+        [[nodiscard]] const uuid& create_horizon(
             typename Horizon< dimension >::HORIZON_TYPE type );
 
         void create_horizon( uuid horizon_id );

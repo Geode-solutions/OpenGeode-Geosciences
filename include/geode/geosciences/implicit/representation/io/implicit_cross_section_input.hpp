@@ -42,7 +42,7 @@ namespace geode
      * The adequate loader is called depending on the filename extension.
      * @param[in] filename Path to the file to load.
      */
-    ImplicitCrossSection opengeode_geosciences_implicit_api
+    [[nodiscard]] ImplicitCrossSection opengeode_geosciences_implicit_api
         load_implicit_cross_section( std::string_view filename );
 
     class ImplicitCrossSectionInput : public Input< ImplicitCrossSection >
@@ -59,11 +59,12 @@ namespace geode
         }
     };
 
-    ImplicitCrossSectionInput::MissingFiles opengeode_geosciences_implicit_api
+    [[nodiscard]] ImplicitCrossSectionInput::MissingFiles
+        opengeode_geosciences_implicit_api
         check_implicit_cross_section_missing_files( std::string_view filename );
 
-    bool opengeode_geosciences_implicit_api is_implicit_cross_section_loadable(
-        std::string_view filename );
+    [[nodiscard]] bool opengeode_geosciences_implicit_api
+        is_implicit_cross_section_loadable( std::string_view filename );
 
     using ImplicitCrossSectionInputFactory =
         Factory< std::string, ImplicitCrossSectionInput, std::string_view >;

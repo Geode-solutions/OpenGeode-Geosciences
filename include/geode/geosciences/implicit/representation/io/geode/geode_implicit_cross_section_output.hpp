@@ -40,12 +40,13 @@ namespace geode
         final : public ImplicitCrossSectionOutput
     {
     public:
-        OpenGeodeImplicitCrossSectionOutput( std::string_view filename )
+        explicit OpenGeodeImplicitCrossSectionOutput(
+            std::string_view filename )
             : ImplicitCrossSectionOutput( filename )
         {
         }
 
-        static std::string_view extension()
+        [[nodiscard]] static std::string_view extension()
         {
             return ImplicitCrossSection::native_extension_static();
         }

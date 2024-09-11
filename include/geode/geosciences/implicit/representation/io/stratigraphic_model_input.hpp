@@ -42,7 +42,7 @@ namespace geode
      * The adequate loader is called depending on the filename extension.
      * @param[in] filename Path to the file to load.
      */
-    StratigraphicModel opengeode_geosciences_implicit_api
+    [[nodiscard]] StratigraphicModel opengeode_geosciences_implicit_api
         load_stratigraphic_model( std::string_view filename );
 
     class StratigraphicModelInput : public Input< StratigraphicModel >
@@ -59,11 +59,12 @@ namespace geode
         }
     };
 
-    StratigraphicModelInput::MissingFiles opengeode_geosciences_implicit_api
+    [[nodiscard]] StratigraphicModelInput::MissingFiles
+        opengeode_geosciences_implicit_api
         check_stratigraphic_model_missing_files( std::string_view filename );
 
-    bool opengeode_geosciences_implicit_api is_stratigraphic_model_loadable(
-        std::string_view filename );
+    [[nodiscard]] bool opengeode_geosciences_implicit_api
+        is_stratigraphic_model_loadable( std::string_view filename );
 
     using StratigraphicModelInputFactory =
         Factory< std::string, StratigraphicModelInput, std::string_view >;

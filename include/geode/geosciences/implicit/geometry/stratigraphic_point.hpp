@@ -72,17 +72,18 @@ namespace geode
             }
         }
 
-        const Point< location_dim >& stratigraphic_location() const
+        [[nodiscard]] const Point< location_dim >&
+            stratigraphic_location() const
         {
             return stratigraphic_location_;
         }
 
-        double implicit_value() const
+        [[nodiscard]] double implicit_value() const
         {
             return implicit_value_;
         }
 
-        Point< dimension > stratigraphic_coordinates() const
+        [[nodiscard]] Point< dimension > stratigraphic_coordinates() const
         {
             Point< dimension > result;
             for( const auto d : LRange{ location_dim } )
@@ -104,7 +105,7 @@ namespace geode
             implicit_value_ = implicit_value;
         }
 
-        std::string string() const
+        [[nodiscard]] std::string string() const
         {
             std::ostringstream oss;
             oss.precision( std::numeric_limits< double >::digits10 );

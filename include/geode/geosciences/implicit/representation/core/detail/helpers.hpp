@@ -63,17 +63,17 @@ namespace geode
         void opengeode_geosciences_implicit_api save_stratigraphic_blocks(
             const StratigraphicModel& model, std::string_view prefix );
 
-        ImplicitCrossSection opengeode_geosciences_implicit_api
+        [[nodiscard]] ImplicitCrossSection opengeode_geosciences_implicit_api
             implicit_section_from_cross_section_scalar_field(
                 CrossSection&& section,
                 std::string_view scalar_attribute_name );
 
-        ImplicitStructuralModel opengeode_geosciences_implicit_api
+        [[nodiscard]] ImplicitStructuralModel opengeode_geosciences_implicit_api
             implicit_model_from_structural_model_scalar_field(
                 StructuralModel&& model,
                 std::string_view scalar_attribute_name );
 
-        StratigraphicModel opengeode_geosciences_implicit_api
+        [[nodiscard]] StratigraphicModel opengeode_geosciences_implicit_api
             stratigraphic_model_from_implicit_model_and_coords(
                 ImplicitStructuralModel&& implicit_model,
                 local_index_t implicit_axis );
@@ -85,7 +85,7 @@ namespace geode
          * lists, respectively.
          */
         template < index_t dimension >
-        HorizonsStack< dimension > horizons_stack_from_name_list(
+        [[nodiscard]] HorizonsStack< dimension > horizons_stack_from_name_list(
             absl::Span< const std::string > horizons_names,
             absl::Span< const std::string > units_names );
 
@@ -93,7 +93,8 @@ namespace geode
         void repair_horizon_stack_if_possible(
             HorizonsStack< dimension >& horizon_stack );
 
-        std::vector< MeshElement > opengeode_geosciences_implicit_api
-            invalid_stratigraphic_tetrahedra( const StratigraphicModel& model );
+        [[nodiscard]] std::vector< MeshElement >
+            opengeode_geosciences_implicit_api invalid_stratigraphic_tetrahedra(
+                const StratigraphicModel& model );
     } // namespace detail
 } // namespace geode

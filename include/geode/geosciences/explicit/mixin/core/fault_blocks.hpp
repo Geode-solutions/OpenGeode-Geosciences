@@ -51,7 +51,8 @@ namespace geode
         public:
             ~FaultBlockRangeBase();
 
-            bool operator!=( const FaultBlockRangeBase& /*unused*/ ) const;
+            [[nodiscard]] bool operator!=(
+                const FaultBlockRangeBase& /*unused*/ ) const;
 
             void operator++();
 
@@ -70,29 +71,30 @@ namespace geode
         public:
             FaultBlockRange( const FaultBlocks& fault_blocks );
 
-            const FaultBlockRange& begin() const
+            [[nodiscard]] const FaultBlockRange& begin() const
             {
                 return *this;
             }
 
-            const FaultBlockRange& end() const
+            [[nodiscard]] const FaultBlockRange& end() const
             {
                 return *this;
             }
 
-            const FaultBlock< dimension >& operator*() const;
+            [[nodiscard]] const FaultBlock< dimension >& operator*() const;
         };
 
     public:
         ~FaultBlocks();
 
-        index_t nb_fault_blocks() const;
+        [[nodiscard]] index_t nb_fault_blocks() const;
 
-        bool has_fault_block( const uuid& id ) const;
+        [[nodiscard]] bool has_fault_block( const uuid& id ) const;
 
-        const FaultBlock< dimension >& fault_block( const uuid& id ) const;
+        [[nodiscard]] const FaultBlock< dimension >& fault_block(
+            const uuid& id ) const;
 
-        FaultBlockRange fault_blocks() const;
+        [[nodiscard]] FaultBlockRange fault_blocks() const;
 
         void save_fault_blocks( std::string_view directory ) const;
 
@@ -109,21 +111,21 @@ namespace geode
         public:
             ModifiableFaultBlockRange( const FaultBlocks& fault_blocks );
 
-            const ModifiableFaultBlockRange& begin() const
+            [[nodiscard]] const ModifiableFaultBlockRange& begin() const
             {
                 return *this;
             }
 
-            const ModifiableFaultBlockRange& end() const
+            [[nodiscard]] const ModifiableFaultBlockRange& end() const
             {
                 return *this;
             }
 
-            FaultBlock< dimension >& operator*() const;
+            [[nodiscard]] FaultBlock< dimension >& operator*() const;
         };
 
     private:
-        const uuid& create_fault_block();
+        [[nodiscard]] const uuid& create_fault_block();
 
         void create_fault_block( uuid fault_block_id );
 
@@ -131,9 +133,10 @@ namespace geode
 
         void load_fault_blocks( std::string_view directory );
 
-        ModifiableFaultBlockRange modifiable_fault_blocks();
+        [[nodiscard]] ModifiableFaultBlockRange modifiable_fault_blocks();
 
-        FaultBlock< dimension >& modifiable_fault_block( const uuid& id );
+        [[nodiscard]] FaultBlock< dimension >& modifiable_fault_block(
+            const uuid& id );
 
     private:
         IMPLEMENTATION_MEMBER( impl_ );

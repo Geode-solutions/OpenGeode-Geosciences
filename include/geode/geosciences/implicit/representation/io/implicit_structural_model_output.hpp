@@ -58,13 +58,13 @@ namespace geode
         virtual ~ImplicitStructuralModelOutput() = default;
 
     protected:
-        ImplicitStructuralModelOutput( std::string_view filename )
+        explicit ImplicitStructuralModelOutput( std::string_view filename )
             : Output< ImplicitStructuralModel >{ filename }
         {
         }
     };
 
-    bool opengeode_geosciences_implicit_api
+    [[nodiscard]] bool opengeode_geosciences_implicit_api
         is_implicit_structural_model_saveable(
             const ImplicitStructuralModel& implicit_model,
             std::string_view filename );

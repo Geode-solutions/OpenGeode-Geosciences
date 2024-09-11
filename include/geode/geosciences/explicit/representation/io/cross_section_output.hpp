@@ -62,8 +62,9 @@ namespace geode
         }
     };
 
-    bool opengeode_geosciences_explicit_api is_cross_section_saveable(
-        const CrossSection& cross_section, std::string_view filename );
+    [[nodiscard]] bool opengeode_geosciences_explicit_api
+        is_cross_section_saveable(
+            const CrossSection& cross_section, std::string_view filename );
 
     using CrossSectionOutputFactory =
         Factory< std::string, CrossSectionOutput, std::string_view >;

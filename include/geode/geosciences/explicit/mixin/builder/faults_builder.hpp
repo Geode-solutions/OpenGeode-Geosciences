@@ -52,9 +52,9 @@ namespace geode
         {
         }
 
-        const uuid& create_fault();
+        [[nodiscard]] const uuid& create_fault();
 
-        const uuid& create_fault(
+        [[nodiscard]] const uuid& create_fault(
             typename Fault< dimension >::FAULT_TYPE type );
 
         void create_fault( uuid fault_id );

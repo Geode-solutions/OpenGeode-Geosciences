@@ -57,15 +57,16 @@ namespace geode
         virtual ~StratigraphicModelOutput() = default;
 
     protected:
-        StratigraphicModelOutput( std::string_view filename )
+        explicit StratigraphicModelOutput( std::string_view filename )
             : Output< StratigraphicModel >{ filename }
         {
         }
     };
 
-    bool opengeode_geosciences_implicit_api is_stratigraphic_model_saveable(
-        const StratigraphicModel& stratigraphic_model,
-        std::string_view filename );
+    [[nodiscard]] bool opengeode_geosciences_implicit_api
+        is_stratigraphic_model_saveable(
+            const StratigraphicModel& stratigraphic_model,
+            std::string_view filename );
 
     using StratigraphicModelOutputFactory =
         Factory< std::string, StratigraphicModelOutput, std::string_view >;

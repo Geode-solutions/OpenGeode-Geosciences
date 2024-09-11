@@ -64,25 +64,26 @@ namespace geode
         Horizon( Horizon&& other ) noexcept;
         ~Horizon();
 
-        static ComponentType component_type_static()
+        [[nodiscard]] static ComponentType component_type_static()
         {
             return ComponentType{ "Horizon" };
         }
 
-        ComponentType component_type() const final
+        [[nodiscard]] ComponentType component_type() const final
         {
             return component_type_static();
         }
 
-        ComponentID component_id() const
+        [[nodiscard]] ComponentID component_id() const
         {
             return { this->component_type_static(), this->id() };
         };
 
-        bool has_type() const;
+        [[nodiscard]] bool has_type() const;
 
-        HORIZON_TYPE type() const;
+        [[nodiscard]] HORIZON_TYPE type() const;
 
+    public:
         Horizon( HorizonsKey ) : Horizon() {}
         Horizon( HORIZON_TYPE type, HorizonsKey ) : Horizon( type ) {}
 

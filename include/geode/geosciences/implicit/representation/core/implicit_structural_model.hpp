@@ -64,14 +64,15 @@ namespace geode
             const ModelGenericMapping& initial_to_brep_mappings ) noexcept;
         virtual ~ImplicitStructuralModel();
 
-        ImplicitStructuralModel clone() const;
+        [[nodiscard]] ImplicitStructuralModel clone() const;
 
-        static constexpr std::string_view native_extension_static()
+        [[nodiscard]] static constexpr std::string_view
+            native_extension_static()
         {
             return "og_istrm";
         }
 
-        std::string_view native_extension() const
+        [[nodiscard]] std::string_view native_extension() const
         {
             return native_extension_static();
         }
@@ -79,21 +80,22 @@ namespace geode
         /*!
          * Return the implicit value at the given vertex of the given block.
          */
-        implicit_attribute_type implicit_value(
+        [[nodiscard]] implicit_attribute_type implicit_value(
             const Block3D& block, index_t vertex_id ) const;
 
         /*!
          * Return the implicit value on the point, computed in the polyhedron
          * containing the given point in the given block, if there is any.
          */
-        std::optional< implicit_attribute_type > implicit_value(
+        [[nodiscard]] std::optional< implicit_attribute_type > implicit_value(
             const Block3D& block, const Point3D& point ) const;
 
         /*!
          * Return the implicit value on the point, computed in the given
          * polyhedron of the given block.
          */
-        implicit_attribute_type implicit_value( const Block3D& block,
+        [[nodiscard]] implicit_attribute_type implicit_value(
+            const Block3D& block,
             const Point3D& point,
             index_t polyhedron_id ) const;
 
@@ -101,18 +103,18 @@ namespace geode
          * Returns the block polyhedron containing the given point, if there is
          * any.
          */
-        std::optional< index_t > containing_polyhedron(
+        [[nodiscard]] std::optional< index_t > containing_polyhedron(
             const Block3D& block, const Point3D& point ) const;
 
-        const HorizonsStack3D& horizons_stack() const;
+        [[nodiscard]] const HorizonsStack3D& horizons_stack() const;
 
-        std::optional< implicit_attribute_type > horizon_implicit_value(
-            const Horizon3D& horizon ) const;
+        [[nodiscard]] std::optional< implicit_attribute_type >
+            horizon_implicit_value( const Horizon3D& horizon ) const;
 
-        bool implicit_value_is_above_horizon(
+        [[nodiscard]] bool implicit_value_is_above_horizon(
             double implicit_function_value, const Horizon3D& horizon ) const;
 
-        std::optional< uuid > containing_stratigraphic_unit(
+        [[nodiscard]] std::optional< uuid > containing_stratigraphic_unit(
             implicit_attribute_type implicit_function_value ) const;
 
     public:
@@ -134,7 +136,7 @@ namespace geode
             implicit_attribute_type isovalue,
             ImplicitStructuralModelBuilderKey );
 
-        HorizonsStack3D& modifiable_horizons_stack(
+        [[nodiscard]] HorizonsStack3D& modifiable_horizons_stack(
             ImplicitStructuralModelBuilderKey );
 
     protected:

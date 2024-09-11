@@ -53,22 +53,23 @@ namespace geode
         FaultBlock( FaultBlock&& other ) noexcept;
         ~FaultBlock();
 
-        static ComponentType component_type_static()
+        [[nodiscard]] static ComponentType component_type_static()
         {
             return ComponentType{ "FaultBlock" };
         }
 
-        ComponentType component_type() const final
+        [[nodiscard]] ComponentType component_type() const final
         {
             return component_type_static();
         }
 
-        ComponentID component_id() const
+        [[nodiscard]] ComponentID component_id() const
         {
             return { this->component_type_static(), this->id() };
         };
 
-        FaultBlock( FaultBlocksKey ) : FaultBlock(){};
+    public:
+        FaultBlock( FaultBlocksKey ) : FaultBlock() {};
 
         void set_fault_block_name(
             std::string_view name, FaultBlocksBuilderKey )

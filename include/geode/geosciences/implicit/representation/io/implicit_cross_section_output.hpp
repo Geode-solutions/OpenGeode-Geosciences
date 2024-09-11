@@ -56,14 +56,15 @@ namespace geode
         virtual ~ImplicitCrossSectionOutput() = default;
 
     protected:
-        ImplicitCrossSectionOutput( std::string_view filename )
+        explicit ImplicitCrossSectionOutput( std::string_view filename )
             : Output< ImplicitCrossSection >{ filename }
         {
         }
     };
 
-    bool opengeode_geosciences_implicit_api is_implicit_cross_section_saveable(
-        const ImplicitCrossSection& section, std::string_view filename );
+    [[nodiscard]] bool opengeode_geosciences_implicit_api
+        is_implicit_cross_section_saveable(
+            const ImplicitCrossSection& section, std::string_view filename );
 
     using ImplicitCrossSectionOutputFactory =
         Factory< std::string, ImplicitCrossSectionOutput, std::string_view >;

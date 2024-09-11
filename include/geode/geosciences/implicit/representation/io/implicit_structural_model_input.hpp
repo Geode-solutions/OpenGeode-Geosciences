@@ -42,7 +42,7 @@ namespace geode
      * The adequate loader is called depending on the filename extension.
      * @param[in] filename Path to the file to load.
      */
-    ImplicitStructuralModel opengeode_geosciences_implicit_api
+    [[nodiscard]] ImplicitStructuralModel opengeode_geosciences_implicit_api
         load_implicit_structural_model( std::string_view filename );
 
     class ImplicitStructuralModelInput : public Input< ImplicitStructuralModel >
@@ -59,12 +59,12 @@ namespace geode
         }
     };
 
-    ImplicitStructuralModelInput::MissingFiles
+    [[nodiscard]] ImplicitStructuralModelInput::MissingFiles
         opengeode_geosciences_implicit_api
         check_implicit_structural_model_missing_files(
             std::string_view filename );
 
-    bool opengeode_geosciences_implicit_api
+    [[nodiscard]] bool opengeode_geosciences_implicit_api
         is_implicit_structural_model_loadable( std::string_view filename );
 
     using ImplicitStructuralModelInputFactory =
