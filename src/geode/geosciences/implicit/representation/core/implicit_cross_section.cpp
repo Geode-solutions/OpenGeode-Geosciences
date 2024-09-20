@@ -397,7 +397,7 @@ namespace geode
     std::optional< double > ImplicitCrossSection::horizon_implicit_value(
         const Horizon2D& horizon ) const
     {
-        return horizon_implicit_value( horizon );
+        return impl_->horizon_implicit_value( horizon );
     }
 
     bool ImplicitCrossSection::implicit_value_is_above_horizon(
