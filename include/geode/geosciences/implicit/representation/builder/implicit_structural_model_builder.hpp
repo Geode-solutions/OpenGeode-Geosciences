@@ -64,7 +64,7 @@ namespace geode
         void set_horizon_implicit_value(
             const Horizon3D& horizon, double isovalue );
 
-        HorizonsStackBuilder3D horizons_stack_builder();
+        [[nodiscard]] HorizonsStackBuilder3D horizons_stack_builder();
 
     private:
         ImplicitStructuralModel& implicit_model_;

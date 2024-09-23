@@ -45,7 +45,8 @@ namespace geode
      * @return Loaded HorizonsStack.
      */
     template < index_t dimension >
-    HorizonsStack< dimension > load_horizons_stack( std::string_view filename );
+    [[nodiscard]] HorizonsStack< dimension > load_horizons_stack(
+        std::string_view filename );
 
     template < index_t dimension >
     class HorizonsStackInput : public Input< HorizonsStack< dimension > >
@@ -63,11 +64,11 @@ namespace geode
     };
 
     template < index_t dimension >
-    typename HorizonsStackInput< dimension >::MissingFiles
+    [[nodiscard]] typename HorizonsStackInput< dimension >::MissingFiles
         check_horizons_stack_missing_files( std::string_view filename );
 
     template < index_t dimension >
-    bool is_horizons_stack_loadable( std::string_view filename );
+    [[nodiscard]] bool is_horizons_stack_loadable( std::string_view filename );
 
     template < index_t dimension >
     using HorizonsStackInputFactory = Factory< std::string,

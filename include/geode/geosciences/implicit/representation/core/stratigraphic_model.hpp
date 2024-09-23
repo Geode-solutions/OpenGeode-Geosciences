@@ -68,14 +68,15 @@ namespace geode
             const ModelGenericMapping& initial_to_brep_mappings ) noexcept;
         ~StratigraphicModel();
 
-        StratigraphicModel clone() const;
+        [[nodiscard]] StratigraphicModel clone() const;
 
-        static constexpr std::string_view native_extension_static()
+        [[nodiscard]] static constexpr std::string_view
+            native_extension_static()
         {
             return "og_stgm";
         }
 
-        std::string_view native_extension() const
+        [[nodiscard]] std::string_view native_extension() const
         {
             return native_extension_static();
         }
@@ -84,7 +85,7 @@ namespace geode
          * Return the stratigraphic coordinates of the point at the given
          * vertex of the given block.
          */
-        StratigraphicPoint3D stratigraphic_coordinates(
+        [[nodiscard]] StratigraphicPoint3D stratigraphic_coordinates(
             const Block3D& block, index_t vertex_id ) const;
 
         /*!
@@ -92,14 +93,16 @@ namespace geode
          * polyhedron containing the given point in the given block, if there is
          * any.
          */
-        std::optional< StratigraphicPoint3D > stratigraphic_coordinates(
-            const Block3D& block, const Point3D& geometric_point ) const;
+        [[nodiscard]] std::optional< StratigraphicPoint3D >
+            stratigraphic_coordinates(
+                const Block3D& block, const Point3D& geometric_point ) const;
 
         /*!
          * Return the stratigraphic coordinates of the point, computed in the
          * given polyhedron of the given block.
          */
-        StratigraphicPoint3D stratigraphic_coordinates( const Block3D& block,
+        [[nodiscard]] StratigraphicPoint3D stratigraphic_coordinates(
+            const Block3D& block,
             const Point3D& geometric_point,
             index_t polyhedron_id ) const;
 
@@ -109,14 +112,15 @@ namespace geode
          * coordinates in the stratigraphic space in the given block, if there
          * is any.
          */
-        std::optional< Point3D > geometric_coordinates( const Block3D& block,
+        [[nodiscard]] std::optional< Point3D > geometric_coordinates(
+            const Block3D& block,
             const StratigraphicPoint3D& stratigraphic_point ) const;
 
         /*!
          * Return the geometric coordinates of the point, computed from its
          * stratigraphic coordinates in the given polyhedron of the given block.
          */
-        Point3D geometric_coordinates( const Block3D& block,
+        [[nodiscard]] Point3D geometric_coordinates( const Block3D& block,
             const StratigraphicPoint3D& stratigraphic_point,
             index_t polyhedron_id ) const;
 
@@ -124,15 +128,16 @@ namespace geode
          * Returns the block polyhedron containing the given stratigraphic
          * point, if there is any.
          */
-        std::optional< index_t > stratigraphic_containing_polyhedron(
-            const Block3D& block,
-            const StratigraphicPoint3D& stratigraphic_point ) const;
+        [[nodiscard]] std::optional< index_t >
+            stratigraphic_containing_polyhedron( const Block3D& block,
+                const StratigraphicPoint3D& stratigraphic_point ) const;
 
-        absl::InlinedVector< std::unique_ptr< TriangulatedSurface3D >, 2 >
+        [[nodiscard]] absl::
+            InlinedVector< std::unique_ptr< TriangulatedSurface3D >, 2 >
             stratigraphic_surface(
                 const Block3D& block, const Surface3D& surface ) const;
 
-        BoundingBox3D stratigraphic_bounding_box() const;
+        [[nodiscard]] BoundingBox3D stratigraphic_bounding_box() const;
 
     public:
         void initialize_stratigraphic_query_trees(

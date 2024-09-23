@@ -56,11 +56,12 @@ namespace geode
         StratigraphicRelationships();
         ~StratigraphicRelationships();
 
-        bool is_above( const uuid& above, const uuid& under ) const;
+        [[nodiscard]] bool is_above(
+            const uuid& above, const uuid& under ) const;
 
-        std::optional< uuid > above( const uuid& element ) const;
+        [[nodiscard]] std::optional< uuid > above( const uuid& element ) const;
 
-        std::optional< uuid > under( const uuid& element ) const;
+        [[nodiscard]] std::optional< uuid > under( const uuid& element ) const;
 
         void save_stratigraphic_relationships(
             std::string_view directory ) const;
@@ -124,9 +125,10 @@ namespace geode
         StratigraphicRelationships& operator=(
             StratigraphicRelationships&& other ) noexcept;
 
-        bool is_eroded_by( const uuid& eroded, const uuid& erosion ) const;
+        [[nodiscard]] bool is_eroded_by(
+            const uuid& eroded, const uuid& erosion ) const;
 
-        bool is_baselap_of(
+        [[nodiscard]] bool is_baselap_of(
             const uuid& baselap, const uuid& baselap_top ) const;
 
     private:

@@ -44,8 +44,8 @@ namespace geode
      * The adequate loader is called depending on the filename extension.
      * @param[in] filename Path to the file to load.
      */
-    CrossSection opengeode_geosciences_explicit_api load_cross_section(
-        std::string_view filename );
+    [[nodiscard]] CrossSection opengeode_geosciences_explicit_api
+        load_cross_section( std::string_view filename );
 
     class CrossSectionInput : public Input< CrossSection >
     {
@@ -61,11 +61,12 @@ namespace geode
         }
     };
 
-    CrossSectionInput::MissingFiles opengeode_geosciences_explicit_api
+    [[nodiscard]] CrossSectionInput::MissingFiles
+        opengeode_geosciences_explicit_api
         check_cross_section_missing_files( std::string_view filename );
 
-    bool opengeode_geosciences_explicit_api is_cross_section_loadable(
-        std::string_view filename );
+    [[nodiscard]] bool opengeode_geosciences_explicit_api
+        is_cross_section_loadable( std::string_view filename );
 
     using CrossSectionInputFactory =
         Factory< std::string, CrossSectionInput, std::string_view >;

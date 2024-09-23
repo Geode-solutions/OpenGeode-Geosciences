@@ -226,7 +226,7 @@ namespace geode
         const StructuralModel& structural_model,
         const FaultBlock3D& fault_block )
         : Relationships::ItemRangeIterator(
-            structural_model, fault_block.id() ),
+              structural_model, fault_block.id() ),
           structural_model_( structural_model )
     {
     }
@@ -268,7 +268,7 @@ namespace geode
         const StructuralModel& structural_model,
         const StratigraphicUnit3D& stratigraphic_unit )
         : Relationships::ItemRangeIterator(
-            structural_model, stratigraphic_unit.id() ),
+              structural_model, stratigraphic_unit.id() ),
           structural_model_( structural_model )
     {
     }

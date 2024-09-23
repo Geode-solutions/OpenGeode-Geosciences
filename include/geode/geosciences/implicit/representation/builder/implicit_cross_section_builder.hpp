@@ -64,7 +64,7 @@ namespace geode
         void set_horizon_implicit_value(
             const Horizon2D& horizon, double isovalue );
 
-        HorizonsStackBuilder2D horizons_stack_builder();
+        [[nodiscard]] HorizonsStackBuilder2D horizons_stack_builder();
 
     private:
         ImplicitCrossSection& implicit_section_;

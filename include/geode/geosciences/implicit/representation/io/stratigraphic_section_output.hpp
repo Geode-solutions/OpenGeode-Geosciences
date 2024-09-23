@@ -57,15 +57,16 @@ namespace geode
         virtual ~StratigraphicSectionOutput() = default;
 
     protected:
-        StratigraphicSectionOutput( std::string_view filename )
+        explicit StratigraphicSectionOutput( std::string_view filename )
             : Output< StratigraphicSection >{ filename }
         {
         }
     };
 
-    bool opengeode_geosciences_implicit_api is_stratigraphic_section_saveable(
-        const StratigraphicSection& stratigraphic_section,
-        std::string_view filename );
+    [[nodiscard]] bool opengeode_geosciences_implicit_api
+        is_stratigraphic_section_saveable(
+            const StratigraphicSection& stratigraphic_section,
+            std::string_view filename );
 
     using StratigraphicSectionOutputFactory =
         Factory< std::string, StratigraphicSectionOutput, std::string_view >;

@@ -100,7 +100,8 @@ void add_fault_blocks(
 {
     const auto& fault_block0 = builder.add_fault_block();
     const auto& fault_block1 = builder.add_fault_block();
-    builder.add_fault_block();
+    const auto& uid = builder.add_fault_block();
+    geode_unused( uid );
     builder.set_fault_block_name( fault_block1, "hanging_wall" );
     OPENGEODE_EXCEPTION( model.nb_fault_blocks() == 3,
         "[Test] Number of fault blocks in CrossSection should be 3" );
@@ -117,7 +118,8 @@ void add_stratigraphic_units(
 {
     const auto& stratigraphic_unit0 = builder.add_stratigraphic_unit();
     const auto& stratigraphic_unit1 = builder.add_stratigraphic_unit();
-    builder.add_stratigraphic_unit();
+    const auto& uid = builder.add_stratigraphic_unit();
+    geode_unused( uid );
     builder.set_stratigraphic_unit_name( stratigraphic_unit1, "cretaceous" );
     OPENGEODE_EXCEPTION( model.nb_stratigraphic_units() == 3,
         "[Test] Number of stratigraphic_units in CrossSection should be 3" );
@@ -135,7 +137,8 @@ void add_lines( geode::CrossSectionBuilder& builder )
     for( const auto i : geode::Range{ 8 } )
     {
         geode_unused( i );
-        builder.add_line();
+        const auto& uid = builder.add_line();
+        geode_unused( uid );
     }
 }
 
@@ -144,7 +147,8 @@ void add_surfaces( geode::CrossSectionBuilder& builder )
     for( const auto i : geode::Range{ 4 } )
     {
         geode_unused( i );
-        builder.add_surface();
+        const auto& uid = builder.add_surface();
+        geode_unused( uid );
     }
 }
 

@@ -67,28 +67,29 @@ namespace geode
         HorizonsStack< dimension >& operator=(
             HorizonsStack< dimension >&& other ) noexcept;
 
-        HorizonsStack< dimension > clone() const;
+        [[nodiscard]] HorizonsStack< dimension > clone() const;
 
-        static std::string_view native_extension_static()
+        [[nodiscard]] static std::string_view native_extension_static()
         {
             static const auto extension =
                 absl::StrCat( "og_hst", dimension, "d" );
             return extension;
         }
 
-        std::string_view native_extension() const
+        [[nodiscard]] std::string_view native_extension() const
         {
             return native_extension_static();
         }
 
-        uuid top_horizon() const;
+        [[nodiscard]] uuid top_horizon() const;
 
-        uuid bottom_horizon() const;
+        [[nodiscard]] uuid bottom_horizon() const;
 
-        bool is_eroded_by( const StratigraphicUnit< dimension >& eroded,
+        [[nodiscard]] bool is_eroded_by(
+            const StratigraphicUnit< dimension >& eroded,
             const Horizon< dimension >& erosion ) const;
 
-        bool is_baselap_of( const Horizon< dimension >& baselap,
+        [[nodiscard]] bool is_baselap_of( const Horizon< dimension >& baselap,
             const StratigraphicUnit< dimension >& baselap_top ) const;
     };
     ALIAS_2D_AND_3D( HorizonsStack );

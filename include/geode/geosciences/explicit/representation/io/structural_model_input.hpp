@@ -44,8 +44,8 @@ namespace geode
      * The adequate loader is called depending on the filename extension.
      * @param[in] filename Path to the file to load.
      */
-    StructuralModel opengeode_geosciences_explicit_api load_structural_model(
-        std::string_view filename );
+    [[nodiscard]] StructuralModel opengeode_geosciences_explicit_api
+        load_structural_model( std::string_view filename );
 
     class StructuralModelInput : public Input< StructuralModel >
     {
@@ -61,11 +61,12 @@ namespace geode
         }
     };
 
-    StructuralModelInput::MissingFiles opengeode_geosciences_explicit_api
+    [[nodiscard]] StructuralModelInput::MissingFiles
+        opengeode_geosciences_explicit_api
         check_structural_model_missing_files( std::string_view filename );
 
-    bool opengeode_geosciences_explicit_api is_structural_model_loadable(
-        std::string_view filename );
+    [[nodiscard]] bool opengeode_geosciences_explicit_api
+        is_structural_model_loadable( std::string_view filename );
 
     using StructuralModelInputFactory =
         Factory< std::string, StructuralModelInput, std::string_view >;

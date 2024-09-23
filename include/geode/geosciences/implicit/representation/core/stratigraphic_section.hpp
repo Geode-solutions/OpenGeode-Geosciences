@@ -72,14 +72,15 @@ namespace geode
             const ModelGenericMapping& initial_to_section_mappings ) noexcept;
         ~StratigraphicSection();
 
-        StratigraphicSection clone() const;
+        [[nodiscard]] StratigraphicSection clone() const;
 
-        static constexpr std::string_view native_extension_static()
+        [[nodiscard]] static constexpr std::string_view
+            native_extension_static()
         {
             return "og_stgs";
         }
 
-        std::string_view native_extension() const
+        [[nodiscard]] std::string_view native_extension() const
         {
             return native_extension_static();
         }
@@ -88,7 +89,7 @@ namespace geode
          * Return the stratigraphic coordinates of the point at the given
          * vertex of the given surface.
          */
-        StratigraphicPoint2D stratigraphic_coordinates(
+        [[nodiscard]] StratigraphicPoint2D stratigraphic_coordinates(
             const Surface2D& surface, index_t vertex_id ) const;
 
         /*!
@@ -96,14 +97,15 @@ namespace geode
          * in the polygon containing the given point in the given surface, if
          * there is any.
          */
-        std::optional< StratigraphicPoint2D > stratigraphic_coordinates(
-            const Surface2D& surface, const Point2D& geometric_point ) const;
+        [[nodiscard]] std::optional< StratigraphicPoint2D >
+            stratigraphic_coordinates( const Surface2D& surface,
+                const Point2D& geometric_point ) const;
 
         /*!
          * Return the stratigraphic coordinates of the point, calculated
          * in the given polygon of the given surface.
          */
-        StratigraphicPoint2D stratigraphic_coordinates(
+        [[nodiscard]] StratigraphicPoint2D stratigraphic_coordinates(
             const Surface2D& surface,
             const Point2D& geometric_point,
             index_t polygon_id ) const;
@@ -114,7 +116,7 @@ namespace geode
          * coordinates in the stratigraphic space in the given surface, if there
          * is any.
          */
-        std::optional< Point2D > geometric_coordinates(
+        [[nodiscard]] std::optional< Point2D > geometric_coordinates(
             const Surface2D& surface,
             const StratigraphicPoint2D& stratigraphic_point ) const;
 
@@ -123,7 +125,7 @@ namespace geode
          * its stratigraphic coordinates in the given polygon of the given
          * surface.
          */
-        Point2D geometric_coordinates( const Surface2D& surface,
+        [[nodiscard]] Point2D geometric_coordinates( const Surface2D& surface,
             const StratigraphicPoint2D& stratigraphic_point,
             index_t polygon_id ) const;
 
@@ -131,15 +133,15 @@ namespace geode
          * Returns a surface polygon containing the given stratigraphic point,
          * if there is any.
          */
-        std::optional< index_t > stratigraphic_containing_polygon(
+        [[nodiscard]] std::optional< index_t > stratigraphic_containing_polygon(
             const Surface2D& surface,
             const StratigraphicPoint2D& stratigraphic_point ) const;
 
-        absl::InlinedVector< std::unique_ptr< EdgedCurve2D >, 2 >
+        [[nodiscard]] absl::InlinedVector< std::unique_ptr< EdgedCurve2D >, 2 >
             stratigraphic_line(
                 const Surface2D& surface, const Line2D& line ) const;
 
-        BoundingBox2D stratigraphic_bounding_box() const;
+        [[nodiscard]] BoundingBox2D stratigraphic_bounding_box() const;
 
     public:
         void initialize_stratigraphic_query_trees(

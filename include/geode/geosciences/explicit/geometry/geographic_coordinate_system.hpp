@@ -55,12 +55,12 @@ namespace geode
             }
             Info() = default;
 
-            std::string authority_code() const
+            [[nodiscard]] std::string authority_code() const
             {
                 return absl::StrCat( authority, ":", code );
             }
 
-            std::string string() const
+            [[nodiscard]] std::string string() const
             {
                 return absl::StrCat( "(", authority_code(), " -> ", name, ")" );
             }
@@ -85,24 +85,26 @@ namespace geode
         GeographicCoordinateSystem( AttributeManager& manager, Info info );
         ~GeographicCoordinateSystem();
 
-        static GeographicCoordinateSystem< dimension > create_from_attribute(
-            const AttributeCoordinateReferenceSystem< dimension >& crs,
-            AttributeManager& manager,
-            Info info );
+        [[nodiscard]] static GeographicCoordinateSystem< dimension >
+            create_from_attribute(
+                const AttributeCoordinateReferenceSystem< dimension >& crs,
+                AttributeManager& manager,
+                Info info );
 
-        static CRSType type_name_static()
+        [[nodiscard]] static CRSType type_name_static()
         {
             return CRSType{ "GeographicCoordinateSystem" };
         }
 
-        CRSType type_name() const override
+        [[nodiscard]] CRSType type_name() const override
         {
             return type_name_static();
         }
 
-        const Info& info() const;
+        [[nodiscard]] const Info& info() const;
 
-        static absl::FixedArray< Info > geographic_coordinate_systems();
+        [[nodiscard]] static absl::FixedArray< Info >
+            geographic_coordinate_systems();
 
         void import_coordinates(
             const GeographicCoordinateSystem< dimension >& crs );

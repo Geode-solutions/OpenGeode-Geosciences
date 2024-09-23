@@ -41,12 +41,13 @@ namespace geode
         : public ImplicitStructuralModelOutput
     {
     public:
-        OpenGeodeImplicitStructuralModelOutput( std::string_view filename )
+        explicit OpenGeodeImplicitStructuralModelOutput(
+            std::string_view filename )
             : ImplicitStructuralModelOutput( filename )
         {
         }
 
-        static std::string_view extension()
+        [[nodiscard]] static std::string_view extension()
         {
             return ImplicitStructuralModel::native_extension_static();
         }

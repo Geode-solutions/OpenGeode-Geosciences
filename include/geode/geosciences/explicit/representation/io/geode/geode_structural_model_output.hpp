@@ -42,7 +42,7 @@ namespace geode
     public:
         explicit OpenGeodeStructuralModelOutput( std::string_view filename );
 
-        static std::string_view extension()
+        [[nodiscard]] static std::string_view extension()
         {
             return StructuralModel::native_extension_static();
         }

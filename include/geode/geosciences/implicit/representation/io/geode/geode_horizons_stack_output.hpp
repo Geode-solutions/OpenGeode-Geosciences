@@ -42,12 +42,12 @@ namespace geode
         : public HorizonsStackOutput< dimension >
     {
     public:
-        OpenGeodeHorizonsStackOutput( std::string_view filename )
+        explicit OpenGeodeHorizonsStackOutput( std::string_view filename )
             : HorizonsStackOutput< dimension >( filename )
         {
         }
 
-        static std::string_view extension()
+        [[nodiscard]] static std::string_view extension()
         {
             return HorizonsStack< dimension >::native_extension_static();
         }

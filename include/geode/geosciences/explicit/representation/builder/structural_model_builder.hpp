@@ -65,9 +65,10 @@ namespace geode
         void copy_geological_components( ModelCopyMapping& mapping,
             const StructuralModel& structural_model );
 
-        const uuid& add_fault();
+        [[nodiscard]] const uuid& add_fault();
 
-        const uuid& add_fault( typename Fault3D::FAULT_TYPE type );
+        [[nodiscard]] const uuid& add_fault(
+            typename Fault3D::FAULT_TYPE type );
 
         void add_fault( uuid fault_id );
 
@@ -78,9 +79,10 @@ namespace geode
 
         void remove_fault( const Fault3D& fault );
 
-        const uuid& add_horizon();
+        [[nodiscard]] const uuid& add_horizon();
 
-        const uuid& add_horizon( typename Horizon3D::HORIZON_TYPE type );
+        [[nodiscard]] const uuid& add_horizon(
+            typename Horizon3D::HORIZON_TYPE type );
 
         void add_horizon( uuid horizon_id );
 
@@ -92,7 +94,7 @@ namespace geode
 
         void remove_horizon( const Horizon3D& horizon );
 
-        const uuid& add_fault_block();
+        [[nodiscard]] const uuid& add_fault_block();
 
         void add_fault_block( uuid fault_block_id );
 
@@ -101,7 +103,7 @@ namespace geode
 
         void remove_fault_block( const FaultBlock3D& fault_block );
 
-        const uuid& add_stratigraphic_unit();
+        [[nodiscard]] const uuid& add_stratigraphic_unit();
 
         void add_stratigraphic_unit( uuid stratigraphic_unit_id );
 

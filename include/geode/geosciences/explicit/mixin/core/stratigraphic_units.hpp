@@ -51,7 +51,7 @@ namespace geode
         public:
             ~StratigraphicUnitRangeBase();
 
-            bool operator!=(
+            [[nodiscard]] bool operator!=(
                 const StratigraphicUnitRangeBase& /*unused*/ ) const;
 
             void operator++();
@@ -75,30 +75,31 @@ namespace geode
             StratigraphicUnitRange(
                 const StratigraphicUnits& stratigraphic_units );
 
-            const StratigraphicUnitRange& begin() const
+            [[nodiscard]] const StratigraphicUnitRange& begin() const
             {
                 return *this;
             }
 
-            const StratigraphicUnitRange& end() const
+            [[nodiscard]] const StratigraphicUnitRange& end() const
             {
                 return *this;
             }
 
-            const StratigraphicUnit< dimension >& operator*() const;
+            [[nodiscard]] const StratigraphicUnit< dimension >&
+                operator*() const;
         };
 
     public:
         ~StratigraphicUnits();
 
-        index_t nb_stratigraphic_units() const;
+        [[nodiscard]] index_t nb_stratigraphic_units() const;
 
-        bool has_stratigraphic_unit( const uuid& id ) const;
+        [[nodiscard]] bool has_stratigraphic_unit( const uuid& id ) const;
 
-        const StratigraphicUnit< dimension >& stratigraphic_unit(
+        [[nodiscard]] const StratigraphicUnit< dimension >& stratigraphic_unit(
             const uuid& id ) const;
 
-        StratigraphicUnitRange stratigraphic_units() const;
+        [[nodiscard]] StratigraphicUnitRange stratigraphic_units() const;
 
         void save_stratigraphic_units( std::string_view directory ) const;
 
@@ -118,21 +119,21 @@ namespace geode
             ModifiableStratigraphicUnitRange(
                 const StratigraphicUnits& stratigraphic_units );
 
-            const ModifiableStratigraphicUnitRange& begin() const
+            [[nodiscard]] const ModifiableStratigraphicUnitRange& begin() const
             {
                 return *this;
             }
 
-            const ModifiableStratigraphicUnitRange& end() const
+            [[nodiscard]] const ModifiableStratigraphicUnitRange& end() const
             {
                 return *this;
             }
 
-            StratigraphicUnit< dimension >& operator*() const;
+            [[nodiscard]] StratigraphicUnit< dimension >& operator*() const;
         };
 
     private:
-        const uuid& create_stratigraphic_unit();
+        [[nodiscard]] const uuid& create_stratigraphic_unit();
 
         void create_stratigraphic_unit( uuid stratigraphic_unit_id );
 
@@ -141,10 +142,11 @@ namespace geode
 
         void load_stratigraphic_units( std::string_view directory );
 
-        ModifiableStratigraphicUnitRange modifiable_stratigraphic_units();
+        [[nodiscard]] ModifiableStratigraphicUnitRange
+            modifiable_stratigraphic_units();
 
-        StratigraphicUnit< dimension >& modifiable_stratigraphic_unit(
-            const uuid& id );
+        [[nodiscard]] StratigraphicUnit< dimension >&
+            modifiable_stratigraphic_unit( const uuid& id );
 
     private:
         IMPLEMENTATION_MEMBER( impl_ );

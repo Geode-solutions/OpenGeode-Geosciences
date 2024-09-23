@@ -33,12 +33,12 @@ namespace geode
         : public HorizonsStackInput< dimension >
     {
     public:
-        OpenGeodeHorizonsStackInput( std::string_view filename )
+        explicit OpenGeodeHorizonsStackInput( std::string_view filename )
             : HorizonsStackInput< dimension >( filename )
         {
         }
 
-        static std::string_view extension()
+        [[nodiscard]] static std::string_view extension()
         {
             return HorizonsStack< dimension >::native_extension_static();
         }
@@ -47,7 +47,7 @@ namespace geode
             HorizonsStack< dimension >& horizons_stack,
             std::string_view directory );
 
-        HorizonsStack< dimension > read() final;
+        [[nodiscard]] HorizonsStack< dimension > read() final;
     };
     ALIAS_2D_AND_3D( OpenGeodeHorizonsStackInput );
 } // namespace geode

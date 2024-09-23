@@ -34,7 +34,7 @@ namespace geode
     public:
         explicit OpenGeodeCrossSectionInput( std::string_view filename );
 
-        static std::string_view extension()
+        [[nodiscard]] static std::string_view extension()
         {
             return CrossSection::native_extension_static();
         }
@@ -42,6 +42,6 @@ namespace geode
         void load_cross_section_files(
             CrossSection& cross_section, std::string_view directory );
 
-        CrossSection read() final;
+        [[nodiscard]] CrossSection read() final;
     };
 } // namespace geode

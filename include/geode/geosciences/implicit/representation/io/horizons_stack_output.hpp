@@ -55,7 +55,7 @@ namespace geode
     class HorizonsStackOutput : public Output< HorizonsStack< dimension > >
     {
     protected:
-        HorizonsStackOutput( std::string_view filename )
+        explicit HorizonsStackOutput( std::string_view filename )
             : Output< HorizonsStack< dimension > >{ filename }
         {
         }

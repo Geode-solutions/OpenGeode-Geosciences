@@ -124,7 +124,8 @@ void add_lines( geode::BRepBuilder& builder )
     for( const auto i : geode::Range{ 8 } )
     {
         geode_unused( i );
-        builder.add_line();
+        const auto& uid = builder.add_line();
+        geode_unused( uid );
     }
 }
 
@@ -133,7 +134,8 @@ void add_surfaces( geode::BRepBuilder& builder )
     for( const auto i : geode::Range{ 8 } )
     {
         geode_unused( i );
-        builder.add_surface();
+        const auto& uid = builder.add_surface();
+        geode_unused( uid );
     }
 }
 

@@ -92,11 +92,11 @@ namespace geode
         void copy_components( ModelCopyMapping& mapping,
             const HorizonsStack< dimension >& horizons_stack );
 
-        const uuid& add_horizon();
+        [[nodiscard]] const uuid& add_horizon();
 
         void add_horizon( uuid horizon_id );
 
-        const uuid& add_stratigraphic_unit();
+        [[nodiscard]] const uuid& add_stratigraphic_unit();
 
         void add_stratigraphic_unit( uuid stratigraphic_unit_id );
 
