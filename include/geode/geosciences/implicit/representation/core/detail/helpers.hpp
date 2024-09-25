@@ -30,7 +30,9 @@
 namespace geode
 {
     FORWARD_DECLARATION_DIMENSION_CLASS( HorizonsStack );
+    FORWARD_DECLARATION_DIMENSION_CLASS( HorizonsStackBuilder );
     ALIAS_2D_AND_3D( HorizonsStack );
+    ALIAS_2D_AND_3D( HorizonsStackBuilder );
     class CrossSection;
     class StructuralModel;
     class ImplicitCrossSection;
@@ -91,7 +93,8 @@ namespace geode
 
         template < index_t dimension >
         void repair_horizon_stack_if_possible(
-            HorizonsStack< dimension >& horizon_stack );
+            const HorizonsStack< dimension >& horizon_stack,
+            HorizonsStackBuilder< dimension >& builder );
 
         [[nodiscard]] std::vector< MeshElement >
             opengeode_geosciences_implicit_api invalid_stratigraphic_tetrahedra(

@@ -57,7 +57,7 @@ namespace geode
         using implicit_attribute_type = double;
         ImplicitCrossSection();
         ImplicitCrossSection( ImplicitCrossSection&& implicit_model ) noexcept;
-        ImplicitCrossSection( CrossSection&& cross_section ) noexcept;
+        explicit ImplicitCrossSection( CrossSection&& cross_section ) noexcept;
         ImplicitCrossSection( const ImplicitCrossSection& initial_model,
             Section&& section,
             const ModelGenericMapping& initial_to_section_mappings ) noexcept;

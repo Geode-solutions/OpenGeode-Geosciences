@@ -216,7 +216,7 @@ namespace geode
                         vertex_id, scalar_attribute->value( vertex_id ) );
                 }
             }
-            return { std::move( section ) };
+            return ImplicitCrossSection{ std::move( section ) };
         }
 
         ImplicitStructuralModel
@@ -244,7 +244,7 @@ namespace geode
                         vertex_id, scalar_attribute->value( vertex_id ) );
                 }
             }
-            return { std::move( model ) };
+            return ImplicitStructuralModel{ std::move( model ) };
         }
 
         StratigraphicModel stratigraphic_model_from_implicit_model_and_coords(
@@ -275,7 +275,7 @@ namespace geode
                                        vertex_point.value( second_axis ) } } );
                 }
             }
-            return { std::move( implicit_model ) };
+            return StratigraphicModel{ std::move( implicit_model ) };
         }
 
         template < index_t dimension >
@@ -329,7 +329,8 @@ namespace geode
 
         template < index_t dimension >
         void repair_horizon_stack_if_possible(
-            HorizonsStack< dimension >& horizon_stack )
+            const HorizonsStack< dimension >& horizon_stack,
+            HorizonsStackBuilder< dimension >& builder )
         {
             const auto nb_horizons = horizon_stack.nb_horizons();
             check_number_of_horizons_and_stratigraphic_units(
@@ -337,7 +338,6 @@ namespace geode
             const auto bottom_horizon = horizon_stack.bottom_horizon();
             if( !horizon_stack.under( bottom_horizon ) )
             {
-                HorizonsStackBuilder< dimension > builder{ horizon_stack };
                 const auto& unit_under = builder.add_stratigraphic_unit();
                 builder.add_horizon_above(
                     horizon_stack.horizon( bottom_horizon ),
@@ -362,7 +362,6 @@ namespace geode
                 "units." );
             if( !su_above )
             {
-                HorizonsStackBuilder< dimension > builder{ horizon_stack };
                 const auto& unit_above = builder.add_stratigraphic_unit();
                 builder.add_horizon_under(
                     horizon_stack.horizon( current_horizon.value() ),
@@ -414,19 +413,17 @@ namespace geode
         }
 
         template HorizonsStack< 2 > opengeode_geosciences_implicit_api
-            horizons_stack_from_name_list< 2 >(
-                absl::Span< const std::string > horizons_names,
-                absl::Span< const std::string > units_names );
+            horizons_stack_from_name_list< 2 >( absl::Span< const std::string >,
+                absl::Span< const std::string > );
         template HorizonsStack< 3 > opengeode_geosciences_implicit_api
-            horizons_stack_from_name_list< 3 >(
-                absl::Span< const std::string > horizons_names,
-                absl::Span< const std::string > units_names );
+            horizons_stack_from_name_list< 3 >( absl::Span< const std::string >,
+                absl::Span< const std::string > );
 
         template void opengeode_geosciences_implicit_api
             repair_horizon_stack_if_possible< 2 >(
-                HorizonsStack< 2 >& horizon_stack );
+                const HorizonsStack< 2 >&, HorizonsStackBuilder< 2 >& );
         template void opengeode_geosciences_implicit_api
             repair_horizon_stack_if_possible< 3 >(
-                HorizonsStack< 3 >& horizon_stack );
+                const HorizonsStack< 3 >&, HorizonsStackBuilder< 3 >& );
     } // namespace detail
 } // namespace geode

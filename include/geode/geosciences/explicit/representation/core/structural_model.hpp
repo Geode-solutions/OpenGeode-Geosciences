@@ -150,7 +150,7 @@ namespace geode
 
         StructuralModel() = default;
         StructuralModel( StructuralModel&& ) noexcept = default;
-        StructuralModel( BRep&& brep ) noexcept;
+        explicit StructuralModel( BRep&& brep ) noexcept;
         StructuralModel( const StructuralModel& initial_model,
             BRep&& brep,
             const ModelGenericMapping& initial_to_brep_mappings ) noexcept;

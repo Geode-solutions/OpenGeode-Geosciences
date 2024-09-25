@@ -60,9 +60,10 @@ namespace geode
         using stratigraphic_location_type = Point2D;
         StratigraphicModel();
         StratigraphicModel( StratigraphicModel&& implicit_model ) noexcept;
-        StratigraphicModel(
+        explicit StratigraphicModel(
             ImplicitStructuralModel&& structural_model ) noexcept;
-        StratigraphicModel( StructuralModel&& structural_model ) noexcept;
+        explicit StratigraphicModel(
+            StructuralModel&& structural_model ) noexcept;
         StratigraphicModel( const StratigraphicModel& initial_model,
             BRep&& brep,
             const ModelGenericMapping& initial_to_brep_mappings ) noexcept;
