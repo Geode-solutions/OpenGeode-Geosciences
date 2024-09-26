@@ -378,7 +378,7 @@ int main()
     {
         geode::GeosciencesExplicitLibrary::initialize();
 
-        geode::StructuralModel model = build_brep();
+        geode::StructuralModel model{ build_brep() };
         geode::StructuralModelBuilder builder( model );
         add_faults( model, builder );
         add_horizons( model, builder );

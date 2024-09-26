@@ -79,7 +79,8 @@ void test_horizons_stack()
             == insertion_info.new_horizon_id,
         "[Test] New horizon should be found from horizon 1." );
 
-    geode::detail::repair_horizon_stack_if_possible( horizons_stack );
+    geode::detail::repair_horizon_stack_if_possible(
+        horizons_stack, stack_builder );
     OPENGEODE_EXCEPTION( horizons_stack.nb_horizons() == 4,
         "[Test] Horizons Stack should have 4 horizons after repair." );
     OPENGEODE_EXCEPTION( horizons_stack.nb_stratigraphic_units() == 5,
