@@ -440,9 +440,11 @@ namespace geode
             repair_horizon_stack_if_possible< 3 >(
                 const HorizonsStack< 3 >&, HorizonsStackBuilder< 3 >& );
 
-        template std::optional< uuid > horizon_id_from_name< 2 >(
-            const HorizonsStack< 2 >&, absl::string_view );
-        template std::optional< uuid > horizon_id_from_name< 3 >(
-            const HorizonsStack< 3 >&, absl::string_view );
+        template std::optional< uuid >
+            opengeode_geosciences_implicit_api horizon_id_from_name< 2 >(
+                const HorizonsStack< 2 >&, absl::string_view );
+        template std::optional< uuid >
+            opengeode_geosciences_implicit_api horizon_id_from_name< 3 >(
+                const HorizonsStack< 3 >&, absl::string_view );
     } // namespace detail
 } // namespace geode
