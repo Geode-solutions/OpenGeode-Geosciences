@@ -23,6 +23,8 @@
 
 #include <geode/geosciences/implicit/representation/core/detail/helpers.hpp>
 
+#include <geode/basic/uuid.hpp>
+
 #include <geode/model/representation/core/brep.hpp>
 
 #include <geode/geosciences/implicit/representation/core/stratigraphic_model.hpp>

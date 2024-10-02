@@ -123,6 +123,17 @@ void test_create_horizons_stack()
                 .name()
             == units_list[0],
         "[Test] Wrong name for unit above bottom horizon." );
+    const auto bot_horizon_id =
+        geode::detail::horizon_id_from_name( horizons_stack, horizons_list[0] );
+    OPENGEODE_EXCEPTION(
+        bot_horizon_id && bot_horizon_id.value() == bot_horizon,
+        "[Test] Should have found bottom horizon from first horizon name" );
+    const auto top_horizon_id =
+        geode::detail::horizon_id_from_name( horizons_stack, horizons_list[3] );
+    OPENGEODE_EXCEPTION(
+        top_horizon_id
+            && top_horizon_id.value() == horizons_stack.top_horizon(),
+        "[Test] Should have found top horizon from last horizon name" );
 }
 
 int main()
