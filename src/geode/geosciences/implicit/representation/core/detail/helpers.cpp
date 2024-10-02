@@ -162,8 +162,7 @@ namespace geode
         }
 
         void save_stratigraphic_blocks(
-            const geode::StratigraphicModel& implicit_model,
-            std::string_view prefix )
+            const StratigraphicModel& implicit_model, std::string_view prefix )
         {
             index_t counter{ 0 };
             for( const auto& block : implicit_model.blocks() )
@@ -369,6 +368,33 @@ namespace geode
             }
         }
 
+        template < index_t dimension >
+        std::optional< uuid > horizon_id_from_name(
+            const HorizonsStack< dimension >& horizon_stack,
+            absl::string_view horizon_name )
+        {
+            const auto bottom_horizon = horizon_stack.bottom_horizon();
+            std::optional< uuid > current_horizon = bottom_horizon;
+            while( current_horizon )
+            {
+                if( horizon_stack.horizon( current_horizon.value() ).name()
+                    == horizon_name )
+                {
+                    return current_horizon;
+                }
+                if( const auto su_above =
+                        horizon_stack.above( bottom_horizon ) )
+                {
+                    current_horizon = horizon_stack.above( su_above.value() );
+                }
+                else
+                {
+                    break;
+                }
+            }
+            return std::nullopt;
+        }
+
         std::vector< MeshElement > invalid_stratigraphic_tetrahedra(
             const StratigraphicModel& implicit_model )
         {
@@ -425,5 +451,10 @@ namespace geode
         template void opengeode_geosciences_implicit_api
             repair_horizon_stack_if_possible< 3 >(
                 const HorizonsStack< 3 >&, HorizonsStackBuilder< 3 >& );
+
+        template std::optional< uuid > horizon_id_from_name(
+            const HorizonsStack< 2 >&, absl::string_view );
+        template std::optional< uuid > horizon_id_from_name(
+            const HorizonsStack< 3 >&, absl::string_view );
     } // namespace detail
 } // namespace geode
