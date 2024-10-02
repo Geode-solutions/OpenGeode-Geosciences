@@ -23,6 +23,8 @@
 
 #include <geode/geosciences/implicit/representation/core/detail/helpers.hpp>
 
+#include <geode/basic/uuid.hpp>
+
 #include <geode/model/representation/core/brep.hpp>
 
 #include <geode/geosciences/implicit/representation/core/stratigraphic_model.hpp>
@@ -58,6 +60,8 @@ namespace geode
                     &repair_horizon_stack_if_possible< 2 > )
                 .def( "repair_horizon_stack_if_possible_3d",
                     &repair_horizon_stack_if_possible< 3 > )
+                .def( "horizon_id_from_name_2d", &horizon_id_from_name< 2 > )
+                .def( "horizon_id_from_name_3d", &horizon_id_from_name< 3 > )
                 .def( "implicit_section_from_cross_section_scalar_field",
                     []( CrossSection& model, std::string_view attribute_name ) {
                         return implicit_section_from_cross_section_scalar_field(

@@ -23,6 +23,9 @@
 
 #pragma once
 
+#include <optional>
+#include <string_view>
+
 #include <absl/types/span.h>
 
 #include <geode/geosciences/implicit/common.hpp>
@@ -40,6 +43,7 @@ namespace geode
     class StratigraphicSection;
     class StratigraphicModel;
     struct MeshElement;
+    struct uuid;
 } // namespace geode
 
 namespace geode
@@ -95,6 +99,11 @@ namespace geode
         void repair_horizon_stack_if_possible(
             const HorizonsStack< dimension >& horizon_stack,
             HorizonsStackBuilder< dimension >& builder );
+
+        template < index_t dimension >
+        [[nodiscard]] std::optional< uuid > horizon_id_from_name(
+            const HorizonsStack< dimension >& horizon_stack,
+            std::string_view horizon_name );
 
         [[nodiscard]] std::vector< MeshElement >
             opengeode_geosciences_implicit_api invalid_stratigraphic_tetrahedra(
