@@ -373,23 +373,11 @@ namespace geode
             const HorizonsStack< dimension >& horizon_stack,
             absl::string_view horizon_name )
         {
-            const auto bottom_horizon = horizon_stack.bottom_horizon();
-            std::optional< uuid > current_horizon = bottom_horizon;
-            while( current_horizon )
+            for( const auto& horizon : horizon_stack.horizons() )
             {
-                if( horizon_stack.horizon( current_horizon.value() ).name()
-                    == horizon_name )
+                if( horizon.name() == horizon_name )
                 {
-                    return current_horizon;
-                }
-                if( const auto su_above =
-                        horizon_stack.above( bottom_horizon ) )
-                {
-                    current_horizon = horizon_stack.above( su_above.value() );
-                }
-                else
-                {
-                    break;
+                    return horizon.id();
                 }
             }
             return std::nullopt;
@@ -452,9 +440,9 @@ namespace geode
             repair_horizon_stack_if_possible< 3 >(
                 const HorizonsStack< 3 >&, HorizonsStackBuilder< 3 >& );
 
-        template std::optional< uuid > horizon_id_from_name(
+        template std::optional< uuid > horizon_id_from_name< 2 >(
             const HorizonsStack< 2 >&, absl::string_view );
-        template std::optional< uuid > horizon_id_from_name(
+        template std::optional< uuid > horizon_id_from_name< 3 >(
             const HorizonsStack< 3 >&, absl::string_view );
     } // namespace detail
 } // namespace geode
