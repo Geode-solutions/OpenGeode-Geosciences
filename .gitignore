@@ -1,2 +1,3 @@
 build
 .settings
+bindings/python/requirements.txt
