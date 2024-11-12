@@ -23,6 +23,7 @@
 
 #pragma once
 
+#include <geode/basic/passkey.hpp>
 #include <geode/basic/pimpl.hpp>
 
 #include <geode/geosciences/explicit/common.hpp>
@@ -38,9 +39,10 @@ namespace geode
 namespace geode
 {
     template < index_t dimension >
-    class opengeode_geosciences_explicit_api Horizons
+    class Horizons
     {
         OPENGEODE_DISABLE_COPY( Horizons );
+        PASSKEY( HorizonsBuilder< dimension >, HorizonsBuilderKey );
 
     public:
         using Builder = HorizonsBuilder< dimension >;
@@ -99,7 +101,6 @@ namespace geode
         void save_horizons( std::string_view directory ) const;
 
     protected:
-        friend class HorizonsBuilder< dimension >;
         Horizons();
         Horizons( Horizons&& other ) noexcept;
 
@@ -125,25 +126,30 @@ namespace geode
             [[nodiscard]] Horizon< dimension >& operator*() const;
         };
 
-    private:
-        [[nodiscard]] const uuid& create_horizon();
+    public:
+        [[nodiscard]] const uuid& create_horizon( HorizonsBuilderKey key );
 
         [[nodiscard]] const uuid& create_horizon(
-            typename Horizon< dimension >::HORIZON_TYPE type );
+            typename Horizon< dimension >::HORIZON_TYPE type,
+            HorizonsBuilderKey key );
 
-        void create_horizon( uuid horizon_id );
+        void create_horizon( uuid horizon_id, HorizonsBuilderKey key );
 
-        void create_horizon(
-            uuid horizon_id, typename Horizon< dimension >::HORIZON_TYPE type );
+        void create_horizon( uuid horizon_id,
+            typename Horizon< dimension >::HORIZON_TYPE type,
+            HorizonsBuilderKey key );
 
-        void delete_horizon( const Horizon< dimension >& horizon );
+        void delete_horizon(
+            const Horizon< dimension >& horizon, HorizonsBuilderKey key );
 
-        void load_horizons( std::string_view directory );
+        void load_horizons(
+            std::string_view directory, HorizonsBuilderKey key );
 
-        [[nodiscard]] ModifiableHorizonRange modifiable_horizons();
+        [[nodiscard]] ModifiableHorizonRange modifiable_horizons(
+            HorizonsBuilderKey key );
 
         [[nodiscard]] Horizon< dimension >& modifiable_horizon(
-            const uuid& id );
+            const uuid& id, HorizonsBuilderKey key );
 
     private:
         IMPLEMENTATION_MEMBER( impl_ );

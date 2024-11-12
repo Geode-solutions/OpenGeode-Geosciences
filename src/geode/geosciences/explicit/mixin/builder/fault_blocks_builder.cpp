@@ -31,35 +31,35 @@ namespace geode
     template < index_t dimension >
     const uuid& FaultBlocksBuilder< dimension >::create_fault_block()
     {
-        return fault_blocks_.create_fault_block();
+        return fault_blocks_.create_fault_block( {} );
     }
 
     template < index_t dimension >
     void FaultBlocksBuilder< dimension >::create_fault_block(
         uuid fault_block_id )
     {
-        fault_blocks_.create_fault_block( std::move( fault_block_id ) );
+        fault_blocks_.create_fault_block( std::move( fault_block_id ), {} );
     }
 
     template < index_t dimension >
     void FaultBlocksBuilder< dimension >::delete_fault_block(
         const FaultBlock< dimension >& fault_block )
     {
-        fault_blocks_.delete_fault_block( fault_block );
+        fault_blocks_.delete_fault_block( fault_block, {} );
     }
 
     template < index_t dimension >
     void FaultBlocksBuilder< dimension >::load_fault_blocks(
         std::string_view directory )
     {
-        return fault_blocks_.load_fault_blocks( directory );
+        return fault_blocks_.load_fault_blocks( directory, {} );
     }
 
     template < index_t dimension >
     void FaultBlocksBuilder< dimension >::set_fault_block_name(
         const uuid& id, std::string_view name )
     {
-        fault_blocks_.modifiable_fault_block( id ).set_fault_block_name(
+        fault_blocks_.modifiable_fault_block( id, {} ).set_fault_block_name(
             name, typename FaultBlock< dimension >::FaultBlocksBuilderKey{} );
     }
 

@@ -31,47 +31,47 @@ namespace geode
     template < index_t dimension >
     const uuid& FaultsBuilder< dimension >::create_fault()
     {
-        return faults_.create_fault();
+        return faults_.create_fault( {} );
     }
 
     template < index_t dimension >
     const uuid& FaultsBuilder< dimension >::create_fault(
         typename Fault< dimension >::FAULT_TYPE type )
     {
-        return faults_.create_fault( type );
+        return faults_.create_fault( type, {} );
     }
 
     template < index_t dimension >
     void FaultsBuilder< dimension >::create_fault( uuid fault_id )
     {
-        faults_.create_fault( std::move( fault_id ) );
+        faults_.create_fault( std::move( fault_id ), {} );
     }
 
     template < index_t dimension >
     void FaultsBuilder< dimension >::create_fault(
         uuid fault_id, typename Fault< dimension >::FAULT_TYPE type )
     {
-        faults_.create_fault( std::move( fault_id ), type );
+        faults_.create_fault( std::move( fault_id ), type, {} );
     }
 
     template < index_t dimension >
     void FaultsBuilder< dimension >::delete_fault(
         const Fault< dimension >& fault )
     {
-        faults_.delete_fault( fault );
+        faults_.delete_fault( fault, {} );
     }
 
     template < index_t dimension >
     void FaultsBuilder< dimension >::load_faults( std::string_view directory )
     {
-        return faults_.load_faults( directory );
+        return faults_.load_faults( directory, {} );
     }
 
     template < index_t dimension >
     void FaultsBuilder< dimension >::set_fault_type(
         const uuid& fault_id, typename Fault< dimension >::FAULT_TYPE type )
     {
-        faults_.modifiable_fault( fault_id )
+        faults_.modifiable_fault( fault_id, {} )
             .set_type( type, typename Fault< dimension >::FaultsBuilderKey{} );
     }
 
@@ -79,7 +79,7 @@ namespace geode
     void FaultsBuilder< dimension >::set_fault_name(
         const uuid& id, std::string_view name )
     {
-        faults_.modifiable_fault( id ).set_fault_name(
+        faults_.modifiable_fault( id, {} ).set_fault_name(
             name, typename Fault< dimension >::FaultsBuilderKey{} );
     }
 

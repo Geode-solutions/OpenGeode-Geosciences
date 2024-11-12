@@ -23,6 +23,7 @@
 
 #pragma once
 
+#include <geode/basic/passkey.hpp>
 #include <geode/basic/pimpl.hpp>
 
 #include <geode/geosciences/explicit/common.hpp>
@@ -41,10 +42,10 @@ namespace geode
     class opengeode_geosciences_explicit_api Faults
     {
         OPENGEODE_DISABLE_COPY( Faults );
+        PASSKEY( FaultsBuilder< dimension >, FaultsBuilderKey );
 
     public:
         using Builder = FaultsBuilder< dimension >;
-        friend Builder;
 
         class opengeode_geosciences_explicit_api FaultRangeBase
         {
@@ -123,24 +124,29 @@ namespace geode
             [[nodiscard]] Fault< dimension >& operator*() const;
         };
 
-    private:
-        [[nodiscard]] const uuid& create_fault();
+    public:
+        [[nodiscard]] const uuid& create_fault( FaultsBuilderKey key );
 
         [[nodiscard]] const uuid& create_fault(
-            typename Fault< dimension >::FAULT_TYPE type );
+            typename Fault< dimension >::FAULT_TYPE type,
+            FaultsBuilderKey key );
 
-        void create_fault( uuid fault_id );
+        void create_fault( uuid fault_id, FaultsBuilderKey key );
 
-        void create_fault(
-            uuid fault_id, typename Fault< dimension >::FAULT_TYPE type );
+        void create_fault( uuid fault_id,
+            typename Fault< dimension >::FAULT_TYPE type,
+            FaultsBuilderKey key );
 
-        void delete_fault( const Fault< dimension >& fault );
+        void delete_fault(
+            const Fault< dimension >& fault, FaultsBuilderKey key );
 
-        void load_faults( std::string_view directory );
+        void load_faults( std::string_view directory, FaultsBuilderKey key );
 
-        [[nodiscard]] ModifiableFaultRange modifiable_faults();
+        [[nodiscard]] ModifiableFaultRange modifiable_faults(
+            FaultsBuilderKey key );
 
-        [[nodiscard]] Fault< dimension >& modifiable_fault( const uuid& id );
+        [[nodiscard]] Fault< dimension >& modifiable_fault(
+            const uuid& id, FaultsBuilderKey key );
 
     private:
         IMPLEMENTATION_MEMBER( impl_ );

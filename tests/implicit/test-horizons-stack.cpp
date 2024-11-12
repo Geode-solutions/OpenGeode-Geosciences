@@ -48,13 +48,13 @@ void test_horizons_stack()
         "[Test] Horizons Stack should have 3 horizons." );
     OPENGEODE_EXCEPTION( horizons_stack.nb_stratigraphic_units() == 2,
         "[Test] Horizons Stack should have 2 Stratigraphic Units." );
-    stack_builder.add_horizon_under( horizons_stack.horizon( hor0 ),
+    stack_builder.set_horizon_under( horizons_stack.horizon( hor0 ),
         horizons_stack.stratigraphic_unit( unit0 ) );
-    stack_builder.add_horizon_above( horizons_stack.horizon( hor1 ),
+    stack_builder.set_horizon_above( horizons_stack.horizon( hor1 ),
         horizons_stack.stratigraphic_unit( unit0 ) );
-    stack_builder.add_horizon_under( horizons_stack.horizon( hor1 ),
+    stack_builder.set_horizon_under( horizons_stack.horizon( hor1 ),
         horizons_stack.stratigraphic_unit( unit1 ) );
-    stack_builder.add_horizon_above( horizons_stack.horizon( hor2 ),
+    stack_builder.set_horizon_above( horizons_stack.horizon( hor2 ),
         horizons_stack.stratigraphic_unit( unit1 ) );
 
     for( const auto& unit : horizons_stack.stratigraphic_units() )
@@ -112,7 +112,7 @@ void test_create_horizons_stack()
         "[Test] Created Horizons Stack should have 4 horizons." );
     OPENGEODE_EXCEPTION( horizons_stack.nb_stratigraphic_units() == 5,
         "[Test] Created Horizons Stack should have 5 Stratigraphic Units." );
-    const auto bot_horizon = horizons_stack.bottom_horizon();
+    const auto bot_horizon = horizons_stack.bottom_horizon().value();
     OPENGEODE_EXCEPTION(
         horizons_stack.horizon( bot_horizon ).name() == horizons_list[0],
         "[Test] Wrong name for bottom horizon." );
@@ -134,6 +134,14 @@ void test_create_horizons_stack()
         top_horizon_id
             && top_horizon_id.value() == horizons_stack.top_horizon(),
         "[Test] Should have found top horizon from last horizon name" );
+    geode::index_t counter{ 0 };
+    for( const auto& horizon : horizons_stack.bottom_to_top_horizons() )
+    {
+        OPENGEODE_EXCEPTION( horizon.name() == horizons_list[counter],
+            "[Test] Should have found horizon ", horizons_list[counter],
+            " as horizon number ", counter, ", not ", horizon.name() );
+        counter++;
+    }
 }
 
 int main()

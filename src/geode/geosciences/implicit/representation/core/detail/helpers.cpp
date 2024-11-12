@@ -294,7 +294,7 @@ namespace geode
             auto current_horizon = builder.add_horizon();
             builder.set_horizon_name( current_horizon, horizons_names[0] );
             const auto& su_under = builder.add_stratigraphic_unit();
-            builder.add_horizon_above( stack.horizon( current_horizon ),
+            builder.set_horizon_above( stack.horizon( current_horizon ),
                 stack.stratigraphic_unit( su_under ) );
             bool lowest_unit_to_create{ nb_units < nb_horizons };
             if( !lowest_unit_to_create )
@@ -307,22 +307,23 @@ namespace geode
                 builder.set_stratigraphic_unit_name(
                     su_above, units_names[lowest_unit_to_create ? counter - 1
                                                                 : counter] );
-                builder.add_horizon_under( stack.horizon( current_horizon ),
+                builder.set_horizon_under( stack.horizon( current_horizon ),
                     stack.stratigraphic_unit( su_above ) );
                 current_horizon = builder.add_horizon();
                 builder.set_horizon_name(
                     current_horizon, horizons_names[counter] );
-                builder.add_horizon_above( stack.horizon( current_horizon ),
+                builder.set_horizon_above( stack.horizon( current_horizon ),
                     stack.stratigraphic_unit( su_above ) );
             }
             const auto& su_above = builder.add_stratigraphic_unit();
-            builder.add_horizon_under( stack.horizon( current_horizon ),
+            builder.set_horizon_under( stack.horizon( current_horizon ),
                 stack.stratigraphic_unit( su_above ) );
             if( nb_units > nb_horizons )
             {
                 builder.set_stratigraphic_unit_name(
                     su_above, units_names.back() );
             }
+            builder.compute_top_and_bottom_horizons();
             return stack;
         }
 
@@ -334,11 +335,12 @@ namespace geode
             const auto nb_horizons = horizon_stack.nb_horizons();
             check_number_of_horizons_and_stratigraphic_units(
                 nb_horizons, horizon_stack.nb_stratigraphic_units() );
-            const auto bottom_horizon = horizon_stack.bottom_horizon();
+            builder.compute_top_and_bottom_horizons();
+            const auto bottom_horizon = horizon_stack.bottom_horizon().value();
             if( !horizon_stack.under( bottom_horizon ) )
             {
                 const auto& unit_under = builder.add_stratigraphic_unit();
-                builder.add_horizon_above(
+                builder.set_horizon_above(
                     horizon_stack.horizon( bottom_horizon ),
                     horizon_stack.stratigraphic_unit( unit_under ) );
             }
@@ -362,7 +364,7 @@ namespace geode
             if( !su_above )
             {
                 const auto& unit_above = builder.add_stratigraphic_unit();
-                builder.add_horizon_under(
+                builder.set_horizon_under(
                     horizon_stack.horizon( current_horizon.value() ),
                     horizon_stack.stratigraphic_unit( unit_above ) );
             }

@@ -31,48 +31,48 @@ namespace geode
     template < index_t dimension >
     const uuid& HorizonsBuilder< dimension >::create_horizon()
     {
-        return horizons_.create_horizon();
+        return horizons_.create_horizon( {} );
     }
 
     template < index_t dimension >
     const uuid& HorizonsBuilder< dimension >::create_horizon(
         typename Horizon< dimension >::HORIZON_TYPE type )
     {
-        return horizons_.create_horizon( type );
+        return horizons_.create_horizon( type, {} );
     }
 
     template < index_t dimension >
     void HorizonsBuilder< dimension >::create_horizon( uuid horizon_id )
     {
-        horizons_.create_horizon( std::move( horizon_id ) );
+        horizons_.create_horizon( std::move( horizon_id ), {} );
     }
 
     template < index_t dimension >
     void HorizonsBuilder< dimension >::create_horizon(
         uuid horizon_id, typename Horizon< dimension >::HORIZON_TYPE type )
     {
-        horizons_.create_horizon( std::move( horizon_id ), type );
+        horizons_.create_horizon( std::move( horizon_id ), type, {} );
     }
 
     template < index_t dimension >
     void HorizonsBuilder< dimension >::delete_horizon(
         const Horizon< dimension >& horizon )
     {
-        horizons_.delete_horizon( horizon );
+        horizons_.delete_horizon( horizon, {} );
     }
 
     template < index_t dimension >
     void HorizonsBuilder< dimension >::load_horizons(
         std::string_view directory )
     {
-        return horizons_.load_horizons( directory );
+        return horizons_.load_horizons( directory, {} );
     }
 
     template < index_t dimension >
     void HorizonsBuilder< dimension >::set_horizon_type( const uuid& horizon_id,
         typename Horizon< dimension >::HORIZON_TYPE type )
     {
-        horizons_.modifiable_horizon( horizon_id )
+        horizons_.modifiable_horizon( horizon_id, {} )
             .set_type(
                 type, typename Horizon< dimension >::HorizonsBuilderKey{} );
     }
@@ -81,7 +81,7 @@ namespace geode
     void HorizonsBuilder< dimension >::set_horizon_name(
         const uuid& id, std::string_view name )
     {
-        horizons_.modifiable_horizon( id ).set_horizon_name(
+        horizons_.modifiable_horizon( id, {} ).set_horizon_name(
             name, typename Horizon< dimension >::HorizonsBuilderKey{} );
     }
 
