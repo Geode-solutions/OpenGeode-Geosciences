@@ -23,6 +23,7 @@
 
 #pragma once
 
+#include <geode/basic/passkey.hpp>
 #include <geode/basic/pimpl.hpp>
 
 #include <geode/geosciences/explicit/common.hpp>
@@ -41,10 +42,10 @@ namespace geode
     class opengeode_geosciences_explicit_api FaultBlocks
     {
         OPENGEODE_DISABLE_COPY( FaultBlocks );
+        PASSKEY( FaultBlocksBuilder< dimension >, FaultBlocksBuilderKey );
 
     public:
         using Builder = FaultBlocksBuilder< dimension >;
-        friend Builder;
 
         class opengeode_geosciences_explicit_api FaultBlockRangeBase
         {
@@ -124,19 +125,24 @@ namespace geode
             [[nodiscard]] FaultBlock< dimension >& operator*() const;
         };
 
-    private:
-        [[nodiscard]] const uuid& create_fault_block();
+    public:
+        [[nodiscard]] const uuid& create_fault_block(
+            FaultBlocksBuilderKey key );
 
-        void create_fault_block( uuid fault_block_id );
+        void create_fault_block(
+            uuid fault_block_id, FaultBlocksBuilderKey key );
 
-        void delete_fault_block( const FaultBlock< dimension >& fault_block );
+        void delete_fault_block( const FaultBlock< dimension >& fault_block,
+            FaultBlocksBuilderKey key );
 
-        void load_fault_blocks( std::string_view directory );
+        void load_fault_blocks(
+            std::string_view directory, FaultBlocksBuilderKey key );
 
-        [[nodiscard]] ModifiableFaultBlockRange modifiable_fault_blocks();
+        [[nodiscard]] ModifiableFaultBlockRange modifiable_fault_blocks(
+            FaultBlocksBuilderKey key );
 
         [[nodiscard]] FaultBlock< dimension >& modifiable_fault_block(
-            const uuid& id );
+            const uuid& id, FaultBlocksBuilderKey key );
 
     private:
         IMPLEMENTATION_MEMBER( impl_ );

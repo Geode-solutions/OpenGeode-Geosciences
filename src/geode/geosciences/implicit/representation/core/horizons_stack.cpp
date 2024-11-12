@@ -23,11 +23,43 @@
 
 #include <geode/geosciences/implicit/representation/core/horizons_stack.hpp>
 
+#include <geode/basic/logger.hpp>
+#include <geode/basic/pimpl_impl.hpp>
+
 #include <geode/geosciences/explicit/representation/core/detail/clone.hpp>
 #include <geode/geosciences/implicit/representation/builder/horizons_stack_builder.hpp>
 
 namespace geode
 {
+    template < index_t dimension >
+    class HorizonsStack< dimension >::Impl
+    {
+    public:
+        std::optional< uuid > top_horizon() const
+        {
+            return top_horizon_;
+        }
+
+        std::optional< uuid > bottom_horizon() const
+        {
+            return bottom_horizon_;
+        }
+
+        void set_top_horizon( uuid horizon_id )
+        {
+            top_horizon_ = horizon_id;
+        }
+
+        void set_bottom_horizon( uuid horizon_id )
+        {
+            bottom_horizon_ = horizon_id;
+        }
+
+    private:
+        std::optional< uuid > top_horizon_{ std::nullopt };
+        std::optional< uuid > bottom_horizon_{ std::nullopt };
+    };
+
     template < index_t dimension >
     HorizonsStack< dimension >::HorizonsStack() = default;
 
@@ -56,45 +88,43 @@ namespace geode
             geode::StratigraphicUnit< dimension >::component_type_static(),
             detail::clone_stratigraphic_unit_mapping( *this ) );
         clone_builder.copy( clone_mapping, *this );
+        if( impl_->top_horizon() && impl_->bottom_horizon() )
+        {
+            clone_builder.compute_top_and_bottom_horizons();
+        }
         return stack_clone;
     }
 
     template < index_t dimension >
-    uuid HorizonsStack< dimension >::top_horizon() const
+    std::optional< uuid > HorizonsStack< dimension >::top_horizon() const
     {
-        OPENGEODE_EXCEPTION( this->nb_horizons() != 0,
-            "[HorizonsStack::top_horizon] Cannot determine top horizon: "
-            "no horizons were provided in the HorizonsStack." );
-        auto current_horizon_id = ( *this->horizons().begin() ).id();
-        while( const auto su_above = this->above( current_horizon_id ) )
-        {
-            const auto horizon_above = this->above( su_above.value() );
-            if( !horizon_above )
-            {
-                break;
-            }
-            current_horizon_id = horizon_above.value();
-        }
-        return current_horizon_id;
+        return impl_->top_horizon();
     }
 
     template < index_t dimension >
-    uuid HorizonsStack< dimension >::bottom_horizon() const
+    std::optional< uuid > HorizonsStack< dimension >::bottom_horizon() const
     {
-        OPENGEODE_EXCEPTION( this->nb_horizons() != 0,
-            "[HorizonsStack::bottom_horizon] Cannot determine bottom horizon: "
-            "no horizons were provided in the HorizonsStack." );
-        auto current_horizon_id = ( *this->horizons().begin() ).id();
-        while( const auto su_under = this->under( current_horizon_id ) )
-        {
-            const auto horizon_under = this->under( su_under.value() );
-            if( !horizon_under )
-            {
-                break;
-            }
-            current_horizon_id = horizon_under.value();
-        }
-        return current_horizon_id;
+        return impl_->bottom_horizon();
+    }
+
+    template < index_t dimension >
+    auto HorizonsStack< dimension >::bottom_to_top_horizons() const
+        -> HorizonOrderedRange
+    {
+        OPENGEODE_EXCEPTION( impl_->top_horizon() && impl_->bottom_horizon(),
+            "[HorizonsStack::bottom_to_top_horizons] Cannot iterate on "
+            "HorizonsStack: top and bottom horizons have not been computed." );
+        return { *this };
+    }
+
+    template < index_t dimension >
+    auto HorizonsStack< dimension >::bottom_to_top_units() const
+        -> StratigraphicUnitOrderedRange
+    {
+        OPENGEODE_EXCEPTION( impl_->top_horizon() && impl_->bottom_horizon(),
+            "[HorizonsStack::bottom_to_top_units] Cannot iterate on "
+            "HorizonsStack: top and bottom horizons have not been computed." );
+        return { *this };
     }
 
     template < index_t dimension >
@@ -113,6 +143,211 @@ namespace geode
     {
         return StratigraphicRelationships::is_baselap_of(
             baselap.id(), baselap_top.id() );
+    }
+
+    template < index_t dimension >
+    void HorizonsStack< dimension >::compute_top_and_bottom_horizons(
+        HorizonsStackBuilderKey /*unused*/ )
+    {
+        if( this->nb_horizons() == 0 )
+        {
+            Logger::warn(
+                "[HorizonsStack::compute_top_and_bottom_horizons] No horizons "
+                "were provided in the HorizonsStack, top and bottom horizons "
+                "will be set to std::nullopt." );
+            return;
+        }
+        auto current_horizon_id = ( *this->horizons().begin() ).id();
+        while( const auto su_above = this->above( current_horizon_id ) )
+        {
+            const auto horizon_above = this->above( su_above.value() );
+            if( !horizon_above )
+            {
+                break;
+            }
+            current_horizon_id = horizon_above.value();
+        }
+        impl_->set_top_horizon( current_horizon_id );
+        while( const auto su_under = this->under( current_horizon_id ) )
+        {
+            const auto horizon_under = this->under( su_under.value() );
+            if( !horizon_under )
+            {
+                break;
+            }
+            current_horizon_id = horizon_under.value();
+        }
+        impl_->set_bottom_horizon( current_horizon_id );
+    }
+
+    template < index_t dimension >
+    void HorizonsStack< dimension >::set_top_horizon(
+        const uuid& horizon_id, HorizonsStackBuilderKey /*unused*/ )
+    {
+        impl_->set_top_horizon( horizon_id );
+    }
+
+    template < index_t dimension >
+    void HorizonsStack< dimension >::set_bottom_horizon(
+        const uuid& horizon_id, HorizonsStackBuilderKey /*unused*/ )
+    {
+        impl_->set_bottom_horizon( horizon_id );
+    }
+
+    template < index_t dimension >
+    class HorizonsStack< dimension >::HorizonOrderedRange::Impl
+    {
+    public:
+        Impl( const HorizonsStack< dimension >& stack )
+            : stack_( stack ), iter_( stack.bottom_horizon().value() )
+        {
+        }
+
+        constexpr bool operator!=( const Impl& /*unused*/ ) const
+        {
+            return stack_.has_horizon( iter_ );
+        }
+
+        void operator++()
+        {
+            if( iter_ != stack_.top_horizon().value() )
+            {
+                iter_ = stack_.above( stack_.above( iter_ ).value() ).value();
+                return;
+            }
+            iter_ = uuid{};
+        }
+
+        const Horizon< dimension >& current_horizon() const
+        {
+            return stack_.horizon( iter_ );
+        }
+
+    private:
+        const HorizonsStack< dimension >& stack_;
+        uuid iter_;
+    };
+
+    template < index_t dimension >
+    HorizonsStack< dimension >::HorizonOrderedRange::HorizonOrderedRange(
+        const HorizonsStack& horizons_stack )
+        : impl_( horizons_stack )
+    {
+    }
+
+    template < index_t dimension >
+    HorizonsStack< dimension >::HorizonOrderedRange::HorizonOrderedRange(
+        HorizonOrderedRange&& ) noexcept = default;
+
+    template < index_t dimension >
+    HorizonsStack< dimension >::HorizonOrderedRange::HorizonOrderedRange(
+        const HorizonOrderedRange& other )
+        : impl_( *other.impl_ )
+    {
+    }
+
+    template < index_t dimension >
+    HorizonsStack< dimension >::HorizonOrderedRange::~HorizonOrderedRange() =
+        default;
+
+    template < index_t dimension >
+    bool HorizonsStack< dimension >::HorizonOrderedRange::operator!=(
+        const HorizonOrderedRange& /*unused*/ ) const
+    {
+        return impl_->operator!=( *impl_ );
+    }
+
+    template < index_t dimension >
+    void HorizonsStack< dimension >::HorizonOrderedRange::operator++()
+    {
+        return impl_->operator++();
+    }
+
+    template < index_t dimension >
+    const Horizon< dimension >&
+        HorizonsStack< dimension >::HorizonOrderedRange::operator*() const
+    {
+        return impl_->current_horizon();
+    }
+
+    template < index_t dimension >
+    class HorizonsStack< dimension >::StratigraphicUnitOrderedRange::Impl
+    {
+    public:
+        Impl( const HorizonsStack< dimension >& stack )
+            : stack_( stack ),
+              iter_( stack.under( stack.bottom_horizon().value() ).value() )
+        {
+        }
+
+        constexpr bool operator!=( const Impl& /*unused*/ ) const
+        {
+            return stack_.has_stratigraphic_unit( iter_ );
+        }
+
+        void operator++()
+        {
+            if( iter_ != stack_.above( stack_.top_horizon().value() ).value() )
+            {
+                iter_ = stack_.above( stack_.above( iter_ ).value() ).value();
+                return;
+            }
+            iter_ = uuid{};
+        }
+
+        const StratigraphicUnit< dimension >& current_stratigraphic_unit() const
+        {
+            return stack_.stratigraphic_unit( iter_ );
+        }
+
+    private:
+        const HorizonsStack< dimension >& stack_;
+        uuid iter_;
+    };
+
+    template < index_t dimension >
+    HorizonsStack< dimension >::StratigraphicUnitOrderedRange::
+        StratigraphicUnitOrderedRange( const HorizonsStack& horizons_stack )
+        : impl_( horizons_stack )
+    {
+    }
+
+    template < index_t dimension >
+    HorizonsStack< dimension >::StratigraphicUnitOrderedRange::
+        StratigraphicUnitOrderedRange(
+            StratigraphicUnitOrderedRange&& ) noexcept = default;
+
+    template < index_t dimension >
+    HorizonsStack< dimension >::StratigraphicUnitOrderedRange::
+        StratigraphicUnitOrderedRange(
+            const StratigraphicUnitOrderedRange& other )
+        : impl_( *other.impl_ )
+    {
+    }
+
+    template < index_t dimension >
+    HorizonsStack< dimension >::StratigraphicUnitOrderedRange::
+        ~StratigraphicUnitOrderedRange() = default;
+
+    template < index_t dimension >
+    bool HorizonsStack< dimension >::StratigraphicUnitOrderedRange::operator!=(
+        const StratigraphicUnitOrderedRange& /*unused*/ ) const
+    {
+        return impl_->operator!=( *impl_ );
+    }
+
+    template < index_t dimension >
+    void HorizonsStack< dimension >::StratigraphicUnitOrderedRange::operator++()
+    {
+        return impl_->operator++();
+    }
+
+    template < index_t dimension >
+    const StratigraphicUnit< dimension >&
+        HorizonsStack< dimension >::StratigraphicUnitOrderedRange::operator*()
+            const
+    {
+        return impl_->current_stratigraphic_unit();
     }
 
     template class opengeode_geosciences_implicit_api HorizonsStack< 2 >;

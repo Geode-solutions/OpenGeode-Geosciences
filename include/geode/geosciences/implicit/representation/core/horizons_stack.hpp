@@ -24,6 +24,7 @@
 #pragma once
 
 #include <geode/basic/identifier.hpp>
+#include <geode/basic/pimpl.hpp>
 
 #include <geode/geosciences/explicit/mixin/core/horizons.hpp>
 #include <geode/geosciences/explicit/mixin/core/stratigraphic_units.hpp>
@@ -48,13 +49,75 @@ namespace geode
      * and under which horizon, and inversely).
      */
     template < index_t dimension >
-    class opengeode_geosciences_implicit_api HorizonsStack
-        : public StratigraphicRelationships,
-          public Horizons< dimension >,
-          public StratigraphicUnits< dimension >,
-          public Identifier
+    class HorizonsStack : public StratigraphicRelationships,
+                          public Horizons< dimension >,
+                          public StratigraphicUnits< dimension >,
+                          public Identifier
     {
         PASSKEY( HorizonsStackBuilder< dimension >, HorizonsStackBuilderKey );
+
+    public:
+        class opengeode_geosciences_implicit_api HorizonOrderedRange
+        {
+        public:
+            HorizonOrderedRange( const HorizonsStack& horizons_stack );
+            HorizonOrderedRange( HorizonOrderedRange&& other ) noexcept;
+            HorizonOrderedRange( const HorizonOrderedRange& other );
+            ~HorizonOrderedRange();
+
+            [[nodiscard]] bool operator!=(
+                const HorizonOrderedRange& /*unused*/ ) const;
+
+            void operator++();
+
+            [[nodiscard]] const HorizonOrderedRange& begin() const
+            {
+                return *this;
+            }
+
+            [[nodiscard]] const HorizonOrderedRange& end() const
+            {
+                return *this;
+            }
+
+            [[nodiscard]] const Horizon< dimension >& operator*() const;
+
+        protected:
+            IMPLEMENTATION_MEMBER( impl_ );
+        };
+
+        class opengeode_geosciences_implicit_api StratigraphicUnitOrderedRange
+        {
+        public:
+            StratigraphicUnitOrderedRange(
+                const HorizonsStack& horizons_stack );
+            StratigraphicUnitOrderedRange(
+                StratigraphicUnitOrderedRange&& other ) noexcept;
+            StratigraphicUnitOrderedRange(
+                const StratigraphicUnitOrderedRange& other );
+            ~StratigraphicUnitOrderedRange();
+
+            [[nodiscard]] bool operator!=(
+                const StratigraphicUnitOrderedRange& /*unused*/ ) const;
+
+            void operator++();
+
+            [[nodiscard]] const StratigraphicUnitOrderedRange& begin() const
+            {
+                return *this;
+            }
+
+            [[nodiscard]] const StratigraphicUnitOrderedRange& end() const
+            {
+                return *this;
+            }
+
+            [[nodiscard]] const StratigraphicUnit< dimension >&
+                operator*() const;
+
+        protected:
+            IMPLEMENTATION_MEMBER( impl_ );
+        };
 
     public:
         using Builder = HorizonsStackBuilder< dimension >;
@@ -81,9 +144,13 @@ namespace geode
             return native_extension_static();
         }
 
-        [[nodiscard]] uuid top_horizon() const;
+        [[nodiscard]] std::optional< uuid > top_horizon() const;
 
-        [[nodiscard]] uuid bottom_horizon() const;
+        [[nodiscard]] std::optional< uuid > bottom_horizon() const;
+
+        [[nodiscard]] HorizonOrderedRange bottom_to_top_horizons() const;
+
+        [[nodiscard]] StratigraphicUnitOrderedRange bottom_to_top_units() const;
 
         [[nodiscard]] bool is_eroded_by(
             const StratigraphicUnit< dimension >& eroded,
@@ -91,6 +158,18 @@ namespace geode
 
         [[nodiscard]] bool is_baselap_of( const Horizon< dimension >& baselap,
             const StratigraphicUnit< dimension >& baselap_top ) const;
+
+    public:
+        void compute_top_and_bottom_horizons( HorizonsStackBuilderKey key );
+
+        void set_top_horizon(
+            const uuid& horizon_id, HorizonsStackBuilderKey key );
+
+        void set_bottom_horizon(
+            const uuid& horizon_id, HorizonsStackBuilderKey key );
+
+    protected:
+        IMPLEMENTATION_MEMBER( impl_ );
     };
     ALIAS_2D_AND_3D( HorizonsStack );
 } // namespace geode

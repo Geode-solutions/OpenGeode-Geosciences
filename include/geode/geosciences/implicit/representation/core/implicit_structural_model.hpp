@@ -34,8 +34,10 @@ namespace geode
 {
     FORWARD_DECLARATION_DIMENSION_CLASS( Point );
     FORWARD_DECLARATION_DIMENSION_CLASS( HorizonsStack );
+    FORWARD_DECLARATION_DIMENSION_CLASS( Horizon );
     ALIAS_3D( Point );
     ALIAS_3D( HorizonsStack );
+    ALIAS_3D( Horizon );
     class ImplicitStructuralModelBuilder;
 } // namespace geode
 

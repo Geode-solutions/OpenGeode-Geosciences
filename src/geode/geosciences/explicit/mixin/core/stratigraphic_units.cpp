@@ -77,7 +77,7 @@ namespace geode
     template < index_t dimension >
     StratigraphicUnit< dimension >&
         StratigraphicUnits< dimension >::modifiable_stratigraphic_unit(
-            const uuid& id )
+            const uuid& id, StratigraphicUnitsBuilderKey /*unused*/ )
     {
         return impl_->component( id );
     }
@@ -92,7 +92,7 @@ namespace geode
 
     template < index_t dimension >
     void StratigraphicUnits< dimension >::load_stratigraphic_units(
-        std::string_view directory )
+        std::string_view directory, StratigraphicUnitsBuilderKey /*unused*/ )
     {
         impl_->load_components(
             absl::StrCat( directory, "/stratigraphic_units" ) );
@@ -107,13 +107,15 @@ namespace geode
 
     template < index_t dimension >
     typename StratigraphicUnits< dimension >::ModifiableStratigraphicUnitRange
-        StratigraphicUnits< dimension >::modifiable_stratigraphic_units()
+        StratigraphicUnits< dimension >::modifiable_stratigraphic_units(
+            StratigraphicUnitsBuilderKey /*unused*/ )
     {
         return { *this };
     }
 
     template < index_t dimension >
-    const uuid& StratigraphicUnits< dimension >::create_stratigraphic_unit()
+    const uuid& StratigraphicUnits< dimension >::create_stratigraphic_unit(
+        StratigraphicUnitsBuilderKey /*unused*/ )
     {
         typename StratigraphicUnits< dimension >::Impl::ComponentPtr
             stratigraphic_unit{ new StratigraphicUnit< dimension >{
@@ -126,7 +128,7 @@ namespace geode
 
     template < index_t dimension >
     void StratigraphicUnits< dimension >::create_stratigraphic_unit(
-        uuid stratigraphic_unit_id )
+        uuid stratigraphic_unit_id, StratigraphicUnitsBuilderKey /*unused*/ )
     {
         typename StratigraphicUnits< dimension >::Impl::ComponentPtr
             stratigraphic_unit{ new StratigraphicUnit< dimension >{
@@ -139,7 +141,8 @@ namespace geode
 
     template < index_t dimension >
     void StratigraphicUnits< dimension >::delete_stratigraphic_unit(
-        const StratigraphicUnit< dimension >& stratigraphic_unit )
+        const StratigraphicUnit< dimension >& stratigraphic_unit,
+        StratigraphicUnitsBuilderKey /*unused*/ )
     {
         impl_->delete_component( stratigraphic_unit.id() );
     }

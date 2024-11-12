@@ -23,6 +23,7 @@
 
 #pragma once
 
+#include <geode/basic/passkey.hpp>
 #include <geode/basic/pimpl.hpp>
 
 #include <geode/geosciences/explicit/common.hpp>
@@ -41,10 +42,11 @@ namespace geode
     class opengeode_geosciences_explicit_api StratigraphicUnits
     {
         OPENGEODE_DISABLE_COPY( StratigraphicUnits );
+        PASSKEY( StratigraphicUnitsBuilder< dimension >,
+            StratigraphicUnitsBuilderKey );
 
     public:
         using Builder = StratigraphicUnitsBuilder< dimension >;
-        friend Builder;
 
         class opengeode_geosciences_explicit_api StratigraphicUnitRangeBase
         {
@@ -104,7 +106,6 @@ namespace geode
         void save_stratigraphic_units( std::string_view directory ) const;
 
     protected:
-        friend class StratigraphicUnitsBuilder< dimension >;
         StratigraphicUnits();
         StratigraphicUnits( StratigraphicUnits&& other ) noexcept;
 
@@ -132,21 +133,26 @@ namespace geode
             [[nodiscard]] StratigraphicUnit< dimension >& operator*() const;
         };
 
-    private:
-        [[nodiscard]] const uuid& create_stratigraphic_unit();
+    public:
+        [[nodiscard]] const uuid& create_stratigraphic_unit(
+            StratigraphicUnitsBuilderKey key );
 
-        void create_stratigraphic_unit( uuid stratigraphic_unit_id );
+        void create_stratigraphic_unit(
+            uuid stratigraphic_unit_id, StratigraphicUnitsBuilderKey key );
 
         void delete_stratigraphic_unit(
-            const StratigraphicUnit< dimension >& stratigraphic_unit );
+            const StratigraphicUnit< dimension >& stratigraphic_unit,
+            StratigraphicUnitsBuilderKey key );
 
-        void load_stratigraphic_units( std::string_view directory );
+        void load_stratigraphic_units(
+            std::string_view directory, StratigraphicUnitsBuilderKey key );
 
         [[nodiscard]] ModifiableStratigraphicUnitRange
-            modifiable_stratigraphic_units();
+            modifiable_stratigraphic_units( StratigraphicUnitsBuilderKey key );
 
         [[nodiscard]] StratigraphicUnit< dimension >&
-            modifiable_stratigraphic_unit( const uuid& id );
+            modifiable_stratigraphic_unit(
+                const uuid& id, StratigraphicUnitsBuilderKey key );
 
     private:
         IMPLEMENTATION_MEMBER( impl_ );

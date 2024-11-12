@@ -103,22 +103,24 @@ namespace geode
         InsertedHorizonInfo add_horizon_in_stratigraphic_unit(
             const StratigraphicUnit< dimension >& strati_unit );
 
-        void add_horizon_above( const Horizon< dimension >& horizon_above,
+        void set_horizon_above( const Horizon< dimension >& horizon_above,
             const StratigraphicUnit< dimension >& strati_unit_under );
 
-        void add_horizon_under( const Horizon< dimension >& horizon_under,
+        void set_horizon_under( const Horizon< dimension >& horizon_under,
             const StratigraphicUnit< dimension >& strati_unit_above );
 
-        void add_erosion_above( const Horizon< dimension >& erosion_horizon,
+        void set_as_erosion_above( const Horizon< dimension >& erosion_horizon,
             const StratigraphicUnit< dimension >& eroded_unit );
 
-        void add_baselap_under( const Horizon< dimension >& baselap_horizon,
+        void set_as_baselap_under( const Horizon< dimension >& baselap_horizon,
             const StratigraphicUnit< dimension >& baselaping_unit );
 
         void remove_horizon( const Horizon< dimension >& horizon );
 
         void remove_stratigraphic_unit(
             const StratigraphicUnit< dimension >& stratigraphic_unit );
+
+        void compute_top_and_bottom_horizons();
 
     private:
         HorizonsStack< dimension >& horizons_stack_;

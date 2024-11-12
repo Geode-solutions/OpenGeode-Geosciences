@@ -43,10 +43,10 @@ def test_horizons_stack():
         raise ValueError( "[TEST] Stratigraphic Units Stack should have 3 horizons." )
     if horizons_stack.nb_stratigraphic_units() != 2:
         raise ValueError( "[TEST] Stratigraphic Units Stack should have 2 Stratigraphic Units." )
-    stack_builder.add_horizon_under( horizons_stack.horizon( hor0 ), horizons_stack.stratigraphic_unit( unit0 ) )
-    stack_builder.add_horizon_above( horizons_stack.horizon( hor1 ), horizons_stack.stratigraphic_unit( unit0 ) )
-    stack_builder.add_horizon_under( horizons_stack.horizon( hor1 ), horizons_stack.stratigraphic_unit( unit1 ) )
-    stack_builder.add_horizon_above( horizons_stack.horizon( hor2 ), horizons_stack.stratigraphic_unit( unit1 ) )
+    stack_builder.set_horizon_under( horizons_stack.horizon( hor0 ), horizons_stack.stratigraphic_unit( unit0 ) )
+    stack_builder.set_horizon_above( horizons_stack.horizon( hor1 ), horizons_stack.stratigraphic_unit( unit0 ) )
+    stack_builder.set_horizon_under( horizons_stack.horizon( hor1 ), horizons_stack.stratigraphic_unit( unit1 ) )
+    stack_builder.set_horizon_above( horizons_stack.horizon( hor2 ), horizons_stack.stratigraphic_unit( unit1 ) )
 
     for unit in horizons_stack.stratigraphic_units():
         unit_id = unit.id()

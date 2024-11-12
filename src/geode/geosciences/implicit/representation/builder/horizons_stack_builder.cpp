@@ -171,6 +171,7 @@ namespace geode
     void HorizonsStackBuilder< dimension >::remove_horizon(
         const Horizon< dimension >& horizon )
     {
+        /// Change top/bottom horizon or recompute ?
         unregister_component( horizon.id() );
         this->delete_horizon( horizon );
     }
@@ -184,7 +185,7 @@ namespace geode
     }
 
     template < index_t dimension >
-    void HorizonsStackBuilder< dimension >::add_horizon_above(
+    void HorizonsStackBuilder< dimension >::set_horizon_above(
         const Horizon< dimension >& horizon_above,
         const StratigraphicUnit< dimension >& strati_unit_under )
     {
@@ -193,7 +194,7 @@ namespace geode
     }
 
     template < index_t dimension >
-    void HorizonsStackBuilder< dimension >::add_horizon_under(
+    void HorizonsStackBuilder< dimension >::set_horizon_under(
         const Horizon< dimension >& horizon_under,
         const StratigraphicUnit< dimension >& strati_unit_above )
     {
@@ -202,7 +203,7 @@ namespace geode
     }
 
     template < index_t dimension >
-    void HorizonsStackBuilder< dimension >::add_erosion_above(
+    void HorizonsStackBuilder< dimension >::set_as_erosion_above(
         const Horizon< dimension >& erosion_horizon,
         const StratigraphicUnit< dimension >& eroded_unit )
     {
@@ -211,12 +212,18 @@ namespace geode
     }
 
     template < index_t dimension >
-    void HorizonsStackBuilder< dimension >::add_baselap_under(
+    void HorizonsStackBuilder< dimension >::set_as_baselap_under(
         const Horizon< dimension >& baselap_horizon,
         const StratigraphicUnit< dimension >& baselaping_unit )
     {
         StratigraphicRelationshipsBuilder::add_baselap_relation(
             baselaping_unit.component_id(), baselap_horizon.component_id() );
+    }
+
+    template < index_t dimension >
+    void HorizonsStackBuilder< dimension >::compute_top_and_bottom_horizons()
+    {
+        horizons_stack_.compute_top_and_bottom_horizons( {} );
     }
 
     template class opengeode_geosciences_implicit_api HorizonsStackBuilder< 2 >;
