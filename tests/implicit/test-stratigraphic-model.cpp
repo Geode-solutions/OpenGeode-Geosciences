@@ -71,7 +71,7 @@ void add_horizons_stack_to_model(
         {
             if( model.horizon_implicit_value( horizon ).value() == 3 )
             {
-                horizons_stack_builder.add_horizon_above(
+                horizons_stack_builder.set_horizon_above(
                     horizon, model.stratigraphic_unit( unit_id ) );
             }
         }

@@ -32,35 +32,37 @@ namespace geode
     const uuid&
         StratigraphicUnitsBuilder< dimension >::create_stratigraphic_unit()
     {
-        return stratigraphic_units_.create_stratigraphic_unit();
+        return stratigraphic_units_.create_stratigraphic_unit( {} );
     }
 
     template < index_t dimension >
     void StratigraphicUnitsBuilder< dimension >::create_stratigraphic_unit(
         uuid stratigraphic_unit_id )
     {
-        stratigraphic_units_.create_stratigraphic_unit( stratigraphic_unit_id );
+        stratigraphic_units_.create_stratigraphic_unit(
+            stratigraphic_unit_id, {} );
     }
 
     template < index_t dimension >
     void StratigraphicUnitsBuilder< dimension >::delete_stratigraphic_unit(
         const StratigraphicUnit< dimension >& stratigraphic_unit )
     {
-        stratigraphic_units_.delete_stratigraphic_unit( stratigraphic_unit );
+        stratigraphic_units_.delete_stratigraphic_unit(
+            stratigraphic_unit, {} );
     }
 
     template < index_t dimension >
     void StratigraphicUnitsBuilder< dimension >::load_stratigraphic_units(
         std::string_view directory )
     {
-        return stratigraphic_units_.load_stratigraphic_units( directory );
+        return stratigraphic_units_.load_stratigraphic_units( directory, {} );
     }
 
     template < index_t dimension >
     void StratigraphicUnitsBuilder< dimension >::set_stratigraphic_unit_name(
         const uuid& id, std::string_view name )
     {
-        stratigraphic_units_.modifiable_stratigraphic_unit( id )
+        stratigraphic_units_.modifiable_stratigraphic_unit( id, {} )
             .set_stratigraphic_unit_name(
                 name, typename StratigraphicUnit<
                           dimension >::StratigraphicUnitsBuilderKey{} );

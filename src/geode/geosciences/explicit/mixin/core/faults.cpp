@@ -71,7 +71,8 @@ namespace geode
     }
 
     template < index_t dimension >
-    Fault< dimension >& Faults< dimension >::modifiable_fault( const uuid& id )
+    Fault< dimension >& Faults< dimension >::modifiable_fault(
+        const uuid& id, FaultsBuilderKey /*unused*/ )
     {
         return impl_->component( id );
     }
@@ -83,7 +84,8 @@ namespace geode
     }
 
     template < index_t dimension >
-    void Faults< dimension >::load_faults( std::string_view directory )
+    void Faults< dimension >::load_faults(
+        std::string_view directory, FaultsBuilderKey /*unused*/ )
     {
         impl_->load_components( absl::StrCat( directory, "/faults" ) );
     }
@@ -96,13 +98,13 @@ namespace geode
 
     template < index_t dimension >
     typename Faults< dimension >::ModifiableFaultRange
-        Faults< dimension >::modifiable_faults()
+        Faults< dimension >::modifiable_faults( FaultsBuilderKey /*unused*/ )
     {
         return { *this };
     }
 
     template < index_t dimension >
-    const uuid& Faults< dimension >::create_fault()
+    const uuid& Faults< dimension >::create_fault( FaultsBuilderKey /*unused*/ )
     {
         typename Faults< dimension >::Impl::ComponentPtr fault{
             new Fault< dimension >{ typename Fault< dimension >::FaultsKey{} }
@@ -114,7 +116,8 @@ namespace geode
 
     template < index_t dimension >
     const uuid& Faults< dimension >::create_fault(
-        typename Fault< dimension >::FAULT_TYPE type )
+        typename Fault< dimension >::FAULT_TYPE type,
+        FaultsBuilderKey /*unused*/ )
     {
         typename Faults< dimension >::Impl::ComponentPtr fault{
             new Fault< dimension >{
@@ -126,7 +129,8 @@ namespace geode
     }
 
     template < index_t dimension >
-    void Faults< dimension >::create_fault( uuid fault_id )
+    void Faults< dimension >::create_fault(
+        uuid fault_id, FaultsBuilderKey /*unused*/ )
     {
         typename Faults< dimension >::Impl::ComponentPtr fault{
             new Fault< dimension >{ typename Fault< dimension >::FaultsKey{} }
@@ -136,8 +140,9 @@ namespace geode
     }
 
     template < index_t dimension >
-    void Faults< dimension >::create_fault(
-        uuid fault_id, typename Fault< dimension >::FAULT_TYPE type )
+    void Faults< dimension >::create_fault( uuid fault_id,
+        typename Fault< dimension >::FAULT_TYPE type,
+        FaultsBuilderKey /*unused*/ )
     {
         typename Faults< dimension >::Impl::ComponentPtr fault{
             new Fault< dimension >{
@@ -148,7 +153,8 @@ namespace geode
     }
 
     template < index_t dimension >
-    void Faults< dimension >::delete_fault( const Fault< dimension >& fault )
+    void Faults< dimension >::delete_fault(
+        const Fault< dimension >& fault, FaultsBuilderKey /*unused*/ )
     {
         impl_->delete_component( fault.id() );
     }

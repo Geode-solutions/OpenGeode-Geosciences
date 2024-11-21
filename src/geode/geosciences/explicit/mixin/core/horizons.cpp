@@ -73,7 +73,7 @@ namespace geode
 
     template < index_t dimension >
     Horizon< dimension >& Horizons< dimension >::modifiable_horizon(
-        const uuid& id )
+        const uuid& id, HorizonsBuilderKey /*unused*/ )
     {
         return impl_->component( id );
     }
@@ -86,7 +86,8 @@ namespace geode
     }
 
     template < index_t dimension >
-    void Horizons< dimension >::load_horizons( std::string_view directory )
+    void Horizons< dimension >::load_horizons(
+        std::string_view directory, HorizonsBuilderKey /*unused*/ )
     {
         impl_->load_components( absl::StrCat( directory, "/horizons" ) );
     }
@@ -100,13 +101,15 @@ namespace geode
 
     template < index_t dimension >
     typename Horizons< dimension >::ModifiableHorizonRange
-        Horizons< dimension >::modifiable_horizons()
+        Horizons< dimension >::modifiable_horizons(
+            HorizonsBuilderKey /*unused*/ )
     {
         return { *this };
     }
 
     template < index_t dimension >
-    const uuid& Horizons< dimension >::create_horizon()
+    const uuid& Horizons< dimension >::create_horizon(
+        HorizonsBuilderKey /*unused*/ )
     {
         typename Horizons< dimension >::Impl::ComponentPtr horizon{
             new Horizon< dimension >{
@@ -119,7 +122,8 @@ namespace geode
 
     template < index_t dimension >
     const uuid& Horizons< dimension >::create_horizon(
-        typename Horizon< dimension >::HORIZON_TYPE type )
+        typename Horizon< dimension >::HORIZON_TYPE type,
+        HorizonsBuilderKey /*unused*/ )
     {
         typename Horizons< dimension >::Impl::ComponentPtr horizon{
             new Horizon< dimension >{
@@ -131,7 +135,8 @@ namespace geode
     }
 
     template < index_t dimension >
-    void Horizons< dimension >::create_horizon( uuid horizon_id )
+    void Horizons< dimension >::create_horizon(
+        uuid horizon_id, HorizonsBuilderKey /*unused*/ )
     {
         typename Horizons< dimension >::Impl::ComponentPtr horizon{
             new Horizon< dimension >{
@@ -142,8 +147,9 @@ namespace geode
     }
 
     template < index_t dimension >
-    void Horizons< dimension >::create_horizon(
-        uuid horizon_id, typename Horizon< dimension >::HORIZON_TYPE type )
+    void Horizons< dimension >::create_horizon( uuid horizon_id,
+        typename Horizon< dimension >::HORIZON_TYPE type,
+        HorizonsBuilderKey /*unused*/ )
     {
         typename Horizons< dimension >::Impl::ComponentPtr horizon{
             new Horizon< dimension >{
@@ -155,7 +161,7 @@ namespace geode
 
     template < index_t dimension >
     void Horizons< dimension >::delete_horizon(
-        const Horizon< dimension >& horizon )
+        const Horizon< dimension >& horizon, HorizonsBuilderKey /*unused*/ )
     {
         impl_->delete_component( horizon.id() );
     }

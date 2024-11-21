@@ -54,10 +54,10 @@
                 HorizonsStackBuilder##dimension##D::*) () >(                   \
                 &HorizonsStackBuilder##dimension##D::                          \
                     add_stratigraphic_unit ) )                                 \
-        .def( "add_horizon_above",                                             \
-            &HorizonsStackBuilder##dimension##D::add_horizon_above )           \
-        .def( "add_horizon_under",                                             \
-            &HorizonsStackBuilder##dimension##D::add_horizon_under )           \
+        .def( "set_horizon_above",                                             \
+            &HorizonsStackBuilder##dimension##D::set_horizon_above )           \
+        .def( "set_horizon_under",                                             \
+            &HorizonsStackBuilder##dimension##D::set_horizon_under )           \
         .def( "remove_horizon",                                                \
             &HorizonsStackBuilder##dimension##D::remove_horizon )              \
         .def( "remove_stratigraphic_unit",                                     \

@@ -73,7 +73,7 @@ namespace geode
 
     template < index_t dimension >
     FaultBlock< dimension >& FaultBlocks< dimension >::modifiable_fault_block(
-        const uuid& id )
+        const uuid& id, FaultBlocksBuilderKey /*unused*/ )
     {
         return impl_->component( id );
     }
@@ -87,7 +87,7 @@ namespace geode
 
     template < index_t dimension >
     void FaultBlocks< dimension >::load_fault_blocks(
-        std::string_view directory )
+        std::string_view directory, FaultBlocksBuilderKey /*unused*/ )
     {
         impl_->load_components( absl::StrCat( directory, "/fault_blocks" ) );
     }
@@ -101,13 +101,15 @@ namespace geode
 
     template < index_t dimension >
     typename FaultBlocks< dimension >::ModifiableFaultBlockRange
-        FaultBlocks< dimension >::modifiable_fault_blocks()
+        FaultBlocks< dimension >::modifiable_fault_blocks(
+            FaultBlocksBuilderKey /*unused*/ )
     {
         return { *this };
     }
 
     template < index_t dimension >
-    const uuid& FaultBlocks< dimension >::create_fault_block()
+    const uuid& FaultBlocks< dimension >::create_fault_block(
+        FaultBlocksBuilderKey /*unused*/ )
     {
         typename FaultBlocks< dimension >::Impl::ComponentPtr fault_block{
             new FaultBlock< dimension >{
@@ -119,7 +121,8 @@ namespace geode
     }
 
     template < index_t dimension >
-    void FaultBlocks< dimension >::create_fault_block( uuid fault_block_id )
+    void FaultBlocks< dimension >::create_fault_block(
+        uuid fault_block_id, FaultBlocksBuilderKey /*unused*/ )
     {
         typename FaultBlocks< dimension >::Impl::ComponentPtr fault_block{
             new FaultBlock< dimension >{
@@ -131,7 +134,8 @@ namespace geode
 
     template < index_t dimension >
     void FaultBlocks< dimension >::delete_fault_block(
-        const FaultBlock< dimension >& fault_block )
+        const FaultBlock< dimension >& fault_block,
+        FaultBlocksBuilderKey /*unused*/ )
     {
         impl_->delete_component( fault_block.id() );
     }
