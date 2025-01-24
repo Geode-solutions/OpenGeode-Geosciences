@@ -90,8 +90,8 @@ namespace geode
                 {
                     const auto& fault_block_id =
                         mapping.in2out( fault_block.id() );
-                    builder_to.add_fault( fault_block_id );
-                    builder_to.set_fault_name(
+                    builder_to.add_fault_block( fault_block_id );
+                    builder_to.set_fault_block_name(
                         fault_block_id, fault_block.name() );
                 }
                 else
