@@ -94,11 +94,10 @@ namespace geode
         }
 
         template void opengeode_geosciences_explicit_api
-            add_geology_clone_mapping(
-                ModelCopyMapping& mapping, const CrossSection& model );
+            add_geology_clone_mapping( ModelCopyMapping&, const CrossSection& );
 
         template void opengeode_geosciences_explicit_api
             add_geology_clone_mapping(
-                ModelCopyMapping& mapping, const StructuralModel& model );
+                ModelCopyMapping&, const StructuralModel& );
     } // namespace detail
 } // namespace geode
