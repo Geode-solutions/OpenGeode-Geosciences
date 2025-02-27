@@ -381,9 +381,11 @@ namespace geode
                 StructuralModelBuilder&,
                 const ModelGenericMapping& );
 
-        template void add_geological_components_mappings< 2 >(
-            const ModelCopyMapping&, ModelGenericMapping& );
-        template void add_geological_components_mappings< 3 >(
-            const ModelCopyMapping&, ModelGenericMapping& );
+        template void opengeode_geosciences_explicit_api
+            add_geological_components_mappings< 2 >(
+                const ModelCopyMapping&, ModelGenericMapping& );
+        template void opengeode_geosciences_explicit_api
+            add_geological_components_mappings< 3 >(
+                const ModelCopyMapping&, ModelGenericMapping& );
     } // namespace detail
 } // namespace geode
