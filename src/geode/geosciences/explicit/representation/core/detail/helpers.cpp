@@ -245,25 +245,36 @@ namespace
         const geode::ModelGenericMapping& component_mappings,
         const geode::ModelCopyMapping& geological_mappings )
     {
-        const auto& lines_mapping =
-            component_mappings.at( geode::Line3D::component_type_static() );
-        copy_horizon_item_relations( initial_model, modified_model, builder,
-            geological_mappings.at( geode::Horizon3D::component_type_static() ),
-            lines_mapping );
-        copy_fault_item_relations( initial_model, modified_model, builder,
-            geological_mappings.at( geode::Fault3D::component_type_static() ),
-            lines_mapping );
-        const auto& surfaces_mapping =
-            component_mappings.at( geode::Surface3D::component_type_static() );
-        copy_stratigraphic_unit_item_relations( initial_model, modified_model,
-            builder,
-            geological_mappings.at(
-                geode::StratigraphicUnit3D::component_type_static() ),
-            surfaces_mapping );
-        copy_fault_block_item_relations( initial_model, modified_model, builder,
-            geological_mappings.at(
-                geode::FaultBlock3D::component_type_static() ),
-            surfaces_mapping );
+        if( component_mappings.has_mapping_type(
+                geode::Line2D::component_type_static() ) )
+        {
+            const auto& lines_mapping =
+                component_mappings.at( geode::Line2D::component_type_static() );
+            copy_horizon_item_relations( initial_model, modified_model, builder,
+                geological_mappings.at(
+                    geode::Horizon2D::component_type_static() ),
+                lines_mapping );
+            copy_fault_item_relations( initial_model, modified_model, builder,
+                geological_mappings.at(
+                    geode::Fault2D::component_type_static() ),
+                lines_mapping );
+        }
+        if( component_mappings.has_mapping_type(
+                geode::Surface2D::component_type_static() ) )
+        {
+            const auto& surfaces_mapping = component_mappings.at(
+                geode::Surface2D::component_type_static() );
+            copy_stratigraphic_unit_item_relations( initial_model,
+                modified_model, builder,
+                geological_mappings.at(
+                    geode::StratigraphicUnit2D::component_type_static() ),
+                surfaces_mapping );
+            copy_fault_block_item_relations( initial_model, modified_model,
+                builder,
+                geological_mappings.at(
+                    geode::FaultBlock2D::component_type_static() ),
+                surfaces_mapping );
+        }
     }
 
     void copy_geological_relationships(
@@ -273,25 +284,36 @@ namespace
         const geode::ModelGenericMapping& component_mappings,
         const geode::ModelCopyMapping& geological_mappings )
     {
-        const auto& surfaces_mapping =
-            component_mappings.at( geode::Surface3D::component_type_static() );
-        copy_horizon_item_relations( initial_model, modified_model, builder,
-            geological_mappings.at( geode::Horizon3D::component_type_static() ),
-            surfaces_mapping );
-        copy_fault_item_relations( initial_model, modified_model, builder,
-            geological_mappings.at( geode::Fault3D::component_type_static() ),
-            surfaces_mapping );
-        const auto& blocks_mapping =
-            component_mappings.at( geode::Block3D::component_type_static() );
-        copy_stratigraphic_unit_item_relations( initial_model, modified_model,
-            builder,
-            geological_mappings.at(
-                geode::StratigraphicUnit3D::component_type_static() ),
-            blocks_mapping );
-        copy_fault_block_item_relations( initial_model, modified_model, builder,
-            geological_mappings.at(
-                geode::FaultBlock3D::component_type_static() ),
-            blocks_mapping );
+        if( component_mappings.has_mapping_type(
+                geode::Surface3D::component_type_static() ) )
+        {
+            const auto& surfaces_mapping = component_mappings.at(
+                geode::Surface3D::component_type_static() );
+            copy_horizon_item_relations( initial_model, modified_model, builder,
+                geological_mappings.at(
+                    geode::Horizon3D::component_type_static() ),
+                surfaces_mapping );
+            copy_fault_item_relations( initial_model, modified_model, builder,
+                geological_mappings.at(
+                    geode::Fault3D::component_type_static() ),
+                surfaces_mapping );
+        }
+        if( component_mappings.has_mapping_type(
+                geode::Block3D::component_type_static() ) )
+        {
+            const auto& blocks_mapping = component_mappings.at(
+                geode::Block3D::component_type_static() );
+            copy_stratigraphic_unit_item_relations( initial_model,
+                modified_model, builder,
+                geological_mappings.at(
+                    geode::StratigraphicUnit3D::component_type_static() ),
+                blocks_mapping );
+            copy_fault_block_item_relations( initial_model, modified_model,
+                builder,
+                geological_mappings.at(
+                    geode::FaultBlock3D::component_type_static() ),
+                blocks_mapping );
+        }
     }
 
     void add_geological_component_mapping(
@@ -317,7 +339,7 @@ namespace geode
             const Model& initial_model,
             const Model& modified_model,
             typename Model::Builder& model_builder,
-            ModelGenericMapping& components_mappings )
+            const ModelGenericMapping& components_mappings )
         {
             ModelCopyMapping geological_mappings;
             detail::add_geology_clone_mapping< Model >(
@@ -352,12 +374,12 @@ namespace geode
             transfer_geological_information( const CrossSection&,
                 const CrossSection&,
                 CrossSectionBuilder&,
-                ModelGenericMapping& );
+                const ModelGenericMapping& );
         template ModelCopyMapping opengeode_geosciences_explicit_api
             transfer_geological_information( const StructuralModel&,
                 const StructuralModel&,
                 StructuralModelBuilder&,
-                ModelGenericMapping& );
+                const ModelGenericMapping& );
 
         template void add_geological_components_mappings< 2 >(
             const ModelCopyMapping&, ModelGenericMapping& );

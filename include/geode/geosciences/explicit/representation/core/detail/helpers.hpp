@@ -42,7 +42,7 @@ namespace geode
             const Model& initial_model,
             const Model& modified_model,
             typename Model::Builder& model_builder,
-            ModelGenericMapping& components_mappings );
+            const ModelGenericMapping& components_mappings );
 
         template < index_t dimension >
         void add_geological_components_mappings(
