@@ -47,6 +47,11 @@ namespace
             for( const auto& initial_line_in_horizon :
                 initial_model.horizon_items( initial_horizon ) )
             {
+                if( !lines_mapping.has_mapping_input(
+                        initial_line_in_horizon.id() ) )
+                {
+                    continue;
+                }
                 for( const auto& line_id :
                     lines_mapping.in2out( initial_line_in_horizon.id() ) )
                 {
@@ -70,6 +75,11 @@ namespace
             for( const auto& initial_surface_in_horizon :
                 initial_model.horizon_items( initial_horizon ) )
             {
+                if( !surfaces_mapping.has_mapping_input(
+                        initial_surface_in_horizon.id() ) )
+                {
+                    continue;
+                }
                 for( const auto& surface_id :
                     surfaces_mapping.in2out( initial_surface_in_horizon.id() ) )
                 {
@@ -93,6 +103,11 @@ namespace
             for( const auto& initial_line_in_fault :
                 initial_model.fault_items( initial_fault ) )
             {
+                if( !lines_mapping.has_mapping_input(
+                        initial_line_in_fault.id() ) )
+                {
+                    continue;
+                }
                 for( const auto& line_id :
                     lines_mapping.in2out( initial_line_in_fault.id() ) )
                 {
@@ -116,6 +131,11 @@ namespace
             for( const auto& initial_surface_in_fault :
                 initial_model.fault_items( initial_fault ) )
             {
+                if( !surfaces_mapping.has_mapping_input(
+                        initial_surface_in_fault.id() ) )
+                {
+                    continue;
+                }
                 for( const auto& surface_id :
                     surfaces_mapping.in2out( initial_surface_in_fault.id() ) )
                 {
@@ -144,6 +164,11 @@ namespace
                 initial_model.stratigraphic_unit_items(
                     initial_stratigraphic_unit ) )
             {
+                if( !surfaces_mapping.has_mapping_input(
+                        initial_surface_in_stratigraphic_unit.id() ) )
+                {
+                    continue;
+                }
                 for( const auto& surface_id : surfaces_mapping.in2out(
                          initial_surface_in_stratigraphic_unit.id() ) )
                 {
@@ -173,6 +198,11 @@ namespace
                 initial_model.stratigraphic_unit_items(
                     initial_stratigraphic_unit ) )
             {
+                if( !blocks_mapping.has_mapping_input(
+                        initial_block_in_stratigraphic_unit.id() ) )
+                {
+                    continue;
+                }
                 for( const auto& block_id : blocks_mapping.in2out(
                          initial_block_in_stratigraphic_unit.id() ) )
                 {
@@ -197,6 +227,11 @@ namespace
             for( const auto& initial_surface_in_fault_block :
                 initial_model.fault_block_items( initial_fault_block ) )
             {
+                if( !surfaces_mapping.has_mapping_input(
+                        initial_surface_in_fault_block.id() ) )
+                {
+                    continue;
+                }
                 for( const auto& surface_id : surfaces_mapping.in2out(
                          initial_surface_in_fault_block.id() ) )
                 {
@@ -221,6 +256,11 @@ namespace
             for( const auto& initial_block_in_fault_block :
                 initial_model.fault_block_items( initial_fault_block ) )
             {
+                if( !blocks_mapping.has_mapping_input(
+                        initial_block_in_fault_block.id() ) )
+                {
+                    continue;
+                }
                 for( const auto& block_id :
                     blocks_mapping.in2out( initial_block_in_fault_block.id() ) )
                 {
