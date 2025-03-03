@@ -75,11 +75,6 @@ namespace geode
             return component_type_static();
         }
 
-        [[nodiscard]] ComponentID component_id() const
-        {
-            return { this->component_type_static(), this->id() };
-        };
-
         [[nodiscard]] bool has_type() const;
 
         [[nodiscard]] FAULT_TYPE type() const;
