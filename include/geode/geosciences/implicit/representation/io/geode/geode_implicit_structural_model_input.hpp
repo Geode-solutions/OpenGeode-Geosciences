@@ -49,7 +49,8 @@ namespace geode
 
     namespace detail
     {
-        void load_implicit_structural_model_files(
-            ImplicitStructuralModel& model, std::string_view directory );
+        void opengeode_geosciences_implicit_api
+            load_implicit_structural_model_files(
+                ImplicitStructuralModel& model, std::string_view directory );
     } // namespace detail
 } // namespace geode

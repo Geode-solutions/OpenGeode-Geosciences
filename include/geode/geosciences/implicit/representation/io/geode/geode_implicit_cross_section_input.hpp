@@ -47,7 +47,8 @@ namespace geode
 
     namespace detail
     {
-        void load_implicit_cross_section_files(
-            ImplicitCrossSection& section, std::string_view directory );
+        void opengeode_geosciences_implicit_api
+            load_implicit_cross_section_files(
+                ImplicitCrossSection& section, std::string_view directory );
     } // namespace detail
 } // namespace geode
