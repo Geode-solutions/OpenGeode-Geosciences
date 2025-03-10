@@ -142,11 +142,12 @@ namespace geode
     public:
         static constexpr index_t dim{ 3 };
         using Builder = StructuralModelBuilder;
-        using Components = tuple_cat< BRep::Components,
-            std::tuple< Fault3D,
-                Horizon3D,
-                FaultBlock3D,
-                StratigraphicUnit3D > >;
+        using CollectionComponents = tuple_cat< BRep::CollectionComponents,
+            std::tuple< Faults3D,
+                Horizons3D,
+                FaultBlocks3D,
+                StratigraphicUnits3D > >;
+        using Components = tuple_cat< MeshComponents, CollectionComponents >;
 
         StructuralModel() = default;
         StructuralModel( StructuralModel&& ) noexcept = default;

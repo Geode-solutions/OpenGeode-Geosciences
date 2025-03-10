@@ -44,9 +44,12 @@ namespace geode
             return ImplicitStructuralModel::native_extension_static();
         }
 
-        void load_implicit_structural_model_files(
-            ImplicitStructuralModel& model, std::string_view directory );
-
         [[nodiscard]] ImplicitStructuralModel read() final;
     };
+
+    namespace detail
+    {
+        void load_implicit_structural_model_files(
+            ImplicitStructuralModel& model, std::string_view directory );
+    } // namespace detail
 } // namespace geode

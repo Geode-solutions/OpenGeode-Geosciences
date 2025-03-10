@@ -47,6 +47,7 @@ namespace geode
 
     public:
         using Builder = StratigraphicUnitsBuilder< dimension >;
+        using Type = StratigraphicUnit< dimension >;
 
         class opengeode_geosciences_explicit_api StratigraphicUnitRangeBase
         {
@@ -102,6 +103,11 @@ namespace geode
             const uuid& id ) const;
 
         [[nodiscard]] StratigraphicUnitRange stratigraphic_units() const;
+
+        [[nodiscard]] StratigraphicUnitRange components() const
+        {
+            return stratigraphic_units();
+        }
 
         void save_stratigraphic_units( std::string_view directory ) const;
 

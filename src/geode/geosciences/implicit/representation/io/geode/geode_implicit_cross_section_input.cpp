@@ -41,16 +41,6 @@
 
 namespace geode
 {
-    void OpenGeodeImplicitCrossSectionInput::load_implicit_cross_section_files(
-        ImplicitCrossSection& section, std::string_view directory )
-    {
-        ImplicitCrossSectionBuilder builder{ section };
-        builder.set_horizons_stack( load_horizons_stack< 2 >(
-            absl::StrCat( directory, "/horizons_stack.",
-                HorizonsStack2D::native_extension_static() ) ) );
-        builder.reinitialize_implicit_query_trees();
-    }
-
     ImplicitCrossSection OpenGeodeImplicitCrossSectionInput::read()
     {
         const UnzipFile zip_reader{ this->filename(), uuid{}.string() };
@@ -75,12 +65,22 @@ namespace geode
             "[OpenGeodeImplicitCrossSectionOutput::load_section_impl] "
             "Error while reading file: ",
             impl_filename );
-        OpenGeodeSectionInput section_input{ filename() };
-        section_input.load_section_files( section, zip_reader.directory() );
-        OpenGeodeCrossSectionInput cross_section_input{ filename() };
-        cross_section_input.load_cross_section_files(
+        detail::load_implicit_cross_section_files(
             section, zip_reader.directory() );
-        load_implicit_cross_section_files( section, zip_reader.directory() );
         return section;
     }
+
+    namespace detail
+    {
+        void load_implicit_cross_section_files(
+            ImplicitCrossSection& section, std::string_view directory )
+        {
+            ImplicitCrossSectionBuilder builder{ section };
+            builder.set_horizons_stack( load_horizons_stack< 2 >(
+                absl::StrCat( directory, "/horizons_stack.",
+                    HorizonsStack2D::native_extension_static() ) ) );
+            builder.reinitialize_implicit_query_trees();
+            load_cross_section_files( section, directory );
+        }
+    } // namespace detail
 } // namespace geode

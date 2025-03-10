@@ -46,6 +46,7 @@ namespace geode
 
     public:
         using Builder = FaultBlocksBuilder< dimension >;
+        using Type = FaultBlock< dimension >;
 
         class opengeode_geosciences_explicit_api FaultBlockRangeBase
         {
@@ -96,6 +97,11 @@ namespace geode
             const uuid& id ) const;
 
         [[nodiscard]] FaultBlockRange fault_blocks() const;
+
+        [[nodiscard]] FaultBlockRange components() const
+        {
+            return fault_blocks();
+        }
 
         void save_fault_blocks( std::string_view directory ) const;
 
