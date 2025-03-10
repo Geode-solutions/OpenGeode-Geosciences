@@ -42,9 +42,13 @@ namespace geode
             return ImplicitCrossSection::native_extension_static();
         }
 
-        void load_implicit_cross_section_files(
-            ImplicitCrossSection& section, std::string_view directory );
-
         [[nodiscard]] ImplicitCrossSection read() final;
     };
+
+    namespace detail
+    {
+        void opengeode_geosciences_implicit_api
+            load_implicit_cross_section_files(
+                ImplicitCrossSection& section, std::string_view directory );
+    } // namespace detail
 } // namespace geode

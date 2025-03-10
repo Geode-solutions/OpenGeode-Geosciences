@@ -41,17 +41,6 @@
 
 namespace geode
 {
-    void OpenGeodeImplicitStructuralModelInput::
-        load_implicit_structural_model_files(
-            ImplicitStructuralModel& model, std::string_view directory )
-    {
-        ImplicitStructuralModelBuilder builder{ model };
-        builder.set_horizons_stack( std::move( load_horizons_stack< 3 >(
-            absl::StrCat( directory, "/horizons_stack.",
-                HorizonsStack3D::native_extension_static() ) ) ) );
-        builder.reinitialize_implicit_query_trees();
-    }
-
     ImplicitStructuralModel OpenGeodeImplicitStructuralModelInput::read()
     {
         const UnzipFile zip_reader{ this->filename(), uuid{}.string() };
@@ -76,12 +65,22 @@ namespace geode
             "[OpenGeodeImplicitStructuralModelOutput::load_model_impl] "
             "Error while reading file: ",
             impl_filename );
-        OpenGeodeBRepInput brep_input{ filename() };
-        brep_input.load_brep_files( model, zip_reader.directory() );
-        OpenGeodeStructuralModelInput structural_model_input{ filename() };
-        structural_model_input.load_structural_model_files(
+        detail::load_implicit_structural_model_files(
             model, zip_reader.directory() );
-        load_implicit_structural_model_files( model, zip_reader.directory() );
         return model;
     }
+
+    namespace detail
+    {
+        void load_implicit_structural_model_files(
+            ImplicitStructuralModel& model, std::string_view directory )
+        {
+            ImplicitStructuralModelBuilder builder{ model };
+            builder.set_horizons_stack( std::move( load_horizons_stack< 3 >(
+                absl::StrCat( directory, "/horizons_stack.",
+                    HorizonsStack3D::native_extension_static() ) ) ) );
+            builder.reinitialize_implicit_query_trees();
+            load_structural_model_files( model, directory );
+        }
+    } // namespace detail
 } // namespace geode

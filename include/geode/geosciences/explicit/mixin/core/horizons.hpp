@@ -46,7 +46,7 @@ namespace geode
 
     public:
         using Builder = HorizonsBuilder< dimension >;
-        friend Builder;
+        using Type = Horizon< dimension >;
 
         class opengeode_geosciences_explicit_api HorizonRangeBase
         {
@@ -97,6 +97,11 @@ namespace geode
             const uuid& id ) const;
 
         [[nodiscard]] HorizonRange horizons() const;
+
+        [[nodiscard]] HorizonRange components() const
+        {
+            return horizons();
+        }
 
         void save_horizons( std::string_view directory ) const;
 

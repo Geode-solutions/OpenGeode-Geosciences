@@ -70,9 +70,10 @@ namespace geode
         [[nodiscard]] const uuid& add_fault(
             typename Fault3D::FAULT_TYPE type );
 
-        void add_fault( uuid fault_id );
+        void add_fault( const uuid& fault_id );
 
-        void add_fault( uuid fault_id, typename Fault3D::FAULT_TYPE type );
+        void add_fault(
+            const uuid& fault_id, typename Fault3D::FAULT_TYPE type );
 
         index_t add_surface_in_fault(
             const Surface3D& surface, const Fault3D& fault );
@@ -84,10 +85,10 @@ namespace geode
         [[nodiscard]] const uuid& add_horizon(
             typename Horizon3D::HORIZON_TYPE type );
 
-        void add_horizon( uuid horizon_id );
+        void add_horizon( const uuid& horizon_id );
 
         void add_horizon(
-            uuid horizon_id, typename Horizon3D::HORIZON_TYPE type );
+            const uuid& horizon_id, typename Horizon3D::HORIZON_TYPE type );
 
         index_t add_surface_in_horizon(
             const Surface3D& surface, const Horizon3D& horizon );
@@ -96,7 +97,7 @@ namespace geode
 
         [[nodiscard]] const uuid& add_fault_block();
 
-        void add_fault_block( uuid fault_block_id );
+        void add_fault_block( const uuid& fault_block_id );
 
         index_t add_block_in_fault_block(
             const Block3D& block, const FaultBlock3D& fault_block );
@@ -105,7 +106,7 @@ namespace geode
 
         [[nodiscard]] const uuid& add_stratigraphic_unit();
 
-        void add_stratigraphic_unit( uuid stratigraphic_unit_id );
+        void add_stratigraphic_unit( const uuid& stratigraphic_unit_id );
 
         index_t add_block_in_stratigraphic_unit( const Block3D& block,
             const StratigraphicUnit3D& stratigraphic_unit );

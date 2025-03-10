@@ -39,9 +39,12 @@ namespace geode
             return CrossSection::native_extension_static();
         }
 
-        void load_cross_section_files(
-            CrossSection& cross_section, std::string_view directory );
-
         [[nodiscard]] CrossSection read() final;
     };
+
+    namespace detail
+    {
+        void opengeode_geosciences_explicit_api load_cross_section_files(
+            CrossSection& cross_section, std::string_view directory );
+    } // namespace detail
 } // namespace geode

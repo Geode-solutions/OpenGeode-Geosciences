@@ -39,9 +39,12 @@ namespace geode
             return StructuralModel::native_extension_static();
         }
 
-        void load_structural_model_files(
-            StructuralModel& structural_model, std::string_view directory );
-
         [[nodiscard]] StructuralModel read() final;
     };
+
+    namespace detail
+    {
+        void opengeode_geosciences_explicit_api load_structural_model_files(
+            StructuralModel& structural_model, std::string_view directory );
+    } // namespace detail
 } // namespace geode

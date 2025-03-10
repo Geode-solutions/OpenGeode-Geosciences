@@ -50,35 +50,36 @@ namespace geode
     {
     }
 
-    void OpenGeodeCrossSectionInput::load_cross_section_files(
-        CrossSection& cross_section, std::string_view directory )
-    {
-        CrossSectionBuilder builder{ cross_section };
-        async::parallel_invoke(
-            [&builder, &directory] {
-                builder.load_faults( directory );
-            },
-            [&builder, &directory] {
-                builder.load_horizons( directory );
-            },
-            [&builder, &directory] {
-                builder.load_fault_blocks( directory );
-            },
-            [&builder, &directory] {
-                builder.load_stratigraphic_units( directory );
-            } );
-    }
-
     CrossSection OpenGeodeCrossSectionInput::read()
     {
         const UnzipFile zip_reader{ filename(), uuid{}.string() };
         zip_reader.extract_all();
         CrossSection cross_section;
-        OpenGeodeSectionInput section_input{ filename() };
-        section_input.load_section_files(
+        detail::load_cross_section_files(
             cross_section, zip_reader.directory() );
-        load_cross_section_files( cross_section, zip_reader.directory() );
-        detail::filter_unsupported_components( cross_section );
         return cross_section;
     }
+
+    namespace detail
+    {
+        void load_cross_section_files(
+            CrossSection& cross_section, std::string_view directory )
+        {
+            CrossSectionBuilder builder{ cross_section };
+            async::parallel_invoke(
+                [&builder, &directory] {
+                    builder.load_faults( directory );
+                },
+                [&builder, &directory] {
+                    builder.load_horizons( directory );
+                },
+                [&builder, &directory] {
+                    builder.load_fault_blocks( directory );
+                },
+                [&builder, &directory] {
+                    builder.load_stratigraphic_units( directory );
+                } );
+            load_section_files( cross_section, directory );
+        }
+    } // namespace detail
 } // namespace geode

@@ -139,11 +139,12 @@ namespace geode
     public:
         static constexpr index_t dim{ 2 };
         using Builder = CrossSectionBuilder;
-        using Components = tuple_cat< Section::Components,
-            std::tuple< Fault2D,
-                Horizon2D,
-                FaultBlock2D,
-                StratigraphicUnit2D > >;
+        using CollectionComponents = tuple_cat< Section::CollectionComponents,
+            std::tuple< Faults2D,
+                Horizons2D,
+                FaultBlocks2D,
+                StratigraphicUnits2D > >;
+        using Components = tuple_cat< MeshComponents, CollectionComponents >;
 
         CrossSection() = default;
         CrossSection( CrossSection&& ) noexcept = default;

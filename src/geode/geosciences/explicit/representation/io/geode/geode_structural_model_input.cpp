@@ -52,34 +52,36 @@ namespace geode
     {
     }
 
-    void OpenGeodeStructuralModelInput::load_structural_model_files(
-        StructuralModel& structural_model, std::string_view directory )
-    {
-        StructuralModelBuilder builder{ structural_model };
-        async::parallel_invoke(
-            [&builder, &directory] {
-                builder.load_faults( directory );
-            },
-            [&builder, &directory] {
-                builder.load_horizons( directory );
-            },
-            [&builder, &directory] {
-                builder.load_fault_blocks( directory );
-            },
-            [&builder, &directory] {
-                builder.load_stratigraphic_units( directory );
-            } );
-    }
-
     StructuralModel OpenGeodeStructuralModelInput::read()
     {
         const UnzipFile zip_reader{ filename(), uuid{}.string() };
         zip_reader.extract_all();
         StructuralModel structural_model;
-        OpenGeodeBRepInput brep_input{ filename() };
-        brep_input.load_brep_files( structural_model, zip_reader.directory() );
-        load_structural_model_files( structural_model, zip_reader.directory() );
-        detail::filter_unsupported_components( structural_model );
+        detail::load_structural_model_files(
+            structural_model, zip_reader.directory() );
         return structural_model;
     }
+
+    namespace detail
+    {
+        void load_structural_model_files(
+            StructuralModel& structural_model, std::string_view directory )
+        {
+            StructuralModelBuilder builder{ structural_model };
+            async::parallel_invoke(
+                [&builder, &directory] {
+                    builder.load_faults( directory );
+                },
+                [&builder, &directory] {
+                    builder.load_horizons( directory );
+                },
+                [&builder, &directory] {
+                    builder.load_fault_blocks( directory );
+                },
+                [&builder, &directory] {
+                    builder.load_stratigraphic_units( directory );
+                } );
+            load_brep_files( structural_model, directory );
+        }
+    } // namespace detail
 } // namespace geode

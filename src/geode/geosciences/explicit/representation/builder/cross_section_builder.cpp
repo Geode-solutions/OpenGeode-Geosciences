@@ -27,6 +27,7 @@
 #include <geode/model/mixin/core/relationships.hpp>
 #include <geode/model/mixin/core/surface.hpp>
 #include <geode/model/representation/builder/detail/copy.hpp>
+#include <geode/model/representation/builder/detail/register.hpp>
 
 #include <geode/geosciences/explicit/mixin/core/fault.hpp>
 #include <geode/geosciences/explicit/mixin/core/fault_block.hpp>
@@ -74,6 +75,7 @@ namespace geode
     const uuid& CrossSectionBuilder::add_fault()
     {
         const auto& id = create_fault();
+        detail::add_collection_component( *this, cross_section_.fault( id ) );
         return id;
     }
 
@@ -81,18 +83,23 @@ namespace geode
         typename Fault2D::FAULT_TYPE type )
     {
         const auto& id = create_fault( type );
+        detail::add_collection_component( *this, cross_section_.fault( id ) );
         return id;
     }
 
-    void CrossSectionBuilder::add_fault( uuid fault_id )
+    void CrossSectionBuilder::add_fault( const uuid& fault_id )
     {
-        create_fault( std::move( fault_id ) );
+        create_fault( fault_id );
+        detail::add_collection_component(
+            *this, cross_section_.fault( fault_id ) );
     }
 
     void CrossSectionBuilder::add_fault(
-        uuid fault_id, typename Fault2D::FAULT_TYPE type )
+        const uuid& fault_id, typename Fault2D::FAULT_TYPE type )
     {
-        create_fault( std::move( fault_id ), type );
+        create_fault( fault_id, type );
+        detail::add_collection_component(
+            *this, cross_section_.fault( fault_id ) );
     }
 
     index_t CrossSectionBuilder::add_line_in_fault(
@@ -104,13 +111,14 @@ namespace geode
 
     void CrossSectionBuilder::remove_fault( const Fault2D& fault )
     {
-        unregister_component( fault.id() );
+        detail::remove_collection_component( *this, fault );
         delete_fault( fault );
     }
 
     const uuid& CrossSectionBuilder::add_horizon()
     {
         const auto& id = create_horizon();
+        detail::add_collection_component( *this, cross_section_.horizon( id ) );
         return id;
     }
 
@@ -118,18 +126,23 @@ namespace geode
         typename Horizon2D::HORIZON_TYPE type )
     {
         const auto& id = create_horizon( type );
+        detail::add_collection_component( *this, cross_section_.horizon( id ) );
         return id;
     }
 
-    void CrossSectionBuilder::add_horizon( uuid horizon_id )
+    void CrossSectionBuilder::add_horizon( const uuid& horizon_id )
     {
-        create_horizon( std::move( horizon_id ) );
+        create_horizon( horizon_id );
+        detail::add_collection_component(
+            *this, cross_section_.horizon( horizon_id ) );
     }
 
     void CrossSectionBuilder::add_horizon(
-        uuid horizon_id, typename Horizon2D::HORIZON_TYPE type )
+        const uuid& horizon_id, typename Horizon2D::HORIZON_TYPE type )
     {
-        create_horizon( std::move( horizon_id ), type );
+        create_horizon( horizon_id, type );
+        detail::add_collection_component(
+            *this, cross_section_.horizon( horizon_id ) );
     }
 
     index_t CrossSectionBuilder::add_line_in_horizon(
@@ -141,19 +154,23 @@ namespace geode
 
     void CrossSectionBuilder::remove_horizon( const Horizon2D& horizon )
     {
-        unregister_component( horizon.id() );
+        detail::remove_collection_component( *this, horizon );
         delete_horizon( horizon );
     }
 
     const uuid& CrossSectionBuilder::add_fault_block()
     {
         const auto& id = create_fault_block();
+        detail::add_collection_component(
+            *this, cross_section_.fault_block( id ) );
         return id;
     }
 
-    void CrossSectionBuilder::add_fault_block( uuid fault_block_id )
+    void CrossSectionBuilder::add_fault_block( const uuid& fault_block_id )
     {
         create_fault_block( fault_block_id );
+        detail::add_collection_component(
+            *this, cross_section_.fault_block( fault_block_id ) );
     }
 
     index_t CrossSectionBuilder::add_surface_in_fault_block(
@@ -166,20 +183,24 @@ namespace geode
     void CrossSectionBuilder::remove_fault_block(
         const FaultBlock2D& fault_block )
     {
-        unregister_component( fault_block.id() );
+        detail::remove_collection_component( *this, fault_block );
         delete_fault_block( fault_block );
     }
 
     const uuid& CrossSectionBuilder::add_stratigraphic_unit()
     {
         const auto& id = create_stratigraphic_unit();
+        detail::add_collection_component(
+            *this, cross_section_.stratigraphic_unit( id ) );
         return id;
     }
 
     void CrossSectionBuilder::add_stratigraphic_unit(
-        uuid stratigraphic_unit_id )
+        const uuid& stratigraphic_unit_id )
     {
-        create_stratigraphic_unit( std::move( stratigraphic_unit_id ) );
+        create_stratigraphic_unit( stratigraphic_unit_id );
+        detail::add_collection_component(
+            *this, cross_section_.stratigraphic_unit( stratigraphic_unit_id ) );
     }
 
     index_t CrossSectionBuilder::add_surface_in_stratigraphic_unit(
@@ -193,7 +214,7 @@ namespace geode
     void CrossSectionBuilder::remove_stratigraphic_unit(
         const StratigraphicUnit2D& stratigraphic_unit )
     {
-        unregister_component( stratigraphic_unit.id() );
+        detail::remove_collection_component( *this, stratigraphic_unit );
         delete_stratigraphic_unit( stratigraphic_unit );
     }
 
