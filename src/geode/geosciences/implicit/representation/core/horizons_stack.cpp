@@ -81,12 +81,12 @@ namespace geode
         HorizonsStackBuilder< dimension > clone_builder{ stack_clone };
         clone_builder.copy_identifier( *this );
         ModelCopyMapping clone_mapping;
-        clone_mapping.emplace(
-            geode::Horizon< dimension >::component_type_static(),
-            detail::clone_horizon_mapping( *this ) );
-        clone_mapping.emplace(
-            geode::StratigraphicUnit< dimension >::component_type_static(),
-            detail::clone_stratigraphic_unit_mapping( *this ) );
+        detail::add_horizons_clone_mapping( *this,
+            clone_mapping
+                [geode::Horizon< dimension >::component_type_static()] );
+        detail::add_stratigraphic_units_clone_mapping(
+            *this, clone_mapping[geode::StratigraphicUnit<
+                       dimension >::component_type_static()] );
         clone_builder.copy( clone_mapping, *this );
         if( impl_->top_horizon() && impl_->bottom_horizon() )
         {
@@ -111,9 +111,13 @@ namespace geode
     auto HorizonsStack< dimension >::bottom_to_top_horizons() const
         -> HorizonOrderedRange
     {
-        OPENGEODE_EXCEPTION( impl_->top_horizon() && impl_->bottom_horizon(),
-            "[HorizonsStack::bottom_to_top_horizons] Cannot iterate on "
-            "HorizonsStack: top and bottom horizons have not been computed." );
+        if( !impl_->top_horizon() || !impl_->bottom_horizon() )
+        {
+            Logger::warn(
+                "[HorizonsStack::bottom_to_top_horizons] Iteration "
+                "on HorizonsStack will be empty: top and bottom "
+                "horizons have not been computed, or stack is empty." );
+        }
         return { *this };
     }
 
@@ -121,9 +125,13 @@ namespace geode
     auto HorizonsStack< dimension >::bottom_to_top_units() const
         -> StratigraphicUnitOrderedRange
     {
-        OPENGEODE_EXCEPTION( impl_->top_horizon() && impl_->bottom_horizon(),
-            "[HorizonsStack::bottom_to_top_units] Cannot iterate on "
-            "HorizonsStack: top and bottom horizons have not been computed." );
+        if( !impl_->top_horizon() || !impl_->bottom_horizon() )
+        {
+            Logger::warn(
+                "[HorizonsStack::bottom_to_top_horizons] Iteration "
+                "on HorizonsStack will be empty: top and bottom "
+                "horizons have not been computed, or stack is empty" );
+        }
         return { *this };
     }
 
@@ -198,9 +206,13 @@ namespace geode
     class HorizonsStack< dimension >::HorizonOrderedRange::Impl
     {
     public:
-        Impl( const HorizonsStack< dimension >& stack )
-            : stack_( stack ), iter_( stack.bottom_horizon().value() )
+        Impl( const HorizonsStack< dimension >& stack ) : stack_( stack )
         {
+            auto bot_horizon = stack.bottom_horizon();
+            if( bot_horizon && stack.top_horizon() )
+            {
+                iter_ = bot_horizon.value();
+            }
         }
 
         constexpr bool operator!=( const Impl& /*unused*/ ) const
@@ -225,7 +237,7 @@ namespace geode
 
     private:
         const HorizonsStack< dimension >& stack_;
-        uuid iter_;
+        uuid iter_{};
     };
 
     template < index_t dimension >
@@ -274,10 +286,13 @@ namespace geode
     class HorizonsStack< dimension >::StratigraphicUnitOrderedRange::Impl
     {
     public:
-        Impl( const HorizonsStack< dimension >& stack )
-            : stack_( stack ),
-              iter_( stack.under( stack.bottom_horizon().value() ).value() )
+        Impl( const HorizonsStack< dimension >& stack ) : stack_( stack )
         {
+            auto bot_horizon = stack.bottom_horizon();
+            if( bot_horizon && stack.top_horizon() )
+            {
+                iter_ = stack.under( bot_horizon.value() ).value();
+            }
         }
 
         constexpr bool operator!=( const Impl& /*unused*/ ) const
@@ -302,7 +317,7 @@ namespace geode
 
     private:
         const HorizonsStack< dimension >& stack_;
-        uuid iter_;
+        uuid iter_{};
     };
 
     template < index_t dimension >

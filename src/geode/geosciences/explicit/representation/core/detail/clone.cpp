@@ -60,12 +60,12 @@ namespace
     void add_stack_geology_clone_mapping(
         geode::ModelCopyMapping& clone_mapping, const Model& model )
     {
-        clone_mapping.emplace(
-            geode::Horizon< Model::dim >::component_type_static(),
-            geode::detail::clone_horizon_mapping( model ) );
-        clone_mapping.emplace(
-            geode::StratigraphicUnit< Model::dim >::component_type_static(),
-            geode::detail::clone_stratigraphic_unit_mapping( model ) );
+        geode::detail::add_horizons_clone_mapping( model,
+            clone_mapping
+                [geode::Horizon< Model::dim >::component_type_static()] );
+        geode::detail::add_stratigraphic_units_clone_mapping(
+            model, clone_mapping[geode::StratigraphicUnit<
+                       Model::dim >::component_type_static()] );
     }
 
     template < typename Model >

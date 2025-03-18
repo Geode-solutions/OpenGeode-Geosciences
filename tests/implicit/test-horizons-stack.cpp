@@ -37,6 +37,15 @@ void test_horizons_stack()
     geode::HorizonsStack3D horizons_stack;
     geode::HorizonsStackBuilder3D stack_builder{ horizons_stack };
 
+    geode::index_t counter{ 0 };
+    for( const auto& horizon : horizons_stack.bottom_to_top_horizons() )
+    {
+        geode::Logger::debug( "[Test] Found horizon ", horizon.id().string() );
+        counter++;
+    }
+    OPENGEODE_EXCEPTION(
+        counter == 0, "[Test] Range should not have iterated on any horizon." );
+
     const auto& hor0 = stack_builder.add_horizon();
     const auto& hor1 = stack_builder.add_horizon();
     const geode::uuid hor2{};

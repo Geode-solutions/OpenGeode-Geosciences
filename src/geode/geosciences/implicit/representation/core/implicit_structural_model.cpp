@@ -97,8 +97,7 @@ namespace geode
         std::optional< index_t > containing_polyhedron(
             const Block3D& block, const Point3D& point ) const
         {
-            auto closest_tetrahedron = std::get< 0 >(
-                block_mesh_aabb_trees_
+            auto closest_tetrahedron = std::get< 0 >( block_mesh_aabb_trees_
                     .at( block.id() )( create_aabb_tree, block.mesh() )
                     .closest_element_box(
                         point, block_distance_to_tetras_.at( block.id() ) ) );
@@ -366,6 +365,10 @@ namespace geode
         ModelCopyMapping clone_mappings;
         detail::add_geology_clone_mapping< StructuralModel >(
             clone_mappings, *this );
+        detail::add_horizons_clone_mapping( this->horizons_stack(),
+            clone_mappings[Horizon3D::component_type_static()] );
+        detail::add_stratigraphic_units_clone_mapping( this->horizons_stack(),
+            clone_mappings[StratigraphicUnit3D::component_type_static()] );
         clone_builder.copy_implicit_information( clone_mappings, *this );
         return model_clone;
     }
