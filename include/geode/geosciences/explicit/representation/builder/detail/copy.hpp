@@ -72,10 +72,12 @@ namespace geode
                 }
                 else
                 {
-                    const auto& horizon_id = builder_to.add_horizon();
-                    mapping.map( horizon.id(), horizon_id );
-                    builder_to.set_horizon_name( horizon_id, horizon.name() );
-                    builder_to.set_horizon_type( horizon_id, horizon.type() );
+                    const auto& new_horizon_id = builder_to.add_horizon();
+                    mapping.map( horizon.id(), new_horizon_id );
+                    builder_to.set_horizon_name(
+                        new_horizon_id, horizon.name() );
+                    builder_to.set_horizon_type(
+                        new_horizon_id, horizon.type() );
                 }
             }
         }
