@@ -97,8 +97,7 @@ namespace geode
         std::optional< index_t > containing_polyhedron(
             const Block3D& block, const Point3D& point ) const
         {
-            auto closest_tetrahedron = std::get< 0 >(
-                block_mesh_aabb_trees_
+            auto closest_tetrahedron = std::get< 0 >( block_mesh_aabb_trees_
                     .at( block.id() )( create_aabb_tree, block.mesh() )
                     .closest_element_box(
                         point, block_distance_to_tetras_.at( block.id() ) ) );
@@ -300,15 +299,17 @@ namespace geode
         template < typename Archive >
         void serialize( Archive& archive )
         {
-            archive.ext( *this, Growable< Archive, Impl >{ { []( Archive& a,
-                                                                 Impl& impl ) {
-                a.ext( impl.horizon_isovalues_,
-                    bitsery::ext::StdMap{ impl.horizon_isovalues_.max_size() },
-                    []( Archive& a2, uuid& id, double item ) {
-                        a2.object( id );
-                        a2.value8b( item );
-                    } );
-            } } } );
+            archive.ext( *this,
+                Growable< Archive, Impl >{
+                    { []( Archive& local_archive, Impl& impl ) {
+                        local_archive.ext( impl.horizon_isovalues_,
+                            bitsery::ext::StdMap{
+                                impl.horizon_isovalues_.max_size() },
+                            []( Archive& map_archive, uuid& id, double& item ) {
+                                map_archive.object( id );
+                                map_archive.value8b( item );
+                            } );
+                    } } } );
         }
 
     private:
