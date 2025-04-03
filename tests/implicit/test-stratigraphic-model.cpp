@@ -55,6 +55,8 @@ void add_horizons_stack_to_model(
     for( const auto& horizon : model.horizons() )
     {
         horizons_stack_builder.add_horizon( horizon.id() );
+        horizons_stack_builder.set_horizon_name(
+            horizon.id(), absl::StrCat( "horizon_", counter ) );
         builder.set_horizon_implicit_value( horizon, counter++ );
     }
     for( const auto& block : model.blocks() )
@@ -134,14 +136,18 @@ void test_model(
                              geode::Point3D{ { 0.5643514, 0.6411656, 1 } } ),
         "[Test] Wrong stratigraphic coordinates bounding box minimum." );
 
-    for( const auto& horizon : model.horizons() )
+    bool found_horizon{ false };
+    for( const auto& horizon : model.horizons_stack().horizons() )
     {
         const auto isovalue = model.horizon_implicit_value( horizon );
         OPENGEODE_EXCEPTION( isovalue,
             "[Test] Horizon should have an associated implicit value." );
-
-        if( isovalue.value() == 3 )
+        if( horizon.name() == "horizon_3" )
         {
+            found_horizon = true;
+            OPENGEODE_EXCEPTION( isovalue.value() == 3, "[Test] Horizon '",
+                horizon.name(), "' should have an implicit value of 3, not ",
+                isovalue.value() );
             const auto& strati_unit_id =
                 model.horizons_stack().under( horizon.id() );
             OPENGEODE_EXCEPTION( strati_unit_id,
@@ -159,6 +165,8 @@ void test_model(
             }
         }
     }
+    OPENGEODE_EXCEPTION(
+        found_horizon, "[Test] Should have found horizon 'horizon_3'." );
 }
 
 void test_copy(
