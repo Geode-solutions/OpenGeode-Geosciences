@@ -97,8 +97,7 @@ namespace geode
         std::optional< index_t > containing_polyhedron(
             const Block3D& block, const Point3D& point ) const
         {
-            auto closest_tetrahedron = std::get< 0 >(
-                block_mesh_aabb_trees_
+            auto closest_tetrahedron = std::get< 0 >( block_mesh_aabb_trees_
                     .at( block.id() )( create_aabb_tree, block.mesh() )
                     .closest_element_box(
                         point, block_distance_to_tetras_.at( block.id() ) ) );

@@ -147,14 +147,14 @@ namespace geode
             const Surface2D& surface,
             const StratigraphicPoint2D& stratigraphic_point ) const
         {
-            const auto closest_triangle = std::get< 0 >(
-                surface_stratigraphic_aabb_trees_
-                    .at( surface.id() )(
-                        create_stratigraphic_aabb_tree, model, surface )
-                    .closest_element_box(
-                        stratigraphic_point.stratigraphic_coordinates(),
-                        surface_stratigraphic_distance_to_triangles_.at(
-                            surface.id() ) ) );
+            const auto closest_triangle =
+                std::get< 0 >( surface_stratigraphic_aabb_trees_
+                        .at( surface.id() )(
+                            create_stratigraphic_aabb_tree, model, surface )
+                        .closest_element_box(
+                            stratigraphic_point.stratigraphic_coordinates(),
+                            surface_stratigraphic_distance_to_triangles_.at(
+                                surface.id() ) ) );
             if( surface_stratigraphic_distance_to_triangles_.at( surface.id() )(
                     stratigraphic_point, closest_triangle )
                 < GLOBAL_EPSILON )
@@ -195,9 +195,9 @@ namespace geode
                 surface_stratigraphic_aabb_trees_ )
             {
                 box.add_box( stratigraphic_tree
-                                 .second( create_stratigraphic_aabb_tree, model,
-                                     model.surface( stratigraphic_tree.first ) )
-                                 .bounding_box() );
+                        .second( create_stratigraphic_aabb_tree, model,
+                            model.surface( stratigraphic_tree.first ) )
+                        .bounding_box() );
             }
             return box;
         }
@@ -322,8 +322,7 @@ namespace geode
                     for( const auto v :
                         LRange{ surface_mesh.nb_polygon_vertices( p ) } )
                     {
-                        bbox.add_point(
-                            model
+                        bbox.add_point( model
                                 .stratigraphic_coordinates( surface,
                                     surface_mesh.polygon_vertex( { p, v } ) )
                                 .stratigraphic_coordinates() );

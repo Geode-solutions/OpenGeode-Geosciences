@@ -228,9 +228,9 @@ namespace geode
                 block_stratigraphic_aabb_trees_ )
             {
                 box.add_box( stratigraphic_tree
-                                 .second( create_stratigraphic_aabb_tree, model,
-                                     model.block( stratigraphic_tree.first ) )
-                                 .bounding_box() );
+                        .second( create_stratigraphic_aabb_tree, model,
+                            model.block( stratigraphic_tree.first ) )
+                        .bounding_box() );
             }
             return box;
         }
@@ -326,8 +326,7 @@ namespace geode
                     for( const auto v :
                         LRange{ block_mesh.nb_polyhedron_vertices( p ) } )
                     {
-                        bbox.add_point(
-                            model
+                        bbox.add_point( model
                                 .stratigraphic_coordinates( block,
                                     block_mesh.polyhedron_vertex( { p, v } ) )
                                 .stratigraphic_coordinates() );

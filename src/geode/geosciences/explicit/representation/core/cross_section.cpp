@@ -46,8 +46,8 @@ namespace geode
 
     CrossSection::HorizonItemRange::~HorizonItemRange() = default;
 
-    auto
-        CrossSection::HorizonItemRange::begin() const -> const HorizonItemRange&
+    auto CrossSection::HorizonItemRange::begin() const
+        -> const HorizonItemRange&
     {
         return *this;
     }
