@@ -49,6 +49,7 @@ namespace geode
             [&builder, &directory] {
                 builder.load_stratigraphic_relationships( directory );
             } );
+        builder.compute_top_and_bottom_horizons();
     }
 
     template < index_t dimension >
