@@ -57,11 +57,16 @@ namespace geode
         PASSKEY( HorizonsStackBuilder< dimension >, HorizonsStackBuilderKey );
 
     public:
+        enum struct RANGEORDER
+        {
+            bottom_to_top,
+            top_to_bottom
+        };
         class opengeode_geosciences_implicit_api HorizonOrderedRange
         {
         public:
             HorizonOrderedRange(
-                const HorizonsStack& horizons_stack, bool bottom_to_top );
+                const HorizonsStack& horizons_stack, RANGEORDER range_order );
             HorizonOrderedRange( HorizonOrderedRange&& other ) noexcept;
             HorizonOrderedRange( const HorizonOrderedRange& other );
             ~HorizonOrderedRange();
@@ -91,7 +96,7 @@ namespace geode
         {
         public:
             StratigraphicUnitOrderedRange(
-                const HorizonsStack& horizons_stack, bool bottom_to_top );
+                const HorizonsStack& horizons_stack, RANGEORDER range_order );
             StratigraphicUnitOrderedRange(
                 StratigraphicUnitOrderedRange&& other ) noexcept;
             StratigraphicUnitOrderedRange(

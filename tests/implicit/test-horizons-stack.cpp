@@ -38,6 +38,8 @@ void test_horizons_stack()
     geode::HorizonsStackBuilder3D stack_builder{ horizons_stack };
 
     geode::index_t counter{ 0 };
+    geode::Logger::info(
+        "There should be a warning on empty iteration after this" );
     for( const auto& horizon : horizons_stack.bottom_to_top_horizons() )
     {
         geode::Logger::debug( "[Test] Found horizon ", horizon.id().string() );
