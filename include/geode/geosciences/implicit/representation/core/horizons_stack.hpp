@@ -60,7 +60,8 @@ namespace geode
         class opengeode_geosciences_implicit_api HorizonOrderedRange
         {
         public:
-            HorizonOrderedRange( const HorizonsStack& horizons_stack );
+            HorizonOrderedRange(
+                const HorizonsStack& horizons_stack, bool bottom_to_top );
             HorizonOrderedRange( HorizonOrderedRange&& other ) noexcept;
             HorizonOrderedRange( const HorizonOrderedRange& other );
             ~HorizonOrderedRange();
@@ -90,7 +91,7 @@ namespace geode
         {
         public:
             StratigraphicUnitOrderedRange(
-                const HorizonsStack& horizons_stack );
+                const HorizonsStack& horizons_stack, bool bottom_to_top );
             StratigraphicUnitOrderedRange(
                 StratigraphicUnitOrderedRange&& other ) noexcept;
             StratigraphicUnitOrderedRange(
@@ -151,6 +152,10 @@ namespace geode
         [[nodiscard]] HorizonOrderedRange bottom_to_top_horizons() const;
 
         [[nodiscard]] StratigraphicUnitOrderedRange bottom_to_top_units() const;
+
+        [[nodiscard]] HorizonOrderedRange top_to_bottom_horizons() const;
+
+        [[nodiscard]] StratigraphicUnitOrderedRange top_to_bottom_units() const;
 
         [[nodiscard]] bool is_eroded_by(
             const StratigraphicUnit< dimension >& eroded,
