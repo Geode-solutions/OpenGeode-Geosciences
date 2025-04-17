@@ -118,7 +118,7 @@ namespace geode
                 "on HorizonsStack will be empty: top and bottom "
                 "horizons have not been computed, or stack is empty." );
         }
-        return { *this };
+        return { *this, RANGEORDER::bottom_to_top };
     }
 
     template < index_t dimension >
@@ -128,11 +128,39 @@ namespace geode
         if( !impl_->top_horizon() || !impl_->bottom_horizon() )
         {
             Logger::warn(
-                "[HorizonsStack::bottom_to_top_horizons] Iteration "
+                "[HorizonsStack::bottom_to_top_units] Iteration "
                 "on HorizonsStack will be empty: top and bottom "
                 "horizons have not been computed, or stack is empty" );
         }
-        return { *this };
+        return { *this, RANGEORDER::bottom_to_top };
+    }
+
+    template < index_t dimension >
+    auto HorizonsStack< dimension >::top_to_bottom_horizons() const
+        -> HorizonOrderedRange
+    {
+        if( !impl_->top_horizon() || !impl_->bottom_horizon() )
+        {
+            Logger::warn(
+                "[HorizonsStack::top_to_bottom_horizons] Iteration "
+                "on HorizonsStack will be empty: top and bottom "
+                "horizons have not been computed, or stack is empty." );
+        }
+        return { *this, RANGEORDER::top_to_bottom };
+    }
+
+    template < index_t dimension >
+    auto HorizonsStack< dimension >::top_to_bottom_units() const
+        -> StratigraphicUnitOrderedRange
+    {
+        if( !impl_->top_horizon() || !impl_->bottom_horizon() )
+        {
+            Logger::warn(
+                "[HorizonsStack::top_to_bottom_units] Iteration "
+                "on HorizonsStack will be empty: top and bottom "
+                "horizons have not been computed, or stack is empty" );
+        }
+        return { *this, RANGEORDER::top_to_bottom };
     }
 
     template < index_t dimension >
@@ -206,12 +234,21 @@ namespace geode
     class HorizonsStack< dimension >::HorizonOrderedRange::Impl
     {
     public:
-        Impl( const HorizonsStack< dimension >& stack ) : stack_( stack )
+        Impl( const HorizonsStack< dimension >& stack, RANGEORDER range_order )
+            : stack_( stack ), range_order_( range_order )
         {
             auto bot_horizon = stack.bottom_horizon();
-            if( bot_horizon && stack.top_horizon() )
+            auto top_horizon = stack.top_horizon();
+            if( bot_horizon && top_horizon )
             {
-                iter_ = bot_horizon.value();
+                if( range_order_ == RANGEORDER::bottom_to_top )
+                {
+                    iter_ = bot_horizon.value();
+                }
+                else if( range_order_ == RANGEORDER::top_to_bottom )
+                {
+                    iter_ = top_horizon.value();
+                }
             }
         }
 
@@ -222,10 +259,23 @@ namespace geode
 
         void operator++()
         {
-            if( iter_ != stack_.top_horizon().value() )
+            if( range_order_ == RANGEORDER::bottom_to_top )
             {
-                iter_ = stack_.above( stack_.above( iter_ ).value() ).value();
-                return;
+                if( iter_ != stack_.top_horizon().value() )
+                {
+                    iter_ =
+                        stack_.above( stack_.above( iter_ ).value() ).value();
+                    return;
+                }
+            }
+            else if( range_order_ == RANGEORDER::top_to_bottom )
+            {
+                if( iter_ != stack_.bottom_horizon().value() )
+                {
+                    iter_ =
+                        stack_.under( stack_.under( iter_ ).value() ).value();
+                    return;
+                }
             }
             iter_ = uuid{};
         }
@@ -237,13 +287,14 @@ namespace geode
 
     private:
         const HorizonsStack< dimension >& stack_;
+        RANGEORDER range_order_;
         uuid iter_{};
     };
 
     template < index_t dimension >
     HorizonsStack< dimension >::HorizonOrderedRange::HorizonOrderedRange(
-        const HorizonsStack& horizons_stack )
-        : impl_( horizons_stack )
+        const HorizonsStack& horizons_stack, RANGEORDER bottom_to_top )
+        : impl_( horizons_stack, bottom_to_top )
     {
     }
 
@@ -286,12 +337,21 @@ namespace geode
     class HorizonsStack< dimension >::StratigraphicUnitOrderedRange::Impl
     {
     public:
-        Impl( const HorizonsStack< dimension >& stack ) : stack_( stack )
+        Impl( const HorizonsStack< dimension >& stack, RANGEORDER range_order )
+            : stack_( stack ), range_order_( range_order )
         {
             auto bot_horizon = stack.bottom_horizon();
-            if( bot_horizon && stack.top_horizon() )
+            auto top_horizon = stack.top_horizon();
+            if( bot_horizon && top_horizon )
             {
-                iter_ = stack.under( bot_horizon.value() ).value();
+                if( range_order_ == RANGEORDER::bottom_to_top )
+                {
+                    iter_ = stack.under( bot_horizon.value() ).value();
+                }
+                else if( range_order_ == RANGEORDER::top_to_bottom )
+                {
+                    iter_ = stack.above( top_horizon.value() ).value();
+                }
             }
         }
 
@@ -302,10 +362,25 @@ namespace geode
 
         void operator++()
         {
-            if( iter_ != stack_.above( stack_.top_horizon().value() ).value() )
+            if( range_order_ == RANGEORDER::bottom_to_top )
             {
-                iter_ = stack_.above( stack_.above( iter_ ).value() ).value();
-                return;
+                if( iter_
+                    != stack_.above( stack_.top_horizon().value() ).value() )
+                {
+                    iter_ =
+                        stack_.above( stack_.above( iter_ ).value() ).value();
+                    return;
+                }
+            }
+            else if( range_order_ == RANGEORDER::top_to_bottom )
+            {
+                if( iter_
+                    != stack_.under( stack_.bottom_horizon().value() ).value() )
+                {
+                    iter_ =
+                        stack_.under( stack_.under( iter_ ).value() ).value();
+                    return;
+                }
             }
             iter_ = uuid{};
         }
@@ -317,13 +392,15 @@ namespace geode
 
     private:
         const HorizonsStack< dimension >& stack_;
+        RANGEORDER range_order_;
         uuid iter_{};
     };
 
     template < index_t dimension >
     HorizonsStack< dimension >::StratigraphicUnitOrderedRange::
-        StratigraphicUnitOrderedRange( const HorizonsStack& horizons_stack )
-        : impl_( horizons_stack )
+        StratigraphicUnitOrderedRange(
+            const HorizonsStack& horizons_stack, RANGEORDER bottom_to_top )
+        : impl_( horizons_stack, bottom_to_top )
     {
     }
 

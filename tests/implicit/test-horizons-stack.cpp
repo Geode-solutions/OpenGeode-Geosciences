@@ -38,6 +38,8 @@ void test_horizons_stack()
     geode::HorizonsStackBuilder3D stack_builder{ horizons_stack };
 
     geode::index_t counter{ 0 };
+    geode::Logger::info(
+        "There should be a warning on empty iteration after this" );
     for( const auto& horizon : horizons_stack.bottom_to_top_horizons() )
     {
         geode::Logger::debug( "[Test] Found horizon ", horizon.id().string() );
@@ -151,9 +153,17 @@ void test_create_horizons_stack()
             " as horizon number ", counter, ", not ", horizon.name() );
         counter++;
     }
-    OPENGEODE_EXCEPTION(
-        counter == 4, "[Test] Range did not pass through all horizons" );
-    counter = 0;
+    OPENGEODE_EXCEPTION( counter == 4,
+        "[Test] Bottom to top Range did not pass through all horizons" );
+    for( const auto& horizon : horizons_stack.top_to_bottom_horizons() )
+    {
+        counter--;
+        OPENGEODE_EXCEPTION( horizon.name() == horizons_list[counter],
+            "[Test] Should have found horizon ", horizons_list[counter],
+            " as horizon number ", counter, ", not ", horizon.name() );
+    }
+    OPENGEODE_EXCEPTION( counter == 0,
+        "[Test] Top to bottom Range did not pass through all horizons" );
     for( const auto& s_unit : horizons_stack.bottom_to_top_units() )
     {
         if( counter != 0 && counter < 4 )
@@ -167,6 +177,19 @@ void test_create_horizons_stack()
     }
     OPENGEODE_EXCEPTION( counter == 5,
         "[Test] Range did not pass through all stratigraphic units" );
+    for( const auto& s_unit : horizons_stack.top_to_bottom_units() )
+    {
+        counter--;
+        if( counter != 0 && counter < 4 )
+        {
+            OPENGEODE_EXCEPTION( s_unit.name() == units_list[counter - 1],
+                "[Test] Should have found stratigraphic unit ",
+                units_list[counter - 1], " as unit number ", counter, ", not ",
+                s_unit.name() );
+        }
+    }
+    OPENGEODE_EXCEPTION( counter == 0, "[Test] Top to bottom Range did not "
+                                       "pass through all stratigraphic units" );
 }
 
 int main()
