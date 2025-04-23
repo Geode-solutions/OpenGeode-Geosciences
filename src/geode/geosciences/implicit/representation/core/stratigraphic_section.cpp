@@ -30,6 +30,7 @@
 #include <geode/basic/logger.hpp>
 #include <geode/basic/pimpl_impl.hpp>
 #include <geode/basic/uuid.hpp>
+#include <geode/basic/variable_attribute.hpp>
 
 #include <geode/geometry/aabb.hpp>
 #include <geode/geometry/barycentric_coordinates.hpp>

@@ -25,6 +25,8 @@
 
 #include <async++.h>
 
+#include <bitsery/ext/std_map.h>
+
 #include <geode/basic/attribute_manager.hpp>
 #include <geode/basic/bitsery_archive.hpp>
 #include <geode/basic/cached_value.hpp>

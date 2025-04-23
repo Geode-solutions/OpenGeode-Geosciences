@@ -28,6 +28,7 @@
 #include <geode/basic/attribute_manager.hpp>
 #include <geode/basic/bitsery_archive.hpp>
 #include <geode/basic/pimpl_impl.hpp>
+#include <geode/basic/sparse_attribute.hpp>
 #include <geode/basic/uuid.hpp>
 
 #include <geode/geometry/bitsery_archive.hpp>
