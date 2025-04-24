@@ -23,6 +23,8 @@
 
 #include <geode/geosciences/implicit/representation/core/implicit_structural_model.hpp>
 
+#include <bitsery/ext/std_map.h>
+
 #include <geode/basic/attribute_manager.hpp>
 #include <geode/basic/bitsery_archive.hpp>
 #include <geode/basic/cached_value.hpp>

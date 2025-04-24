@@ -30,6 +30,7 @@
 
 #include <async++.h>
 
+#include <geode/basic/bitsery_archive.hpp>
 #include <geode/basic/uuid.hpp>
 #include <geode/basic/zip_file.hpp>
 

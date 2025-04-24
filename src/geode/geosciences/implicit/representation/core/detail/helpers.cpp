@@ -24,6 +24,7 @@
 #include <geode/geosciences/implicit/representation/core/detail/helpers.hpp>
 
 #include <geode/basic/attribute_manager.hpp>
+#include <geode/basic/variable_attribute.hpp>
 
 #include <geode/geometry/basic_objects/tetrahedron.hpp>
 #include <geode/geometry/bounding_box.hpp>
