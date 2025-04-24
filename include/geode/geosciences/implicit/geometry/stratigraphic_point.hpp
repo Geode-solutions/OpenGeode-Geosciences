@@ -23,6 +23,8 @@
 
 #pragma once
 
+#include <sstream>
+
 #include <geode/geometry/point.hpp>
 
 #include <geode/geosciences/implicit/common.hpp>
