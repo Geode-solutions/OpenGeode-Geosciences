@@ -169,6 +169,8 @@ namespace geode
         [[nodiscard]] bool is_baselap_of( const Horizon< dimension >& baselap,
             const StratigraphicUnit< dimension >& baselap_top ) const;
 
+        [[nodiscard]] std::string string() const;
+
     public:
         void compute_top_and_bottom_horizons( HorizonsStackBuilderKey key );
 

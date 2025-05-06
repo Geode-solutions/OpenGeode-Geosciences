@@ -160,6 +160,56 @@ namespace geode
             return std::nullopt;
         }
 
+        bool is_conformal_above( const uuid& element ) const
+        {
+            const auto index_from = vertex_id( element );
+            OPENGEODE_EXCEPTION( index_from,
+                "[StratigraphicRelationships::Impl::is_conformal_"
+                "above] Did not find element id in relations graph. Element "
+                "with id ",
+                element.string(), "probably doesn't exist." );
+            for( const auto& edge_vertex :
+                this->graph().edges_around_vertex( index_from.value() ) )
+            {
+                if( !above_relations_->value( edge_vertex.edge_id ) )
+                {
+                    continue;
+                }
+                if( edge_vertex.vertex_id == UNDER_EDGE_VERTEX )
+                {
+                    return unconformity_relations_->value( edge_vertex.edge_id )
+                           == NO_UNCONFORMITY;
+                }
+            }
+            geode::Logger::debug( "Didn't find any relation leading to above" );
+            return true;
+        }
+
+        bool is_conformal_under( const uuid& element ) const
+        {
+            const auto index_from = vertex_id( element );
+            OPENGEODE_EXCEPTION( index_from,
+                "[StratigraphicRelationships::Impl::is_conformal_"
+                "under] Did not find element id in relations graph. Element "
+                "with id ",
+                element.string(), "probably doesn't exist." );
+            for( const auto& edge_vertex :
+                this->graph().edges_around_vertex( index_from.value() ) )
+            {
+                if( !above_relations_->value( edge_vertex.edge_id ) )
+                {
+                    continue;
+                }
+                if( edge_vertex.vertex_id == ABOVE_EDGE_VERTEX )
+                {
+                    return unconformity_relations_->value( edge_vertex.edge_id )
+                           == NO_UNCONFORMITY;
+                }
+            }
+            geode::Logger::debug( "Didn't find any relation leading to under" );
+            return true;
+        }
+
         index_t add_above_relation(
             const ComponentID& above, const ComponentID& under )
         {
@@ -182,6 +232,9 @@ namespace geode
                     id.value(), EROSION_RELATION );
                 return id.value();
             }
+            geode::Logger::trace( "Found no edge between erosion ",
+                erosion.string(), " and eroded ", eroded.string(),
+                ", creating a new one" );
             const auto index = add_relation_edge( erosion, eroded );
             unconformity_relations_->set_value( index, EROSION_RELATION );
             return index;
@@ -197,6 +250,9 @@ namespace geode
                     id.value(), BASELAP_RELATION );
                 return id.value();
             }
+            geode::Logger::trace( "Found no edge between baselap_top ",
+                baselap_top.string(), " and baselap ", baselap.string(),
+                ", creating a new one" );
             const auto index = add_relation_edge( baselap_top, baselap );
             unconformity_relations_->set_value( index, BASELAP_RELATION );
             return index;
@@ -387,6 +443,18 @@ namespace geode
         const uuid& element ) const
     {
         return impl_->under( element );
+    }
+
+    bool StratigraphicRelationships::is_conformal_above(
+        const uuid& element ) const
+    {
+        return impl_->is_conformal_above( element );
+    }
+
+    bool StratigraphicRelationships::is_conformal_under(
+        const uuid& element ) const
+    {
+        return impl_->is_conformal_under( element );
     }
 
     index_t StratigraphicRelationships::add_above_relation(

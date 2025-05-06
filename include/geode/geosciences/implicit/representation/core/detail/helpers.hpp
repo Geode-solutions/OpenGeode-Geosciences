@@ -105,6 +105,11 @@ namespace geode
             const HorizonsStack< dimension >& horizon_stack,
             std::string_view horizon_name );
 
+        template < index_t dimension >
+        [[nodiscard]] std::optional< uuid > stratigraphic_unit_id_from_name(
+            const HorizonsStack< dimension >& horizon_stack,
+            std::string_view unit_name );
+
         [[nodiscard]] std::vector< MeshElement >
             opengeode_geosciences_implicit_api invalid_stratigraphic_tetrahedra(
                 const StratigraphicModel& model );

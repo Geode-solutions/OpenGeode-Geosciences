@@ -182,6 +182,35 @@ namespace geode
     }
 
     template < index_t dimension >
+    std::string HorizonsStack< dimension >::string() const
+    {
+        auto result = absl::StrCat(
+            "HorizonsStack ", this->name(), " from top to bottom:" );
+        const auto& top_unit = this->stratigraphic_unit(
+            this->above( this->top_horizon().value() ).value() );
+        absl::StrAppend( &result, "\n", top_unit.component_id().string(),
+            ", named ", top_unit.name() );
+        for( const auto& horizon : this->top_to_bottom_horizons() )
+        {
+            if( !this->is_conformal_above( horizon.id() ) )
+            {
+                absl::StrAppend( &result, "\n Unconformal above" );
+            }
+            absl::StrAppend( &result, "\n---", horizon.component_id().string(),
+                ", named ", horizon.name() );
+            if( !this->is_conformal_under( horizon.id() ) )
+            {
+                absl::StrAppend( &result, "\n Unconformal under" );
+            }
+            const auto& under_unit =
+                this->stratigraphic_unit( this->under( horizon.id() ).value() );
+            absl::StrAppend( &result, "\n", under_unit.component_id().string(),
+                ", named ", under_unit.name() );
+        }
+        return result;
+    }
+
+    template < index_t dimension >
     void HorizonsStack< dimension >::compute_top_and_bottom_horizons(
         HorizonsStackBuilderKey /*unused*/ )
     {

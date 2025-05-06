@@ -63,6 +63,10 @@ namespace geode
 
         [[nodiscard]] std::optional< uuid > under( const uuid& element ) const;
 
+        [[nodiscard]] bool is_conformal_above( const uuid& element ) const;
+
+        [[nodiscard]] bool is_conformal_under( const uuid& element ) const;
+
         void save_stratigraphic_relationships(
             std::string_view directory ) const;
 
