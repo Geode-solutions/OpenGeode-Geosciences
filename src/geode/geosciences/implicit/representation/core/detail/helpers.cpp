@@ -386,6 +386,21 @@ namespace geode
             return std::nullopt;
         }
 
+        template < index_t dimension >
+        std::optional< uuid > stratigraphic_unit_id_from_name(
+            const HorizonsStack< dimension >& horizon_stack,
+            absl::string_view unit_name )
+        {
+            for( const auto& unit : horizon_stack.stratigraphic_units() )
+            {
+                if( unit.name() == unit_name )
+                {
+                    return unit.id();
+                }
+            }
+            return std::nullopt;
+        }
+
         std::vector< MeshElement > invalid_stratigraphic_tetrahedra(
             const StratigraphicModel& implicit_model )
         {
@@ -449,5 +464,9 @@ namespace geode
         template std::optional< uuid >
             opengeode_geosciences_implicit_api horizon_id_from_name< 3 >(
                 const HorizonsStack< 3 >&, absl::string_view );
+        template std::optional< uuid > stratigraphic_unit_id_from_name< 2 >(
+            const HorizonsStack< 2 >&, absl::string_view );
+        template std::optional< uuid > stratigraphic_unit_id_from_name< 3 >(
+            const HorizonsStack< 3 >&, absl::string_view );
     } // namespace detail
 } // namespace geode
