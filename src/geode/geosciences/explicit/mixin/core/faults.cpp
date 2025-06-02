@@ -244,7 +244,7 @@ namespace geode
         return impl_->operator!=( *impl_ );
     }
 
-        template < index_t dimension >
+    template < index_t dimension >
     void Faults< dimension >::FaultRangeBase::set_active_only()
     {
         impl_->set_active_only();
