@@ -58,6 +58,8 @@ namespace geode
 
             void operator++();
 
+            void set_active_only();
+
         protected:
             HorizonRangeBase( const Horizons& horizons );
             HorizonRangeBase( HorizonRangeBase&& other ) noexcept;
@@ -91,12 +93,16 @@ namespace geode
 
         [[nodiscard]] index_t nb_horizons() const;
 
+        [[nodiscard]] index_t nb_active_horizons() const;
+
         [[nodiscard]] bool has_horizon( const uuid& id ) const;
 
         [[nodiscard]] const Horizon< dimension >& horizon(
             const uuid& id ) const;
 
         [[nodiscard]] HorizonRange horizons() const;
+
+        [[nodiscard]] HorizonRange active_horizons() const;
 
         [[nodiscard]] HorizonRange components() const
         {

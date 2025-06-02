@@ -58,6 +58,8 @@ namespace geode
 
             void operator++();
 
+            void set_active_only();
+
         protected:
             FaultRangeBase( const Faults& faults );
             FaultRangeBase( FaultRangeBase&& other ) noexcept;
@@ -91,11 +93,15 @@ namespace geode
 
         [[nodiscard]] index_t nb_faults() const;
 
+        [[nodiscard]] index_t nb_active_faults() const;
+
         [[nodiscard]] bool has_fault( const uuid& id ) const;
 
         [[nodiscard]] const Fault< dimension >& fault( const uuid& id ) const;
 
         [[nodiscard]] FaultRange faults() const;
+
+        [[nodiscard]] FaultRange active_faults() const;
 
         [[nodiscard]] FaultRange components() const
         {
