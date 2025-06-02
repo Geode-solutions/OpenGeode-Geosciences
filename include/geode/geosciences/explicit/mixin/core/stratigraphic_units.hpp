@@ -59,6 +59,8 @@ namespace geode
 
             void operator++();
 
+            void set_active_only();
+
         protected:
             StratigraphicUnitRangeBase(
                 const StratigraphicUnits& stratigraphic_units );
@@ -97,12 +99,16 @@ namespace geode
 
         [[nodiscard]] index_t nb_stratigraphic_units() const;
 
+        [[nodiscard]] index_t nb_active_stratigraphic_units() const;
+
         [[nodiscard]] bool has_stratigraphic_unit( const uuid& id ) const;
 
         [[nodiscard]] const StratigraphicUnit< dimension >& stratigraphic_unit(
             const uuid& id ) const;
 
         [[nodiscard]] StratigraphicUnitRange stratigraphic_units() const;
+
+        [[nodiscard]] StratigraphicUnitRange active_stratigraphic_units() const;
 
         [[nodiscard]] StratigraphicUnitRange components() const
         {
