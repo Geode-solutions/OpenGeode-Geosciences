@@ -283,6 +283,16 @@ namespace geode
             absl::Span< const std::string > horizons_names,
             absl::Span< const std::string > units_names )
         {
+            return horizons_stack_from_name_list< dimension >(
+                horizons_names, units_names, false );
+        }
+
+        template < index_t dimension >
+        HorizonsStack< dimension > horizons_stack_from_name_list(
+            absl::Span< const std::string > horizons_names,
+            absl::Span< const std::string > units_names,
+            bool top_to_bottom )
+        {
             OPENGEODE_EXCEPTION( !horizons_names.empty(),
                 "[horizons_stack_from_name_list] Cannot create HorizonsStack: "
                 "horizons_names list is empty." );
@@ -294,35 +304,73 @@ namespace geode
             HorizonsStackBuilder< dimension > builder{ stack };
             auto current_horizon = builder.add_horizon();
             builder.set_horizon_name( current_horizon, horizons_names[0] );
-            const auto& su_under = builder.add_stratigraphic_unit();
-            builder.set_horizon_above( stack.horizon( current_horizon ),
-                stack.stratigraphic_unit( su_under ) );
-            bool lowest_unit_to_create{ nb_units < nb_horizons };
-            if( !lowest_unit_to_create )
-            {
-                builder.set_stratigraphic_unit_name( su_under, units_names[0] );
-            }
-            for( const auto counter : Range{ 1, horizons_names.size() } )
+            if( top_to_bottom )
             {
                 const auto& su_above = builder.add_stratigraphic_unit();
-                builder.set_stratigraphic_unit_name(
-                    su_above, units_names[lowest_unit_to_create ? counter - 1
-                                                                : counter] );
                 builder.set_horizon_under( stack.horizon( current_horizon ),
                     stack.stratigraphic_unit( su_above ) );
-                current_horizon = builder.add_horizon();
-                builder.set_horizon_name(
-                    current_horizon, horizons_names[counter] );
-                builder.set_horizon_above( stack.horizon( current_horizon ),
-                    stack.stratigraphic_unit( su_above ) );
+                bool highest_unit_to_create{ nb_units < nb_horizons };
+                if( !highest_unit_to_create )
+                {
+                    builder.set_stratigraphic_unit_name(
+                        su_above, units_names[0] );
+                }
+                for( const auto counter : Range{ 1, horizons_names.size() } )
+                {
+                    const auto& su_under = builder.add_stratigraphic_unit();
+                    builder.set_stratigraphic_unit_name( su_under,
+                        units_names[highest_unit_to_create ? counter - 1
+                                                           : counter] );
+                    builder.set_horizon_above( stack.horizon( current_horizon ),
+                        stack.stratigraphic_unit( su_under ) );
+                    current_horizon = builder.add_horizon();
+                    builder.set_horizon_name(
+                        current_horizon, horizons_names[counter] );
+                    builder.set_horizon_under( stack.horizon( current_horizon ),
+                        stack.stratigraphic_unit( su_under ) );
+                }
+                const auto& su_under = builder.add_stratigraphic_unit();
+                builder.set_horizon_under( stack.horizon( current_horizon ),
+                    stack.stratigraphic_unit( su_under ) );
+                if( nb_units > nb_horizons )
+                {
+                    builder.set_stratigraphic_unit_name(
+                        su_under, units_names.back() );
+                }
             }
-            const auto& su_above = builder.add_stratigraphic_unit();
-            builder.set_horizon_under( stack.horizon( current_horizon ),
-                stack.stratigraphic_unit( su_above ) );
-            if( nb_units > nb_horizons )
+            else
             {
-                builder.set_stratigraphic_unit_name(
-                    su_above, units_names.back() );
+                const auto& su_under = builder.add_stratigraphic_unit();
+                builder.set_horizon_above( stack.horizon( current_horizon ),
+                    stack.stratigraphic_unit( su_under ) );
+                bool lowest_unit_to_create{ nb_units < nb_horizons };
+                if( !lowest_unit_to_create )
+                {
+                    builder.set_stratigraphic_unit_name(
+                        su_under, units_names[0] );
+                }
+                for( const auto counter : Range{ 1, horizons_names.size() } )
+                {
+                    const auto& su_above = builder.add_stratigraphic_unit();
+                    builder.set_stratigraphic_unit_name( su_above,
+                        units_names[lowest_unit_to_create ? counter - 1
+                                                          : counter] );
+                    builder.set_horizon_under( stack.horizon( current_horizon ),
+                        stack.stratigraphic_unit( su_above ) );
+                    current_horizon = builder.add_horizon();
+                    builder.set_horizon_name(
+                        current_horizon, horizons_names[counter] );
+                    builder.set_horizon_above( stack.horizon( current_horizon ),
+                        stack.stratigraphic_unit( su_above ) );
+                }
+                const auto& su_above = builder.add_stratigraphic_unit();
+                builder.set_horizon_under( stack.horizon( current_horizon ),
+                    stack.stratigraphic_unit( su_above ) );
+                if( nb_units > nb_horizons )
+                {
+                    builder.set_stratigraphic_unit_name(
+                        su_above, units_names.back() );
+                }
             }
             builder.compute_top_and_bottom_horizons();
             return stack;
@@ -450,6 +498,14 @@ namespace geode
         template HorizonsStack< 3 > opengeode_geosciences_implicit_api
             horizons_stack_from_name_list< 3 >( absl::Span< const std::string >,
                 absl::Span< const std::string > );
+        template HorizonsStack< 2 > opengeode_geosciences_implicit_api
+            horizons_stack_from_name_list< 2 >( absl::Span< const std::string >,
+                absl::Span< const std::string >,
+                bool );
+        template HorizonsStack< 3 > opengeode_geosciences_implicit_api
+            horizons_stack_from_name_list< 3 >( absl::Span< const std::string >,
+                absl::Span< const std::string >,
+                bool );
 
         template void opengeode_geosciences_implicit_api
             repair_horizon_stack_if_possible< 2 >(

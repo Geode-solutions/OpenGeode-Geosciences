@@ -87,13 +87,20 @@ namespace geode
         /*!
          * Creates a HorizonsStack from a list of names of Horizons and
          * StratigraphicUnits.
-         * The bottom horizon and stratigraphic unit will be the first in the
-         * lists, respectively.
+         * @param top_to_bottom If true, the top horizon and stratigraphic unit
+         * will be the first in the lists, respectively.
          */
+        template < index_t dimension >
+        [[deprecated]] [[nodiscard]] HorizonsStack< dimension >
+            horizons_stack_from_name_list(
+                absl::Span< const std::string > horizons_names,
+                absl::Span< const std::string > units_names );
+
         template < index_t dimension >
         [[nodiscard]] HorizonsStack< dimension > horizons_stack_from_name_list(
             absl::Span< const std::string > horizons_names,
-            absl::Span< const std::string > units_names );
+            absl::Span< const std::string > units_names,
+            bool top_to_bottom );
 
         template < index_t dimension >
         void repair_horizon_stack_if_possible(
