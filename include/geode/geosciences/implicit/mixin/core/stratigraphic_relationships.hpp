@@ -86,12 +86,8 @@ namespace geode
             const ComponentID& under,
             StratigraphicRelationshipsBuilderKey );
 
-        index_t add_erosion_relation( const ComponentID& erosion,
-            const ComponentID& eroded,
-            StratigraphicRelationshipsBuilderKey );
-
-        index_t add_baselap_relation( const ComponentID& baselap_top,
-            const ComponentID& baselap,
+        index_t add_unconformity_relation( const ComponentID& component_1,
+            const ComponentID& component_2,
             StratigraphicRelationshipsBuilderKey );
 
         /*!
@@ -128,12 +124,6 @@ namespace geode
 
         StratigraphicRelationships& operator=(
             StratigraphicRelationships&& other ) noexcept;
-
-        [[nodiscard]] bool is_eroded_by(
-            const uuid& eroded, const uuid& erosion ) const;
-
-        [[nodiscard]] bool is_baselap_of(
-            const uuid& baselap, const uuid& baselap_top ) const;
 
     private:
         IMPLEMENTATION_MEMBER( impl_ );

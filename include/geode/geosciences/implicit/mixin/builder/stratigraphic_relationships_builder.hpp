@@ -75,18 +75,10 @@ namespace geode
             const ComponentID& above, const ComponentID& under );
 
         /*!
-         * Adds a new unconformity relationship of erosion type between two
-         * components
+         * Adds a new unconformity relationship between two components
          */
-        index_t add_erosion_relation(
-            const ComponentID& erosion, const ComponentID& eroded );
-
-        /*!
-         * Adds a new unconformity relationship of baselap type between two
-         * components
-         */
-        index_t add_baselap_relation(
-            const ComponentID& baselap_top, const ComponentID& baselap );
+        index_t add_unconformity_relation(
+            const ComponentID& component_1, const ComponentID& component_2 );
 
     private:
         StratigraphicRelationships& relationships_;

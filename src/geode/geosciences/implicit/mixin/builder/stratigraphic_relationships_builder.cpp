@@ -43,16 +43,11 @@ namespace geode
         return relationships_.add_above_relation( above, under, {} );
     }
 
-    index_t StratigraphicRelationshipsBuilder::add_erosion_relation(
-        const ComponentID& erosion, const ComponentID& eroded )
+    index_t StratigraphicRelationshipsBuilder::add_unconformity_relation(
+        const ComponentID& component_1, const ComponentID& component_2 )
     {
-        return relationships_.add_erosion_relation( erosion, eroded, {} );
-    }
-
-    index_t StratigraphicRelationshipsBuilder::add_baselap_relation(
-        const ComponentID& baselap_top, const ComponentID& baselap )
-    {
-        return relationships_.add_baselap_relation( baselap_top, baselap, {} );
+        return relationships_.add_unconformity_relation(
+            component_1, component_2, {} );
     }
 
     void StratigraphicRelationshipsBuilder::remove_relation(

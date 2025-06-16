@@ -52,10 +52,14 @@ namespace geode
                 .def( "save_stratigraphic_surfaces",
                     &save_stratigraphic_surfaces )
                 .def( "save_stratigraphic_blocks", &save_stratigraphic_blocks )
-                .def( "horizons_stack_from_name_list_2d",
-                    &horizons_stack_from_name_list< 2 > )
-                .def( "horizons_stack_from_name_list_3d",
-                    &horizons_stack_from_name_list< 3 > )
+                .def( "horizons_stack_from_top_to_bottom_names_2d",
+                    &horizons_stack_from_top_to_bottom_names< 2 > )
+                .def( "horizons_stack_from_top_to_bottom_names_3d",
+                    &horizons_stack_from_top_to_bottom_names< 3 > )
+                .def( "horizons_stack_from_bottom_to_top_names_2d",
+                    &horizons_stack_from_bottom_to_top_names< 2 > )
+                .def( "horizons_stack_from_bottom_to_top_names_3d",
+                    &horizons_stack_from_bottom_to_top_names< 3 > )
                 .def( "repair_horizon_stack_if_possible_2d",
                     &repair_horizon_stack_if_possible< 2 > )
                 .def( "repair_horizon_stack_if_possible_3d",

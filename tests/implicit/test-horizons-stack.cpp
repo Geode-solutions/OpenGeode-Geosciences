@@ -117,8 +117,8 @@ void test_create_horizons_stack()
     std::array< std::string, 4 > horizons_list{ "h1", "h2", "h3", "h4" };
     std::array< std::string, 3 > units_list{ "su1", "su2", "su3" };
     const auto horizons_stack =
-        geode::detail::horizons_stack_from_name_list< 2 >(
-            horizons_list, units_list, false );
+        geode::detail::horizons_stack_from_bottom_to_top_names< 2 >(
+            horizons_list, units_list );
     OPENGEODE_EXCEPTION( horizons_stack.nb_horizons() == 4,
         "[Test] Created Horizons Stack should have 4 horizons." );
     OPENGEODE_EXCEPTION( horizons_stack.nb_stratigraphic_units() == 5,
