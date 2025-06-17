@@ -71,8 +71,15 @@ namespace geode
         const StratigraphicModel& stratigraphic_model,
         std::string_view filename )
     {
-        const auto output = detail::geode_object_output_writer<
-            StratigraphicModelOutputFactory >( filename );
-        return output->is_saveable( stratigraphic_model );
+        try
+        {
+            const auto output = detail::geode_object_output_writer<
+                StratigraphicModelOutputFactory >( filename );
+            return output->is_saveable( stratigraphic_model );
+        }
+        catch( ... )
+        {
+            return false;
+        }
     }
 } // namespace geode

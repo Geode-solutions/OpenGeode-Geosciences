@@ -75,9 +75,16 @@ namespace geode
     template < index_t dimension >
     bool is_horizons_stack_loadable( std::string_view filename )
     {
-        const auto input = detail::geode_object_input_reader<
-            HorizonsStackInputFactory< dimension > >( filename );
-        return input->is_loadable();
+        try
+        {
+            const auto input = detail::geode_object_input_reader<
+                HorizonsStackInputFactory< dimension > >( filename );
+            return input->is_loadable();
+        }
+        catch( ... )
+        {
+            return false;
+        }
     }
 
     template HorizonsStack< 2 > opengeode_geosciences_implicit_api

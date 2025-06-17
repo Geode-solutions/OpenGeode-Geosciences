@@ -61,9 +61,15 @@ namespace geode
     bool is_structural_model_saveable(
         const StructuralModel& structural_model, std::string_view filename )
     {
-        const auto output =
-            detail::geode_object_output_writer< StructuralModelOutputFactory >(
-                filename );
-        return output->is_saveable( structural_model );
+        try
+        {
+            const auto output = detail::geode_object_output_writer<
+                StructuralModelOutputFactory >( filename );
+            return output->is_saveable( structural_model );
+        }
+        catch( ... )
+        {
+            return false;
+        }
     }
 } // namespace geode
