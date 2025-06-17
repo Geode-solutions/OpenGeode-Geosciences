@@ -164,6 +164,68 @@ namespace geode
     }
 
     template < index_t dimension >
+    bool HorizonsStack< dimension >::is_conformal_above(
+        const uuid& component ) const
+    {
+        auto component_is_a_horizon = this->has_horizon( component );
+        OPENGEODE_EXCEPTION(
+            component_is_a_horizon || this->has_stratigraphic_unit( component ),
+            "[HorizonsStack::is_conformal_above] Component does not exist in "
+            "the stack." );
+        if( component_is_a_horizon )
+        {
+            const auto contact_type = this->horizon( component ).contact_type();
+            return contact_type == Horizon< dimension >::CONTACT_TYPE::conformal
+                   || contact_type
+                          != Horizon< dimension >::CONTACT_TYPE::erosion;
+        }
+        else
+        {
+            const auto& horizon_above = this->above( component );
+            OPENGEODE_EXCEPTION( horizon_above.has_value(),
+                "[HorizonsStack::is_conformal_above] No horizon above given "
+                "stratigraphic unit with id ",
+                component.string() );
+            const auto contact_type =
+                this->horizon( horizon_above.value() ).contact_type();
+            return contact_type == Horizon< dimension >::CONTACT_TYPE::conformal
+                   || contact_type
+                          == Horizon< dimension >::CONTACT_TYPE::baselap;
+        }
+    }
+
+    template < index_t dimension >
+    bool HorizonsStack< dimension >::is_conformal_under(
+        const uuid& component ) const
+    {
+        auto component_is_a_horizon = this->has_horizon( component );
+        OPENGEODE_EXCEPTION(
+            component_is_a_horizon || this->has_stratigraphic_unit( component ),
+            "[HorizonsStack::is_conformal_above] Component does not exist in "
+            "the stack." );
+        if( component_is_a_horizon )
+        {
+            const auto contact_type = this->horizon( component ).contact_type();
+            return contact_type == Horizon< dimension >::CONTACT_TYPE::conformal
+                   || contact_type
+                          != Horizon< dimension >::CONTACT_TYPE::baselap;
+        }
+        else
+        {
+            const auto& horizon_under = this->under( component );
+            OPENGEODE_EXCEPTION( horizon_under.has_value(),
+                "[HorizonsStack::is_conformal_under] No horizon under given "
+                "stratigraphic unit with id ",
+                component.string() );
+            const auto contact_type =
+                this->horizon( horizon_under.value() ).contact_type();
+            return contact_type == Horizon< dimension >::CONTACT_TYPE::conformal
+                   || contact_type
+                          == Horizon< dimension >::CONTACT_TYPE::erosion;
+        }
+    }
+
+    template < index_t dimension >
     std::string HorizonsStack< dimension >::string() const
     {
         auto result = absl::StrCat(

@@ -162,6 +162,10 @@ namespace geode
 
         [[nodiscard]] StratigraphicUnitOrderedRange top_to_bottom_units() const;
 
+        [[nodiscard]] bool is_conformal_above( const uuid& component ) const;
+
+        [[nodiscard]] bool is_conformal_under( const uuid& component ) const;
+
         [[nodiscard]] std::string string() const;
 
     public:
