@@ -58,6 +58,23 @@ namespace
         }
     }
 
+    void add_incident_blocks_to_queue(
+        const geode::StructuralModel& structural_model,
+        const geode::Surface3D& boundary,
+        std::queue< geode::uuid >& block_queue,
+        std::vector< geode::uuid >& visited )
+    {
+        for( const auto& incident_block :
+            structural_model.incidences( boundary ) )
+        {
+            if( !absl::c_contains( visited, incident_block.id() ) )
+            {
+                block_queue.push( incident_block.id() );
+                visited.push_back( incident_block.id() );
+            }
+        }
+    }
+
     void build_fault_blocks( geode::StructuralModel& structural_model,
         geode::StructuralModelBuilder& builder )
     {
@@ -114,22 +131,6 @@ namespace
         }
     }
 
-    void add_incident_blocks_to_queue(
-        const geode::StructuralModel& structural_model,
-        const geode::Surface3D& boundary,
-        std::queue< geode::uuid >& block_queue,
-        std::vector< geode::uuid >& visited )
-    {
-        for( const auto& incident_block :
-            structural_model.incidences( boundary ) )
-        {
-            if( !absl::c_contains( visited, incident_block.id() ) )
-            {
-                block_queue.push( incident_block.id() );
-                visited.push_back( incident_block.id() );
-            }
-        }
-    }
 } // namespace
 
 namespace geode
