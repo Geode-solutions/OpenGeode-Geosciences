@@ -50,12 +50,13 @@ namespace geode
         PASSKEY( Horizons< dimension >, HorizonsKey );
 
     public:
-        enum struct HORIZON_TYPE
+        enum struct CONTACT_TYPE
         {
-            /// Default value - No horizon type defined
-            no_type,
+            /// Default value - Horizon is conformal to units around it
             conformal,
-            non_conformal,
+            erosion,
+            baselap,
+            discontinuity,
             topography,
             intrusion
         };
@@ -74,15 +75,13 @@ namespace geode
             return component_type_static();
         }
 
-        [[nodiscard]] bool has_type() const;
-
-        [[nodiscard]] HORIZON_TYPE type() const;
+        [[nodiscard]] CONTACT_TYPE contact_type() const;
 
     public:
         Horizon( HorizonsKey ) : Horizon() {}
-        Horizon( HORIZON_TYPE type, HorizonsKey ) : Horizon( type ) {}
+        Horizon( CONTACT_TYPE type, HorizonsKey ) : Horizon( type ) {}
 
-        void set_type( HORIZON_TYPE type, HorizonsBuilderKey );
+        void set_contact_type( CONTACT_TYPE type, HorizonsBuilderKey );
 
         void set_horizon_name( std::string_view name, HorizonsBuilderKey )
         {
@@ -91,7 +90,7 @@ namespace geode
 
     private:
         Horizon();
-        explicit Horizon( HORIZON_TYPE type );
+        explicit Horizon( CONTACT_TYPE type );
 
         friend class bitsery::Access;
         template < typename Archive >

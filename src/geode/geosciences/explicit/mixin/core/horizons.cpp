@@ -135,12 +135,12 @@ namespace geode
 
     template < index_t dimension >
     const uuid& Horizons< dimension >::create_horizon(
-        typename Horizon< dimension >::HORIZON_TYPE type,
+        typename Horizon< dimension >::CONTACT_TYPE contact_type,
         HorizonsBuilderKey /*unused*/ )
     {
         typename Horizons< dimension >::Impl::ComponentPtr horizon{
             new Horizon< dimension >{
-                type, typename Horizon< dimension >::HorizonsKey{} }
+                contact_type, typename Horizon< dimension >::HorizonsKey{} }
         };
         const auto& id = horizon->id();
         impl_->add_component( std::move( horizon ) );
@@ -161,12 +161,12 @@ namespace geode
 
     template < index_t dimension >
     void Horizons< dimension >::create_horizon( uuid horizon_id,
-        typename Horizon< dimension >::HORIZON_TYPE type,
+        typename Horizon< dimension >::CONTACT_TYPE contact_type,
         HorizonsBuilderKey /*unused*/ )
     {
         typename Horizons< dimension >::Impl::ComponentPtr horizon{
             new Horizon< dimension >{
-                type, typename Horizon< dimension >::HorizonsKey{} }
+                contact_type, typename Horizon< dimension >::HorizonsKey{} }
         };
         IdentifierBuilder{ *horizon }.set_id( std::move( horizon_id ) );
         impl_->add_component( std::move( horizon ) );

@@ -30,8 +30,8 @@
         "HorizonsBuilder" + std::to_string( dimension ) + "D";                 \
     pybind11::class_< HorizonsBuilder##dimension##D >(                         \
         module, name##dimension.c_str() )                                      \
-        .def( "set_horizon_type",                                              \
-            &HorizonsBuilder##dimension##D::set_horizon_type )                 \
+        .def( "set_horizon_contact_type",                                      \
+            &HorizonsBuilder##dimension##D::set_horizon_contact_type )         \
         .def( "set_horizon_name",                                              \
             &HorizonsBuilder##dimension##D::set_horizon_name )
 

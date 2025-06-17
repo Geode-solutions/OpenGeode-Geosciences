@@ -141,13 +141,13 @@ namespace geode
         [[nodiscard]] const uuid& create_horizon( HorizonsBuilderKey key );
 
         [[nodiscard]] const uuid& create_horizon(
-            typename Horizon< dimension >::HORIZON_TYPE type,
+            typename Horizon< dimension >::CONTACT_TYPE contact_type,
             HorizonsBuilderKey key );
 
         void create_horizon( uuid horizon_id, HorizonsBuilderKey key );
 
         void create_horizon( uuid horizon_id,
-            typename Horizon< dimension >::HORIZON_TYPE type,
+            typename Horizon< dimension >::CONTACT_TYPE contact_type,
             HorizonsBuilderKey key );
 
         void delete_horizon(

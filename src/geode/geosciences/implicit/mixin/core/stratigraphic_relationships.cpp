@@ -46,18 +46,8 @@ namespace geode
     class StratigraphicRelationships::Impl : public detail::RelationshipsImpl
     {
     public:
-        using UnconformityType = bool;
-        static constexpr bool CONFORMAL{ true };
-        static constexpr bool UNCONFORMAL{ false };
-        // static constexpr index_t NO_UNCONFORMITY{ NO_ID };
-        // static constexpr index_t EROSION_RELATION{ 0 };
-        // static constexpr index_t BASELAP_RELATION{ 1 };
         static constexpr local_index_t ABOVE_EDGE_VERTEX{ 0 };
         static constexpr local_index_t UNDER_EDGE_VERTEX{ 1 };
-        // static constexpr local_index_t ERODES_EDGE_VERTEX{ 0 };
-        // static constexpr local_index_t IS_ERODED_EDGE_VERTEX{ 1 };
-        // static constexpr local_index_t BASELAPS_ON_EDGE_VERTEX{ 0 };
-        // static constexpr local_index_t IS_BASELAP_OF_EDGE_VERTEX{ 1 };
 
         Impl() : RelationshipsImpl()
         {
@@ -126,56 +116,6 @@ namespace geode
             return std::nullopt;
         }
 
-        bool is_conformal_above( const uuid& element ) const
-        {
-            const auto index_from = vertex_id( element );
-            OPENGEODE_EXCEPTION( index_from,
-                "[StratigraphicRelationships::Impl::is_conformal_"
-                "above] Did not find element id in relations graph. Element "
-                "with id ",
-                element.string(), "probably doesn't exist." );
-            for( const auto& edge_vertex :
-                this->graph().edges_around_vertex( index_from.value() ) )
-            {
-                if( !above_relations_->value( edge_vertex.edge_id ) )
-                {
-                    continue;
-                }
-                if( edge_vertex.vertex_id == UNDER_EDGE_VERTEX )
-                {
-                    return unconformity_relations_->value( edge_vertex.edge_id )
-                           == CONFORMAL;
-                }
-            }
-            geode::Logger::debug( "Didn't find any relation leading to above" );
-            return true;
-        }
-
-        bool is_conformal_under( const uuid& element ) const
-        {
-            const auto index_from = vertex_id( element );
-            OPENGEODE_EXCEPTION( index_from,
-                "[StratigraphicRelationships::Impl::is_conformal_"
-                "under] Did not find element id in relations graph. Element "
-                "with id ",
-                element.string(), "probably doesn't exist." );
-            for( const auto& edge_vertex :
-                this->graph().edges_around_vertex( index_from.value() ) )
-            {
-                if( !above_relations_->value( edge_vertex.edge_id ) )
-                {
-                    continue;
-                }
-                if( edge_vertex.vertex_id == ABOVE_EDGE_VERTEX )
-                {
-                    return unconformity_relations_->value( edge_vertex.edge_id )
-                           == CONFORMAL;
-                }
-            }
-            geode::Logger::debug( "Didn't find any relation leading to under" );
-            return true;
-        }
-
         index_t add_above_relation(
             const ComponentID& above, const ComponentID& under )
         {
@@ -186,23 +126,6 @@ namespace geode
             }
             const auto index = add_relation_edge( above, under );
             above_relations_->set_value( index, true );
-            return index;
-        }
-
-        index_t add_unconformity_relation(
-            const ComponentID& component_1, const ComponentID& component_2 )
-        {
-            if( const auto id =
-                    relation_edge( component_1.id(), component_2.id() ) )
-            {
-                unconformity_relations_->set_value( id.value(), UNCONFORMAL );
-                return id.value();
-            }
-            geode::Logger::trace( "Found no edge between component ",
-                component_1.string(), " and component ", component_2.string(),
-                ", creating a new one" );
-            const auto index = add_relation_edge( component_1, component_2 );
-            unconformity_relations_->set_value( index, UNCONFORMAL );
             return index;
         }
 
@@ -218,24 +141,6 @@ namespace geode
                 }
             }
             this->remove_relation_edge( id.value() );
-        }
-
-        void remove_unconformity_relation( const uuid& id1, const uuid& id2 )
-        {
-            auto id = relation_edge( id1, id2 );
-            if( !id )
-            {
-                id = relation_edge( id2, id1 );
-                if( !id )
-                {
-                    return;
-                }
-            }
-            if( above_relations_->value( id.value() ) == false )
-            {
-                this->remove_relation_edge( id.value() );
-            }
-            unconformity_relations_->set_value( id.value(), CONFORMAL );
         }
 
         void copy( const Impl& impl, const ModelCopyMapping& mapping )
@@ -284,10 +189,6 @@ namespace geode
                 relation_attribute_manager()
                     .find_or_create_attribute< SparseAttribute, bool >(
                         "geode_above_relations", false );
-            unconformity_relations_ =
-                relation_attribute_manager()
-                    .find_or_create_attribute< SparseAttribute,
-                        UnconformityType >( "geode_conformity", CONFORMAL );
         }
 
         std::optional< index_t > relation_edge(
@@ -335,59 +236,18 @@ namespace geode
                                        detail::RelationshipsImpl >{} );
                          archive2.ext( impl.above_relations_,
                              bitsery::ext::StdSmartPtr{} );
-                         impl.initialize_relation_attributes();
-                         auto previous_unconformities =
-                             impl.relation_attribute_manager()
-                                 .find_attribute< SparseAttribute, index_t >(
-                                     "geode_unconformities" );
-                         std::vector< std::pair< uuid > > edges_to_remove;
+                         std::vector< bool > to_delete(
+                             impl.graph_->nb_edges(), false );
                          for( const auto edge_id :
-                             Range{ impl.graph().nb_edges() } )
+                             Range{ impl.graph_->nb_edges() } )
                          {
-                             if( previous_unconformities->value( edge_id )
-                                 == 0 )
+                             if( !impl.above_relations_->value( edge_id ) )
                              {
-                                 if( !above_relations_->value( edge_id ) )
-                                 {
-                                     edges_to_remove.emplace_back(
-                                         impl.graph_component_id(
-                                                 { edge_id, 0 } )
-                                             .id(),
-                                         impl.graph_component_id(
-                                                 { edge_id, 1 } )
-                                             .id() );
-                                     continue;
-                                 }
-                                 impl.unconformity_relations_->set_value(
-                                     edge_id, UNCONFORMAL );
-                             }
-                             else if( previous_unconformities->value( edge_id )
-                                      == 1 )
-                             {
-                                 const auto opposite_edge =
-                                     impl.graph().edge_from_vertices(
-                                         impl.graph().edge_vertex( edge_id, 1 ),
-                                         impl.graph().edge_vertex(
-                                             edge_id, 0 ) );
-                                 edges_to_remove.emplace_back(
-                                     impl.graph_component_id( { edge_id, 0 } )
-                                         .id(),
-                                     impl.graph_component_id( { edge_id, 1 } )
-                                         .id() );
-                                 if( opposite_edge
-                                     && above_relations_->value(
-                                         opposite_edge.value() ) )
-                                 {
-                                     impl.unconformity_relations_->set_value(
-                                         opposite_edge.value(), UNCONFORMAL );
-                                     continue;
-                                 }
+                                 to_delete[edge_id] = true;
                              }
                          }
-                         for( const auto& [id_1, id_2] : edges_to_remove )
-                         {
-                             impl.remove_relation( id_1, id_2 );
-                         }
+                         GraphBuilder::create( *impl.graph_ )
+                             ->delete_edges( to_delete );
                      },
                         []( Archive& archive2, Impl& impl ) {
                             archive2.ext(
@@ -395,15 +255,11 @@ namespace geode
                                           detail::RelationshipsImpl >{} );
                             archive2.ext( impl.above_relations_,
                                 bitsery::ext::StdSmartPtr{} );
-                            archive2.ext( impl.unconformity_relations_,
-                                bitsery::ext::StdSmartPtr{} );
                         } } } );
         }
 
     private:
         std::shared_ptr< SparseAttribute< bool > > above_relations_;
-        std::shared_ptr< SparseAttribute< UnconformityType > >
-            unconformity_relations_;
     };
 
     StratigraphicRelationships::StratigraphicRelationships() = default;
@@ -437,32 +293,12 @@ namespace geode
         return impl_->under( element );
     }
 
-    bool StratigraphicRelationships::is_conformal_above(
-        const uuid& element ) const
-    {
-        return impl_->is_conformal_above( element );
-    }
-
-    bool StratigraphicRelationships::is_conformal_under(
-        const uuid& element ) const
-    {
-        return impl_->is_conformal_under( element );
-    }
-
     index_t StratigraphicRelationships::add_above_relation(
         const ComponentID& above,
         const ComponentID& under,
         StratigraphicRelationshipsBuilderKey )
     {
         return impl_->add_above_relation( above, under );
-    }
-
-    index_t StratigraphicRelationships::add_unconformity_relation(
-        const ComponentID& component_1,
-        const ComponentID& component_2,
-        StratigraphicRelationshipsBuilderKey )
-    {
-        return impl_->add_unconformity_relation( component_1, component_2 );
     }
 
     void StratigraphicRelationships::remove_relation(
@@ -475,12 +311,6 @@ namespace geode
         const uuid& id1, const uuid& id2, StratigraphicRelationshipsBuilderKey )
     {
         impl_->remove_above_relation( id1, id2 );
-    }
-
-    void StratigraphicRelationships::remove_unconformity_relation(
-        const uuid& id1, const uuid& id2, StratigraphicRelationshipsBuilderKey )
-    {
-        impl_->remove_unconformity_relation( id1, id2 );
     }
 
     void StratigraphicRelationships::save_stratigraphic_relationships(

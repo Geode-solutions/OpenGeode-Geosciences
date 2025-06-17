@@ -56,11 +56,6 @@ namespace geode
          */
         void remove_above_relation( const uuid& id1, const uuid& id2 );
 
-        /*!
-         * Remove an unconformity relationship between two components
-         */
-        void remove_unconformity_relation( const uuid& id1, const uuid& id2 );
-
         void copy_stratigraphic_relationships( const ModelCopyMapping& mapping,
             const StratigraphicRelationships& relationships );
 
@@ -73,12 +68,6 @@ namespace geode
          */
         index_t add_above_relation(
             const ComponentID& above, const ComponentID& under );
-
-        /*!
-         * Adds a new unconformity relationship between two components
-         */
-        index_t add_unconformity_relation(
-            const ComponentID& component_1, const ComponentID& component_2 );
 
     private:
         StratigraphicRelationships& relationships_;

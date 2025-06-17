@@ -122,9 +122,9 @@ namespace geode
     }
 
     const uuid& StructuralModelBuilder::add_horizon(
-        typename Horizon3D::HORIZON_TYPE type )
+        typename Horizon3D::CONTACT_TYPE contact_type )
     {
-        const auto& id = create_horizon( type );
+        const auto& id = create_horizon( contact_type );
         detail::add_collection_component(
             *this, structural_model_.horizon( id ) );
         return id;
@@ -138,9 +138,9 @@ namespace geode
     }
 
     void StructuralModelBuilder::add_horizon(
-        const uuid& horizon_id, typename Horizon3D::HORIZON_TYPE type )
+        const uuid& horizon_id, typename Horizon3D::CONTACT_TYPE contact_type )
     {
-        create_horizon( horizon_id, type );
+        create_horizon( horizon_id, contact_type );
         detail::add_collection_component(
             *this, structural_model_.horizon( horizon_id ) );
     }

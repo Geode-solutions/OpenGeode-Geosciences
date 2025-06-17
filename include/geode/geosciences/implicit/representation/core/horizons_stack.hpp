@@ -57,14 +57,6 @@ namespace geode
         PASSKEY( HorizonsStackBuilder< dimension >, HorizonsStackBuilderKey );
 
     public:
-        enum struct HORIZON_TYPE
-        {
-            conformal,
-            erosion,
-            baselap,
-            discontinuity
-        };
-
         enum struct RANGEORDER
         {
             bottom_to_top,
@@ -169,8 +161,6 @@ namespace geode
         [[nodiscard]] HorizonOrderedRange top_to_bottom_horizons() const;
 
         [[nodiscard]] StratigraphicUnitOrderedRange top_to_bottom_units() const;
-
-        [[nodiscard]] HORIZON_TYPE horizon_type( const uuid& horizon_id ) const;
 
         [[nodiscard]] std::string string() const;
 

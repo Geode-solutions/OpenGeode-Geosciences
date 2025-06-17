@@ -29,19 +29,20 @@
     pybind11::class_< Horizon##dimension##D, Component##dimension##D >         \
         horizon##dimension##D( module, name##dimension.c_str() );              \
                                                                                \
-    horizon##dimension##D.def( "has_type", &Horizon##dimension##D::has_type )  \
-        .def( "type", &Horizon##dimension##D::type )                           \
+    horizon##dimension##D                                                      \
+        .def( "contact_type", &Horizon##dimension##D::contact_type )           \
         .def( "component_id", &Horizon##dimension##D::component_id );          \
                                                                                \
-    pybind11::enum_< Horizon##dimension##D::HORIZON_TYPE >(                    \
-        horizon##dimension##D, "HORIZON_TYPE" )                                \
-        .value( "NO_TYPE", Horizon##dimension##D::HORIZON_TYPE::no_type )      \
-        .value( "CONFORMAL", Horizon##dimension##D::HORIZON_TYPE::conformal )  \
-        .value( "NON_CONFORMAL",                                               \
-            Horizon##dimension##D::HORIZON_TYPE::non_conformal )               \
+    pybind11::enum_< Horizon##dimension##D::CONTACT_TYPE >(                    \
+        horizon##dimension##D, "CONTACT_TYPE" )                                \
+        .value( "CONFORMAL", Horizon##dimension##D::CONTACT_TYPE::conformal )  \
+        .value( "EROSION", Horizon##dimension##D::CONTACT_TYPE::erosion )      \
+        .value( "BASELAP", Horizon##dimension##D::CONTACT_TYPE::baselap )      \
+        .value( "DISCONTINUITY",                                               \
+            Horizon##dimension##D::CONTACT_TYPE::discontinuity )               \
         .value(                                                                \
-            "TOPOGRAPHY", Horizon##dimension##D::HORIZON_TYPE::topography )    \
-        .value( "INTRUSION", Horizon##dimension##D::HORIZON_TYPE::intrusion )
+            "TOPOGRAPHY", Horizon##dimension##D::CONTACT_TYPE::topography )    \
+        .value( "INTRUSION", Horizon##dimension##D::CONTACT_TYPE::intrusion )
 
 namespace geode
 {

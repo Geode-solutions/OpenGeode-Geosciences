@@ -43,13 +43,6 @@ namespace geode
         return relationships_.add_above_relation( above, under, {} );
     }
 
-    index_t StratigraphicRelationshipsBuilder::add_unconformity_relation(
-        const ComponentID& component_1, const ComponentID& component_2 )
-    {
-        return relationships_.add_unconformity_relation(
-            component_1, component_2, {} );
-    }
-
     void StratigraphicRelationshipsBuilder::remove_relation(
         const uuid& id1, const uuid& id2 )
     {
@@ -60,12 +53,6 @@ namespace geode
         const uuid& id1, const uuid& id2 )
     {
         relationships_.remove_above_relation( id1, id2, {} );
-    }
-
-    void StratigraphicRelationshipsBuilder::remove_unconformity_relation(
-        const uuid& id1, const uuid& id2 )
-    {
-        relationships_.remove_unconformity_relation( id1, id2, {} );
     }
 
     void StratigraphicRelationshipsBuilder::copy_stratigraphic_relationships(

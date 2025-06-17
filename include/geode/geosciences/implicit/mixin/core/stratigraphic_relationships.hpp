@@ -63,10 +63,6 @@ namespace geode
 
         [[nodiscard]] std::optional< uuid > under( const uuid& element ) const;
 
-        [[nodiscard]] bool is_conformal_above( const uuid& element ) const;
-
-        [[nodiscard]] bool is_conformal_under( const uuid& element ) const;
-
         void save_stratigraphic_relationships(
             std::string_view directory ) const;
 
@@ -86,10 +82,6 @@ namespace geode
             const ComponentID& under,
             StratigraphicRelationshipsBuilderKey );
 
-        index_t add_unconformity_relation( const ComponentID& component_1,
-            const ComponentID& component_2,
-            StratigraphicRelationshipsBuilderKey );
-
         /*!
          * Remove all relations between two components
          */
@@ -101,13 +93,6 @@ namespace geode
          * Removes any above/under relationship between two components
          */
         void remove_above_relation( const uuid& id1,
-            const uuid& id2,
-            StratigraphicRelationshipsBuilderKey );
-
-        /*!
-         * Removes any unconformity relationship between two components
-         */
-        void remove_unconformity_relation( const uuid& id1,
             const uuid& id2,
             StratigraphicRelationshipsBuilderKey );
 

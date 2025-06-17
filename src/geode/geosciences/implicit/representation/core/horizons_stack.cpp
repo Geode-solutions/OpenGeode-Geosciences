@@ -164,24 +164,6 @@ namespace geode
     }
 
     template < index_t dimension >
-    bool HorizonsStack< dimension >::is_eroded_by(
-        const StratigraphicUnit< dimension >& eroded,
-        const Horizon< dimension >& erosion ) const
-    {
-        return StratigraphicRelationships::is_eroded_by(
-            eroded.id(), erosion.id() );
-    }
-
-    template < index_t dimension >
-    bool HorizonsStack< dimension >::is_baselap_of(
-        const Horizon< dimension >& baselap,
-        const StratigraphicUnit< dimension >& baselap_top ) const
-    {
-        return StratigraphicRelationships::is_baselap_of(
-            baselap.id(), baselap_top.id() );
-    }
-
-    template < index_t dimension >
     std::string HorizonsStack< dimension >::string() const
     {
         auto result = absl::StrCat(
@@ -192,15 +174,32 @@ namespace geode
             ", named ", top_unit.name() );
         for( const auto& horizon : this->top_to_bottom_horizons() )
         {
-            if( !this->is_conformal_above( horizon.id() ) )
+            absl::StrAppend( &result, "\n ---", horizon.component_id().string(),
+                ", named ", horizon.name(), " ---" );
+            if( this->horizon( horizon.id() ).contact_type()
+                == Horizon< dimension >::CONTACT_TYPE::erosion )
             {
-                absl::StrAppend( &result, "\n Unconformal above" );
+                absl::StrAppend( &result, "\n -- Erosion --" );
             }
-            absl::StrAppend( &result, "\n---", horizon.component_id().string(),
-                ", named ", horizon.name() );
-            if( !this->is_conformal_under( horizon.id() ) )
+            if( this->horizon( horizon.id() ).contact_type()
+                == Horizon< dimension >::CONTACT_TYPE::baselap )
             {
-                absl::StrAppend( &result, "\n Unconformal under" );
+                absl::StrAppend( &result, "\n -- Baselap --" );
+            }
+            if( this->horizon( horizon.id() ).contact_type()
+                == Horizon< dimension >::CONTACT_TYPE::discontinuity )
+            {
+                absl::StrAppend( &result, "\n -- Discontinuity --" );
+            }
+            if( this->horizon( horizon.id() ).contact_type()
+                == Horizon< dimension >::CONTACT_TYPE::topography )
+            {
+                absl::StrAppend( &result, "\n -- Topography --" );
+            }
+            if( this->horizon( horizon.id() ).contact_type()
+                == Horizon< dimension >::CONTACT_TYPE::intrusion )
+            {
+                absl::StrAppend( &result, "\n -- Intrusion --" );
             }
             const auto& under_unit =
                 this->stratigraphic_unit( this->under( horizon.id() ).value() );

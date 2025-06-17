@@ -109,9 +109,6 @@ namespace geode
         void set_horizon_under( const Horizon< dimension >& horizon_under,
             const StratigraphicUnit< dimension >& strati_unit_above );
 
-        void set_horizon_type( const Horizon< dimension >& horizon_id,
-            typename HorizonsStack< dimension >::HORIZON_TYPE type );
-
         void remove_horizon( const Horizon< dimension >& horizon );
 
         void remove_stratigraphic_unit(

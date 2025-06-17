@@ -203,59 +203,6 @@ namespace geode
     }
 
     template < index_t dimension >
-    void HorizonsStackBuilder< dimension >::set_horizon_type(
-        const Horizon< dimension >& horizon,
-        typename HorizonsStack< dimension >::HORIZON_TYPE type )
-    {
-        if( type == HorizonsStack< dimension >::HORIZON_TYPE::conformal )
-        {
-            return;
-        }
-        if( type == HorizonsStack< dimension >::HORIZON_TYPE::erosion
-            || type == HorizonsStack< dimension >::HORIZON_TYPE::discontinuity )
-        {
-            const auto& unit_under_id = horizons_stack_.under( horizon.id() );
-            if( unit_under_id )
-            {
-                StratigraphicRelationshipsBuilder::add_unconformity_relation(
-                    horizon.component_id(),
-                    horizons_stack_.stratigraphic_unit( unit_under_id.value() )
-                        .component_id(),
-                    type );
-            }
-            else
-            {
-                geode::Logger::warn(
-                    "[HorizonsStackBuilder::set_horizon_type] Could not find "
-                    "unit under horizon ",
-                    horizon.id().string(),
-                    ", cannot set erosional contact between the two." );
-            }
-        }
-        if( type == HorizonsStack< dimension >::HORIZON_TYPE::baselap
-            || type == HorizonsStack< dimension >::HORIZON_TYPE::discontinuity )
-        {
-            const auto& unit_above_id = horizons_stack_.above( horizon.id() );
-            if( unit_above_id )
-            {
-                StratigraphicRelationshipsBuilder::add_unconformity_relation(
-                    horizon.component_id(),
-                    horizons_stack_.stratigraphic_unit( unit_above_id.value() )
-                        .component_id(),
-                    type );
-            }
-            else
-            {
-                geode::Logger::warn(
-                    "[HorizonsStackBuilder::set_horizon_type] Could not find "
-                    "unit above horizon ",
-                    horizon.id().string(),
-                    ", cannot set baselap contact between the two." );
-            }
-        }
-    }
-
-    template < index_t dimension >
     void HorizonsStackBuilder< dimension >::compute_top_and_bottom_horizons()
     {
         horizons_stack_.compute_top_and_bottom_horizons( {} );
