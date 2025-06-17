@@ -177,7 +177,7 @@ namespace geode
             const auto contact_type = this->horizon( component ).contact_type();
             return contact_type == Horizon< dimension >::CONTACT_TYPE::conformal
                    || contact_type
-                          != Horizon< dimension >::CONTACT_TYPE::erosion;
+                          == Horizon< dimension >::CONTACT_TYPE::erosion;
         }
         else
         {
@@ -208,7 +208,7 @@ namespace geode
             const auto contact_type = this->horizon( component ).contact_type();
             return contact_type == Horizon< dimension >::CONTACT_TYPE::conformal
                    || contact_type
-                          != Horizon< dimension >::CONTACT_TYPE::baselap;
+                          == Horizon< dimension >::CONTACT_TYPE::baselap;
         }
         else
         {
