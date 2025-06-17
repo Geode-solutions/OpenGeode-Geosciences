@@ -60,9 +60,16 @@ namespace geode
     bool is_cross_section_saveable(
         const CrossSection& cross_section, std::string_view filename )
     {
-        const auto output =
-            detail::geode_object_output_writer< CrossSectionOutputFactory >(
-                filename );
-        return output->is_saveable( cross_section );
+        try
+        {
+            const auto output =
+                detail::geode_object_output_writer< CrossSectionOutputFactory >(
+                    filename );
+            return output->is_saveable( cross_section );
+        }
+        catch( ... )
+        {
+            return false;
+        }
     }
 } // namespace geode

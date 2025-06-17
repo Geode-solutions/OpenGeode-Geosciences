@@ -92,8 +92,15 @@ namespace geode
 
     bool is_implicit_cross_section_loadable( std::string_view filename )
     {
-        const auto input = detail::geode_object_input_reader<
-            ImplicitCrossSectionInputFactory >( filename );
-        return input->is_loadable();
+        try
+        {
+            const auto input = detail::geode_object_input_reader<
+                ImplicitCrossSectionInputFactory >( filename );
+            return input->is_loadable();
+        }
+        catch( ... )
+        {
+            return false;
+        }
     }
 } // namespace geode
