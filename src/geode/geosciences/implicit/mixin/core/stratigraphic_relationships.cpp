@@ -238,8 +238,8 @@ namespace geode
                              bitsery::ext::StdSmartPtr{} );
                          std::shared_ptr< SparseAttribute< index_t > >
                              v0_unconformity_relations;
-                         archive2.ext(
-                             v0_pointer, bitsery::ext::StdSmartPtr{} );
+                         archive2.ext( v0_unconformity_relations,
+                             bitsery::ext::StdSmartPtr{} );
                          std::vector< bool > to_delete(
                              impl.graph_->nb_edges(), false );
                          for( const auto edge_id :
