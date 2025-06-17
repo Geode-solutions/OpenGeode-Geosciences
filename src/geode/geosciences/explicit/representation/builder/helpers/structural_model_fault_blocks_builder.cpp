@@ -45,32 +45,30 @@ namespace
         }
         return std::nullopt;
     }
-} // namespace
 
-namespace geode
-{
-    void build_structural_model_fault_blocks(
-        StructuralModel& structural_model )
+    void add_all_blocks_to_single_fault_block(
+        geode::StructuralModel& structural_model,
+        geode::StructuralModelBuilder& builder )
     {
-        StructuralModelBuilder builder( structural_model );
-        if( structural_model.nb_faults() == 0 )
+        const auto& fault_block =
+            structural_model.fault_block( builder.add_fault_block() );
+        for( const auto& block : structural_model.blocks() )
         {
-            const auto& fault_block =
-                structural_model.fault_block( builder.add_fault_block() );
-            for( const auto& block : structural_model.blocks() )
-            {
-                builder.add_block_in_fault_block( block, fault_block );
-            }
-            return;
+            builder.add_block_in_fault_block( block, fault_block );
         }
-        std::queue< uuid > fault_queue;
-        std::vector< uuid > visited;
-        std::vector< uuid > treated_faults;
+    }
+
+    void build_fault_blocks( geode::StructuralModel& structural_model,
+        geode::StructuralModelBuilder& builder )
+    {
+        std::queue< geode::uuid > fault_queue;
+        std::vector< geode::uuid > visited;
+        std::vector< geode::uuid > treated_faults;
         const auto& first_block = *structural_model.blocks().begin();
         fault_queue.push( first_block.id() );
         while( !fault_queue.empty() )
         {
-            std::queue< uuid > block_queue;
+            std::queue< geode::uuid > block_queue;
             block_queue.push( fault_queue.front() );
             visited.push_back( fault_queue.front() );
             fault_queue.pop();
@@ -109,17 +107,45 @@ namespace geode
                         }
                         continue;
                     }
-                    for( const auto& incident_block :
-                        structural_model.incidences( boundary ) )
-                    {
-                        if( !absl::c_contains( visited, incident_block.id() ) )
-                        {
-                            block_queue.push( incident_block.id() );
-                            visited.push_back( incident_block.id() );
-                        }
-                    }
+                    add_incident_blocks_to_queue(
+                        structural_model, boundary, block_queue, visited );
                 }
             }
         }
     }
+
+    void add_incident_blocks_to_queue(
+        const geode::StructuralModel& structural_model,
+        const geode::Surface3D& boundary,
+        std::queue< geode::uuid >& block_queue,
+        std::vector< geode::uuid >& visited )
+    {
+        for( const auto& incident_block :
+            structural_model.incidences( boundary ) )
+        {
+            if( !absl::c_contains( visited, incident_block.id() ) )
+            {
+                block_queue.push( incident_block.id() );
+                visited.push_back( incident_block.id() );
+            }
+        }
+    }
+} // namespace
+
+namespace geode
+{
+
+    void build_structural_model_fault_blocks(
+        StructuralModel& structural_model )
+    {
+        StructuralModelBuilder builder( structural_model );
+
+        if( structural_model.nb_faults() == 0 )
+        {
+            add_all_blocks_to_single_fault_block( structural_model, builder );
+            return;
+        }
+        build_fault_blocks( structural_model, builder );
+    }
+
 } // namespace geode
