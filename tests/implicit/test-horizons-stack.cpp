@@ -110,6 +110,8 @@ void test_horizons_stack()
         geode::HorizonsStack3D::native_extension_static() );
     geode::save_horizons_stack( horizons_stack, stack_path );
     auto reloaded_stack = geode::load_horizons_stack< 3 >( stack_path );
+    auto reloaded_stack_v0 = geode::load_horizons_stack< 3 >(
+        absl::StrCat( geode::DATA_PATH, "test_HorizonStack_v0.og_hst3d" ) );
 }
 
 void test_create_horizons_stack()

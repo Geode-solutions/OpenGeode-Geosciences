@@ -236,6 +236,10 @@ namespace geode
                                        detail::RelationshipsImpl >{} );
                          archive2.ext( impl.above_relations_,
                              bitsery::ext::StdSmartPtr{} );
+                         std::shared_ptr< SparseAttribute< index_t > >
+                             v0_unconformity_relations;
+                         archive2.ext(
+                             v0_pointer, bitsery::ext::StdSmartPtr{} );
                          std::vector< bool > to_delete(
                              impl.graph_->nb_edges(), false );
                          for( const auto edge_id :
