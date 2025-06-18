@@ -47,7 +47,7 @@ namespace
     }
 
     void add_all_blocks_to_single_fault_block(
-        geode::StructuralModel& structural_model,
+        const geode::StructuralModel& structural_model,
         geode::StructuralModelBuilder& builder )
     {
         const auto& fault_block =
@@ -75,72 +75,52 @@ namespace
         }
     }
 
-    void build_fault_blocks( geode::StructuralModel& structural_model,
+    void build_fault_blocks( const geode::StructuralModel& structural_model,
         geode::StructuralModelBuilder& builder )
     {
-        std::queue< geode::uuid > fault_queue;
         std::vector< geode::uuid > visited;
         std::vector< geode::uuid > treated_faults;
-        const auto& first_block = *structural_model.blocks().begin();
-        fault_queue.push( first_block.id() );
-        while( !fault_queue.empty() )
+        for( const auto& block : structural_model.blocks() )
         {
             std::queue< geode::uuid > block_queue;
-            block_queue.push( fault_queue.front() );
-            visited.push_back( fault_queue.front() );
-            fault_queue.pop();
+            const auto block_id = block.id();
+            if( absl::c_contains( visited, block_id ) )
+            {
+                continue;
+            }
+            block_queue.push( block_id );
+            visited.push_back( block_id );
             const auto& fault_block =
                 structural_model.fault_block( builder.add_fault_block() );
             while( !block_queue.empty() )
             {
-                const auto block_id = block_queue.front();
+                const auto current_block_id = block_queue.front();
                 block_queue.pop();
-                const auto& block = structural_model.block( block_id );
-                builder.add_block_in_fault_block( block, fault_block );
+                const auto& curent_block =
+                    structural_model.block( current_block_id );
+                builder.add_block_in_fault_block( curent_block, fault_block );
                 for( const auto& boundary :
-                    structural_model.boundaries( block ) )
+                    structural_model.boundaries( curent_block ) )
                 {
                     const auto fault_id =
                         is_fault( structural_model, boundary );
-                    if( fault_id )
+                    if( !fault_id )
                     {
-                        if( absl::c_contains(
-                                treated_faults, fault_id.value() ) )
-                        {
-                            continue;
-                        }
-                        treated_faults.push_back( fault_id.value() );
-                        for( const auto& incident_block :
-                            structural_model.incidences( boundary ) )
-                        {
-                            if( !absl::c_contains(
-                                    visited, incident_block.id() )
-                                && incident_block.id() != block.id() )
-                            {
-                                fault_queue.push( incident_block.id() );
-                                visited.push_back( incident_block.id() );
-                                continue;
-                            }
-                        }
-                        continue;
+                        add_incident_blocks_to_queue(
+                            structural_model, boundary, block_queue, visited );
                     }
-                    add_incident_blocks_to_queue(
-                        structural_model, boundary, block_queue, visited );
                 }
             }
         }
     }
 
 } // namespace
-
 namespace geode
 {
-
     void build_structural_model_fault_blocks(
         StructuralModel& structural_model )
     {
         StructuralModelBuilder builder( structural_model );
-
         if( structural_model.nb_faults() == 0 )
         {
             add_all_blocks_to_single_fault_block( structural_model, builder );
@@ -148,5 +128,4 @@ namespace geode
         }
         build_fault_blocks( structural_model, builder );
     }
-
 } // namespace geode

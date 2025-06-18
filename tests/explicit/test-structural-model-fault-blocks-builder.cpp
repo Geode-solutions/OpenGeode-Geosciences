@@ -51,7 +51,6 @@ int main()
     try
     {
         geode::GeosciencesExplicitLibrary::initialize();
-        geode::Logger::set_level( geode::Logger::LEVEL::trace );
         test_structural_model_fault_blocks_builder();
         geode::Logger::info( "TEST SUCCESS" );
         return 0;
