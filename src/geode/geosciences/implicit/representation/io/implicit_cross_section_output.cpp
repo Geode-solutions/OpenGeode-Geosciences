@@ -65,8 +65,15 @@ namespace geode
     bool is_implicit_cross_section_saveable(
         const ImplicitCrossSection& section, std::string_view filename )
     {
-        const auto output = detail::geode_object_output_writer<
-            ImplicitCrossSectionOutputFactory >( filename );
-        return output->is_saveable( section );
+        try
+        {
+            const auto output = detail::geode_object_output_writer<
+                ImplicitCrossSectionOutputFactory >( filename );
+            return output->is_saveable( section );
+        }
+        catch( ... )
+        {
+            return false;
+        }
     }
 } // namespace geode

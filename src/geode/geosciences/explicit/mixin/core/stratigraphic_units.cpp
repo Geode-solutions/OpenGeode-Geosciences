@@ -23,6 +23,7 @@
 
 #include <geode/geosciences/explicit/mixin/core/stratigraphic_units.hpp>
 
+#include <geode/basic/detail/count_range_elements.hpp>
 #include <geode/basic/identifier_builder.hpp>
 #include <geode/basic/pimpl_impl.hpp>
 #include <geode/basic/range.hpp>
@@ -57,6 +58,13 @@ namespace geode
     index_t StratigraphicUnits< dimension >::nb_stratigraphic_units() const
     {
         return impl_->nb_components();
+    }
+
+    template < index_t dimension >
+    index_t
+        StratigraphicUnits< dimension >::nb_active_stratigraphic_units() const
+    {
+        return detail::count_range_elements( active_stratigraphic_units() );
     }
 
     template < index_t dimension >
@@ -99,16 +107,25 @@ namespace geode
     }
 
     template < index_t dimension >
-    typename StratigraphicUnits< dimension >::StratigraphicUnitRange
-        StratigraphicUnits< dimension >::stratigraphic_units() const
+    auto StratigraphicUnits< dimension >::stratigraphic_units() const
+        -> StratigraphicUnitRange
     {
         return { *this };
     }
 
     template < index_t dimension >
-    typename StratigraphicUnits< dimension >::ModifiableStratigraphicUnitRange
-        StratigraphicUnits< dimension >::modifiable_stratigraphic_units(
-            StratigraphicUnitsBuilderKey /*unused*/ )
+    auto StratigraphicUnits< dimension >::active_stratigraphic_units() const
+        -> StratigraphicUnitRange
+    {
+        StratigraphicUnitRange range{ *this };
+        range.set_active_only();
+        return range;
+    }
+
+    template < index_t dimension >
+    auto StratigraphicUnits< dimension >::modifiable_stratigraphic_units(
+        StratigraphicUnitsBuilderKey /*unused*/ )
+        -> ModifiableStratigraphicUnitRange
     {
         return { *this };
     }
@@ -165,6 +182,31 @@ namespace geode
         {
             return *this->current()->second;
         }
+
+        void set_active_only()
+        {
+            active_only_ = true;
+            next_stratigraphic_unit();
+        }
+
+        void next()
+        {
+            this->operator++();
+            next_stratigraphic_unit();
+        }
+
+    private:
+        void next_stratigraphic_unit()
+        {
+            while( this->operator!=( *this )
+                   && ( active_only_ && !stratigraphic_unit().is_active() ) )
+            {
+                this->operator++();
+            }
+        }
+
+    private:
+        bool active_only_{ false };
     };
 
     template < index_t dimension >
@@ -203,9 +245,16 @@ namespace geode
 
     template < index_t dimension >
     void StratigraphicUnits<
+        dimension >::StratigraphicUnitRangeBase::set_active_only()
+    {
+        impl_->set_active_only();
+    }
+
+    template < index_t dimension >
+    void StratigraphicUnits<
         dimension >::StratigraphicUnitRangeBase::operator++()
     {
-        return impl_->operator++();
+        return impl_->next();
     }
 
     template < index_t dimension >

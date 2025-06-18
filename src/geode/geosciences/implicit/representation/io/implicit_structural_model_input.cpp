@@ -95,8 +95,15 @@ namespace geode
 
     bool is_implicit_structural_model_loadable( std::string_view filename )
     {
-        const auto input = detail::geode_object_input_reader<
-            ImplicitStructuralModelInputFactory >( filename );
-        return input->is_loadable();
+        try
+        {
+            const auto input = detail::geode_object_input_reader<
+                ImplicitStructuralModelInputFactory >( filename );
+            return input->is_loadable();
+        }
+        catch( ... )
+        {
+            return false;
+        }
     }
 } // namespace geode

@@ -23,6 +23,7 @@
 
 #include <geode/geosciences/explicit/mixin/core/horizons.hpp>
 
+#include <geode/basic/detail/count_range_elements.hpp>
 #include <geode/basic/identifier_builder.hpp>
 #include <geode/basic/pimpl_impl.hpp>
 #include <geode/basic/range.hpp>
@@ -56,6 +57,12 @@ namespace geode
     index_t Horizons< dimension >::nb_horizons() const
     {
         return impl_->nb_components();
+    }
+
+    template < index_t dimension >
+    index_t Horizons< dimension >::nb_active_horizons() const
+    {
+        return detail::count_range_elements( active_horizons() );
     }
 
     template < index_t dimension >
@@ -93,16 +100,22 @@ namespace geode
     }
 
     template < index_t dimension >
-    typename Horizons< dimension >::HorizonRange
-        Horizons< dimension >::horizons() const
+    auto Horizons< dimension >::horizons() const -> HorizonRange
     {
         return { *this };
     }
 
     template < index_t dimension >
-    typename Horizons< dimension >::ModifiableHorizonRange
-        Horizons< dimension >::modifiable_horizons(
-            HorizonsBuilderKey /*unused*/ )
+    auto Horizons< dimension >::active_horizons() const -> HorizonRange
+    {
+        HorizonRange range{ *this };
+        range.set_active_only();
+        return range;
+    }
+
+    template < index_t dimension >
+    auto Horizons< dimension >::modifiable_horizons(
+        HorizonsBuilderKey /*unused*/ ) -> ModifiableHorizonRange
     {
         return { *this };
     }
@@ -182,6 +195,31 @@ namespace geode
         {
             return *this->current()->second;
         }
+
+        void set_active_only()
+        {
+            active_only_ = true;
+            next_horizon();
+        }
+
+        void next()
+        {
+            this->operator++();
+            next_horizon();
+        }
+
+    private:
+        void next_horizon()
+        {
+            while( this->operator!=( *this )
+                   && ( active_only_ && !horizon().is_active() ) )
+            {
+                this->operator++();
+            }
+        }
+
+    private:
+        bool active_only_{ false };
     };
 
     template < index_t dimension >
@@ -213,9 +251,15 @@ namespace geode
     }
 
     template < index_t dimension >
+    void Horizons< dimension >::HorizonRangeBase::set_active_only()
+    {
+        impl_->set_active_only();
+    }
+
+    template < index_t dimension >
     void Horizons< dimension >::HorizonRangeBase::operator++()
     {
-        return impl_->operator++();
+        return impl_->next();
     }
 
     template < index_t dimension >

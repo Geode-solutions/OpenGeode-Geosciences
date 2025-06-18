@@ -23,6 +23,7 @@
 
 #include <geode/geosciences/explicit/mixin/core/fault_blocks.hpp>
 
+#include <geode/basic/detail/count_range_elements.hpp>
 #include <geode/basic/identifier_builder.hpp>
 #include <geode/basic/pimpl_impl.hpp>
 #include <geode/basic/range.hpp>
@@ -56,6 +57,12 @@ namespace geode
     index_t FaultBlocks< dimension >::nb_fault_blocks() const
     {
         return impl_->nb_components();
+    }
+
+    template < index_t dimension >
+    index_t FaultBlocks< dimension >::nb_active_fault_blocks() const
+    {
+        return detail::count_range_elements( active_fault_blocks() );
     }
 
     template < index_t dimension >
@@ -93,16 +100,23 @@ namespace geode
     }
 
     template < index_t dimension >
-    typename FaultBlocks< dimension >::FaultBlockRange
-        FaultBlocks< dimension >::fault_blocks() const
+    auto FaultBlocks< dimension >::fault_blocks() const -> FaultBlockRange
     {
         return { *this };
     }
 
     template < index_t dimension >
-    typename FaultBlocks< dimension >::ModifiableFaultBlockRange
-        FaultBlocks< dimension >::modifiable_fault_blocks(
-            FaultBlocksBuilderKey /*unused*/ )
+    auto FaultBlocks< dimension >::active_fault_blocks() const
+        -> FaultBlockRange
+    {
+        FaultBlockRange range{ *this };
+        range.set_active_only();
+        return range;
+    }
+
+    template < index_t dimension >
+    auto FaultBlocks< dimension >::modifiable_fault_blocks(
+        FaultBlocksBuilderKey /*unused*/ ) -> ModifiableFaultBlockRange
     {
         return { *this };
     }
@@ -156,6 +170,31 @@ namespace geode
         {
             return *this->current()->second;
         }
+
+        void set_active_only()
+        {
+            active_only_ = true;
+            next_fault_block();
+        }
+
+        void next()
+        {
+            this->operator++();
+            next_fault_block();
+        }
+
+    private:
+        void next_fault_block()
+        {
+            while( this->operator!=( *this )
+                   && ( active_only_ && !fault_block().is_active() ) )
+            {
+                this->operator++();
+            }
+        }
+
+    private:
+        bool active_only_{ false };
     };
 
     template < index_t dimension >
@@ -188,9 +227,15 @@ namespace geode
     }
 
     template < index_t dimension >
+    void FaultBlocks< dimension >::FaultBlockRangeBase::set_active_only()
+    {
+        impl_->set_active_only();
+    }
+
+    template < index_t dimension >
     void FaultBlocks< dimension >::FaultBlockRangeBase::operator++()
     {
-        return impl_->operator++();
+        return impl_->next();
     }
 
     template < index_t dimension >

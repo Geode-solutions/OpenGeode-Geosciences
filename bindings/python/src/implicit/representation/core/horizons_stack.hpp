@@ -36,6 +36,14 @@
             &HorizonsStack##dimension##D::native_extension )                   \
         .def( "top_horizon", &HorizonsStack##dimension##D::top_horizon )       \
         .def( "bottom_horizon", &HorizonsStack##dimension##D::bottom_horizon ) \
+        .def( "bottom_to_top_horizons",                                        \
+            &HorizonsStack##dimension##D::bottom_to_top_horizons )             \
+        .def( "bottom_to_top_units",                                           \
+            &HorizonsStack##dimension##D::bottom_to_top_units )                \
+        .def( "top_to_bottom_horizons",                                        \
+            &HorizonsStack##dimension##D::top_to_bottom_horizons )             \
+        .def( "top_to_bottom_units",                                           \
+            &HorizonsStack##dimension##D::top_to_bottom_units )                \
         .def( "is_eroded_by", &HorizonsStack##dimension##D::is_eroded_by )     \
         .def( "is_baselap_of", &HorizonsStack##dimension##D::is_baselap_of )
 

@@ -62,9 +62,16 @@ namespace geode
         const HorizonsStack< dimension >& horizons_stack,
         std::string_view filename )
     {
-        const auto output = detail::geode_object_output_writer<
-            HorizonsStackOutputFactory< dimension > >( filename );
-        return output->is_saveable( horizons_stack );
+        try
+        {
+            const auto output = detail::geode_object_output_writer<
+                HorizonsStackOutputFactory< dimension > >( filename );
+            return output->is_saveable( horizons_stack );
+        }
+        catch( ... )
+        {
+            return false;
+        }
     }
 
     template std::vector< std::string > opengeode_geosciences_implicit_api

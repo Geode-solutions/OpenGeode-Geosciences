@@ -53,6 +53,10 @@ namespace geode
             .def( "horizons_stack", &ImplicitCrossSection::horizons_stack,
                 pybind11::return_value_policy::reference )
             .def( "horizon_implicit_value",
-                &ImplicitCrossSection::horizon_implicit_value );
+                &ImplicitCrossSection::horizon_implicit_value )
+            .def( "implicit_value_is_above_horizon",
+                &ImplicitCrossSection::implicit_value_is_above_horizon )
+            .def( "containing_stratigraphic_unit",
+                &ImplicitCrossSection::containing_stratigraphic_unit );
     }
 } // namespace geode

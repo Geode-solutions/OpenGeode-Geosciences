@@ -68,8 +68,15 @@ namespace geode
         const ImplicitStructuralModel& implicit_model,
         std::string_view filename )
     {
-        const auto output = detail::geode_object_output_writer<
-            ImplicitStructuralModelOutputFactory >( filename );
-        return output->is_saveable( implicit_model );
+        try
+        {
+            const auto output = detail::geode_object_output_writer<
+                ImplicitStructuralModelOutputFactory >( filename );
+            return output->is_saveable( implicit_model );
+        }
+        catch( ... )
+        {
+            return false;
+        }
     }
 } // namespace geode
