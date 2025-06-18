@@ -38,11 +38,13 @@ namespace geode
     template < index_t dimension >
     class HorizonsBuilder
     {
+        using CONTACT_TYPE = typename Horizon< dimension >::CONTACT_TYPE;
+
     public:
         void load_horizons( std::string_view directory );
 
-        void set_horizon_contact_type( const uuid& horizon_id,
-            typename Horizon< dimension >::CONTACT_TYPE contact_type );
+        void set_horizon_contact_type(
+            const uuid& horizon_id, CONTACT_TYPE contact_type );
 
         void set_horizon_name( const uuid& id, std::string_view name );
 
@@ -54,13 +56,11 @@ namespace geode
 
         [[nodiscard]] const uuid& create_horizon();
 
-        [[nodiscard]] const uuid& create_horizon(
-            typename Horizon< dimension >::CONTACT_TYPE type );
+        [[nodiscard]] const uuid& create_horizon( CONTACT_TYPE type );
 
         void create_horizon( uuid horizon_id );
 
-        void create_horizon(
-            uuid horizon_id, typename Horizon< dimension >::CONTACT_TYPE type );
+        void create_horizon( uuid horizon_id, CONTACT_TYPE type );
 
         void delete_horizon( const Horizon< dimension >& horizon );
 

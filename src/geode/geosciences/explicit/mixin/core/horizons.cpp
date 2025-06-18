@@ -135,8 +135,7 @@ namespace geode
 
     template < index_t dimension >
     const uuid& Horizons< dimension >::create_horizon(
-        typename Horizon< dimension >::CONTACT_TYPE contact_type,
-        HorizonsBuilderKey /*unused*/ )
+        CONTACT_TYPE contact_type, HorizonsBuilderKey /*unused*/ )
     {
         typename Horizons< dimension >::Impl::ComponentPtr horizon{
             new Horizon< dimension >{
@@ -161,7 +160,7 @@ namespace geode
 
     template < index_t dimension >
     void Horizons< dimension >::create_horizon( uuid horizon_id,
-        typename Horizon< dimension >::CONTACT_TYPE contact_type,
+        CONTACT_TYPE contact_type,
         HorizonsBuilderKey /*unused*/ )
     {
         typename Horizons< dimension >::Impl::ComponentPtr horizon{
