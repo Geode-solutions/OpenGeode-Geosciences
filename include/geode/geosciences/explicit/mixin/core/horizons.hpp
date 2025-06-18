@@ -47,6 +47,7 @@ namespace geode
     public:
         using Builder = HorizonsBuilder< dimension >;
         using Type = Horizon< dimension >;
+        using CONTACT_TYPE = typename Horizon< dimension >::CONTACT_TYPE;
 
         class opengeode_geosciences_explicit_api HorizonRangeBase
         {
@@ -141,13 +142,12 @@ namespace geode
         [[nodiscard]] const uuid& create_horizon( HorizonsBuilderKey key );
 
         [[nodiscard]] const uuid& create_horizon(
-            typename Horizon< dimension >::HORIZON_TYPE type,
-            HorizonsBuilderKey key );
+            CONTACT_TYPE contact_type, HorizonsBuilderKey key );
 
         void create_horizon( uuid horizon_id, HorizonsBuilderKey key );
 
         void create_horizon( uuid horizon_id,
-            typename Horizon< dimension >::HORIZON_TYPE type,
+            CONTACT_TYPE contact_type,
             HorizonsBuilderKey key );
 
         void delete_horizon(

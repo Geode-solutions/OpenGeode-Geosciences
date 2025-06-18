@@ -203,24 +203,6 @@ namespace geode
     }
 
     template < index_t dimension >
-    void HorizonsStackBuilder< dimension >::set_as_erosion_above(
-        const Horizon< dimension >& erosion_horizon,
-        const StratigraphicUnit< dimension >& eroded_unit )
-    {
-        StratigraphicRelationshipsBuilder::add_erosion_relation(
-            erosion_horizon.component_id(), eroded_unit.component_id() );
-    }
-
-    template < index_t dimension >
-    void HorizonsStackBuilder< dimension >::set_as_baselap_under(
-        const Horizon< dimension >& baselap_horizon,
-        const StratigraphicUnit< dimension >& baselaping_unit )
-    {
-        StratigraphicRelationshipsBuilder::add_baselap_relation(
-            baselaping_unit.component_id(), baselap_horizon.component_id() );
-    }
-
-    template < index_t dimension >
     void HorizonsStackBuilder< dimension >::compute_top_and_bottom_horizons()
     {
         horizons_stack_.compute_top_and_bottom_horizons( {} );

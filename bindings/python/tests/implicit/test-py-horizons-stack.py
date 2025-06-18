@@ -61,7 +61,7 @@ def test_horizons_stack():
     geode_imp.save_horizons_stack3D( horizons_stack, stack_path )
     reloaded_stack = geode_imp.load_horizons_stack3D( stack_path )
 
-    stack_from_name_lists = geode_imp.horizons_stack_from_name_list_3d(["hor1","hor2"],["su1","su2","su3"])
+    stack_from_name_lists = geode_imp.horizons_stack_from_bottom_to_top_names_3d(["hor1","hor2"],["su1","su2","su3"])
 
 if __name__ == '__main__':
     print("Starting test")

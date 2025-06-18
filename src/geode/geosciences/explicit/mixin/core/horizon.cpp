@@ -26,42 +26,81 @@
 #include <geode/basic/bitsery_archive.hpp>
 #include <geode/basic/pimpl_impl.hpp>
 
+namespace
+{
+    enum struct BACKWARD_CONTACT_TYPE
+    {
+        /// Default value - No horizon type defined
+        no_type,
+        conformal,
+        non_conformal,
+        topography,
+        intrusion
+    };
+}
+
 namespace geode
 {
     template < index_t dimension >
     class Horizon< dimension >::Impl
     {
     public:
-        HORIZON_TYPE type() const
+        CONTACT_TYPE contact_type() const
         {
-            return horizon_type_;
+            return contact_type_;
         }
 
-        void set_type( HORIZON_TYPE type )
+        void set_contact_type( CONTACT_TYPE contact_type )
         {
-            horizon_type_ = type;
+            contact_type_ = contact_type;
         }
 
         template < typename Archive >
         void serialize( Archive& archive )
         {
             archive.ext( *this,
-                Growable< Archive, Impl >{ { []( Archive& a, Impl& impl ) {
-                    a.value4b( impl.horizon_type_ );
-                } } } );
+                Growable< Archive, Impl >{
+                    { []( Archive& archive2, Impl& impl ) {
+                         BACKWARD_CONTACT_TYPE previous_type;
+                         archive2.value4b( previous_type );
+                         if( previous_type == BACKWARD_CONTACT_TYPE::no_type
+                             || previous_type
+                                    == BACKWARD_CONTACT_TYPE::conformal )
+                         {
+                             impl.contact_type_ = CONTACT_TYPE::conformal;
+                         }
+                         else if( previous_type
+                                  == BACKWARD_CONTACT_TYPE::non_conformal )
+                         {
+                             impl.contact_type_ = CONTACT_TYPE::erosion;
+                         }
+                         else if( previous_type
+                                  == BACKWARD_CONTACT_TYPE::topography )
+                         {
+                             impl.contact_type_ = CONTACT_TYPE::topography;
+                         }
+                         else if( previous_type
+                                  == BACKWARD_CONTACT_TYPE::intrusion )
+                         {
+                             impl.contact_type_ = CONTACT_TYPE::intrusion;
+                         }
+                     },
+                        []( Archive& archive2, Impl& impl ) {
+                            archive2.value4b( impl.contact_type_ );
+                        } } } );
         }
 
     private:
-        HORIZON_TYPE horizon_type_{ HORIZON_TYPE::no_type };
+        CONTACT_TYPE contact_type_{ CONTACT_TYPE::conformal };
     };
 
     template < index_t dimension >
     Horizon< dimension >::Horizon() = default;
 
     template < index_t dimension >
-    Horizon< dimension >::Horizon( typename Horizon::HORIZON_TYPE type )
+    Horizon< dimension >::Horizon( typename Horizon::CONTACT_TYPE type )
     {
-        impl_->set_type( type );
+        impl_->set_contact_type( type );
     }
 
     template < index_t dimension >
@@ -71,23 +110,17 @@ namespace geode
     Horizon< dimension >::~Horizon() = default;
 
     template < index_t dimension >
-    bool Horizon< dimension >::has_type() const
+    typename Horizon< dimension >::CONTACT_TYPE
+        Horizon< dimension >::contact_type() const
     {
-        return type() != HORIZON_TYPE::no_type;
+        return impl_->contact_type();
     }
 
     template < index_t dimension >
-    typename Horizon< dimension >::HORIZON_TYPE
-        Horizon< dimension >::type() const
+    void Horizon< dimension >::set_contact_type(
+        typename Horizon::CONTACT_TYPE contact_type, HorizonsBuilderKey )
     {
-        return impl_->type();
-    }
-
-    template < index_t dimension >
-    void Horizon< dimension >::set_type(
-        typename Horizon::HORIZON_TYPE type, HorizonsBuilderKey )
-    {
-        return impl_->set_type( type );
+        return impl_->set_contact_type( contact_type );
     }
 
     template < index_t dimension >

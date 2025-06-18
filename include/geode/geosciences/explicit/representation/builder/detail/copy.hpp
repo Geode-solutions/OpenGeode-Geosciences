@@ -68,7 +68,8 @@ namespace geode
                     const auto& horizon_id = mapping.in2out( horizon.id() );
                     builder_to.add_horizon( horizon_id );
                     builder_to.set_horizon_name( horizon_id, horizon.name() );
-                    builder_to.set_horizon_type( horizon_id, horizon.type() );
+                    builder_to.set_horizon_contact_type(
+                        horizon_id, horizon.contact_type() );
                 }
                 else
                 {
@@ -76,8 +77,8 @@ namespace geode
                     mapping.map( horizon.id(), new_horizon_id );
                     builder_to.set_horizon_name(
                         new_horizon_id, horizon.name() );
-                    builder_to.set_horizon_type(
-                        new_horizon_id, horizon.type() );
+                    builder_to.set_horizon_contact_type(
+                        new_horizon_id, horizon.contact_type() );
                 }
             }
         }

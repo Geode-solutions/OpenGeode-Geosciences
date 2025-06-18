@@ -43,9 +43,7 @@
         .def( "top_to_bottom_horizons",                                        \
             &HorizonsStack##dimension##D::top_to_bottom_horizons )             \
         .def( "top_to_bottom_units",                                           \
-            &HorizonsStack##dimension##D::top_to_bottom_units )                \
-        .def( "is_eroded_by", &HorizonsStack##dimension##D::is_eroded_by )     \
-        .def( "is_baselap_of", &HorizonsStack##dimension##D::is_baselap_of )
+            &HorizonsStack##dimension##D::top_to_bottom_units )
 
 namespace geode
 {

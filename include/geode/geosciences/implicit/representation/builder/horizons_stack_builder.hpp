@@ -109,12 +109,6 @@ namespace geode
         void set_horizon_under( const Horizon< dimension >& horizon_under,
             const StratigraphicUnit< dimension >& strati_unit_above );
 
-        void set_as_erosion_above( const Horizon< dimension >& erosion_horizon,
-            const StratigraphicUnit< dimension >& eroded_unit );
-
-        void set_as_baselap_under( const Horizon< dimension >& baselap_horizon,
-            const StratigraphicUnit< dimension >& baselaping_unit );
-
         void remove_horizon( const Horizon< dimension >& horizon );
 
         void remove_stratigraphic_unit(

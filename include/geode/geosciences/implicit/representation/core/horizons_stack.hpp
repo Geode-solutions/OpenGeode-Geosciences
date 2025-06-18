@@ -162,12 +162,9 @@ namespace geode
 
         [[nodiscard]] StratigraphicUnitOrderedRange top_to_bottom_units() const;
 
-        [[nodiscard]] bool is_eroded_by(
-            const StratigraphicUnit< dimension >& eroded,
-            const Horizon< dimension >& erosion ) const;
+        [[nodiscard]] bool is_conformal_above( const uuid& component ) const;
 
-        [[nodiscard]] bool is_baselap_of( const Horizon< dimension >& baselap,
-            const StratigraphicUnit< dimension >& baselap_top ) const;
+        [[nodiscard]] bool is_conformal_under( const uuid& component ) const;
 
         [[nodiscard]] std::string string() const;
 
