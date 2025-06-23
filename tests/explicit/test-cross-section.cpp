@@ -73,21 +73,23 @@ void add_horizons(
     geode::CrossSection& model, geode::CrossSectionBuilder& builder )
 {
     const auto& horizon0 = builder.add_horizon();
-    OPENGEODE_EXCEPTION( !model.horizon( horizon0 ).has_type(),
+    OPENGEODE_EXCEPTION( model.horizon( horizon0 ).contact_type()
+                             == geode::Horizon2D::CONTACT_TYPE::conformal,
         "[Test] Addition of a Horizon in CrossSection is not correct" );
 
     const auto& horizon1 =
-        builder.add_horizon( geode::Horizon2D::HORIZON_TYPE::conformal );
-    OPENGEODE_EXCEPTION( model.horizon( horizon1 ).type()
-                             == geode::Horizon2D::HORIZON_TYPE::conformal,
+        builder.add_horizon( geode::Horizon2D::CONTACT_TYPE::conformal );
+    OPENGEODE_EXCEPTION( model.horizon( horizon1 ).contact_type()
+                             == geode::Horizon2D::CONTACT_TYPE::conformal,
         "[Test] Addition of a Horizon in CrossSection is not correct (wrong "
         "type)" );
 
     const auto& horizon2 =
-        builder.add_horizon( geode::Horizon2D::HORIZON_TYPE::no_type );
+        builder.add_horizon( geode::Horizon2D::CONTACT_TYPE::erosion );
     builder.set_horizon_name( horizon2, "horizon2" );
-    OPENGEODE_EXCEPTION( !model.horizon( horizon2 ).has_type(),
-        "[Test] Addition of a Horizon in CrossSection is not correct (no "
+    OPENGEODE_EXCEPTION( model.horizon( horizon2 ).contact_type()
+                             == geode::Horizon2D::CONTACT_TYPE::erosion,
+        "[Test] Addition of a Horizon in CrossSection is not correct (wrong "
         "type)" );
     OPENGEODE_EXCEPTION( model.nb_horizons() == 3,
         "[Test] Number of horizons in CrossSection should be 3" );
@@ -409,13 +411,12 @@ void modify_model(
     }
     for( const auto& horizon : model.horizons() )
     {
-        if( !horizon.has_type() )
+        if( horizon.contact_type()
+            == geode::Horizon2D::CONTACT_TYPE::conformal )
         {
-            builder.set_horizon_type(
-                horizon.id(), geode::Horizon2D::HORIZON_TYPE::non_conformal );
+            builder.set_horizon_contact_type(
+                horizon.id(), geode::Horizon2D::CONTACT_TYPE::erosion );
         }
-        OPENGEODE_EXCEPTION(
-            horizon.has_type(), "[Test] All horizons should have a type" );
     }
 
     // Remove all horizons

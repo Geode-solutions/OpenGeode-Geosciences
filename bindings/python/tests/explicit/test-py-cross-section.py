@@ -46,7 +46,7 @@ def add_faults(model, builder):
 
 def add_horizons(model, builder):
     horizon0 = builder.add_horizon()
-    if model.horizon(horizon0).has_type():
+    if model.horizon(horizon0).contact_type()!=geosciences.Horizon2D.CONTACT_TYPE.CONFORMAL:
         raise ValueError(
             "[Test] Addition of a Horizon in CrossSection is not correct")
 
@@ -305,10 +305,8 @@ def modify_model(model, builder):
     horizons_ids = []
     for horizon in model.horizons():
         horizons_ids.append(horizon.id())
-        builder.set_horizon_type(
-            horizon.id(), geosciences.Horizon2D.HORIZON_TYPE.TOPOGRAPHY)
-        if horizon.has_type() == False:
-            raise ValueError("[Test] All horizon should have a type")
+        builder.set_horizon_contact_type(
+            horizon.id(), geosciences.Horizon2D.CONTACT_TYPE.TOPOGRAPHY)
 
     for horizon_id in horizons_ids:
         builder.remove_horizon(model.horizon(horizon_id))

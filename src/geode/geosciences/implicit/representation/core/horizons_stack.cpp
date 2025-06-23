@@ -164,21 +164,65 @@ namespace geode
     }
 
     template < index_t dimension >
-    bool HorizonsStack< dimension >::is_eroded_by(
-        const StratigraphicUnit< dimension >& eroded,
-        const Horizon< dimension >& erosion ) const
+    bool HorizonsStack< dimension >::is_conformal_above(
+        const uuid& component ) const
     {
-        return StratigraphicRelationships::is_eroded_by(
-            eroded.id(), erosion.id() );
+        auto component_is_a_horizon = this->has_horizon( component );
+        OPENGEODE_EXCEPTION(
+            component_is_a_horizon || this->has_stratigraphic_unit( component ),
+            "[HorizonsStack::is_conformal_above] Component does not exist in "
+            "the stack." );
+        if( component_is_a_horizon )
+        {
+            const auto contact_type = this->horizon( component ).contact_type();
+            return contact_type == Horizon< dimension >::CONTACT_TYPE::conformal
+                   || contact_type
+                          == Horizon< dimension >::CONTACT_TYPE::erosion;
+        }
+        else
+        {
+            const auto& horizon_above = this->above( component );
+            OPENGEODE_EXCEPTION( horizon_above.has_value(),
+                "[HorizonsStack::is_conformal_above] No horizon above given "
+                "stratigraphic unit with id ",
+                component.string() );
+            const auto contact_type =
+                this->horizon( horizon_above.value() ).contact_type();
+            return contact_type == Horizon< dimension >::CONTACT_TYPE::conformal
+                   || contact_type
+                          == Horizon< dimension >::CONTACT_TYPE::baselap;
+        }
     }
 
     template < index_t dimension >
-    bool HorizonsStack< dimension >::is_baselap_of(
-        const Horizon< dimension >& baselap,
-        const StratigraphicUnit< dimension >& baselap_top ) const
+    bool HorizonsStack< dimension >::is_conformal_under(
+        const uuid& component ) const
     {
-        return StratigraphicRelationships::is_baselap_of(
-            baselap.id(), baselap_top.id() );
+        auto component_is_a_horizon = this->has_horizon( component );
+        OPENGEODE_EXCEPTION(
+            component_is_a_horizon || this->has_stratigraphic_unit( component ),
+            "[HorizonsStack::is_conformal_above] Component does not exist in "
+            "the stack." );
+        if( component_is_a_horizon )
+        {
+            const auto contact_type = this->horizon( component ).contact_type();
+            return contact_type == Horizon< dimension >::CONTACT_TYPE::conformal
+                   || contact_type
+                          == Horizon< dimension >::CONTACT_TYPE::baselap;
+        }
+        else
+        {
+            const auto& horizon_under = this->under( component );
+            OPENGEODE_EXCEPTION( horizon_under.has_value(),
+                "[HorizonsStack::is_conformal_under] No horizon under given "
+                "stratigraphic unit with id ",
+                component.string() );
+            const auto contact_type =
+                this->horizon( horizon_under.value() ).contact_type();
+            return contact_type == Horizon< dimension >::CONTACT_TYPE::conformal
+                   || contact_type
+                          == Horizon< dimension >::CONTACT_TYPE::erosion;
+        }
     }
 
     template < index_t dimension >
@@ -192,15 +236,32 @@ namespace geode
             ", named ", top_unit.name() );
         for( const auto& horizon : this->top_to_bottom_horizons() )
         {
-            if( !this->is_conformal_above( horizon.id() ) )
+            absl::StrAppend( &result, "\n ---", horizon.component_id().string(),
+                ", named ", horizon.name(), " ---" );
+            if( this->horizon( horizon.id() ).contact_type()
+                == Horizon< dimension >::CONTACT_TYPE::erosion )
             {
-                absl::StrAppend( &result, "\n Unconformal above" );
+                absl::StrAppend( &result, "\n -- Erosion --" );
             }
-            absl::StrAppend( &result, "\n---", horizon.component_id().string(),
-                ", named ", horizon.name() );
-            if( !this->is_conformal_under( horizon.id() ) )
+            if( this->horizon( horizon.id() ).contact_type()
+                == Horizon< dimension >::CONTACT_TYPE::baselap )
             {
-                absl::StrAppend( &result, "\n Unconformal under" );
+                absl::StrAppend( &result, "\n -- Baselap --" );
+            }
+            if( this->horizon( horizon.id() ).contact_type()
+                == Horizon< dimension >::CONTACT_TYPE::discontinuity )
+            {
+                absl::StrAppend( &result, "\n -- Discontinuity --" );
+            }
+            if( this->horizon( horizon.id() ).contact_type()
+                == Horizon< dimension >::CONTACT_TYPE::topography )
+            {
+                absl::StrAppend( &result, "\n -- Topography --" );
+            }
+            if( this->horizon( horizon.id() ).contact_type()
+                == Horizon< dimension >::CONTACT_TYPE::intrusion )
+            {
+                absl::StrAppend( &result, "\n -- Intrusion --" );
             }
             const auto& under_unit =
                 this->stratigraphic_unit( this->under( horizon.id() ).value() );

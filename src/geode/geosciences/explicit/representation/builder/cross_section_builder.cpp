@@ -123,9 +123,9 @@ namespace geode
     }
 
     const uuid& CrossSectionBuilder::add_horizon(
-        typename Horizon2D::HORIZON_TYPE type )
+        typename Horizon2D::CONTACT_TYPE contact_type )
     {
-        const auto& id = create_horizon( type );
+        const auto& id = create_horizon( contact_type );
         detail::add_collection_component( *this, cross_section_.horizon( id ) );
         return id;
     }
@@ -138,9 +138,9 @@ namespace geode
     }
 
     void CrossSectionBuilder::add_horizon(
-        const uuid& horizon_id, typename Horizon2D::HORIZON_TYPE type )
+        const uuid& horizon_id, typename Horizon2D::CONTACT_TYPE contact_type )
     {
-        create_horizon( horizon_id, type );
+        create_horizon( horizon_id, contact_type );
         detail::add_collection_component(
             *this, cross_section_.horizon( horizon_id ) );
     }

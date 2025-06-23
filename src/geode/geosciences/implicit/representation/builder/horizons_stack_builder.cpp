@@ -54,6 +54,18 @@ namespace geode
         set_name( horizons_stack.name() );
         auto mapping = copy_components( horizons_stack );
         copy_stratigraphic_relationships( mapping, horizons_stack );
+        const auto& horizons_mapping =
+            mapping.at( Horizon< dimension >::component_type_static() );
+        if( const auto horizon_id = horizons_stack.bottom_horizon() )
+        {
+            horizons_stack_.set_bottom_horizon(
+                horizons_mapping.in2out( horizon_id.value() ), {} );
+        }
+        if( const auto horizon_id = horizons_stack.top_horizon() )
+        {
+            horizons_stack_.set_top_horizon(
+                horizons_mapping.in2out( horizon_id.value() ), {} );
+        }
         return mapping;
     }
 
@@ -81,6 +93,18 @@ namespace geode
         set_name( horizons_stack.name() );
         copy_components( mapping, horizons_stack );
         copy_stratigraphic_relationships( mapping, horizons_stack );
+        const auto& horizons_mapping =
+            mapping.at( Horizon< dimension >::component_type_static() );
+        if( const auto horizon_id = horizons_stack.bottom_horizon() )
+        {
+            horizons_stack_.set_bottom_horizon(
+                horizons_mapping.in2out( horizon_id.value() ), {} );
+        }
+        if( const auto horizon_id = horizons_stack.top_horizon() )
+        {
+            horizons_stack_.set_top_horizon(
+                horizons_mapping.in2out( horizon_id.value() ), {} );
+        }
     }
 
     template < index_t dimension >
@@ -200,24 +224,6 @@ namespace geode
     {
         StratigraphicRelationshipsBuilder::add_above_relation(
             strati_unit_above.component_id(), horizon_under.component_id() );
-    }
-
-    template < index_t dimension >
-    void HorizonsStackBuilder< dimension >::set_as_erosion_above(
-        const Horizon< dimension >& erosion_horizon,
-        const StratigraphicUnit< dimension >& eroded_unit )
-    {
-        StratigraphicRelationshipsBuilder::add_erosion_relation(
-            erosion_horizon.component_id(), eroded_unit.component_id() );
-    }
-
-    template < index_t dimension >
-    void HorizonsStackBuilder< dimension >::set_as_baselap_under(
-        const Horizon< dimension >& baselap_horizon,
-        const StratigraphicUnit< dimension >& baselaping_unit )
-    {
-        StratigraphicRelationshipsBuilder::add_baselap_relation(
-            baselaping_unit.component_id(), baselap_horizon.component_id() );
     }
 
     template < index_t dimension >

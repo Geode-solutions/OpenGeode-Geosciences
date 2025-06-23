@@ -110,6 +110,8 @@ void test_horizons_stack()
         geode::HorizonsStack3D::native_extension_static() );
     geode::save_horizons_stack( horizons_stack, stack_path );
     auto reloaded_stack = geode::load_horizons_stack< 3 >( stack_path );
+    auto reloaded_stack_v0 = geode::load_horizons_stack< 3 >(
+        absl::StrCat( geode::DATA_PATH, "test_HorizonStack_v0.og_hst3d" ) );
 }
 
 void test_create_horizons_stack()
@@ -117,7 +119,7 @@ void test_create_horizons_stack()
     std::array< std::string, 4 > horizons_list{ "h1", "h2", "h3", "h4" };
     std::array< std::string, 3 > units_list{ "su1", "su2", "su3" };
     const auto horizons_stack =
-        geode::detail::horizons_stack_from_name_list< 2 >(
+        geode::detail::horizons_stack_from_bottom_to_top_names< 2 >(
             horizons_list, units_list );
     OPENGEODE_EXCEPTION( horizons_stack.nb_horizons() == 4,
         "[Test] Created Horizons Stack should have 4 horizons." );

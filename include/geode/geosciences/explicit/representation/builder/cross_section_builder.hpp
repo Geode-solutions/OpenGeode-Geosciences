@@ -82,12 +82,12 @@ namespace geode
         [[nodiscard]] const uuid& add_horizon();
 
         [[nodiscard]] const uuid& add_horizon(
-            typename Horizon2D::HORIZON_TYPE type );
+            typename Horizon2D::CONTACT_TYPE contact_type );
 
         void add_horizon( const uuid& horizon_id );
 
-        void add_horizon(
-            const uuid& horizon_id, typename Horizon2D::HORIZON_TYPE type );
+        void add_horizon( const uuid& horizon_id,
+            typename Horizon2D::CONTACT_TYPE contact_type );
 
         index_t add_line_in_horizon(
             const Line2D& line, const Horizon2D& horizon );
