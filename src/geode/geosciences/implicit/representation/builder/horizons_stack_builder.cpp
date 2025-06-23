@@ -54,6 +54,18 @@ namespace geode
         set_name( horizons_stack.name() );
         auto mapping = copy_components( horizons_stack );
         copy_stratigraphic_relationships( mapping, horizons_stack );
+        const auto& horizons_mapping =
+            mapping.at( Horizon< dimension >::component_type_static() );
+        if( const auto horizon_id = horizons_stack.bottom_horizon() )
+        {
+            horizons_stack_.set_bottom_horizon(
+                horizons_mapping.at( horizon_id.value() ), {} );
+        }
+        if( const auto horizon_id = horizons_stack.top_horizon() )
+        {
+            horizons_stack_.set_top_horizon(
+                horizons_mapping.at( horizon_id.value() ), {} );
+        }
         return mapping;
     }
 
@@ -81,6 +93,18 @@ namespace geode
         set_name( horizons_stack.name() );
         copy_components( mapping, horizons_stack );
         copy_stratigraphic_relationships( mapping, horizons_stack );
+        const auto& horizons_mapping =
+            mapping.at( Horizon< dimension >::component_type_static() );
+        if( const auto horizon_id = horizons_stack.bottom_horizon() )
+        {
+            horizons_stack_.set_bottom_horizon(
+                horizons_mapping.at( horizon_id.value() ), {} );
+        }
+        if( const auto horizon_id = horizons_stack.top_horizon() )
+        {
+            horizons_stack_.set_top_horizon(
+                horizons_mapping.at( horizon_id.value() ), {} );
+        }
     }
 
     template < index_t dimension >
