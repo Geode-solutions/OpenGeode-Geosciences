@@ -59,12 +59,12 @@ namespace geode
         if( const auto horizon_id = horizons_stack.bottom_horizon() )
         {
             horizons_stack_.set_bottom_horizon(
-                horizons_mapping.at( horizon_id.value() ), {} );
+                horizons_mapping.in2out( horizon_id.value() ), {} );
         }
         if( const auto horizon_id = horizons_stack.top_horizon() )
         {
             horizons_stack_.set_top_horizon(
-                horizons_mapping.at( horizon_id.value() ), {} );
+                horizons_mapping.in2out( horizon_id.value() ), {} );
         }
         return mapping;
     }
@@ -98,12 +98,12 @@ namespace geode
         if( const auto horizon_id = horizons_stack.bottom_horizon() )
         {
             horizons_stack_.set_bottom_horizon(
-                horizons_mapping.at( horizon_id.value() ), {} );
+                horizons_mapping.in2out( horizon_id.value() ), {} );
         }
         if( const auto horizon_id = horizons_stack.top_horizon() )
         {
             horizons_stack_.set_top_horizon(
-                horizons_mapping.at( horizon_id.value() ), {} );
+                horizons_mapping.in2out( horizon_id.value() ), {} );
         }
     }
 
