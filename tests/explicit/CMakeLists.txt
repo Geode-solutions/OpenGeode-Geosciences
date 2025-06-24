@@ -41,3 +41,11 @@ add_geode_test(
         ${PROJECT_NAME}::explicit
     ESSENTIAL
 )
+
+add_geode_test(
+    SOURCE "test-structural-model-fault-blocks-builder.cpp"
+    DEPENDENCIES
+        OpenGeode::basic
+        OpenGeode::model
+        ${PROJECT_NAME}::explicit
+)
