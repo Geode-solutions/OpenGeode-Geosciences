@@ -317,7 +317,7 @@ namespace geode
                     stack.stratigraphic_unit( su_under ) );
             }
             const auto& su_under = builder.add_stratigraphic_unit();
-            builder.set_horizon_under( stack.horizon( current_horizon ),
+            builder.set_horizon_above( stack.horizon( current_horizon ),
                 stack.stratigraphic_unit( su_under ) );
             if( nb_units > nb_horizons )
             {

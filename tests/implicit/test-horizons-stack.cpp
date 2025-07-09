@@ -114,13 +114,10 @@ void test_horizons_stack()
         absl::StrCat( geode::DATA_PATH, "test_HorizonStack_v0.og_hst3d" ) );
 }
 
-void test_create_horizons_stack()
+void test_horizons_stack( const geode::HorizonsStack2D& horizons_stack )
 {
     std::array< std::string, 4 > horizons_list{ "h1", "h2", "h3", "h4" };
     std::array< std::string, 3 > units_list{ "su1", "su2", "su3" };
-    const auto horizons_stack =
-        geode::detail::horizons_stack_from_bottom_to_top_names< 2 >(
-            horizons_list, units_list );
     OPENGEODE_EXCEPTION( horizons_stack.nb_horizons() == 4,
         "[Test] Created Horizons Stack should have 4 horizons." );
     OPENGEODE_EXCEPTION( horizons_stack.nb_stratigraphic_units() == 5,
@@ -194,6 +191,26 @@ void test_create_horizons_stack()
                                        "pass through all stratigraphic units" );
 }
 
+void test_create_horizons_stack_top_to_bottom()
+{
+    std::array< std::string, 4 > horizons_list{ "h4", "h3", "h2", "h1" };
+    std::array< std::string, 3 > units_list{ "su3", "su2", "su1" };
+    const auto horizons_stack =
+        geode::detail::horizons_stack_from_top_to_bottom_names< 2 >(
+            horizons_list, units_list );
+    test_horizons_stack( horizons_stack );
+}
+
+void test_create_horizons_stack_bottom_to_top()
+{
+    std::array< std::string, 4 > horizons_list{ "h1", "h2", "h3", "h4" };
+    std::array< std::string, 3 > units_list{ "su1", "su2", "su3" };
+    const auto horizons_stack =
+        geode::detail::horizons_stack_from_bottom_to_top_names< 2 >(
+            horizons_list, units_list );
+    test_horizons_stack( horizons_stack );
+}
+
 int main()
 {
     try
@@ -201,7 +218,8 @@ int main()
         geode::Logger::info( "Starting test" );
         geode::GeosciencesImplicitLibrary::initialize();
         test_horizons_stack();
-        test_create_horizons_stack();
+        test_create_horizons_stack_bottom_to_top();
+        test_create_horizons_stack_top_to_bottom();
 
         geode::Logger::info( "TEST SUCCESS" );
         return 0;
