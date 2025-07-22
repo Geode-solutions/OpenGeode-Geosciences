@@ -213,6 +213,7 @@ namespace geode
         void instantiate_implicit_attribute_on_surfaces(
             const ImplicitCrossSection& model )
         {
+            implicit_attributes_.clear();
             implicit_attributes_.reserve( model.nb_surfaces() );
             for( const auto& surface : model.surfaces() )
             {
