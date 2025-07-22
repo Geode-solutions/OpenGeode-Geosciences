@@ -211,6 +211,7 @@ namespace geode
         void instantiate_implicit_attribute_on_blocks(
             const ImplicitStructuralModel& model )
         {
+            implicit_attributes_.clear();
             implicit_attributes_.reserve( model.nb_blocks() );
             for( const auto& block : model.blocks() )
             {
