@@ -76,9 +76,9 @@ namespace geode
             ImplicitStructuralModel& model, std::string_view directory )
         {
             ImplicitStructuralModelBuilder builder{ model };
-            builder.set_horizons_stack( std::move( load_horizons_stack< 3 >(
+            builder.set_horizons_stack( load_horizons_stack< 3 >(
                 absl::StrCat( directory, "/horizons_stack.",
-                    HorizonsStack3D::native_extension_static() ) ) ) );
+                    HorizonsStack3D::native_extension_static() ) ) );
             builder.reinitialize_implicit_query_trees();
             load_structural_model_files( model, directory );
         }
