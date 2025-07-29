@@ -48,6 +48,12 @@ namespace geode
             std::string_view directory );
 
         [[nodiscard]] HorizonsStack< dimension > read() final;
+
+        [[nodiscard]] typename HorizonsStackInput< dimension >::AdditionalFiles
+            additional_files() const final
+        {
+            return {};
+        }
     };
     ALIAS_2D_AND_3D( OpenGeodeHorizonsStackInput );
 } // namespace geode

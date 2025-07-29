@@ -84,13 +84,12 @@ namespace geode
         }
     }
 
-    typename ImplicitStructuralModelInput::MissingFiles
-        check_implicit_structural_model_missing_files(
-            std::string_view filename )
+    typename ImplicitStructuralModelInput::AdditionalFiles
+        implicit_structural_model_additional_files( std::string_view filename )
     {
         const auto input = detail::geode_object_input_reader<
             ImplicitStructuralModelInputFactory >( filename );
-        return input->check_missing_files();
+        return input->additional_files();
     }
 
     bool is_implicit_structural_model_loadable( std::string_view filename )

@@ -76,13 +76,13 @@ namespace geode
         }
     }
 
-    typename CrossSectionInput::MissingFiles check_cross_section_missing_files(
+    typename CrossSectionInput::AdditionalFiles cross_section_additional_files(
         std::string_view filename )
     {
         const auto input =
             detail::geode_object_input_reader< CrossSectionInputFactory >(
                 filename );
-        return input->check_missing_files();
+        return input->additional_files();
     }
 
     bool is_cross_section_loadable( std::string_view filename )

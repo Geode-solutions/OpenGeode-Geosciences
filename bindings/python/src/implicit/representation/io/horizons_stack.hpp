@@ -34,10 +34,10 @@
     const auto load##dimension =                                               \
         "load_horizons_stack" + std::to_string( dimension ) + "D";             \
     module.def( load##dimension.c_str(), &load_horizons_stack< dimension > );  \
-    const auto check##dimension = "check_horizons_stack_missing_files"         \
-                                  + std::to_string( dimension ) + "D";         \
+    const auto check##dimension =                                              \
+        "horizons_stack_additional_files" + std::to_string( dimension ) + "D"; \
     module.def( check##dimension.c_str(),                                      \
-        &check_horizons_stack_missing_files< dimension > );                    \
+        &horizons_stack_additional_files< dimension > );                       \
     const auto loadable##dimension =                                           \
         "is_horizons_stack_loadable" + std::to_string( dimension ) + "D";      \
     module.def( loadable##dimension.c_str(),                                   \

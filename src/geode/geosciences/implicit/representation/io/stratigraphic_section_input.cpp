@@ -85,12 +85,12 @@ namespace geode
         }
     }
 
-    StratigraphicSectionInput::MissingFiles
-        check_stratigraphic_section_missing_files( std::string_view filename )
+    StratigraphicSectionInput::AdditionalFiles
+        stratigraphic_section_additional_files( std::string_view filename )
     {
         const auto input = detail::geode_object_input_reader<
             StratigraphicSectionInputFactory >( filename );
-        return input->check_missing_files();
+        return input->additional_files();
     }
 
     bool is_stratigraphic_section_loadable( std::string_view filename )

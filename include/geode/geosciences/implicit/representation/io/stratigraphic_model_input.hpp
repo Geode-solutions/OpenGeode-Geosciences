@@ -47,21 +47,16 @@ namespace geode
 
     class StratigraphicModelInput : public Input< StratigraphicModel >
     {
-    public:
-        using Base = Input< StratigraphicModel >;
-        using typename Base::InputData;
-        using typename Base::MissingFiles;
-
     protected:
         explicit StratigraphicModelInput( std::string_view filename )
-            : Base{ filename }
+            : Input< StratigraphicModel >{ filename }
         {
         }
     };
 
-    [[nodiscard]] StratigraphicModelInput::MissingFiles
+    [[nodiscard]] StratigraphicModelInput::AdditionalFiles
         opengeode_geosciences_implicit_api
-        check_stratigraphic_model_missing_files( std::string_view filename );
+        stratigraphic_model_additional_files( std::string_view filename );
 
     [[nodiscard]] bool opengeode_geosciences_implicit_api
         is_stratigraphic_model_loadable( std::string_view filename );

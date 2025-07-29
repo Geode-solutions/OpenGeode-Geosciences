@@ -40,6 +40,12 @@ namespace geode
         }
 
         [[nodiscard]] StructuralModel read() final;
+
+        [[nodiscard]] StructuralModelInput::AdditionalFiles
+            additional_files() const final
+        {
+            return {};
+        }
     };
 
     namespace detail
