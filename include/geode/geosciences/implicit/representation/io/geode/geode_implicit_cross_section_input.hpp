@@ -43,6 +43,12 @@ namespace geode
         }
 
         [[nodiscard]] ImplicitCrossSection read() final;
+
+        [[nodiscard]] ImplicitCrossSectionInput::AdditionalFiles
+            additional_files() const final
+        {
+            return {};
+        }
     };
 
     namespace detail

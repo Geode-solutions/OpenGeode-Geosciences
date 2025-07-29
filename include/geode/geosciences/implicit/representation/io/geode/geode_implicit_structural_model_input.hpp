@@ -45,6 +45,12 @@ namespace geode
         }
 
         [[nodiscard]] ImplicitStructuralModel read() final;
+
+        [[nodiscard]] ImplicitStructuralModelInput::AdditionalFiles
+            additional_files() const final
+        {
+            return {};
+        }
     };
 
     namespace detail

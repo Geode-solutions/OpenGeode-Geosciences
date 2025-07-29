@@ -64,12 +64,12 @@ namespace geode
     }
 
     template < index_t dimension >
-    typename HorizonsStackInput< dimension >::MissingFiles
-        check_horizons_stack_missing_files( std::string_view filename )
+    typename HorizonsStackInput< dimension >::AdditionalFiles
+        horizons_stack_additional_files( std::string_view filename )
     {
         const auto input = detail::geode_object_input_reader<
             HorizonsStackInputFactory< dimension > >( filename );
-        return input->check_missing_files();
+        return input->additional_files();
     }
 
     template < index_t dimension >
@@ -92,12 +92,12 @@ namespace geode
     template HorizonsStack< 3 > opengeode_geosciences_implicit_api
         load_horizons_stack( std::string_view );
 
-    template HorizonsStackInput< 2 >::MissingFiles
-        opengeode_geosciences_implicit_api
-            check_horizons_stack_missing_files< 2 >( std::string_view );
-    template HorizonsStackInput< 3 >::MissingFiles
-        opengeode_geosciences_implicit_api
-            check_horizons_stack_missing_files< 3 >( std::string_view );
+    template HorizonsStackInput< 2 >::AdditionalFiles
+        opengeode_geosciences_implicit_api horizons_stack_additional_files< 2 >(
+            std::string_view );
+    template HorizonsStackInput< 3 >::AdditionalFiles
+        opengeode_geosciences_implicit_api horizons_stack_additional_files< 3 >(
+            std::string_view );
 
     template bool opengeode_geosciences_implicit_api
         is_horizons_stack_loadable< 2 >( std::string_view );

@@ -49,21 +49,16 @@ namespace geode
 
     class CrossSectionInput : public Input< CrossSection >
     {
-    public:
-        using Base = Input< CrossSection >;
-        using typename Base::InputData;
-        using typename Base::MissingFiles;
-
     protected:
         explicit CrossSectionInput( std::string_view filename )
-            : Base{ filename }
+            : Input< CrossSection >{ filename }
         {
         }
     };
 
-    [[nodiscard]] CrossSectionInput::MissingFiles
+    [[nodiscard]] CrossSectionInput::AdditionalFiles
         opengeode_geosciences_explicit_api
-        check_cross_section_missing_files( std::string_view filename );
+        cross_section_additional_files( std::string_view filename );
 
     [[nodiscard]] bool opengeode_geosciences_explicit_api
         is_cross_section_loadable( std::string_view filename );

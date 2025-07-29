@@ -33,8 +33,8 @@ namespace geode
     {
         module.def( "save_stratigraphic_section", &save_stratigraphic_section );
         module.def( "load_stratigraphic_section", &load_stratigraphic_section );
-        module.def( "check_stratigraphic_section_missing_files",
-            &check_stratigraphic_section_missing_files );
+        module.def( "stratigraphic_section_additional_files",
+            &stratigraphic_section_additional_files );
         module.def( "is_stratigraphic_section_loadable",
             &is_stratigraphic_section_loadable );
         module.def( "is_stratigraphic_section_saveable",

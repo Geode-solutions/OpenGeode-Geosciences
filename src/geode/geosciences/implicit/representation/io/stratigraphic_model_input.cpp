@@ -87,13 +87,13 @@ namespace geode
         }
     }
 
-    typename StratigraphicModelInput::MissingFiles
-        check_stratigraphic_model_missing_files( std::string_view filename )
+    typename StratigraphicModelInput::AdditionalFiles
+        stratigraphic_model_additional_files( std::string_view filename )
     {
         const auto input =
             detail::geode_object_input_reader< StratigraphicModelInputFactory >(
                 filename );
-        return input->check_missing_files();
+        return input->additional_files();
     }
 
     bool is_stratigraphic_model_loadable( std::string_view filename )

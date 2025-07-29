@@ -33,8 +33,8 @@ namespace geode
     {
         module.def( "save_structural_model", &save_structural_model );
         module.def( "load_structural_model", &load_structural_model );
-        module.def( "check_structural_model_missing_files",
-            &check_structural_model_missing_files );
+        module.def( "structural_model_additional_files",
+            &structural_model_additional_files );
         module.def(
             "is_structural_model_loadable", &is_structural_model_loadable );
         module.def(

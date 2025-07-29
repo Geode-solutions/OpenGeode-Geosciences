@@ -40,6 +40,12 @@ namespace geode
         }
 
         [[nodiscard]] CrossSection read() final;
+
+        [[nodiscard]] CrossSectionInput::AdditionalFiles
+            additional_files() const final
+        {
+            return {};
+        }
     };
 
     namespace detail

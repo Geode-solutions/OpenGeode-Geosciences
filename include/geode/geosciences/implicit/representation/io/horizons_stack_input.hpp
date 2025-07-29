@@ -51,21 +51,16 @@ namespace geode
     template < index_t dimension >
     class HorizonsStackInput : public Input< HorizonsStack< dimension > >
     {
-    public:
-        using Base = Input< HorizonsStack< dimension > >;
-        using typename Base::InputData;
-        using typename Base::MissingFiles;
-
     protected:
         explicit HorizonsStackInput( std::string_view filename )
-            : Base{ filename }
+            : Input< HorizonsStack< dimension > >{ filename }
         {
         }
     };
 
     template < index_t dimension >
-    [[nodiscard]] typename HorizonsStackInput< dimension >::MissingFiles
-        check_horizons_stack_missing_files( std::string_view filename );
+    [[nodiscard]] typename HorizonsStackInput< dimension >::AdditionalFiles
+        horizons_stack_additional_files( std::string_view filename );
 
     template < index_t dimension >
     [[nodiscard]] bool is_horizons_stack_loadable( std::string_view filename );
