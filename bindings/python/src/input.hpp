@@ -24,11 +24,16 @@
 #include <geode/basic/input.hpp>
 
 #define PYTHON_INPUT_CLASS( type, name )                                       \
+    pybind11::class_< Input< type >::AdditionalFile >(                         \
+        module, absl::StrCat( "AdditionalFile", name ).c_str() )               \
+        .def_readwrite( "filename", &Input< type >::AdditionalFile::filename ) \
+        .def_readwrite(                                                        \
+            "is_missing", &Input< type >::AdditionalFile::is_missing );        \
     pybind11::class_< Input< type >::AdditionalFiles >(                        \
-        module, absl::StrCat( "MissingFiles", name ).c_str() )                 \
+        module, absl::StrCat( "AdditionalFiles", name ).c_str() )              \
         .def( "has_additional_files",                                          \
             &Input< type >::AdditionalFiles::has_additional_files )            \
-        .def_readwrite( "additional_files",                                    \
-            &Input< type >::AdditionalFiles::additional_files )                \
+        .def_readwrite( "optional_files",                                      \
+            &Input< type >::AdditionalFiles::optional_files )                  \
         .def_readwrite( "mandatory_files",                                     \
             &Input< type >::AdditionalFiles::mandatory_files )
