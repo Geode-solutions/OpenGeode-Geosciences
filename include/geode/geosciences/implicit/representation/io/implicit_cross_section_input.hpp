@@ -58,7 +58,7 @@ namespace geode
         opengeode_geosciences_implicit_api
         implicit_cross_section_additional_files( std::string_view filename );
 
-    [[nodiscard]] bool opengeode_geosciences_implicit_api
+    [[nodiscard]] Percentage opengeode_geosciences_implicit_api
         is_implicit_cross_section_loadable( std::string_view filename );
 
     [[nodiscard]] index_t opengeode_geosciences_implicit_api

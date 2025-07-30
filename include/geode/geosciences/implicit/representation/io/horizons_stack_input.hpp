@@ -63,7 +63,8 @@ namespace geode
         horizons_stack_additional_files( std::string_view filename );
 
     template < index_t dimension >
-    [[nodiscard]] bool is_horizons_stack_loadable( std::string_view filename );
+    [[nodiscard]] Percentage is_horizons_stack_loadable(
+        std::string_view filename );
 
     template < index_t dimension >
     [[nodiscard]] index_t horizons_stack_object_priority(

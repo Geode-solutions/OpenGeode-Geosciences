@@ -59,6 +59,11 @@ namespace geode
         {
             return 0;
         }
+
+        [[nodiscard]] Percentage is_loadable() const final
+        {
+            return Percentage{ 1 };
+        }
     };
     ALIAS_2D_AND_3D( OpenGeodeHorizonsStackInput );
 } // namespace geode

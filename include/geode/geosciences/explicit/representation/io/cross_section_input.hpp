@@ -60,7 +60,7 @@ namespace geode
         opengeode_geosciences_explicit_api
         cross_section_additional_files( std::string_view filename );
 
-    [[nodiscard]] bool opengeode_geosciences_explicit_api
+    [[nodiscard]] Percentage opengeode_geosciences_explicit_api
         is_cross_section_loadable( std::string_view filename );
 
     [[nodiscard]] index_t opengeode_geosciences_explicit_api

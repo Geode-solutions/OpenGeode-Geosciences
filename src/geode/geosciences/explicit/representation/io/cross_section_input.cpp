@@ -85,7 +85,7 @@ namespace geode
         return input->additional_files();
     }
 
-    bool is_cross_section_loadable( std::string_view filename )
+    Percentage is_cross_section_loadable( std::string_view filename )
     {
         try
         {
@@ -96,7 +96,7 @@ namespace geode
         }
         catch( ... )
         {
-            return false;
+            return Percentage{ 0 };
         }
     }
 

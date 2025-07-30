@@ -55,6 +55,11 @@ namespace geode
         {
             return 0;
         }
+
+        [[nodiscard]] Percentage is_loadable() const final
+        {
+            return Percentage{ 1 };
+        }
     };
 
     namespace detail
