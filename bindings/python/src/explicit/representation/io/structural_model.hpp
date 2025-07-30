@@ -35,6 +35,8 @@ namespace geode
         module.def( "load_structural_model", &load_structural_model );
         module.def( "structural_model_additional_files",
             &structural_model_additional_files );
+        module.def( "structural_model_object_priority",
+            &structural_model_object_priority );
         module.def(
             "is_structural_model_loadable", &is_structural_model_loadable );
         module.def(

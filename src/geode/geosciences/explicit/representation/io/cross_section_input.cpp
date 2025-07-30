@@ -99,4 +99,12 @@ namespace geode
             return false;
         }
     }
+
+    index_t cross_section_object_priority( std::string_view filename )
+    {
+        const auto input =
+            detail::geode_object_input_reader< CrossSectionInputFactory >(
+                filename );
+        return input->object_priority();
+    }
 } // namespace geode

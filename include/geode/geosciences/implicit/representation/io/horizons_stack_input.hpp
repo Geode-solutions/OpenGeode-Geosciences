@@ -66,6 +66,10 @@ namespace geode
     [[nodiscard]] bool is_horizons_stack_loadable( std::string_view filename );
 
     template < index_t dimension >
+    [[nodiscard]] index_t horizons_stack_object_priority(
+        std::string_view filename );
+
+    template < index_t dimension >
     using HorizonsStackInputFactory = Factory< std::string,
         HorizonsStackInput< dimension >,
         std::string_view >;

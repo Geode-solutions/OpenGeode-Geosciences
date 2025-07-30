@@ -37,6 +37,8 @@ namespace geode
             "load_implicit_structural_model", &load_implicit_structural_model );
         module.def( "implicit_structural_model_additional_files",
             &implicit_structural_model_additional_files );
+        module.def( "implicit_structural_model_object_priority",
+            &implicit_structural_model_object_priority );
         module.def( "is_implicit_structural_model_loadable",
             &is_implicit_structural_model_loadable );
         module.def( "is_implicit_structural_model_saveable",

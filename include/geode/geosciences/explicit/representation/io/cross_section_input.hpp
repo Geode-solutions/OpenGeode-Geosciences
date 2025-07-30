@@ -63,6 +63,9 @@ namespace geode
     [[nodiscard]] bool opengeode_geosciences_explicit_api
         is_cross_section_loadable( std::string_view filename );
 
+    [[nodiscard]] index_t opengeode_geosciences_explicit_api
+        cross_section_object_priority( std::string_view filename );
+
     using CrossSectionInputFactory =
         Factory< std::string, CrossSectionInput, std::string_view >;
 } // namespace geode

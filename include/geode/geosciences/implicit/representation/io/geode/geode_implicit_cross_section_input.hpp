@@ -44,10 +44,14 @@ namespace geode
 
         [[nodiscard]] ImplicitCrossSection read() final;
 
-        [[nodiscard]] ImplicitCrossSectionInput::AdditionalFiles
-            additional_files() const final
+        [[nodiscard]] AdditionalFiles additional_files() const final
         {
             return {};
+        }
+
+        [[nodiscard]] index_t object_priority() const final
+        {
+            return 0;
         }
     };
 

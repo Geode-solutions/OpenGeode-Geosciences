@@ -61,6 +61,9 @@ namespace geode
     [[nodiscard]] bool opengeode_geosciences_implicit_api
         is_stratigraphic_section_loadable( std::string_view filename );
 
+    [[nodiscard]] index_t opengeode_geosciences_implicit_api
+        stratigraphic_section_object_priority( std::string_view filename );
+
     using StratigraphicSectionInputFactory =
         Factory< std::string, StratigraphicSectionInput, std::string_view >;
 } // namespace geode
