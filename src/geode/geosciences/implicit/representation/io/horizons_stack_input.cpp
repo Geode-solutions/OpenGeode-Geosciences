@@ -87,6 +87,14 @@ namespace geode
         }
     }
 
+    template < index_t dimension >
+    index_t horizons_stack_object_priority( std::string_view filename )
+    {
+        const auto input = detail::geode_object_input_reader<
+            HorizonsStackInputFactory< dimension > >( filename );
+        return input->object_priority();
+    }
+
     template HorizonsStack< 2 > opengeode_geosciences_implicit_api
         load_horizons_stack( std::string_view );
     template HorizonsStack< 3 > opengeode_geosciences_implicit_api
@@ -103,4 +111,9 @@ namespace geode
         is_horizons_stack_loadable< 2 >( std::string_view );
     template bool opengeode_geosciences_implicit_api
         is_horizons_stack_loadable< 3 >( std::string_view );
+
+    template index_t opengeode_geosciences_implicit_api
+        horizons_stack_object_priority< 2 >( std::string_view );
+    template index_t opengeode_geosciences_implicit_api
+        horizons_stack_object_priority< 3 >( std::string_view );
 } // namespace geode

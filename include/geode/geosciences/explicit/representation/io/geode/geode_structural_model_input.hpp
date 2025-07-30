@@ -41,10 +41,14 @@ namespace geode
 
         [[nodiscard]] StructuralModel read() final;
 
-        [[nodiscard]] StructuralModelInput::AdditionalFiles
-            additional_files() const final
+        [[nodiscard]] AdditionalFiles additional_files() const final
         {
             return {};
+        }
+
+        [[nodiscard]] index_t object_priority() const final
+        {
+            return 0;
         }
     };
 

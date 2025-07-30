@@ -38,6 +38,10 @@
         "horizons_stack_additional_files" + std::to_string( dimension ) + "D"; \
     module.def( check##dimension.c_str(),                                      \
         &horizons_stack_additional_files< dimension > );                       \
+    const auto priority##dimension =                                           \
+        "horizons_stack_object_priority" + std::to_string( dimension ) + "D";  \
+    module.def( priority##dimension.c_str(),                                   \
+        &horizons_stack_object_priority< dimension > );                        \
     const auto loadable##dimension =                                           \
         "is_horizons_stack_loadable" + std::to_string( dimension ) + "D";      \
     module.def( loadable##dimension.c_str(),                                   \

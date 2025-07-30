@@ -35,6 +35,8 @@ namespace geode
         module.def( "load_stratigraphic_model", &load_stratigraphic_model );
         module.def( "stratigraphic_model_additional_files",
             &stratigraphic_model_additional_files );
+        module.def( "stratigraphic_model_object_priority",
+            &stratigraphic_model_object_priority );
         module.def( "is_stratigraphic_model_loadable",
             &is_stratigraphic_model_loadable );
         module.def( "is_stratigraphic_model_saveable",
