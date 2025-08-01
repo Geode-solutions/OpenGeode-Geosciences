@@ -73,7 +73,7 @@ namespace geode
     }
 
     template < index_t dimension >
-    bool is_horizons_stack_loadable( std::string_view filename )
+    Percentage is_horizons_stack_loadable( std::string_view filename )
     {
         try
         {
@@ -83,7 +83,7 @@ namespace geode
         }
         catch( ... )
         {
-            return false;
+            return Percentage{ 0 };
         }
     }
 
@@ -107,9 +107,9 @@ namespace geode
         opengeode_geosciences_implicit_api horizons_stack_additional_files< 3 >(
             std::string_view );
 
-    template bool opengeode_geosciences_implicit_api
+    template Percentage opengeode_geosciences_implicit_api
         is_horizons_stack_loadable< 2 >( std::string_view );
-    template bool opengeode_geosciences_implicit_api
+    template Percentage opengeode_geosciences_implicit_api
         is_horizons_stack_loadable< 3 >( std::string_view );
 
     template index_t opengeode_geosciences_implicit_api
