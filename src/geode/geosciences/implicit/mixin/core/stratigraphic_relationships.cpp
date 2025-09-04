@@ -54,7 +54,21 @@ namespace geode
             initialize_relation_attributes();
         }
 
-        bool is_above( const uuid& above, const uuid& under ) const
+        bool is_above( const uuid& above_id, const uuid& under_id ) const
+        {
+            auto current = under_id;
+            while( const auto directly_above = this->above( current ) )
+            {
+                if( directly_above.value() == above_id )
+                {
+                    return true;
+                }
+                current = directly_above.value();
+            }
+            return false;
+        }
+
+        bool is_directly_above( const uuid& above, const uuid& under ) const
         {
             const auto edge_id = relation_edge( above, under );
             if( !edge_id )
@@ -283,6 +297,12 @@ namespace geode
         const uuid& above, const uuid& under ) const
     {
         return impl_->is_above( above, under );
+    }
+
+    bool StratigraphicRelationships::is_directly_above(
+        const uuid& above, const uuid& under ) const
+    {
+        return impl_->is_directly_above( above, under );
     }
 
     std::optional< uuid > StratigraphicRelationships::above(

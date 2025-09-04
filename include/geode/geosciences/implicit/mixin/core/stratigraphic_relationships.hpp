@@ -59,6 +59,9 @@ namespace geode
         [[nodiscard]] bool is_above(
             const uuid& above, const uuid& under ) const;
 
+        [[nodiscard]] bool is_directly_above(
+            const uuid& above, const uuid& under ) const;
+
         [[nodiscard]] std::optional< uuid > above( const uuid& element ) const;
 
         [[nodiscard]] std::optional< uuid > under( const uuid& element ) const;
