@@ -97,6 +97,13 @@ void test_horizons_stack()
     OPENGEODE_EXCEPTION( horizons_stack.nb_stratigraphic_units() == 5,
         "[Test] Horizons Stack should have 5 Stratigraphic Units after "
         "repair." );
+    const auto bottom_horizon = horizons_stack.bottom_horizon();
+    OPENGEODE_EXCEPTION(
+        bottom_horizon, "[Test] There should be a bottom horizon" );
+    const auto bottom_unit_id = horizons_stack.under( bottom_horizon.value() );
+    OPENGEODE_EXCEPTION( bottom_unit_id,
+        "[Test] There should be a stratigraphic unit under the "
+        "bottom horizon" );
     for( const auto& horizon : horizons_stack.horizons() )
     {
         const auto& horizon_id = horizon.id();
@@ -104,6 +111,9 @@ void test_horizons_stack()
             "[Test] Horizon should have a unit above." );
         OPENGEODE_EXCEPTION( horizons_stack.under( horizon_id ),
             "[Test] Horizon should have a unit under." );
+        OPENGEODE_EXCEPTION(
+            horizons_stack.is_above( horizon_id, bottom_unit_id.value() ),
+            "[Test] Horizon should be above the bottom unit." );
     }
 
     const auto stack_path = absl::StrCat( "test_HorizonStack.",
