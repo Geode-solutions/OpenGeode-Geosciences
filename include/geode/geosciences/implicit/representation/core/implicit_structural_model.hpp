@@ -45,7 +45,8 @@ namespace geode
 {
     /*!
      * An Implicit Model is a Structural model where each block has a specific
-     * attribute to store the implicit value on its vertices.
+     * attribute to store the implicit value on its vertices. Moreover, an
+     * ImplicitStructuralModel is associated to an HorizonsStack.
      */
     class opengeode_geosciences_implicit_api ImplicitStructuralModel
         : public StructuralModel
