@@ -63,7 +63,7 @@ add_geode_library(
         "representation/builder/implicit_structural_model_builder.hpp"
         "representation/builder/stratigraphic_model_builder.hpp"
         "representation/builder/stratigraphic_section_builder.hpp"
-        "representation/builder/horizons_stack_builder.hpp"     
+        "representation/builder/horizons_stack_builder.hpp"
         "representation/builder/helpers/implicit_structural_model_stratigraphic_blocks_builder.hpp"
         "representation/core/detail/helpers.hpp"
         "representation/core/implicit_cross_section.hpp"
