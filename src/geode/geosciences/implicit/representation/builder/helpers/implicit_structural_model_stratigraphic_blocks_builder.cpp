@@ -59,7 +59,7 @@ namespace
             }
         }
 
-        bool assign_blocks_to_stratigraphic_units()
+        void assign_blocks_to_stratigraphic_units()
         {
             bool run_again = true;
             while( run_again )
@@ -71,9 +71,6 @@ namespace
     private:
         bool one_step_assign_blocks_to_stratigraphic_units()
         {
-            const auto top_horizon = horizons_stack_.top_horizon().value();
-            const auto bottom_horizon =
-                horizons_stack_.bottom_horizon().value();
             bool something_done{ false };
             for( const auto& block : model_.blocks() )
             {
@@ -93,6 +90,7 @@ namespace
                     something_done = true;
                 }
             }
+            return something_done;
         }
 
         bool skip( const geode::Block3D& block )
@@ -130,13 +128,13 @@ namespace
             const geode::Horizon3D& conformal_horizon )
         {
             const auto neighbor = neighbor_block( block, block_boundary );
-            if( !neighbor_block )
+            if( !neighbor )
             {
                 return false;
             }
-            const auto& above_stratigraphic_unit =
+            const auto above_stratigraphic_unit =
                 horizons_stack_.above( conformal_horizon.id() ).value();
-            const auto& under_stratigraphic_unit =
+            const auto under_stratigraphic_unit =
                 horizons_stack_.under( conformal_horizon.id() ).value();
             if( model_.is_item( neighbor.value(), above_stratigraphic_unit ) )
             {
@@ -162,9 +160,9 @@ namespace
             {
                 return false;
             }
-            const auto& above_stratigraphic_unit =
+            const auto above_stratigraphic_unit =
                 horizons_stack_.above( erosion.id() ).value();
-            const auto& under_stratigraphic_unit =
+            const auto under_stratigraphic_unit =
                 horizons_stack_.under( erosion.id() ).value();
             if( model_.is_item( neighbor.value(), under_stratigraphic_unit ) )
             {
@@ -184,9 +182,9 @@ namespace
             {
                 return false;
             }
-            const auto& above_stratigraphic_unit =
+            const auto above_stratigraphic_unit =
                 horizons_stack_.above( erosion.id() ).value();
-            const auto& under_stratigraphic_unit =
+            const auto under_stratigraphic_unit =
                 horizons_stack_.under( erosion.id() ).value();
             if( model_.is_item( neighbor.value(), above_stratigraphic_unit ) )
             {
@@ -200,7 +198,7 @@ namespace
         bool assign_between_two_conformal_horizons( const geode::Block3D& block,
             const geode::SmallSet< geode::uuid >& conformal_horizons )
         {
-            const auto& above_stratigraphic_unit =
+            const auto above_stratigraphic_unit =
                 horizons_stack_.above( conformal_horizons.at( 0 ) ).value();
             if( above_stratigraphic_unit
                 == horizons_stack_.under( conformal_horizons.at( 1 ) ).value() )
@@ -209,7 +207,7 @@ namespace
                     model_.stratigraphic_unit( above_stratigraphic_unit ) );
                 return true;
             }
-            const auto& under_stratigraphic_unit =
+            const auto under_stratigraphic_unit =
                 horizons_stack_.under( conformal_horizons.at( 0 ) ).value();
             if( under_stratigraphic_unit
                 == horizons_stack_.above( conformal_horizons.at( 1 ) ).value() )
