@@ -59,13 +59,33 @@ namespace
             }
         }
 
-        void assign_blocks_to_stratigraphic_units()
+        geode::StratigraphicUnitToBlockResult
+            assign_blocks_to_stratigraphic_units()
         {
-            bool run_again = true;
-            while( run_again )
+            bool run{ false };
+            for( const auto& block : model_.blocks() )
             {
-                run_again = one_step_assign_blocks_to_stratigraphic_units();
+                if( is_in_stratigraphic_unit( block ) )
+                {
+                    result_.already_assigned_blocks.push_back( block.id() );
+                }
+                else
+                {
+                    run = true;
+                }
             }
+            while( run )
+            {
+                run = one_step_assign_blocks_to_stratigraphic_units();
+            }
+            for( const auto& block : model_.blocks() )
+            {
+                if( !is_in_stratigraphic_unit( block ) )
+                {
+                    result_.unassigned_blocks.push_back( block.id() );
+                }
+            }
+            return result_;
         }
 
     private:
@@ -74,7 +94,7 @@ namespace
             bool something_done{ false };
             for( const auto& block : model_.blocks() )
             {
-                if( skip( block ) )
+                if( is_in_stratigraphic_unit( block ) )
                 {
                     continue;
                 }
@@ -82,18 +102,20 @@ namespace
                     collect_horizons_data( block );
                 if( block_assigned )
                 {
+                    result_.assigned_blocks.push_back( block.id() );
                     something_done = true;
                     continue;
                 }
                 if( process_blocks_with_horizon_data( block, horizons_data ) )
                 {
+                    result_.assigned_blocks.push_back( block.id() );
                     something_done = true;
                 }
             }
             return something_done;
         }
 
-        bool skip( const geode::Block3D& block )
+        bool is_in_stratigraphic_unit( const geode::Block3D& block )
         {
             for( const auto& block_collection :
                 model_.collections( block.id() ) )
@@ -336,12 +358,14 @@ namespace
         const geode::ImplicitStructuralModel& model_;
         const geode::HorizonsStack3D& horizons_stack_;
         geode::ImplicitStructuralModelBuilder builder_;
+        geode::StratigraphicUnitToBlockResult result_;
     };
 } // namespace
 namespace geode
 {
-    void complete_stratigraphic_unit_block_relationships_from_available_data(
-        ImplicitStructuralModel& implicit_model )
+    StratigraphicUnitToBlockResult
+        complete_stratigraphic_unit_block_relationships(
+            ImplicitStructuralModel& implicit_model )
     {
         if( implicit_model.nb_horizons() == 0 )
         {
@@ -363,6 +387,6 @@ namespace geode
             "[complete_stratigraphic_unit_block_relationships_from_available_"
             "data] Implicit structural model has no horizons." );
         BlockToStratigraphicUnitBuilder builder{ implicit_model };
-        builder.assign_blocks_to_stratigraphic_units();
+        return builder.assign_blocks_to_stratigraphic_units();
     }
 } // namespace geode

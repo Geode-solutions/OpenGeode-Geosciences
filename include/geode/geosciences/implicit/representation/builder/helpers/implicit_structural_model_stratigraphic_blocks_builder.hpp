@@ -32,7 +32,14 @@ namespace geode
 
 namespace geode
 {
-    void opengeode_geosciences_implicit_api
-        complete_stratigraphic_unit_block_relationships_from_available_data(
+    struct opengeode_geosciences_implicit_api StratigraphicUnitToBlockResult
+    {
+        std::vector< uuid > already_assigned_blocks;
+        std::vector< uuid > assigned_blocks;
+        std::vector< uuid > unassigned_blocks;
+    };
+
+    StratigraphicUnitToBlockResult opengeode_geosciences_implicit_api
+        complete_stratigraphic_unit_block_relationships(
             ImplicitStructuralModel& implicit_model );
 } // namespace geode
