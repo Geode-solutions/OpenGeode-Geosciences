@@ -369,7 +369,7 @@ namespace geode
     {
         if( implicit_model.nb_horizons() == 0 )
         {
-            return;
+            return {};
         }
         const auto& horizons_stack = implicit_model.horizons_stack();
         OPENGEODE_DATA_EXCEPTION( horizons_stack.nb_stratigraphic_units() > 0,
