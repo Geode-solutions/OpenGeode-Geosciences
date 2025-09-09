@@ -277,7 +277,7 @@ namespace
                 return true;
             }
             if( horizons_stack_.is_directly_above(
-                    conformal_horizon_id, erosion_id ) )
+                  horizons_stack_.above(  conformal_horizon_id).value(), erosion_id ) )
             {
                 builder_.add_block_in_stratigraphic_unit(
                     block, model_.stratigraphic_unit(
