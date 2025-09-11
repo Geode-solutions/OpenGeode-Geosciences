@@ -59,21 +59,22 @@ PYBIND11_MODULE( opengeode_geosciences_py_implicit, module )
     geode::define_stratigraphic_relationships( module );
     geode::define_stratigraphic_relationships_builder( module );
 
-    geode::detail::define_implicit_model_helpers( module );
+    geode::define_horizons_stack( module );
+    geode::define_horizons_stack_builder( module );
     geode::define_implicit_cross_section( module );
     geode::define_implicit_structural_model( module );
     geode::define_stratigraphic_model( module );
     geode::define_stratigraphic_section( module );
-    geode::define_horizons_stack( module );
     geode::define_implicit_cross_section_builder( module );
     geode::define_implicit_structural_model_builder( module );
     geode::define_stratigraphic_model_builder( module );
     geode::define_stratigraphic_section_builder( module );
-    geode::define_horizons_stack_builder( module );
 
     geode::define_implicit_cross_section_io( module );
     geode::define_implicit_structural_model_io( module );
     geode::define_stratigraphic_model_io( module );
     geode::define_stratigraphic_section_io( module );
     geode::define_horizons_stack_io( module );
+
+    geode::detail::define_implicit_model_helpers( module );
 }

@@ -34,10 +34,6 @@
     const auto load##dimension =                                               \
         "load_horizons_stack" + std::to_string( dimension ) + "D";             \
     module.def( load##dimension.c_str(), &load_horizons_stack< dimension > );  \
-    const auto check##dimension =                                              \
-        "horizons_stack_additional_files" + std::to_string( dimension ) + "D"; \
-    module.def( check##dimension.c_str(),                                      \
-        &horizons_stack_additional_files< dimension > );                       \
     const auto priority##dimension =                                           \
         "horizons_stack_object_priority" + std::to_string( dimension ) + "D";  \
     module.def( priority##dimension.c_str(),                                   \
@@ -48,6 +44,10 @@
         &is_horizons_stack_loadable< dimension > );                            \
     PYTHON_INPUT_CLASS( HorizonsStack< dimension >,                            \
         "HorizonsStack" + std::to_string( dimension ) + "D" );                 \
+    const auto check##dimension =                                              \
+        "horizons_stack_additional_files" + std::to_string( dimension ) + "D"; \
+    module.def( check##dimension.c_str(),                                      \
+        &horizons_stack_additional_files< dimension > );                       \
     PYTHON_FACTORY_CLASS( HorizonsStackInputFactory##dimension##D );           \
     PYTHON_FACTORY_CLASS( HorizonsStackOutputFactory##dimension##D )
 

@@ -28,10 +28,6 @@
     pybind11::class_< Fault##dimension##D, Component##dimension##D >           \
         fault##dimension##D( module, name##dimension.c_str() );                \
                                                                                \
-    fault##dimension##D.def( "has_type", &Fault##dimension##D::has_type )      \
-        .def( "type", &Fault##dimension##D::type )                             \
-        .def( "component_id", &Fault##dimension##D::component_id );            \
-                                                                               \
     pybind11::enum_< Fault##dimension##D::FAULT_TYPE >(                        \
         fault##dimension##D, "FAULT_TYPE" )                                    \
         .value( "NO_TYPE", Fault##dimension##D::FAULT_TYPE::no_type )          \
@@ -39,7 +35,11 @@
         .value( "REVERSE", Fault##dimension##D::FAULT_TYPE::reverse )          \
         .value( "STRIKE_SLIP", Fault##dimension##D::FAULT_TYPE::strike_slip )  \
         .value( "LISTRIC", Fault##dimension##D::FAULT_TYPE::listric )          \
-        .value( "DECOLLEMENT", Fault##dimension##D::FAULT_TYPE::decollement )
+        .value( "DECOLLEMENT", Fault##dimension##D::FAULT_TYPE::decollement ); \
+                                                                               \
+    fault##dimension##D.def( "has_type", &Fault##dimension##D::has_type )      \
+        .def( "type", &Fault##dimension##D::type )                             \
+        .def( "component_id", &Fault##dimension##D::component_id )
 
 namespace geode
 {

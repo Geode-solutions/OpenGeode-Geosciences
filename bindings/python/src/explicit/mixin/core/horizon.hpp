@@ -29,10 +29,6 @@
     pybind11::class_< Horizon##dimension##D, Component##dimension##D >         \
         horizon##dimension##D( module, name##dimension.c_str() );              \
                                                                                \
-    horizon##dimension##D                                                      \
-        .def( "contact_type", &Horizon##dimension##D::contact_type )           \
-        .def( "component_id", &Horizon##dimension##D::component_id );          \
-                                                                               \
     pybind11::enum_< Horizon##dimension##D::CONTACT_TYPE >(                    \
         horizon##dimension##D, "CONTACT_TYPE" )                                \
         .value( "CONFORMAL", Horizon##dimension##D::CONTACT_TYPE::conformal )  \
@@ -42,7 +38,11 @@
             Horizon##dimension##D::CONTACT_TYPE::discontinuity )               \
         .value(                                                                \
             "TOPOGRAPHY", Horizon##dimension##D::CONTACT_TYPE::topography )    \
-        .value( "INTRUSION", Horizon##dimension##D::CONTACT_TYPE::intrusion )
+        .value( "INTRUSION", Horizon##dimension##D::CONTACT_TYPE::intrusion ); \
+                                                                               \
+    horizon##dimension##D                                                      \
+        .def( "contact_type", &Horizon##dimension##D::contact_type )           \
+        .def( "component_id", &Horizon##dimension##D::component_id )
 
 namespace geode
 {

@@ -36,14 +36,52 @@
             &HorizonsStack##dimension##D::native_extension )                   \
         .def( "top_horizon", &HorizonsStack##dimension##D::top_horizon )       \
         .def( "bottom_horizon", &HorizonsStack##dimension##D::bottom_horizon ) \
-        .def( "bottom_to_top_horizons",                                        \
-            &HorizonsStack##dimension##D::bottom_to_top_horizons )             \
-        .def( "bottom_to_top_units",                                           \
-            &HorizonsStack##dimension##D::bottom_to_top_units )                \
-        .def( "top_to_bottom_horizons",                                        \
-            &HorizonsStack##dimension##D::top_to_bottom_horizons )             \
-        .def( "top_to_bottom_units",                                           \
-            &HorizonsStack##dimension##D::top_to_bottom_units )
+        .def(                                                                  \
+            "bottom_to_top_horizons",                                          \
+            []( const HorizonsStack< dimension >& stack ) {                    \
+                std::vector< const Horizon< dimension >* > components;         \
+                for( const auto& component : stack.bottom_to_top_horizons() )  \
+                {                                                              \
+                    components.push_back( &component );                        \
+                }                                                              \
+                return components;                                             \
+            },                                                                 \
+            pybind11::return_value_policy::reference )                         \
+        .def(                                                                  \
+            "bottom_to_top_units",                                             \
+            []( const HorizonsStack< dimension >& stack ) {                    \
+                std::vector< const StratigraphicUnit< dimension >* >           \
+                    components;                                                \
+                for( const auto& component : stack.bottom_to_top_units() )     \
+                {                                                              \
+                    components.push_back( &component );                        \
+                }                                                              \
+                return components;                                             \
+            },                                                                 \
+            pybind11::return_value_policy::reference )                         \
+        .def(                                                                  \
+            "top_to_bottom_horizons",                                          \
+            []( const HorizonsStack< dimension >& stack ) {                    \
+                std::vector< const Horizon< dimension >* > components;         \
+                for( const auto& component : stack.top_to_bottom_horizons() )  \
+                {                                                              \
+                    components.push_back( &component );                        \
+                }                                                              \
+                return components;                                             \
+            },                                                                 \
+            pybind11::return_value_policy::reference )                         \
+        .def(                                                                  \
+            "top_to_bottom_units",                                             \
+            []( const HorizonsStack< dimension >& stack ) {                    \
+                std::vector< const StratigraphicUnit< dimension >* >           \
+                    components;                                                \
+                for( const auto& component : stack.top_to_bottom_units() )     \
+                {                                                              \
+                    components.push_back( &component );                        \
+                }                                                              \
+                return components;                                             \
+            },                                                                 \
+            pybind11::return_value_policy::reference )
 
 namespace geode
 {

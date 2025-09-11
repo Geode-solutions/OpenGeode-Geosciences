@@ -35,8 +35,6 @@ namespace geode
             "save_implicit_structural_model", &save_implicit_structural_model );
         module.def(
             "load_implicit_structural_model", &load_implicit_structural_model );
-        module.def( "implicit_structural_model_additional_files",
-            &implicit_structural_model_additional_files );
         module.def( "implicit_structural_model_object_priority",
             &implicit_structural_model_object_priority );
         module.def( "is_implicit_structural_model_loadable",
@@ -45,6 +43,8 @@ namespace geode
             &is_implicit_structural_model_saveable );
         PYTHON_INPUT_CLASS(
             ImplicitStructuralModel, "ImplicitStructuralModel" );
+        module.def( "implicit_structural_model_additional_files",
+            &implicit_structural_model_additional_files );
         PYTHON_FACTORY_CLASS( ImplicitStructuralModelInputFactory );
         PYTHON_FACTORY_CLASS( ImplicitStructuralModelOutputFactory );
     }
