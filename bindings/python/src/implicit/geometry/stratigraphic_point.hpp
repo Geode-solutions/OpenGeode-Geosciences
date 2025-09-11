@@ -48,7 +48,7 @@ namespace geode
 {
     void define_stratigraphic_point( pybind11::module& module )
     {
-        PYTHON_STRATIGRAPHIC_POINT( 2 );
         PYTHON_STRATIGRAPHIC_POINT( 3 );
+        PYTHON_STRATIGRAPHIC_POINT( 2 );
     }
 } // namespace geode
