@@ -34,12 +34,12 @@ namespace geode
         module.def( "save_cross_section", &save_cross_section );
         module.def( "load_cross_section", &load_cross_section );
         module.def(
-            "cross_section_additional_files", &cross_section_additional_files );
-        module.def(
             "cross_section_object_priority", &cross_section_object_priority );
         module.def( "is_cross_section_loadable", &is_cross_section_loadable );
         module.def( "is_cross_section_saveable", &is_cross_section_saveable );
         PYTHON_INPUT_CLASS( CrossSection, "CrossSection" );
+        module.def(
+            "cross_section_additional_files", &cross_section_additional_files );
         PYTHON_FACTORY_CLASS( CrossSectionInputFactory );
         PYTHON_FACTORY_CLASS( CrossSectionOutputFactory );
     }

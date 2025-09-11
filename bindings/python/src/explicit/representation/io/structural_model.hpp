@@ -33,8 +33,6 @@ namespace geode
     {
         module.def( "save_structural_model", &save_structural_model );
         module.def( "load_structural_model", &load_structural_model );
-        module.def( "structural_model_additional_files",
-            &structural_model_additional_files );
         module.def( "structural_model_object_priority",
             &structural_model_object_priority );
         module.def(
@@ -42,6 +40,8 @@ namespace geode
         module.def(
             "is_structural_model_saveable", &is_structural_model_saveable );
         PYTHON_INPUT_CLASS( StructuralModel, "StructuralModel" );
+        module.def( "structural_model_additional_files",
+            &structural_model_additional_files );
         PYTHON_FACTORY_CLASS( StructuralModelInputFactory );
         PYTHON_FACTORY_CLASS( StructuralModelOutputFactory );
     }

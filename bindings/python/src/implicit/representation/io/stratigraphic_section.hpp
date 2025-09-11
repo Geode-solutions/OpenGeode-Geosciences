@@ -33,8 +33,6 @@ namespace geode
     {
         module.def( "save_stratigraphic_section", &save_stratigraphic_section );
         module.def( "load_stratigraphic_section", &load_stratigraphic_section );
-        module.def( "stratigraphic_section_additional_files",
-            &stratigraphic_section_additional_files );
         module.def( "stratigraphic_section_object_priority",
             &stratigraphic_section_object_priority );
         module.def( "is_stratigraphic_section_loadable",
@@ -42,6 +40,8 @@ namespace geode
         module.def( "is_stratigraphic_section_saveable",
             &is_stratigraphic_section_saveable );
         PYTHON_INPUT_CLASS( StratigraphicSection, "StratigraphicSection" );
+        module.def( "stratigraphic_section_additional_files",
+            &stratigraphic_section_additional_files );
         PYTHON_FACTORY_CLASS( StratigraphicSectionInputFactory );
         PYTHON_FACTORY_CLASS( StratigraphicSectionOutputFactory );
     }

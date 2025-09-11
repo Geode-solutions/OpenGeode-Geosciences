@@ -35,8 +35,6 @@ namespace geode
             "save_implicit_cross_section", &save_implicit_cross_section );
         module.def(
             "load_implicit_cross_section", &load_implicit_cross_section );
-        module.def( "implicit_cross_section_additional_files",
-            &implicit_cross_section_additional_files );
         module.def( "implicit_cross_section_object_priority",
             &implicit_cross_section_object_priority );
         module.def( "is_implicit_cross_section_loadable",
@@ -44,6 +42,8 @@ namespace geode
         module.def( "is_implicit_cross_section_saveable",
             &is_implicit_cross_section_saveable );
         PYTHON_INPUT_CLASS( ImplicitCrossSection, "ImplicitCrossSection" );
+        module.def( "implicit_cross_section_additional_files",
+            &implicit_cross_section_additional_files );
         PYTHON_FACTORY_CLASS( ImplicitCrossSectionInputFactory );
         PYTHON_FACTORY_CLASS( ImplicitCrossSectionOutputFactory );
     }
