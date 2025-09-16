@@ -63,9 +63,10 @@ void test_crs()
 
     geode::GeographicCoordinateSystem3D lambert1{ manager,
         { "EPSG", "27571", "I" } };
-    for( const auto p : geode::TRange< double >{ NB_POINTS } )
+    for( const auto p : geode::Range{ NB_POINTS } )
     {
-        lambert1.set_point( p, geode::Point3D{ { p, p, p } } );
+        const auto value = static_cast< double >( p );
+        lambert1.set_point( p, geode::Point3D{ { value, value, value } } );
     }
     geode::GeographicCoordinateSystem3D lambert2{ manager,
         { "EPSG", "27572", "II" } };
