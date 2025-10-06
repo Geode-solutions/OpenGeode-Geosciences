@@ -26,6 +26,8 @@
 #include <geode/basic/logger.hpp>
 #include <geode/basic/pimpl_impl.hpp>
 
+#include <geode/model/representation/core/detail/model_component.hpp>
+
 #include <geode/geosciences/explicit/representation/core/detail/clone.hpp>
 #include <geode/geosciences/implicit/representation/builder/horizons_stack_builder.hpp>
 
@@ -93,6 +95,13 @@ namespace geode
             clone_builder.compute_top_and_bottom_horizons();
         }
         return stack_clone;
+    }
+
+    template < index_t dimension >
+    const Component< dimension >& HorizonsStack< dimension >::component(
+        const uuid& id ) const
+    {
+        return detail::model_component( *this, id );
     }
 
     template < index_t dimension >

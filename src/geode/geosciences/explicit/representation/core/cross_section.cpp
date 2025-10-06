@@ -24,6 +24,7 @@
 #include <geode/geosciences/explicit/representation/core/cross_section.hpp>
 
 #include <geode/model/representation/core/detail/clone.hpp>
+#include <geode/model/representation/core/detail/model_component.hpp>
 
 #include <geode/geosciences/explicit/representation/builder/cross_section_builder.hpp>
 #include <geode/geosciences/explicit/representation/core/detail/clone.hpp>
@@ -203,6 +204,11 @@ namespace geode
         CrossSectionBuilder builder{ *this };
         detail::transfer_geological_information(
             initial_model, *this, builder, initial_to_section_mappings );
+    }
+
+    const Component2D& CrossSection::component( const uuid& id ) const
+    {
+        return detail::model_component( *this, id );
     }
 
     CrossSection CrossSection::clone() const

@@ -59,6 +59,9 @@ namespace geode
             .def( "implicit_value_is_above_horizon",
                 &ImplicitStructuralModel::implicit_value_is_above_horizon )
             .def( "containing_stratigraphic_unit",
-                &ImplicitStructuralModel::containing_stratigraphic_unit );
+                &ImplicitStructuralModel::containing_stratigraphic_unit )
+            .def( "implicit_structural_model_component",
+                &ImplicitStructuralModel::component,
+                pybind11::return_value_policy::reference );
     }
 } // namespace geode

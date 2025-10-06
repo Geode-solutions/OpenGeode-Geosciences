@@ -69,6 +69,9 @@ namespace geode
                 &StratigraphicModel::stratigraphic_surface )
             .def( "stratigraphic_bounding_box",
                 &StratigraphicModel::stratigraphic_bounding_box )
-            .def( "native_extension", &StratigraphicModel::native_extension );
+            .def( "native_extension", &StratigraphicModel::native_extension )
+            .def( "stratigraphic_model_component",
+                &StratigraphicModel::component,
+                pybind11::return_value_policy::reference );
     }
 } // namespace geode

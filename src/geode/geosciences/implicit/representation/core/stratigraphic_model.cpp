@@ -48,6 +48,7 @@
 #include <geode/model/helpers/component_mesh_polygons.hpp>
 #include <geode/model/mixin/core/block.hpp>
 #include <geode/model/mixin/core/surface.hpp>
+#include <geode/model/representation/core/detail/model_component.hpp>
 
 #include <geode/geosciences/implicit/geometry/stratigraphic_point.hpp>
 
@@ -518,6 +519,11 @@ namespace geode
     StratigraphicModel StratigraphicModel::clone() const
     {
         return StratigraphicModel{ ImplicitStructuralModel::clone() };
+    }
+
+    const Component3D& StratigraphicModel::component( const uuid& id ) const
+    {
+        return detail::model_component( *this, id );
     }
 
     StratigraphicPoint3D StratigraphicModel::stratigraphic_coordinates(

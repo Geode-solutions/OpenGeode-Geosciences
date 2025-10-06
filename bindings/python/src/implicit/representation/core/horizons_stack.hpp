@@ -81,6 +81,9 @@
                 }                                                              \
                 return components;                                             \
             },                                                                 \
+            pybind11::return_value_policy::reference )                         \
+        .def( "horizon_stack_component",                                       \
+            &HorizonsStack< dimension >::component,                            \
             pybind11::return_value_policy::reference )
 
 namespace geode

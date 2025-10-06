@@ -24,6 +24,7 @@
 #include <geode/geosciences/explicit/representation/core/structural_model.hpp>
 
 #include <geode/model/representation/core/detail/clone.hpp>
+#include <geode/model/representation/core/detail/model_component.hpp>
 
 #include <geode/geosciences/explicit/representation/builder/structural_model_builder.hpp>
 #include <geode/geosciences/explicit/representation/core/detail/clone.hpp>
@@ -209,6 +210,11 @@ namespace geode
         StructuralModelBuilder builder{ *this };
         detail::transfer_geological_information< StructuralModel >(
             initial_model, *this, builder, initial_to_brep_mappings );
+    }
+
+    const Component3D& StructuralModel::component( const uuid& id ) const
+    {
+        return detail::model_component( *this, id );
     }
 
     StructuralModel StructuralModel::clone() const

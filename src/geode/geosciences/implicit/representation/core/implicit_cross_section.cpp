@@ -43,6 +43,7 @@
 #include <geode/mesh/helpers/triangulated_surface_scalar_function.hpp>
 
 #include <geode/model/mixin/core/surface.hpp>
+#include <geode/model/representation/core/detail/model_component.hpp>
 
 #include <geode/geosciences/explicit/representation/core/detail/clone.hpp>
 #include <geode/geosciences/implicit/representation/builder/implicit_cross_section_builder.hpp>
@@ -367,6 +368,11 @@ namespace geode
             clone_mappings, *this );
         clone_builder.copy_implicit_information( clone_mappings, *this );
         return model_clone;
+    }
+
+    const Component2D& ImplicitCrossSection::component( const uuid& id ) const
+    {
+        return detail::model_component( *this, id );
     }
 
     double ImplicitCrossSection::implicit_value(

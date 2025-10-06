@@ -57,6 +57,9 @@ namespace geode
             .def( "implicit_value_is_above_horizon",
                 &ImplicitCrossSection::implicit_value_is_above_horizon )
             .def( "containing_stratigraphic_unit",
-                &ImplicitCrossSection::containing_stratigraphic_unit );
+                &ImplicitCrossSection::containing_stratigraphic_unit )
+            .def( "implicit_cross_section_component",
+                &ImplicitCrossSection::component,
+                pybind11::return_value_policy::reference );
     }
 } // namespace geode

@@ -115,6 +115,17 @@ namespace geode
             return stratigraphic_units();
         }
 
+        [[nodiscard]] bool has_component( const uuid& id ) const
+        {
+            return has_stratigraphic_unit( id );
+        }
+
+        [[nodiscard]] const StratigraphicUnit< dimension >& component(
+            const uuid& id ) const
+        {
+            return stratigraphic_unit( id );
+        }
+
         void save_stratigraphic_units( std::string_view directory ) const;
 
     protected:

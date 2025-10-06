@@ -73,6 +73,9 @@ namespace geode
                 &StratigraphicSection::stratigraphic_line )
             .def( "stratigraphic_bounding_box",
                 &StratigraphicSection::stratigraphic_bounding_box )
-            .def( "native_extension", &StratigraphicSection::native_extension );
+            .def( "native_extension", &StratigraphicSection::native_extension )
+            .def( "stratigraphic_section_component",
+                &StratigraphicSection::component,
+                pybind11::return_value_policy::reference );
     }
 } // namespace geode
