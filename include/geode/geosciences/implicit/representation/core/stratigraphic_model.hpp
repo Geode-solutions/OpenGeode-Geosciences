@@ -71,6 +71,8 @@ namespace geode
 
         [[nodiscard]] StratigraphicModel clone() const;
 
+        [[nodiscard]] const Component3D& component( const uuid& id ) const;
+
         [[nodiscard]] static constexpr std::string_view
             native_extension_static()
         {

@@ -110,6 +110,17 @@ namespace geode
             return horizons();
         }
 
+        [[nodiscard]] bool has_component( const uuid& id ) const
+        {
+            return has_horizon( id );
+        }
+
+        [[nodiscard]] const Horizon< dimension >& component(
+            const uuid& id ) const
+        {
+            return horizon( id );
+        }
+
         void save_horizons( std::string_view directory ) const;
 
     protected:

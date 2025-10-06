@@ -74,6 +74,8 @@ namespace geode
 
         [[nodiscard]] StratigraphicSection clone() const;
 
+        [[nodiscard]] const Component2D& component( const uuid& id ) const;
+
         [[nodiscard]] static constexpr std::string_view
             native_extension_static()
         {

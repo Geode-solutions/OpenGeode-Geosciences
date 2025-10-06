@@ -109,6 +109,17 @@ namespace geode
             return fault_blocks();
         }
 
+        [[nodiscard]] bool has_component( const uuid& id ) const
+        {
+            return has_fault_block( id );
+        }
+
+        [[nodiscard]] const FaultBlock< dimension >& component(
+            const uuid& id ) const
+        {
+            return fault_block( id );
+        }
+
         void save_fault_blocks( std::string_view directory ) const;
 
     protected:

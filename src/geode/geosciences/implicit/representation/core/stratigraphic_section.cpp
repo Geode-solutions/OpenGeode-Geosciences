@@ -48,6 +48,7 @@
 #include <geode/model/helpers/component_mesh_polygons.hpp>
 #include <geode/model/mixin/core/line.hpp>
 #include <geode/model/mixin/core/surface.hpp>
+#include <geode/model/representation/core/detail/model_component.hpp>
 
 #include <geode/geosciences/implicit/geometry/stratigraphic_point.hpp>
 
@@ -503,6 +504,11 @@ namespace geode
     StratigraphicSection StratigraphicSection::clone() const
     {
         return StratigraphicSection{ ImplicitCrossSection::clone() };
+    }
+
+    const Component2D& StratigraphicSection::component( const uuid& id ) const
+    {
+        return detail::model_component( *this, id );
     }
 
     StratigraphicPoint2D StratigraphicSection::stratigraphic_coordinates(

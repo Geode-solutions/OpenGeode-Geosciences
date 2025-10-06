@@ -87,6 +87,8 @@ namespace geode
                     return components;
                 },
                 pybind11::return_value_policy::reference )
-            .def( "native_extension", &CrossSection::native_extension );
+            .def( "native_extension", &CrossSection::native_extension )
+            .def( "cross_section_component", &CrossSection::component,
+                pybind11::return_value_policy::reference );
     }
 } // namespace geode

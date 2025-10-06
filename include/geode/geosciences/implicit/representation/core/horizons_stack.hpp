@@ -33,11 +33,10 @@
 
 namespace geode
 {
+    FORWARD_DECLARATION_DIMENSION_CLASS( Component );
     FORWARD_DECLARATION_DIMENSION_CLASS( HorizonsStackBuilder );
     FORWARD_DECLARATION_DIMENSION_CLASS( Horizon );
     FORWARD_DECLARATION_DIMENSION_CLASS( StratigraphicUnit );
-    ALIAS_2D_AND_3D( Horizon );
-    ALIAS_2D_AND_3D( StratigraphicUnit );
     struct uuid;
 } // namespace geode
 
@@ -126,8 +125,13 @@ namespace geode
         };
 
     public:
-        using Builder = HorizonsStackBuilder< dimension >;
         static constexpr auto dim = dimension;
+        using Builder = HorizonsStackBuilder< dimension >;
+        using MeshComponents = std::tuple<>;
+        using CollectionComponents =
+            tuple_cat< std::tuple< Horizons< dimension >,
+                StratigraphicUnits< dimension > > >;
+        using Components = tuple_cat< MeshComponents, CollectionComponents >;
 
         HorizonsStack();
         HorizonsStack( HorizonsStack< dimension >&& horizons_stack ) noexcept;
@@ -137,6 +141,9 @@ namespace geode
             HorizonsStack< dimension >&& other ) noexcept;
 
         [[nodiscard]] HorizonsStack< dimension > clone() const;
+
+        [[nodiscard]] const Component< dimension >& component(
+            const uuid& id ) const;
 
         [[nodiscard]] static std::string_view native_extension_static()
         {

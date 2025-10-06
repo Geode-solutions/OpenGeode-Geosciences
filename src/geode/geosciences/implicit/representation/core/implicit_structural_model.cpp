@@ -41,6 +41,7 @@
 #include <geode/mesh/helpers/tetrahedral_solid_scalar_function.hpp>
 
 #include <geode/model/mixin/core/block.hpp>
+#include <geode/model/representation/core/detail/model_component.hpp>
 
 #include <geode/geosciences/explicit/representation/core/detail/clone.hpp>
 #include <geode/geosciences/implicit/representation/builder/implicit_structural_model_builder.hpp>
@@ -376,6 +377,12 @@ namespace geode
             clone_mappings[StratigraphicUnit3D::component_type_static()] );
         clone_builder.copy_implicit_information( clone_mappings, *this );
         return model_clone;
+    }
+
+    const Component3D& ImplicitStructuralModel::component(
+        const uuid& id ) const
+    {
+        return detail::model_component( *this, id );
     }
 
     double ImplicitStructuralModel::implicit_value(
