@@ -294,7 +294,7 @@ namespace geode
             if( nb_horizons == 0 )
             {
                 const auto& only_su = builder.add_stratigraphic_unit();
-                builder.set_stratigraphic_unit_name( su_above, units_names[0] );
+                builder.set_stratigraphic_unit_name( only_su, units_names[0] );
                 return stack;
             }
             auto current_horizon = builder.add_horizon();
@@ -347,7 +347,7 @@ namespace geode
             if( nb_horizons == 0 )
             {
                 const auto& only_su = builder.add_stratigraphic_unit();
-                builder.set_stratigraphic_unit_name( su_above, units_names[0] );
+                builder.set_stratigraphic_unit_name( only_su, units_names[0] );
                 return stack;
             }
             auto current_horizon = builder.add_horizon();
