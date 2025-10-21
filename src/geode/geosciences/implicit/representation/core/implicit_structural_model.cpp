@@ -126,7 +126,8 @@ namespace geode
         std::optional< double > horizon_implicit_value(
             const Horizon3D& horizon ) const
         {
-            OPENGEODE_EXCEPTION( horizons_stack_.has_horizon( horizon.id() ),
+            OPENGEODE_DATA_EXCEPTION(
+                horizons_stack_.has_horizon( horizon.id() ),
                 "[horizon_implicit_value] You cannot access the isovalue of "
                 "Horizon ",
                 horizon.id().string(),
@@ -144,9 +145,9 @@ namespace geode
         {
             const auto increasing = increasing_stack_isovalues();
             OPENGEODE_EXCEPTION( increasing.has_value(),
-                "[implicit_value_is_above_horizon] Could not define if "
-                "implicit values were "
-                "increasing or decreasing in the horizon stack." );
+                "[implicit_value_is_above_horizon] Could not find if "
+                "implicit values were increasing or decreasing in the horizon "
+                "stack." );
             const auto it = horizon_isovalues_.find( horizon.id() );
             OPENGEODE_EXCEPTION( it != horizon_isovalues_.end(),
                 "[implicit_value_is_above_horizon] Cannot find horizon "
@@ -220,7 +221,7 @@ namespace geode
                 {
                     continue;
                 }
-                OPENGEODE_EXCEPTION(
+                OPENGEODE_DATA_EXCEPTION(
                     ( block.mesh().type_name()
                         == TetrahedralSolid3D::type_name_static() ),
                     "[ImplicitStructuralModel::instantiate_implicit_attribute_"
@@ -248,8 +249,8 @@ namespace geode
         void set_implicit_value(
             const Block3D& block, index_t vertex_id, double value )
         {
-            OPENGEODE_EXCEPTION( implicit_attributes_.find( block.id() )
-                                     != implicit_attributes_.end(),
+            OPENGEODE_DATA_EXCEPTION( implicit_attributes_.find( block.id() )
+                                          != implicit_attributes_.end(),
                 "[ImplicitStructuralModel::set_implicit_value] Couldn't find "
                 "block uuid in the attributes registered - Try instantiating "
                 "your attribute first." );
@@ -264,10 +265,11 @@ namespace geode
         void set_horizon_implicit_value(
             const Horizon3D& horizon, double isovalue )
         {
-            OPENGEODE_EXCEPTION( horizons_stack_.has_horizon( horizon.id() ),
+            OPENGEODE_DATA_EXCEPTION(
+                horizons_stack_.has_horizon( horizon.id() ),
                 "[horizon_implicit_value] You cannot access the isovalue of "
-                "Horizon ",
-                horizon.id().string(),
+                "Horizon '",
+                horizon.name(), "' with uuid", horizon.id().string(),
                 " because the horizon is not defined in the HorizonsStack." );
             horizon_isovalues_[horizon.id()] = isovalue;
         }

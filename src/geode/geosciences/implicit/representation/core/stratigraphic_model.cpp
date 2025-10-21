@@ -195,7 +195,7 @@ namespace geode
         {
             for( const auto& block : model.blocks() )
             {
-                OPENGEODE_EXCEPTION(
+                OPENGEODE_DATA_EXCEPTION(
                     ( block.mesh().type_name()
                         == TetrahedralSolid3D::type_name_static() ),
                     "[StratigraphicModel::instantiate_stratigraphic_"
@@ -240,7 +240,7 @@ namespace geode
         void set_stratigraphic_location(
             const Block3D& block, index_t vertex_id, Point2D value )
         {
-            OPENGEODE_EXCEPTION(
+            OPENGEODE_DATA_EXCEPTION(
                 stratigraphic_location_attributes_.find( block.id() )
                     != stratigraphic_location_attributes_.end(),
                 "[StratigraphicModel::set_stratigraphic_location] "
