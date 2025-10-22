@@ -179,8 +179,8 @@ namespace geode
         auto component_is_a_horizon = this->has_horizon( component );
         OPENGEODE_EXCEPTION(
             component_is_a_horizon || this->has_stratigraphic_unit( component ),
-            "[HorizonsStack::is_conformal_above] Component does not exist in "
-            "the stack." );
+            "[HorizonsStack::is_conformal_above] Given component with uuid ",
+            component.string(), " does not exist in the stack." );
         if( component_is_a_horizon )
         {
             const auto contact_type = this->horizon( component ).contact_type();
@@ -210,8 +210,8 @@ namespace geode
         auto component_is_a_horizon = this->has_horizon( component );
         OPENGEODE_EXCEPTION(
             component_is_a_horizon || this->has_stratigraphic_unit( component ),
-            "[HorizonsStack::is_conformal_above] Component does not exist in "
-            "the stack." );
+            "[HorizonsStack::is_conformal_above] Given component with uuid ",
+            component.string(), " does not exist in the stack." );
         if( component_is_a_horizon )
         {
             const auto contact_type = this->horizon( component ).contact_type();

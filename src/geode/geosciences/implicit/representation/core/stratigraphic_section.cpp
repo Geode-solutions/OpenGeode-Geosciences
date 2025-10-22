@@ -209,7 +209,7 @@ namespace geode
         {
             for( const auto& surface : model.surfaces() )
             {
-                OPENGEODE_EXCEPTION(
+                OPENGEODE_DATA_EXCEPTION(
                     ( surface.mesh().type_name()
                         == TriangulatedSurface2D::type_name_static() ),
                     "[StratigraphicSection::instantiate_stratigraphic_"

@@ -148,11 +148,12 @@ namespace geode
         HorizonsStackBuilder< dimension >::add_horizon_in_stratigraphic_unit(
             const StratigraphicUnit< dimension >& strati_unit )
     {
-        OPENGEODE_EXCEPTION(
+        OPENGEODE_DATA_EXCEPTION(
             horizons_stack_.has_stratigraphic_unit( strati_unit.id() ),
             "[HorizonsStackBuilder::add_horizon_in_stratigraphic_"
             "unit] Cannot add horizon: statigraphic unit ",
-            strati_unit.component_id().string() );
+            strati_unit.component_id().string(),
+            " does not exist in the HorizonsStack" );
         InsertedHorizonInfo info;
         info.new_horizon_id = this->create_horizon();
         info.strati_unit_above_id = this->create_stratigraphic_unit();
