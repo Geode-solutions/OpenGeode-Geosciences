@@ -22,7 +22,6 @@
  */
 
 #include "../../../factory.hpp"
-#include "../../../input.hpp"
 
 #include <geode/geosciences/implicit/representation/io/stratigraphic_section_input.hpp>
 #include <geode/geosciences/implicit/representation/io/stratigraphic_section_output.hpp>
@@ -39,7 +38,6 @@ namespace geode
             &is_stratigraphic_section_loadable );
         module.def( "is_stratigraphic_section_saveable",
             &is_stratigraphic_section_saveable );
-        PYTHON_INPUT_CLASS( StratigraphicSection, "StratigraphicSection" );
         module.def( "stratigraphic_section_additional_files",
             &stratigraphic_section_additional_files );
         PYTHON_FACTORY_CLASS( StratigraphicSectionInputFactory );

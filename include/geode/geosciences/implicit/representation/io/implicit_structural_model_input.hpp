@@ -54,8 +54,7 @@ namespace geode
         }
     };
 
-    [[nodiscard]] ImplicitStructuralModelInput::AdditionalFiles
-        opengeode_geosciences_implicit_api
+    [[nodiscard]] AdditionalFiles opengeode_geosciences_implicit_api
         implicit_structural_model_additional_files( std::string_view filename );
 
     [[nodiscard]] Percentage opengeode_geosciences_implicit_api

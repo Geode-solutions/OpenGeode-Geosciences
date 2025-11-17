@@ -87,8 +87,8 @@ namespace geode
         }
     }
 
-    typename StratigraphicModelInput::AdditionalFiles
-        stratigraphic_model_additional_files( std::string_view filename )
+    AdditionalFiles stratigraphic_model_additional_files(
+        std::string_view filename )
     {
         const auto input =
             detail::geode_object_input_reader< StratigraphicModelInputFactory >(

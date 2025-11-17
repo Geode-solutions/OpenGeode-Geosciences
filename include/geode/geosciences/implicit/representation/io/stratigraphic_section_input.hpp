@@ -54,8 +54,7 @@ namespace geode
         }
     };
 
-    [[nodiscard]] StratigraphicSectionInput::AdditionalFiles
-        opengeode_geosciences_implicit_api
+    [[nodiscard]] AdditionalFiles opengeode_geosciences_implicit_api
         stratigraphic_section_additional_files( std::string_view filename );
 
     [[nodiscard]] Percentage opengeode_geosciences_implicit_api

@@ -22,7 +22,6 @@
  */
 
 #include "../../../factory.hpp"
-#include "../../../input.hpp"
 
 #include <geode/geosciences/implicit/representation/io/implicit_cross_section_input.hpp>
 #include <geode/geosciences/implicit/representation/io/implicit_cross_section_output.hpp>
@@ -41,7 +40,6 @@ namespace geode
             &is_implicit_cross_section_loadable );
         module.def( "is_implicit_cross_section_saveable",
             &is_implicit_cross_section_saveable );
-        PYTHON_INPUT_CLASS( ImplicitCrossSection, "ImplicitCrossSection" );
         module.def( "implicit_cross_section_additional_files",
             &implicit_cross_section_additional_files );
         PYTHON_FACTORY_CLASS( ImplicitCrossSectionInputFactory );

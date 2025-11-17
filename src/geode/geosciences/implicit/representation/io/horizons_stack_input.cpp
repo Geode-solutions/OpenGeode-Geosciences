@@ -64,8 +64,7 @@ namespace geode
     }
 
     template < index_t dimension >
-    typename HorizonsStackInput< dimension >::AdditionalFiles
-        horizons_stack_additional_files( std::string_view filename )
+    AdditionalFiles horizons_stack_additional_files( std::string_view filename )
     {
         const auto input = detail::geode_object_input_reader<
             HorizonsStackInputFactory< dimension > >( filename );
@@ -100,12 +99,10 @@ namespace geode
     template HorizonsStack< 3 > opengeode_geosciences_implicit_api
         load_horizons_stack( std::string_view );
 
-    template HorizonsStackInput< 2 >::AdditionalFiles
-        opengeode_geosciences_implicit_api horizons_stack_additional_files< 2 >(
-            std::string_view );
-    template HorizonsStackInput< 3 >::AdditionalFiles
-        opengeode_geosciences_implicit_api horizons_stack_additional_files< 3 >(
-            std::string_view );
+    template AdditionalFiles opengeode_geosciences_implicit_api
+        horizons_stack_additional_files< 2 >( std::string_view );
+    template AdditionalFiles opengeode_geosciences_implicit_api
+        horizons_stack_additional_files< 3 >( std::string_view );
 
     template Percentage opengeode_geosciences_implicit_api
         is_horizons_stack_loadable< 2 >( std::string_view );
