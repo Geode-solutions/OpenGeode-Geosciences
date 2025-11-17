@@ -85,8 +85,8 @@ namespace geode
         }
     }
 
-    StratigraphicSectionInput::AdditionalFiles
-        stratigraphic_section_additional_files( std::string_view filename )
+    AdditionalFiles stratigraphic_section_additional_files(
+        std::string_view filename )
     {
         const auto input = detail::geode_object_input_reader<
             StratigraphicSectionInputFactory >( filename );

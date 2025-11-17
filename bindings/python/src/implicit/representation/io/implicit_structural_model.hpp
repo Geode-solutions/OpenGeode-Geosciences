@@ -22,7 +22,6 @@
  */
 
 #include "../../../factory.hpp"
-#include "../../../input.hpp"
 
 #include <geode/geosciences/implicit/representation/io/implicit_structural_model_input.hpp>
 #include <geode/geosciences/implicit/representation/io/implicit_structural_model_output.hpp>
@@ -41,8 +40,6 @@ namespace geode
             &is_implicit_structural_model_loadable );
         module.def( "is_implicit_structural_model_saveable",
             &is_implicit_structural_model_saveable );
-        PYTHON_INPUT_CLASS(
-            ImplicitStructuralModel, "ImplicitStructuralModel" );
         module.def( "implicit_structural_model_additional_files",
             &implicit_structural_model_additional_files );
         PYTHON_FACTORY_CLASS( ImplicitStructuralModelInputFactory );

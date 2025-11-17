@@ -59,8 +59,8 @@ namespace geode
     };
 
     template < index_t dimension >
-    [[nodiscard]] typename HorizonsStackInput< dimension >::AdditionalFiles
-        horizons_stack_additional_files( std::string_view filename );
+    [[nodiscard]] AdditionalFiles horizons_stack_additional_files(
+        std::string_view filename );
 
     template < index_t dimension >
     [[nodiscard]] Percentage is_horizons_stack_loadable(

@@ -22,7 +22,6 @@
  */
 
 #include "../../../factory.hpp"
-#include "../../../input.hpp"
 
 #include <geode/geosciences/implicit/representation/io/stratigraphic_model_input.hpp>
 #include <geode/geosciences/implicit/representation/io/stratigraphic_model_output.hpp>
@@ -39,7 +38,6 @@ namespace geode
             &is_stratigraphic_model_loadable );
         module.def( "is_stratigraphic_model_saveable",
             &is_stratigraphic_model_saveable );
-        PYTHON_INPUT_CLASS( StratigraphicModel, "StratigraphicModel" );
         module.def( "stratigraphic_model_additional_files",
             &stratigraphic_model_additional_files );
         PYTHON_FACTORY_CLASS( StratigraphicModelInputFactory );

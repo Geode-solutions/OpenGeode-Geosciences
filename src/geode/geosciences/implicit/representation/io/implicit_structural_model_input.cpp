@@ -84,8 +84,8 @@ namespace geode
         }
     }
 
-    typename ImplicitStructuralModelInput::AdditionalFiles
-        implicit_structural_model_additional_files( std::string_view filename )
+    AdditionalFiles implicit_structural_model_additional_files(
+        std::string_view filename )
     {
         const auto input = detail::geode_object_input_reader<
             ImplicitStructuralModelInputFactory >( filename );

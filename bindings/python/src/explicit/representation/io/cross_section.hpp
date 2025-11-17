@@ -22,7 +22,6 @@
  */
 
 #include "../../../factory.hpp"
-#include "../../../input.hpp"
 
 #include <geode/geosciences/explicit/representation/io/cross_section_input.hpp>
 #include <geode/geosciences/explicit/representation/io/cross_section_output.hpp>
@@ -37,7 +36,6 @@ namespace geode
             "cross_section_object_priority", &cross_section_object_priority );
         module.def( "is_cross_section_loadable", &is_cross_section_loadable );
         module.def( "is_cross_section_saveable", &is_cross_section_saveable );
-        PYTHON_INPUT_CLASS( CrossSection, "CrossSection" );
         module.def(
             "cross_section_additional_files", &cross_section_additional_files );
         PYTHON_FACTORY_CLASS( CrossSectionInputFactory );

@@ -49,8 +49,7 @@ namespace geode
 
         [[nodiscard]] HorizonsStack< dimension > read() final;
 
-        [[nodiscard]] typename HorizonsStackInput< dimension >::AdditionalFiles
-            additional_files() const final
+        [[nodiscard]] AdditionalFiles additional_files() const final
         {
             return {};
         }

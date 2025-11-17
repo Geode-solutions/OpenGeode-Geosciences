@@ -22,7 +22,6 @@
  */
 
 #include "../../../factory.hpp"
-#include "../../../input.hpp"
 
 #include <geode/geosciences/implicit/representation/io/horizons_stack_input.hpp>
 #include <geode/geosciences/implicit/representation/io/horizons_stack_output.hpp>
@@ -42,8 +41,6 @@
         "is_horizons_stack_loadable" + std::to_string( dimension ) + "D";      \
     module.def( loadable##dimension.c_str(),                                   \
         &is_horizons_stack_loadable< dimension > );                            \
-    PYTHON_INPUT_CLASS( HorizonsStack< dimension >,                            \
-        "HorizonsStack" + std::to_string( dimension ) + "D" );                 \
     const auto check##dimension =                                              \
         "horizons_stack_additional_files" + std::to_string( dimension ) + "D"; \
     module.def( check##dimension.c_str(),                                      \

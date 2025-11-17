@@ -82,8 +82,8 @@ namespace geode
         }
     }
 
-    typename ImplicitCrossSectionInput::AdditionalFiles
-        implicit_cross_section_additional_files( std::string_view filename )
+    AdditionalFiles implicit_cross_section_additional_files(
+        std::string_view filename )
     {
         const auto input = detail::geode_object_input_reader<
             ImplicitCrossSectionInputFactory >( filename );

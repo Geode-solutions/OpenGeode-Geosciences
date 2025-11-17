@@ -56,8 +56,7 @@ namespace geode
         }
     };
 
-    [[nodiscard]] CrossSectionInput::AdditionalFiles
-        opengeode_geosciences_explicit_api
+    [[nodiscard]] AdditionalFiles opengeode_geosciences_explicit_api
         cross_section_additional_files( std::string_view filename );
 
     [[nodiscard]] Percentage opengeode_geosciences_explicit_api
