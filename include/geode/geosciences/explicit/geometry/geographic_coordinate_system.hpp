@@ -36,6 +36,41 @@ namespace geode
 
 namespace geode
 {
+    struct opengeode_geosciences_explicit_api GeographicCoordinateSystemInfo
+    {
+        GeographicCoordinateSystemInfo( std::string authority_in,
+            std::string code_in,
+            std::string name_in );
+        GeographicCoordinateSystemInfo();
+        ~GeographicCoordinateSystemInfo();
+
+        [[nodiscard]] std::string authority_code() const
+        {
+            return absl::StrCat( authority, ":", code );
+        }
+
+        [[nodiscard]] std::string string() const
+        {
+            return absl::StrCat( "(", authority_code(), " -> ", name, ")" );
+        }
+
+        template < typename Archive >
+        void serialize( Archive& archive )
+        {
+            archive.ext( *this,
+                Growable< Archive, GeographicCoordinateSystemInfo >{
+                    { []( Archive& a, GeographicCoordinateSystemInfo& info ) {
+                        a.text1b( info.authority, info.authority.max_size() );
+                        a.text1b( info.code, info.code.max_size() );
+                        a.text1b( info.name, info.name.max_size() );
+                    } } } );
+        }
+
+        std::string authority;
+        std::string code;
+        std::string name;
+    };
+
     template < index_t dimension >
     class GeographicCoordinateSystem
         : public AttributeCoordinateReferenceSystem< dimension >
@@ -43,53 +78,15 @@ namespace geode
         friend class bitsery::Access;
 
     public:
-        struct Info
-        {
-            Info( std::string authority_in,
-                std::string code_in,
-                std::string name_in )
-                : authority{ std::move( authority_in ) },
-                  code{ std::move( code_in ) },
-                  name{ std::move( name_in ) }
-            {
-            }
-            Info() = default;
-
-            [[nodiscard]] std::string authority_code() const
-            {
-                return absl::StrCat( authority, ":", code );
-            }
-
-            [[nodiscard]] std::string string() const
-            {
-                return absl::StrCat( "(", authority_code(), " -> ", name, ")" );
-            }
-
-            template < typename Archive >
-            void serialize( Archive& archive )
-            {
-                archive.ext( *this,
-                    Growable< Archive, Info >{ { []( Archive& a, Info& info ) {
-                        a.text1b( info.authority, info.authority.max_size() );
-                        a.text1b( info.code, info.code.max_size() );
-                        a.text1b( info.name, info.name.max_size() );
-                    } } } );
-            }
-
-            std::string authority;
-            std::string code;
-            std::string name;
-        };
-
-    public:
-        GeographicCoordinateSystem( AttributeManager& manager, Info info );
+        GeographicCoordinateSystem(
+            AttributeManager& manager, GeographicCoordinateSystemInfo info );
         ~GeographicCoordinateSystem();
 
         [[nodiscard]] static GeographicCoordinateSystem< dimension >
             create_from_attribute(
                 const AttributeCoordinateReferenceSystem< dimension >& crs,
                 AttributeManager& manager,
-                Info info );
+                GeographicCoordinateSystemInfo info );
 
         [[nodiscard]] static CRSType type_name_static()
         {
@@ -101,9 +98,9 @@ namespace geode
             return type_name_static();
         }
 
-        [[nodiscard]] const Info& info() const;
+        [[nodiscard]] const GeographicCoordinateSystemInfo& info() const;
 
-        [[nodiscard]] static absl::FixedArray< Info >
+        [[nodiscard]] static absl::FixedArray< GeographicCoordinateSystemInfo >
             geographic_coordinate_systems();
 
         void import_coordinates(
