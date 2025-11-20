@@ -32,7 +32,7 @@
         CoordinateReferenceSystem##dimension##D >(                             \
         module, name##dimension.c_str() )                                      \
         .def( pybind11::init< AttributeManager&,                               \
-            GeographicCoordinateSystem##dimension##D::Info >() )               \
+            GeographicCoordinateSystemInfo >() )                               \
         .def( "type_name_static",                                              \
             &GeographicCoordinateSystem##dimension##D::type_name_static )      \
         .def( "info", &GeographicCoordinateSystem##dimension##D::info )        \

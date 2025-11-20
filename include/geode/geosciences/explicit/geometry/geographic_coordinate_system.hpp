@@ -46,6 +46,7 @@ namespace geode
         {
         }
         GeographicCoordinateSystemInfo() = default;
+        ~GeographicCoordinateSystemInfo() = default;
 
         [[nodiscard]] std::string authority_code() const
         {
