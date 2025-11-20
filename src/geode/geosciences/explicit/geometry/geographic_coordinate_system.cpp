@@ -39,11 +39,13 @@ namespace geode
         friend class bitsery::Access;
 
     public:
-        Impl( Info info ) : info_{ std::move( info ) } {}
+        Impl( GeographicCoordinateSystemInfo info ) : info_{ std::move( info ) }
+        {
+        }
 
         Impl() = default;
 
-        const Info& info() const
+        const GeographicCoordinateSystemInfo& info() const
         {
             return info_;
         }
@@ -91,29 +93,28 @@ namespace geode
         }
 
     private:
-        Info info_;
+        GeographicCoordinateSystemInfo info_;
     };
 
     template < index_t dimension >
-    GeographicCoordinateSystem< dimension >::GeographicCoordinateSystem()
-    {
-    }
+    GeographicCoordinateSystem< dimension >::GeographicCoordinateSystem() =
+        default;
 
     template < index_t dimension >
     GeographicCoordinateSystem< dimension >::GeographicCoordinateSystem(
-        AttributeManager& manager, Info info )
+        AttributeManager& manager, GeographicCoordinateSystemInfo info )
         : AttributeCoordinateReferenceSystem< dimension >{ manager, info.name },
           impl_{ std::move( info ) }
     {
     }
 
     template < index_t dimension >
-    GeographicCoordinateSystem< dimension >::~GeographicCoordinateSystem()
-    {
-    }
+    GeographicCoordinateSystem< dimension >::~GeographicCoordinateSystem() =
+        default;
 
     template < index_t dimension >
-    auto GeographicCoordinateSystem< dimension >::info() const -> const Info&
+    const GeographicCoordinateSystemInfo&
+        GeographicCoordinateSystem< dimension >::info() const
     {
         return impl_->info();
     }
@@ -133,14 +134,13 @@ namespace geode
     }
 
     template < index_t dimension >
-    auto
+    absl::FixedArray< GeographicCoordinateSystemInfo >
         GeographicCoordinateSystem< dimension >::geographic_coordinate_systems()
-            -> absl::FixedArray< Info >
     {
         int nb_crs{ 0 };
         auto** gdal_list =
             OSRGetCRSInfoListFromDatabase( nullptr, nullptr, &nb_crs );
-        absl::FixedArray< Info > infos( nb_crs );
+        absl::FixedArray< GeographicCoordinateSystemInfo > infos( nb_crs );
         for( const auto i : Range{ nb_crs } )
         {
             const auto* gdal_crs = gdal_list[i];

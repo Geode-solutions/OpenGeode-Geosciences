@@ -26,21 +26,6 @@
 #include <geode/geosciences/explicit/geometry/geographic_coordinate_system.hpp>
 
 #define PYTHON_CRS( dimension )                                                \
-    const auto info##dimension =                                               \
-        "GeographicCoordinateSystemInfo" + std::to_string( dimension ) + "D";  \
-    pybind11::class_< GeographicCoordinateSystem##dimension##D::Info >(        \
-        module, info##dimension.c_str() )                                      \
-        .def( pybind11::init< std::string, std::string, std::string >() )      \
-        .def( "authority_code",                                                \
-            &GeographicCoordinateSystem##dimension##D::Info::authority_code )  \
-        .def( "string",                                                        \
-            &GeographicCoordinateSystem##dimension##D::Info::string )          \
-        .def_readwrite( "authority",                                           \
-            &GeographicCoordinateSystem##dimension##D::Info::authority )       \
-        .def_readwrite(                                                        \
-            "code", &GeographicCoordinateSystem##dimension##D::Info::code )    \
-        .def_readwrite(                                                        \
-            "name", &GeographicCoordinateSystem##dimension##D::Info::name );   \
     const auto name##dimension =                                               \
         "GeographicCoordinateSystem" + std::to_string( dimension ) + "D";      \
     pybind11::class_< GeographicCoordinateSystem##dimension##D,                \
@@ -61,6 +46,16 @@ namespace geode
 {
     void define_crs( pybind11::module& module )
     {
+        pybind11::class_< GeographicCoordinateSystemInfo >(
+            module, "GeographicCoordinateSystemInfo" )
+            .def( pybind11::init< std::string, std::string, std::string >() )
+            .def( "authority_code",
+                &GeographicCoordinateSystemInfo::authority_code )
+            .def( "string", &GeographicCoordinateSystemInfo::string )
+            .def_readwrite(
+                "authority", &GeographicCoordinateSystemInfo::authority )
+            .def_readwrite( "code", &GeographicCoordinateSystemInfo::code )
+            .def_readwrite( "name", &GeographicCoordinateSystemInfo::name );
         PYTHON_CRS( 2 );
         PYTHON_CRS( 3 );
     }
