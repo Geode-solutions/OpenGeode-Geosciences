@@ -33,6 +33,19 @@
 
 namespace geode
 {
+
+    GeographicCoordinateSystemInfo::GeographicCoordinateSystemInfo(
+        std::string authority_in, std::string code_in, std::string name_in )
+        : authority{ std::move( authority_in ) },
+          code{ std::move( code_in ) },
+          name{ std::move( name_in ) }
+    {
+    }
+
+    GeographicCoordinateSystemInfo::GeographicCoordinateSystemInfo() = default;
+
+    GeographicCoordinateSystemInfo::~GeographicCoordinateSystemInfo() = default;
+
     template < index_t dimension >
     class GeographicCoordinateSystem< dimension >::Impl
     {

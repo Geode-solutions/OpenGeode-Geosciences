@@ -36,17 +36,13 @@ namespace geode
 
 namespace geode
 {
-    struct GeographicCoordinateSystemInfo
+    struct opengeode_geosciences_explicit_api GeographicCoordinateSystemInfo
     {
-        GeographicCoordinateSystemInfo(
-            std::string authority_in, std::string code_in, std::string name_in )
-            : authority{ std::move( authority_in ) },
-              code{ std::move( code_in ) },
-              name{ std::move( name_in ) }
-        {
-        }
-        GeographicCoordinateSystemInfo() = default;
-        ~GeographicCoordinateSystemInfo() = default;
+        GeographicCoordinateSystemInfo( std::string authority_in,
+            std::string code_in,
+            std::string name_in );
+        GeographicCoordinateSystemInfo();
+        ~GeographicCoordinateSystemInfo();
 
         [[nodiscard]] std::string authority_code() const
         {
