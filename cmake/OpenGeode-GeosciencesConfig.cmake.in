@@ -1,35 +1,35 @@
-#Copyright( c ) 2019 - 2026 Geode - solutions
+# Copyright (c) 2019 - 2026 Geode-solutions
 #
-#Permission is hereby granted, free of charge, to any person obtaining a copy
-#of this software and associated documentation files( the "Software" ), to deal
-#in the Software without restriction, including without limitation the rights
-#to use, copy, modify, merge, publish, distribute, sublicense, and/ or sell
-#copies of the Software, and to permit persons to whom the Software is
-#furnished to do so, subject to the following conditions:
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
 #
-#The above copyright notice and this permission notice shall be included in
-#all copies or substantial portions of the Software.
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
 #
-#THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-#IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-#FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
-#AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-#LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-#OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-#SOFTWARE.
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 
-@PACKAGE_INIT @
+@PACKAGE_INIT@ 
 
-    include( CMakeFindDependencyMacro ) find_dependency( OpenGeode CONFIG )
+include(CMakeFindDependencyMacro)
+find_dependency(OpenGeode CONFIG)
 
-#Load information for each target
-        include( ${ CMAKE_CURRENT_LIST_DIR } /
-                 @PROJECT_NAME @_explicit_target.cmake )
-            include( ${ CMAKE_CURRENT_LIST_DIR } /
-                     @PROJECT_NAME @_implicit_target.cmake )
+# Load information for each target
+include(${CMAKE_CURRENT_LIST_DIR}/@PROJECT_NAME@_explicit_target.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/@PROJECT_NAME@_implicit_target.cmake)
 
-                get_target_property( library_type @PROJECT_NAME
-                    @ ::explicit TYPE ) if( library_type STREQUAL
-                    "STATIC_LIBRARY" ) find_dependency( Async++ CONFIG )
-                    find_dependency( PROJ CONFIG )
-                        find_dependency( GDAL CONFIG ) endif()
+get_target_property(library_type @PROJECT_NAME@::explicit TYPE)
+if(library_type STREQUAL "STATIC_LIBRARY")
+    find_dependency(Async++ CONFIG)
+    find_dependency(PROJ CONFIG)
+    find_dependency(GDAL CONFIG)
+endif()
