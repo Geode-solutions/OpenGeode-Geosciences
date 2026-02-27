@@ -41,13 +41,13 @@ def add_faults(model, builder):
     if model.nb_faults() != 2:
         raise ValueError(
             "[Test] Number of faults in StructuralModel should be 2")
-    if model.fault(fault1).name().value() != "fault1":
+    if model.fault(fault1).name() != "fault1":
         raise ValueError("[Test] Wrong Fault name")
 
     for fault in model.faults():
         if fault.name() != "unknown":
             builder.set_fault_name(fault.id(), "new_" + fault.name().value())
-    if model.fault(fault1).name().value() != "new_fault1":
+    if model.fault(fault1).name() != "new_fault1":
         raise ValueError("[Test] Wrong modified Fault name")
 
 
