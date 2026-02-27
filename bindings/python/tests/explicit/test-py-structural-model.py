@@ -45,8 +45,9 @@ def add_faults(model, builder):
         raise ValueError("[Test] Wrong Fault name")
 
     for fault in model.faults():
-        if fault.name() != "unknown":
-            builder.set_fault_name(fault.id(), "new_" + fault.name())
+        name = fault.name()
+        if name is not None:
+            builder.set_fault_name(fault.id(), "new_" + name)
     if model.fault(fault1).name() != "new_fault1":
         raise ValueError("[Test] Wrong modified Fault name")
 
@@ -67,8 +68,9 @@ def add_horizons(model, builder):
         raise ValueError("[Test] Wrong Horizon name")
 
     for horizon in model.horizons():
-        if horizon.name() != "unknown":
-            builder.set_horizon_name(horizon.id(), "new_" + horizon.name())
+        name = horizon.name()
+        if name is not None:
+            builder.set_horizon_name(horizon.id(), "new_" + name)
     if model.horizon(horizon2).name() != "new_horizon2":
         raise ValueError("[Test] Wrong modified Horizon name")
 

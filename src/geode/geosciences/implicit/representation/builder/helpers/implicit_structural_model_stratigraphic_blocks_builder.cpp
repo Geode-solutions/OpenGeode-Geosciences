@@ -54,8 +54,11 @@ namespace
                     continue;
                 }
                 builder_.add_stratigraphic_unit( stratigraphic_unit.id() );
-                builder_.set_stratigraphic_unit_name(
-                    stratigraphic_unit.id(), stratigraphic_unit.name() );
+                if( const auto name = stratigraphic_unit.name() )
+                {
+                    builder_.set_stratigraphic_unit_name(
+                        stratigraphic_unit.id(), name.value() );
+                }
             }
         }
 
