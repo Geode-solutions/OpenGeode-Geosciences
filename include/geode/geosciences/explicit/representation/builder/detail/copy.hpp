@@ -44,13 +44,19 @@ namespace geode
                 {
                     const auto& fault_id = mapping.in2out( fault.id() );
                     builder_to.add_fault( fault_id );
-                    builder_to.set_fault_name( fault_id, fault.name() );
+                    if( const auto name = fault.name() )
+                    {
+                        builder_to.set_fault_name( fault_id, name.value() );
+                    }
                     builder_to.set_fault_type( fault_id, fault.type() );
                 }
                 else
                 {
                     const auto& fault_id = builder_to.add_fault();
-                    builder_to.set_fault_name( fault_id, fault.name() );
+                    if( const auto name = fault.name() )
+                    {
+                        builder_to.set_fault_name( fault_id, name.value() );
+                    }
                     builder_to.set_fault_type( fault_id, fault.type() );
                     mapping.map( fault.id(), fault_id );
                 }
@@ -67,18 +73,23 @@ namespace geode
                 {
                     const auto& horizon_id = mapping.in2out( horizon.id() );
                     builder_to.add_horizon( horizon_id );
-                    builder_to.set_horizon_name( horizon_id, horizon.name() );
+                    if( const auto name = horizon.name() )
+                    {
+                        builder_to.set_horizon_name( horizon_id, name.value() );
+                    }
                     builder_to.set_horizon_contact_type(
                         horizon_id, horizon.contact_type() );
                 }
                 else
                 {
-                    const auto& new_horizon_id = builder_to.add_horizon();
-                    mapping.map( horizon.id(), new_horizon_id );
-                    builder_to.set_horizon_name(
-                        new_horizon_id, horizon.name() );
+                    const auto& horizon_id = builder_to.add_horizon();
+                    mapping.map( horizon.id(), horizon_id );
+                    if( const auto name = horizon.name() )
+                    {
+                        builder_to.set_horizon_name( horizon_id, name.value() );
+                    }
                     builder_to.set_horizon_contact_type(
-                        new_horizon_id, horizon.contact_type() );
+                        horizon_id, horizon.contact_type() );
                 }
             }
         }
@@ -94,14 +105,20 @@ namespace geode
                     const auto& fault_block_id =
                         mapping.in2out( fault_block.id() );
                     builder_to.add_fault_block( fault_block_id );
-                    builder_to.set_fault_block_name(
-                        fault_block_id, fault_block.name() );
+                    if( const auto name = fault_block.name() )
+                    {
+                        builder_to.set_fault_block_name(
+                            fault_block_id, name.value() );
+                    }
                 }
                 else
                 {
                     const auto& fault_block_id = builder_to.add_fault_block();
-                    builder_to.set_fault_block_name(
-                        fault_block_id, fault_block.name() );
+                    if( const auto name = fault_block.name() )
+                    {
+                        builder_to.set_fault_block_name(
+                            fault_block_id, name.value() );
+                    }
                     mapping.map( fault_block.id(), fault_block_id );
                 }
             }
@@ -118,8 +135,11 @@ namespace geode
                     const auto& stratigraphic_unit_id =
                         mapping.in2out( stratigraphic_unit.id() );
                     builder_to.add_stratigraphic_unit( stratigraphic_unit_id );
-                    builder_to.set_stratigraphic_unit_name(
-                        stratigraphic_unit_id, stratigraphic_unit.name() );
+                    if( const auto name = stratigraphic_unit.name() )
+                    {
+                        builder_to.set_stratigraphic_unit_name(
+                            stratigraphic_unit_id, name.value() );
+                    }
                 }
                 else
                 {
@@ -127,8 +147,11 @@ namespace geode
                         builder_to.add_stratigraphic_unit();
                     mapping.map(
                         stratigraphic_unit.id(), stratigraphic_unit_id );
-                    builder_to.set_stratigraphic_unit_name(
-                        stratigraphic_unit_id, stratigraphic_unit.name() );
+                    if( const auto name = stratigraphic_unit.name() )
+                    {
+                        builder_to.set_stratigraphic_unit_name(
+                            stratigraphic_unit_id, name.value() );
+                    }
                 }
             }
         }

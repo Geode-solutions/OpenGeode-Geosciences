@@ -159,7 +159,7 @@ void test_horizons_stack( const geode::HorizonsStack2D& horizons_stack )
     {
         OPENGEODE_EXCEPTION( horizon.name() == horizons_list[counter],
             "[Test] Should have found horizon ", horizons_list[counter],
-            " as horizon number ", counter, ", not ", horizon.name() );
+            " as horizon number ", counter, ", not ", horizon.name().value() );
         counter++;
     }
     OPENGEODE_EXCEPTION( counter == 4,
@@ -169,7 +169,7 @@ void test_horizons_stack( const geode::HorizonsStack2D& horizons_stack )
         counter--;
         OPENGEODE_EXCEPTION( horizon.name() == horizons_list[counter],
             "[Test] Should have found horizon ", horizons_list[counter],
-            " as horizon number ", counter, ", not ", horizon.name() );
+            " as horizon number ", counter, ", not ", horizon.name().value() );
     }
     OPENGEODE_EXCEPTION( counter == 0,
         "[Test] Top to bottom Range did not pass through all horizons" );
@@ -180,7 +180,7 @@ void test_horizons_stack( const geode::HorizonsStack2D& horizons_stack )
             OPENGEODE_EXCEPTION( s_unit.name() == units_list[counter - 1],
                 "[Test] Should have found stratigraphic unit ",
                 units_list[counter - 1], " as unit number ", counter, ", not ",
-                s_unit.name() );
+                s_unit.name().value() );
         }
         counter++;
     }
@@ -194,7 +194,7 @@ void test_horizons_stack( const geode::HorizonsStack2D& horizons_stack )
             OPENGEODE_EXCEPTION( s_unit.name() == units_list[counter - 1],
                 "[Test] Should have found stratigraphic unit ",
                 units_list[counter - 1], " as unit number ", counter, ", not ",
-                s_unit.name() );
+                s_unit.name().value() );
         }
     }
     OPENGEODE_EXCEPTION( counter == 0, "[Test] Top to bottom Range did not "

@@ -68,10 +68,10 @@ void add_faults(
 
     for( auto& fault : model.faults() )
     {
-        if( fault.name() != "unknown" )
+        if( const auto name = fault.name() )
         {
             builder.set_fault_name(
-                fault.id(), absl::StrCat( "new_", fault.name() ) );
+                fault.id(), absl::StrCat( "new_", name.value() ) );
         }
         OPENGEODE_EXCEPTION( fault.component_type().get() == "Fault",
             "[Test] Wrong Fault component type" );
@@ -109,10 +109,10 @@ void add_horizons(
 
     for( auto& horizon : model.horizons() )
     {
-        if( horizon.name() != "unknown" )
+        if( const auto name = horizon.name() )
         {
             builder.set_horizon_name(
-                horizon.id(), absl::StrCat( "new_", horizon.name() ) );
+                horizon.id(), absl::StrCat( "new_", name.value() ) );
         }
         OPENGEODE_EXCEPTION( horizon.component_type().get() == "Horizon",
             "[Test] Wrong Horizon component type" );

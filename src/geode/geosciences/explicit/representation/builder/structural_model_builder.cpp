@@ -48,10 +48,8 @@ namespace geode
     ModelCopyMapping StructuralModelBuilder::copy(
         const StructuralModel& structural_model )
     {
-        auto mappings = copy_components( structural_model );
-        copy_component_geometry( mappings, structural_model );
+        auto mappings = BRepBuilder::copy( structural_model );
         copy_geological_components( mappings, structural_model );
-        copy_relationships( mappings, structural_model );
         return mappings;
     }
 

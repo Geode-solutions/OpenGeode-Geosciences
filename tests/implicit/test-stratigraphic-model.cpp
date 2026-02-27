@@ -146,7 +146,8 @@ void test_model(
         {
             found_horizon = true;
             OPENGEODE_EXCEPTION( isovalue.value() == 3, "[Test] Horizon '",
-                horizon.name(), "' should have an implicit value of 3, not ",
+                horizon.name().value(),
+                "' should have an implicit value of 3, not ",
                 isovalue.value() );
             const auto& strati_unit_id =
                 model.horizons_stack().under( horizon.id() );
