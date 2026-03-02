@@ -269,7 +269,8 @@ namespace geode
                 horizons_stack_.has_horizon( horizon.id() ),
                 "[horizon_implicit_value] You cannot access the isovalue of "
                 "Horizon '",
-                horizon.name(), "' with uuid", horizon.id().string(),
+                horizon.name().value_or( horizon.id().string() ), "' with uuid",
+                horizon.id().string(),
                 " because the horizon is not defined in the HorizonsStack." );
             horizon_isovalues_[horizon.id()] = isovalue;
         }

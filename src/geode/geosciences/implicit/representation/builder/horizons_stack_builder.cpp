@@ -51,7 +51,10 @@ namespace geode
         OPENGEODE_EXCEPTION( nb_components == 0,
             "[HorizonsStackBuild::copy] HorizonsStack "
             "should be empty before copy." );
-        set_name( horizons_stack.name() );
+        if( const auto name = horizons_stack.name() )
+        {
+            set_name( name.value() );
+        }
         auto mapping = copy_components( horizons_stack );
         copy_stratigraphic_relationships( mapping, horizons_stack );
         const auto& horizons_mapping =
@@ -90,7 +93,10 @@ namespace geode
         OPENGEODE_EXCEPTION( nb_components == 0,
             "[HorizonsStackBuild::copy] HorizonsStack "
             "should be empty before copy." );
-        set_name( horizons_stack.name() );
+        if( const auto name = horizons_stack.name() )
+        {
+            set_name( name.value() );
+        }
         copy_components( mapping, horizons_stack );
         copy_stratigraphic_relationships( mapping, horizons_stack );
         const auto& horizons_mapping =

@@ -367,7 +367,8 @@ void test_copy( const geode::CrossSection& model )
         nb_fault_items += count_items( copy.fault_items( fault ) );
     }
     OPENGEODE_EXCEPTION( nb_fault_items == 5,
-        "[Test] Number of items in faults in copied model should be 5" );
+        "[Test] Number of items in faults in copied model should be 5, got ",
+        nb_fault_items );
     geode::index_t nb_horizon_items{ 0 };
     for( const auto& horizon : copy.horizons() )
     {

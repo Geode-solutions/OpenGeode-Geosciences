@@ -237,16 +237,24 @@ namespace geode
     template < index_t dimension >
     std::string HorizonsStack< dimension >::string() const
     {
-        auto result = absl::StrCat(
-            "HorizonsStack ", this->name(), " from top to bottom:" );
+        auto result = absl::StrCat( "HorizonsStack ",
+            this->name().value_or( this->id().string() ),
+            " from top to bottom:" );
         const auto& top_unit = this->stratigraphic_unit(
             this->above( this->top_horizon().value() ).value() );
-        absl::StrAppend( &result, "\n", top_unit.component_id().string(),
-            ", named ", top_unit.name() );
+        absl::StrAppend( &result, "\n", top_unit.component_id().string() );
+        if( const auto name = top_unit.name() )
+        {
+            absl::StrAppend( &result, ", named ", name.value() );
+        }
         for( const auto& horizon : this->top_to_bottom_horizons() )
         {
-            absl::StrAppend( &result, "\n ---", horizon.component_id().string(),
-                ", named ", horizon.name(), " ---" );
+            absl::StrAppend(
+                &result, "\n ---", horizon.component_id().string() );
+            if( const auto name = horizon.name() )
+            {
+                absl::StrAppend( &result, ", named ", name.value(), " ---" );
+            }
             if( this->horizon( horizon.id() ).contact_type()
                 == Horizon< dimension >::CONTACT_TYPE::erosion )
             {
@@ -274,8 +282,12 @@ namespace geode
             }
             const auto& under_unit =
                 this->stratigraphic_unit( this->under( horizon.id() ).value() );
-            absl::StrAppend( &result, "\n", under_unit.component_id().string(),
-                ", named ", under_unit.name() );
+            absl::StrAppend(
+                &result, "\n", under_unit.component_id().string() );
+            if( const auto name = under_unit.name() )
+            {
+                absl::StrAppend( &result, ", named ", name.value() );
+            }
         }
         return result;
     }

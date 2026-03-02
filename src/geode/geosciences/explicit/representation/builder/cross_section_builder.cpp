@@ -51,7 +51,10 @@ namespace geode
     ModelCopyMapping CrossSectionBuilder::copy(
         const CrossSection& cross_section )
     {
-        set_name( cross_section.name() );
+        if( const auto name = cross_section.name() )
+        {
+            set_name( name.value() );
+        }
         auto mappings = copy_components( cross_section );
         copy_component_geometry( mappings, cross_section );
         copy_geological_components( mappings, cross_section );
