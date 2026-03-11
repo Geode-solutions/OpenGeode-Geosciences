@@ -27,8 +27,8 @@
 #define PYTHON_STRATIGRAPHIC_UNITS( dimension )                                \
     const auto name##dimension =                                               \
         "StratigraphicUnits" + std::to_string( dimension ) + "D";              \
-    pybind11::class_< StratigraphicUnits##dimension##D >(                      \
-        module, name##dimension.c_str() )                                      \
+    pybind11::class_< StratigraphicUnits##dimension##D,                        \
+        pybind11::smart_holder >( module, name##dimension.c_str() )            \
         .def( "nb_stratigraphic_units",                                        \
             &StratigraphicUnits##dimension##D::nb_stratigraphic_units )        \
         .def( "stratigraphic_unit",                                            \

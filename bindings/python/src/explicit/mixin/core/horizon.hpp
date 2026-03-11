@@ -26,7 +26,8 @@
 #define PYTHON_HORIZON( dimension )                                            \
     const auto name##dimension =                                               \
         "Horizon" + std::to_string( dimension ) + "D";                         \
-    pybind11::class_< Horizon##dimension##D, Component##dimension##D >         \
+    pybind11::class_< Horizon##dimension##D, Component##dimension##D,          \
+        pybind11::smart_holder >                                               \
         horizon##dimension##D( module, name##dimension.c_str() );              \
                                                                                \
     pybind11::enum_< Horizon##dimension##D::CONTACT_TYPE >(                    \

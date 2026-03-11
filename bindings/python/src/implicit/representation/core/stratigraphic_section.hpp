@@ -35,8 +35,8 @@ namespace geode
 {
     void define_stratigraphic_section( pybind11::module& module )
     {
-        pybind11::class_< StratigraphicSection, ImplicitCrossSection >(
-            module, "StratigraphicSection" )
+        pybind11::class_< StratigraphicSection, ImplicitCrossSection,
+            pybind11::smart_holder >( module, "StratigraphicSection" )
             .def( pybind11::init<>() )
             .def( pybind11::init( []( ImplicitCrossSection& cross_section ) {
                 return StratigraphicSection{ cross_section.clone() };

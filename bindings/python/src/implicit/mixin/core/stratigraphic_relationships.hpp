@@ -27,7 +27,7 @@ namespace geode
 {
     void define_stratigraphic_relationships( pybind11::module& module )
     {
-        pybind11::class_< StratigraphicRelationships >(
+        pybind11::class_< StratigraphicRelationships, pybind11::smart_holder >(
             module, "StratigraphicRelationships" )
             .def( pybind11::init<>() )
             .def( "is_above", &StratigraphicRelationships::is_above )

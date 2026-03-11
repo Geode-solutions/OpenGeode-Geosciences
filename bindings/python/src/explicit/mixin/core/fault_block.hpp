@@ -26,8 +26,8 @@
 #define PYTHON_FAULT_BLOCK( dimension )                                        \
     const auto name##dimension =                                               \
         "FaultBlock" + std::to_string( dimension ) + "D";                      \
-    pybind11::class_< FaultBlock##dimension##D, Component##dimension##D >(     \
-        module, name##dimension.c_str() )                                      \
+    pybind11::class_< FaultBlock##dimension##D, Component##dimension##D,       \
+        pybind11::smart_holder >( module, name##dimension.c_str() )            \
         .def( "component_id", &FaultBlock##dimension##D::component_id )
 
 namespace geode

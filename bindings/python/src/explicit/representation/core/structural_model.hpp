@@ -30,7 +30,8 @@ namespace geode
     void define_structural_model( pybind11::module& module )
     {
         pybind11::class_< StructuralModel, BRep, Faults3D, Horizons3D,
-            FaultBlocks3D, StratigraphicUnits3D >( module, "StructuralModel" )
+            FaultBlocks3D, StratigraphicUnits3D, pybind11::smart_holder >(
+            module, "StructuralModel" )
             .def( pybind11::init<>() )
             .def( pybind11::init( []( BRep& model ) {
                 return StructuralModel{ model.clone() };

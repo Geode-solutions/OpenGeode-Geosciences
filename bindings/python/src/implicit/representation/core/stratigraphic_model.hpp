@@ -35,8 +35,8 @@ namespace geode
 {
     void define_stratigraphic_model( pybind11::module& module )
     {
-        pybind11::class_< StratigraphicModel, ImplicitStructuralModel >(
-            module, "StratigraphicModel" )
+        pybind11::class_< StratigraphicModel, ImplicitStructuralModel,
+            pybind11::smart_holder >( module, "StratigraphicModel" )
             .def( pybind11::init<>() )
             .def( pybind11::init( []( ImplicitStructuralModel& model ) {
                 return StratigraphicModel{ model.clone() };

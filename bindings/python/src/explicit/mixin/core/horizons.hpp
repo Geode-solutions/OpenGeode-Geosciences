@@ -27,7 +27,7 @@
 #define PYTHON_HORIZONS( dimension )                                           \
     const auto name##dimension =                                               \
         "Horizons" + std::to_string( dimension ) + "D";                        \
-    pybind11::class_< Horizons##dimension##D >(                                \
+    pybind11::class_< Horizons##dimension##D, pybind11::smart_holder >(        \
         module, name##dimension.c_str() )                                      \
         .def( "nb_horizons", &Horizons##dimension##D::nb_horizons )            \
         .def( "horizon", &Horizons##dimension##D::horizon,                     \

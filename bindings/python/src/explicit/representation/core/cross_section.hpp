@@ -30,7 +30,8 @@ namespace geode
     void define_cross_section( pybind11::module& module )
     {
         pybind11::class_< CrossSection, Section, Faults2D, Horizons2D,
-            FaultBlocks2D, StratigraphicUnits2D >( module, "CrossSection" )
+            FaultBlocks2D, StratigraphicUnits2D, pybind11::smart_holder >(
+            module, "CrossSection" )
             .def( pybind11::init<>() )
             .def( pybind11::init( []( Section& section ) {
                 return CrossSection{ section.clone() };
