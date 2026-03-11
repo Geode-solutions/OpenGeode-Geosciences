@@ -29,8 +29,8 @@ namespace geode
 {
     void define_implicit_cross_section( pybind11::module& module )
     {
-        pybind11::class_< ImplicitCrossSection, CrossSection >(
-            module, "ImplicitCrossSection" )
+        pybind11::class_< ImplicitCrossSection, CrossSection,
+            pybind11::smart_holder >( module, "ImplicitCrossSection" )
             .def( pybind11::init<>() )
             .def( pybind11::init( []( CrossSection& cross_section ) {
                 return ImplicitCrossSection{ cross_section.clone() };

@@ -25,7 +25,8 @@
 
 #define PYTHON_FAULT( dimension )                                              \
     const auto name##dimension = "Fault" + std::to_string( dimension ) + "D";  \
-    pybind11::class_< Fault##dimension##D, Component##dimension##D >           \
+    pybind11::class_< Fault##dimension##D, Component##dimension##D,            \
+        pybind11::smart_holder >                                               \
         fault##dimension##D( module, name##dimension.c_str() );                \
                                                                                \
     pybind11::enum_< Fault##dimension##D::FAULT_TYPE >(                        \

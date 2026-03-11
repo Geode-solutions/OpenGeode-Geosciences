@@ -26,7 +26,7 @@
 
 #define PYTHON_FAULTS( dimension )                                             \
     const auto name##dimension = "Faults" + std::to_string( dimension ) + "D"; \
-    pybind11::class_< Faults##dimension##D >(                                  \
+    pybind11::class_< Faults##dimension##D, pybind11::smart_holder >(          \
         module, name##dimension.c_str() )                                      \
         .def( "nb_faults", &Faults##dimension##D::nb_faults )                  \
         .def( "fault", &Faults##dimension##D::fault,                           \

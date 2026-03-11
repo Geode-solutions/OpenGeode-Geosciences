@@ -29,8 +29,8 @@
     const auto name##dimension =                                               \
         "HorizonsStack" + std::to_string( dimension ) + "D";                   \
     pybind11::class_< HorizonsStack##dimension##D, StratigraphicRelationships, \
-        Horizons##dimension##D, StratigraphicUnits##dimension##D,              \
-        Identifier >( module, name##dimension.c_str() )                        \
+        Horizons##dimension##D, StratigraphicUnits##dimension##D, Identifier,  \
+        pybind11::smart_holder >( module, name##dimension.c_str() )            \
         .def( pybind11::init<>() )                                             \
         .def( "native_extension",                                              \
             &HorizonsStack##dimension##D::native_extension )                   \

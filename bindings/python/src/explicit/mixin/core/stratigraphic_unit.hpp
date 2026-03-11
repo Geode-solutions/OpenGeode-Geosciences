@@ -27,7 +27,8 @@
     const auto name##dimension =                                               \
         "StratigraphicUnit" + std::to_string( dimension ) + "D";               \
     pybind11::class_< StratigraphicUnit##dimension##D,                         \
-        Component##dimension##D >( module, name##dimension.c_str() )           \
+        Component##dimension##D, pybind11::smart_holder >(                     \
+        module, name##dimension.c_str() )                                      \
         .def( "component_id", &StratigraphicUnit##dimension##D::component_id )
 
 namespace geode
