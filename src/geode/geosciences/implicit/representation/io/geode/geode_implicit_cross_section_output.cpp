@@ -77,7 +77,9 @@ namespace geode
                 Serializer archive{ context, file };
                 archive.object( implicit_section );
                 archive.adapter().flush();
-                OPENGEODE_EXCEPTION( std::get< 1 >( context ).isValid(),
+                OpenGeodeGeosciencesImplicitException::check(
+                    std::get< 1 >( context ).isValid(), nullptr,
+                    OpenGeodeException::TYPE::internal,
                     "[OpenGeodeImplicitCrossSectionOutput::save_section_impl] "
                     "Error while writing file: ",
                     filename );

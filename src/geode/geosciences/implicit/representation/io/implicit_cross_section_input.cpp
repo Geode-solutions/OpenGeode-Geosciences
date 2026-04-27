@@ -76,9 +76,9 @@ namespace geode
             print_available_extensions< CrossSectionInputFactory >(
                 "CrossSection" );
             print_available_extensions< SectionInputFactory >( "Section" );
-            throw OpenGeodeException{
-                "Cannot load ImplicitCrossSection from file: ", filename
-            };
+            throw OpenGeodeGeosciencesImplicitException{ nullptr,
+                OpenGeodeException::TYPE::internal,
+                "Cannot load ImplicitCrossSection from file: ", filename };
         }
     }
 

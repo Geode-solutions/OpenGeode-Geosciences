@@ -177,8 +177,9 @@ namespace geode
         const uuid& component ) const
     {
         auto component_is_a_horizon = this->has_horizon( component );
-        OPENGEODE_EXCEPTION(
+        OpenGeodeGeosciencesImplicitException::check(
             component_is_a_horizon || this->has_stratigraphic_unit( component ),
+            nullptr, OpenGeodeException::TYPE::data,
             "[HorizonsStack::is_conformal_above] Given component with uuid ",
             component.string(), " does not exist in the stack." );
         if( component_is_a_horizon )
@@ -191,7 +192,9 @@ namespace geode
         else
         {
             const auto& horizon_above = this->above( component );
-            OPENGEODE_EXCEPTION( horizon_above.has_value(),
+            OpenGeodeGeosciencesImplicitException::check(
+                horizon_above.has_value(), nullptr,
+                OpenGeodeException::TYPE::data,
                 "[HorizonsStack::is_conformal_above] No horizon above given "
                 "stratigraphic unit with id ",
                 component.string() );
@@ -208,8 +211,9 @@ namespace geode
         const uuid& component ) const
     {
         auto component_is_a_horizon = this->has_horizon( component );
-        OPENGEODE_EXCEPTION(
+        OpenGeodeGeosciencesImplicitException::check(
             component_is_a_horizon || this->has_stratigraphic_unit( component ),
+            nullptr, OpenGeodeException::TYPE::data,
             "[HorizonsStack::is_conformal_above] Given component with uuid ",
             component.string(), " does not exist in the stack." );
         if( component_is_a_horizon )
@@ -222,7 +226,9 @@ namespace geode
         else
         {
             const auto& horizon_under = this->under( component );
-            OPENGEODE_EXCEPTION( horizon_under.has_value(),
+            OpenGeodeGeosciencesImplicitException::check(
+                horizon_under.has_value(), nullptr,
+                OpenGeodeException::TYPE::data,
                 "[HorizonsStack::is_conformal_under] No horizon under given "
                 "stratigraphic unit with id ",
                 component.string() );

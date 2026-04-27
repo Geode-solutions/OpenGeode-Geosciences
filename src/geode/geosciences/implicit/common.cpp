@@ -84,9 +84,9 @@ namespace
 
 namespace geode
 {
-    OPENGEODE_LIBRARY_IMPLEMENTATION( GeosciencesImplicit )
+    OPENGEODE_LIBRARY_IMPLEMENTATION( OpenGeodeGeosciences, Implicit )
     {
-        GeosciencesExplicitLibrary::initialize();
+        OpenGeodeGeosciencesExplicitLibrary::initialize();
         register_horizons_stack_input();
         register_horizons_stack_output();
         register_cross_section_model_input();

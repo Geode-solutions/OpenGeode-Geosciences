@@ -183,10 +183,10 @@ namespace geode
             {
                 return stratigraphic_internal_line( model, surface, line );
             }
-            OPENGEODE_ASSERT_NOT_REACHED(
+            throw OpenGeodeGeosciencesImplicitException{ nullptr,
+                OpenGeodeException::TYPE::data,
                 "[StratigraphicSection::stratigraphic_line] The given "
-                "line is not boundary nor internal of the given surface." );
-            return {};
+                "line is not boundary nor internal of the given surface." };
         }
 
         BoundingBox2D stratigraphic_bounding_box(
@@ -209,9 +209,10 @@ namespace geode
         {
             for( const auto& surface : model.surfaces() )
             {
-                OPENGEODE_DATA_EXCEPTION(
+                OpenGeodeGeosciencesImplicitException::check(
                     ( surface.mesh().type_name()
                         == TriangulatedSurface2D::type_name_static() ),
+                    nullptr, OpenGeodeException::TYPE::data,
                     "[StratigraphicSection::instantiate_stratigraphic_"
                     "attribute_on_surfaces] Surfaces must be meshed as "
                     "TriangulatedSurface2D, which is not the case for surface "
@@ -241,9 +242,10 @@ namespace geode
         void set_stratigraphic_location(
             const Surface2D& surface, index_t vertex_id, Point1D value )
         {
-            OPENGEODE_EXCEPTION(
+            OpenGeodeGeosciencesImplicitException::check(
                 stratigraphic_location_attributes_.find( surface.id() )
                     != stratigraphic_location_attributes_.end(),
+                nullptr, OpenGeodeException::TYPE::data,
                 "[StratigraphicSection::set_stratigraphic_location] "
                 "Couldn't find surface uuid in the attributes registered - Try "
                 "instantiating your attribute first." );
@@ -364,7 +366,10 @@ namespace geode
                 const auto edge_surface_vertices =
                     surface_vertices_from_line_edge(
                         model, surface, line, edge_id );
-                OPENGEODE_EXCEPTION( edge_surface_vertices.size() == 1,
+                OpenGeodeGeosciencesImplicitException::check(
+                    edge_surface_vertices.size() == 1,
+                    line_mesh.edge_barycenter( edge_id ),
+                    OpenGeodeException::TYPE::data,
                     "[StratigraphicSection::stratigraphic_line] Did not "
                     "find one polygon in the given surface from an edge of "
                     "the given line." );
@@ -421,7 +426,10 @@ namespace geode
                 const auto edge_surface_vertices =
                     oriented_surface_vertices_from_line_edge(
                         model, surface, line, edge_id );
-                OPENGEODE_EXCEPTION( edge_surface_vertices.nb_edges() == 2,
+                OpenGeodeGeosciencesImplicitException::check(
+                    edge_surface_vertices.nb_edges() == 2,
+                    line_mesh.edge_barycenter( edge_id ),
+                    OpenGeodeException::TYPE::data,
                     "[StratigraphicSection::stratigraphic_line] Did not "
                     "find two polygons in the given surface from an edge of "
                     "the given line." );

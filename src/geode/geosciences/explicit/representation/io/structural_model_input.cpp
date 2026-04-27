@@ -74,8 +74,9 @@ namespace geode
             print_available_extensions< StructuralModelInputFactory >( TYPE );
             Logger::info( "Other extensions are available in parent classes." );
             print_available_extensions< BRepInputFactory >( "BRep" );
-            throw OpenGeodeException{ "Cannot load StructuralModel from file: ",
-                filename };
+            throw OpenGeodeGeosciencesExplicitException{ nullptr,
+                OpenGeodeException::TYPE::internal,
+                "Cannot load StructuralModel from file: ", filename };
         }
     }
 

@@ -416,18 +416,25 @@ namespace geode
             return {};
         }
         const auto& horizons_stack = implicit_model.horizons_stack();
-        OPENGEODE_DATA_EXCEPTION( horizons_stack.nb_stratigraphic_units() > 0,
+        OpenGeodeGeosciencesImplicitException::check(
+            horizons_stack.nb_stratigraphic_units() > 0, nullptr,
+            OpenGeodeException::TYPE::data,
             "[complete_stratigraphic_unit_block_relationships_from_available_"
             "data] Horizons stack is empty (no stratigraphic units)." );
-        OPENGEODE_DATA_EXCEPTION( horizons_stack.nb_horizons() > 0,
+        OpenGeodeGeosciencesImplicitException::check(
+            horizons_stack.nb_horizons() > 0, nullptr,
+            OpenGeodeException::TYPE::data,
             "[complete_stratigraphic_unit_block_relationships_from_available_"
             "data] Horizons stack is empty (no horizons)." );
-        OPENGEODE_DATA_EXCEPTION(
+        OpenGeodeGeosciencesImplicitException::check(
             horizons_stack.top_horizon().has_value()
                 && horizons_stack.bottom_horizon().has_value(),
+            nullptr, OpenGeodeException::TYPE::data,
             "[complete_stratigraphic_unit_block_relationships_from_available_"
             "data] Horizons stack is empty (no top and bottom horizons)." );
-        OPENGEODE_DATA_EXCEPTION( implicit_model.nb_horizons() > 0,
+        OpenGeodeGeosciencesImplicitException::check(
+            implicit_model.nb_horizons() > 0, nullptr,
+            OpenGeodeException::TYPE::data,
             "[complete_stratigraphic_unit_block_relationships_from_available_"
             "data] Implicit structural model has no horizons." );
         BlockToStratigraphicUnitBuilder builder{ implicit_model };

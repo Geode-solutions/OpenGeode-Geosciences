@@ -31,7 +31,7 @@ import opengeode
 import opengeode_geosciences_py_explicit as geosciences
 
 if __name__ == "__main__":
-    geosciences.GeosciencesExplicitLibrary.initialize()
+    geosciences.OpenGeodeGeosciencesExplicitLibrary.initialize()
 
     infos = geosciences.GeographicCoordinateSystem3D.geographic_coordinate_systems()
     if len(infos) != 13181:

@@ -66,7 +66,7 @@ namespace
 
 namespace geode
 {
-    OPENGEODE_LIBRARY_IMPLEMENTATION( GeosciencesExplicit )
+    OPENGEODE_LIBRARY_IMPLEMENTATION( OpenGeodeGeosciences, Explicit )
     {
         OpenGeodeModelLibrary::initialize();
         register_cross_section_input();

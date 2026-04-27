@@ -58,8 +58,9 @@ namespace geode
             Logger::error( e.what() );
             print_available_extensions<
                 HorizonsStackInputFactory< dimension > >( TYPE );
-            throw OpenGeodeException{ "Cannot load HorizonsStack from file: ",
-                filename };
+            throw OpenGeodeGeosciencesImplicitException{ nullptr,
+                OpenGeodeException::TYPE::internal,
+                "Cannot load HorizonsStack from file: ", filename };
         }
     }
 

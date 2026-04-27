@@ -61,9 +61,9 @@ namespace geode
             print_available_extensions< CrossSectionOutputFactory >(
                 "CrossSection" );
             print_available_extensions< SectionOutputFactory >( "Section" );
-            throw OpenGeodeException{
-                "Cannot save StratigraphicSection in file: ", filename
-            };
+            throw OpenGeodeGeosciencesImplicitException{ nullptr,
+                OpenGeodeException::TYPE::internal,
+                "Cannot save StratigraphicSection in file: ", filename };
         }
     }
 
