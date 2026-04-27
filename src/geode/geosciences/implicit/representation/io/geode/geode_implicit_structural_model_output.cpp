@@ -76,7 +76,9 @@ namespace geode
                 Serializer archive{ context, file };
                 archive.object( implicit_model );
                 archive.adapter().flush();
-                OPENGEODE_EXCEPTION( std::get< 1 >( context ).isValid(),
+                OpenGeodeGeosciencesImplicitException::check(
+                    std::get< 1 >( context ).isValid(), nullptr,
+                    OpenGeodeException::TYPE::internal,
                     "[OpenGeodeImplicitStructuralModelOutput::save_model_impl] "
                     "Error while writing file: ",
                     filename );

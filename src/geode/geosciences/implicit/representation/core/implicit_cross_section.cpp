@@ -127,8 +127,9 @@ namespace geode
         std::optional< double > horizon_implicit_value(
             const Horizon2D& horizon ) const
         {
-            OPENGEODE_DATA_EXCEPTION(
-                horizons_stack_.has_horizon( horizon.id() ),
+            OpenGeodeGeosciencesImplicitException::check(
+                horizons_stack_.has_horizon( horizon.id() ), nullptr,
+                OpenGeodeException::TYPE::data,
                 "[horizon_implicit_value] You cannot access the isovalue of "
                 "Horizon ",
                 horizon.id().string(),
@@ -145,12 +146,15 @@ namespace geode
             double implicit_function_value, const Horizon2D& horizon ) const
         {
             const auto increasing = increasing_stack_isovalues();
-            OPENGEODE_DATA_EXCEPTION( increasing.has_value(),
+            OpenGeodeGeosciencesImplicitException::check(
+                increasing.has_value(), nullptr, OpenGeodeException::TYPE::data,
                 "[implicit_value_is_above_horizon] Could not find if "
                 "implicit values were increasing or decreasing in the horizon "
                 "stack." );
             const auto it = horizon_isovalues_.find( horizon.id() );
-            OPENGEODE_EXCEPTION( it != horizon_isovalues_.end(),
+            OpenGeodeGeosciencesImplicitException::check(
+                it != horizon_isovalues_.end(), nullptr,
+                OpenGeodeException::TYPE::data,
                 "[implicit_value_is_above_horizon] Cannot find horizon "
                 "implicit value in the horizon stack." );
             return increasing.value()
@@ -218,9 +222,10 @@ namespace geode
             implicit_attributes_.reserve( model.nb_surfaces() );
             for( const auto& surface : model.surfaces() )
             {
-                OPENGEODE_DATA_EXCEPTION(
+                OpenGeodeGeosciencesImplicitException::check(
                     ( surface.mesh().type_name()
                         == TriangulatedSurface2D::type_name_static() ),
+                    nullptr, OpenGeodeException::TYPE::data,
                     "[ImplicitCrossSection::instantiate_implicit_"
                     "attribute_on_surfaces] Surfaces must be meshed as "
                     "TriangulatedSurface2D, which is not the case for surface "
@@ -247,8 +252,10 @@ namespace geode
         void set_implicit_value(
             const Surface2D& surface, index_t vertex_id, double value )
         {
-            OPENGEODE_EXCEPTION( implicit_attributes_.find( surface.id() )
-                                     != implicit_attributes_.end(),
+            OpenGeodeGeosciencesImplicitException::check(
+                implicit_attributes_.find( surface.id() )
+                    != implicit_attributes_.end(),
+                nullptr, OpenGeodeException::TYPE::data,
                 "[ImplicitCrossSection::set_implicit_value] Couldn't find "
                 "surface uuid in the attributes registered - Try instantiating "
                 "your attribute first." );
@@ -264,7 +271,9 @@ namespace geode
         void set_horizon_implicit_value(
             const Horizon2D& horizon, double isovalue )
         {
-            OPENGEODE_EXCEPTION( horizons_stack_.has_horizon( horizon.id() ),
+            OpenGeodeGeosciencesImplicitException::check(
+                horizons_stack_.has_horizon( horizon.id() ), nullptr,
+                OpenGeodeException::TYPE::data,
                 "[horizon_implicit_value] You cannot change the isovalue of "
                 "Horizon ",
                 horizon.id().string(),

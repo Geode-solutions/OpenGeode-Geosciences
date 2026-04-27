@@ -25,10 +25,12 @@
 
 #include <geode/basic/common.hpp>
 #include <geode/basic/library.hpp>
+
 #include <geode/geosciences/implicit/opengeode_geosciences_implicit_export.hpp>
+#include <geode/geosciences/project.hpp>
 
 namespace geode
 {
     OPENGEODE_LIBRARY(
-        opengeode_geosciences_implicit_api, GeosciencesImplicit );
+        opengeode_geosciences_implicit_api, OpenGeodeGeosciences, Implicit );
 } // namespace geode

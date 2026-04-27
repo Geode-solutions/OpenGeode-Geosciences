@@ -85,89 +85,98 @@ void test_model(
 {
     const auto& block = model.block( block1_id );
     const auto& strati_pt1 = model.stratigraphic_coordinates( block, 59 );
-    OPENGEODE_EXCEPTION(
+    geode::OpenGeodeGeosciencesImplicitException::test(
         strati_pt1.stratigraphic_coordinates().inexact_equal(
             geode::Point3D{ { -0.213112, -0.188148, 0.472047 } } ),
-        "[Test] Wrong stratigraphic coordinates for point 59 at position [",
+        "Wrong stratigraphic coordinates for point 59 at position [",
         model.block( block1_id ).mesh().point( 59 ).string(),
         "] with stratigraphic coordinates [", strati_pt1.string(), "]." );
     const geode::Point3D query2{ { 1, 0, 1 } };
     const auto strati_pt2 = model.stratigraphic_coordinates( block, query2 );
-    OPENGEODE_EXCEPTION( strati_pt2->stratigraphic_coordinates().inexact_equal(
-                             geode::Point3D{ { 0.386272, -0.109477, 0. } } ),
-        "[Test] Wrong stratigraphic coordinates for point at position [",
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        strati_pt2->stratigraphic_coordinates().inexact_equal(
+            geode::Point3D{ { 0.386272, -0.109477, 0. } } ),
+        "Wrong stratigraphic coordinates for point at position [",
         query2.string(), "] with stratigraphic coordinates [",
         strati_pt2->string(), "]." );
     const geode::Point3D query3{ { 0.480373621, 0.5420120955, 0.6765933633 } };
     const auto strati_pt3 = model.stratigraphic_coordinates( block, query3 );
-    OPENGEODE_EXCEPTION(
+    geode::OpenGeodeGeosciencesImplicitException::test(
         strati_pt3->stratigraphic_coordinates().inexact_equal( geode::Point3D{
             { 0.03380647978, -0.002759957825, 0.3080064376 } } ),
-        "[Test] Wrong stratigraphic coordinates for point at position [",
+        "Wrong stratigraphic coordinates for point at position [",
         query3.string(), "] with stratigraphic coordinates [",
         strati_pt3->string(), "]." );
 
     const auto geom_pt1 = model.geometric_coordinates( block, strati_pt1 );
-    OPENGEODE_EXCEPTION( geom_pt1->inexact_equal( block.mesh().point( 59 ) ),
-        "[Test] Wrong geometric coordinates for stratigraphic point at "
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        geom_pt1->inexact_equal( block.mesh().point( 59 ) ),
+        "Wrong geometric coordinates for stratigraphic point at "
         "position [",
         strati_pt1.string(), "] with geometric coordinates [",
         geom_pt1->string(), "]." );
     const auto geom_pt2 =
         model.geometric_coordinates( block, strati_pt2.value() );
-    OPENGEODE_EXCEPTION( geom_pt2->inexact_equal( query2 ),
-        "[Test] Wrong geometric coordinates for stratigraphic point at "
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        geom_pt2->inexact_equal( query2 ),
+        "Wrong geometric coordinates for stratigraphic point at "
         "position [",
         strati_pt2->string(), "] with geometric coordinates [",
         geom_pt2->string(), "]." );
     const auto geom_pt3 =
         model.geometric_coordinates( block, strati_pt3.value() );
-    OPENGEODE_EXCEPTION( geom_pt3->inexact_equal( query3 ),
-        "[Test] Wrong geometric coordinates for stratigraphic point at "
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        geom_pt3->inexact_equal( query3 ),
+        "Wrong geometric coordinates for stratigraphic point at "
         "position [",
         strati_pt3->string(), "] with geometric coordinates [",
         geom_pt3->string(), "]." );
 
     const auto stratigraphic_bbox = model.stratigraphic_bounding_box();
-    OPENGEODE_EXCEPTION( stratigraphic_bbox.min().inexact_equal(
-                             geode::Point3D{ { -0.8098155, -0.5378192, 0 } } ),
-        "[Test] Wrong stratigraphic coordinates bounding box minimum." );
-    OPENGEODE_EXCEPTION( stratigraphic_bbox.max().inexact_equal(
-                             geode::Point3D{ { 0.5643514, 0.6411656, 1 } } ),
-        "[Test] Wrong stratigraphic coordinates bounding box minimum." );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        stratigraphic_bbox.min().inexact_equal(
+            geode::Point3D{ { -0.8098155, -0.5378192, 0 } } ),
+        "Wrong stratigraphic coordinates bounding box minimum." );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        stratigraphic_bbox.max().inexact_equal(
+            geode::Point3D{ { 0.5643514, 0.6411656, 1 } } ),
+        "Wrong stratigraphic coordinates bounding box minimum." );
 
     bool found_horizon{ false };
     for( const auto& horizon : model.horizons_stack().horizons() )
     {
         const auto isovalue = model.horizon_implicit_value( horizon );
-        OPENGEODE_EXCEPTION( isovalue,
-            "[Test] Horizon should have an associated implicit value." );
+        geode::OpenGeodeGeosciencesImplicitException::test(
+            isovalue.has_value(),
+            "Horizon should have an associated implicit value." );
         if( horizon.name() == "horizon_3" )
         {
             found_horizon = true;
-            OPENGEODE_EXCEPTION( isovalue.value() == 3, "[Test] Horizon '",
-                horizon.name().value(),
+            geode::OpenGeodeGeosciencesImplicitException::test(
+                isovalue.value() == 3, "Horizon '", horizon.name().value(),
                 "' should have an implicit value of 3, not ",
                 isovalue.value() );
             const auto& strati_unit_id =
                 model.horizons_stack().under( horizon.id() );
-            OPENGEODE_EXCEPTION( strati_unit_id,
-                "[Test] Should have found a stratigraphic unit "
+            geode::OpenGeodeGeosciencesImplicitException::test(
+                strati_unit_id.has_value(),
+                "Should have found a stratigraphic unit "
                 "under the horizon with implicit value 3." );
             const auto& strati_unit =
                 model.stratigraphic_unit( strati_unit_id.value() );
             for( const auto& item :
                 model.stratigraphic_unit_items( strati_unit ) )
             {
-                OPENGEODE_EXCEPTION( item.id() == block1_id,
-                    "[Test] The only item in given stratigraphic unit should "
+                geode::OpenGeodeGeosciencesImplicitException::test(
+                    item.id() == block1_id,
+                    "The only item in given stratigraphic unit should "
                     "be ",
                     block.component_id().string() );
             }
         }
     }
-    OPENGEODE_EXCEPTION(
-        found_horizon, "[Test] Should have found horizon 'horizon_3'." );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        found_horizon, "Should have found horizon 'horizon_3'." );
 }
 
 void test_copy(
@@ -184,9 +193,10 @@ void test_copy(
         mappings.at( geode::Horizon3D::component_type_static() );
     for( const auto& horizon : model.horizons() )
     {
-        OPENGEODE_EXCEPTION( copy.horizons_stack().has_horizon(
-                                 horizon_mapping.in2out( horizon.id() ) ),
-            "[Test] Should have found horizon in HorizonsStack." );
+        geode::OpenGeodeGeosciencesImplicitException::test(
+            copy.horizons_stack().has_horizon(
+                horizon_mapping.in2out( horizon.id() ) ),
+            "Should have found horizon in HorizonsStack." );
     }
 }
 
@@ -248,7 +258,7 @@ int main()
     try
     {
         geode::Logger::info( "Starting test" );
-        geode::GeosciencesImplicitLibrary::initialize();
+        geode::OpenGeodeGeosciencesImplicitLibrary::initialize();
         geode::StratigraphicModel model{ geode::load_structural_model(
             absl::StrCat( geode::DATA_PATH, "vri2.og_strm" ) ) };
         const geode::uuid block1_id{ "00000000-c271-42e7-8000-00002c3147ed" };

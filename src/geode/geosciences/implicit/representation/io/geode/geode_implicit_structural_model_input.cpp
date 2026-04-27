@@ -49,8 +49,9 @@ namespace geode
         ImplicitStructuralModel model;
         const auto impl_filename = absl::StrCat(
             zip_reader.directory(), "/implicit_model_impl.og_istrm" );
-        OPENGEODE_EXCEPTION(
-            std::filesystem::exists( to_string( impl_filename ) ),
+        OpenGeodeGeosciencesImplicitException::check(
+            std::filesystem::exists( to_string( impl_filename ) ), nullptr,
+            OpenGeodeException::TYPE::data,
             "[OpenGeodeImplicitStructuralModelInput::read] Error in reading "
             "files: Could not find stored impl." );
         std::ifstream file{ impl_filename, std::ifstream::binary };
@@ -60,9 +61,11 @@ namespace geode
         Deserializer archive{ context, file };
         archive.object( model );
         const auto& adapter = archive.adapter();
-        OPENGEODE_EXCEPTION( adapter.error() == bitsery::ReaderError::NoError
-                                 && adapter.isCompletedSuccessfully()
-                                 && std::get< 1 >( context ).isValid(),
+        OpenGeodeGeosciencesImplicitException::check(
+            adapter.error() == bitsery::ReaderError::NoError
+                && adapter.isCompletedSuccessfully()
+                && std::get< 1 >( context ).isValid(),
+            nullptr, OpenGeodeException::TYPE::internal,
             "[OpenGeodeImplicitStructuralModelOutput::load_model_impl] "
             "Error while reading file: ",
             impl_filename );

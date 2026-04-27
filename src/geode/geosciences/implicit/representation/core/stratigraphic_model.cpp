@@ -184,10 +184,10 @@ namespace geode
             {
                 return stratigraphic_internal_surface( model, block, surface );
             }
-            OPENGEODE_ASSERT_NOT_REACHED(
+            throw OpenGeodeGeosciencesImplicitException{ nullptr,
+                OpenGeodeException::TYPE::data,
                 "[StratigraphicModel::stratigraphic_surface] The given "
-                "surface is not boundary nor internal of the given block." );
-            return {};
+                "surface is not boundary nor internal of the given block." };
         }
 
         void instantiate_stratigraphic_location_on_blocks(
@@ -195,9 +195,10 @@ namespace geode
         {
             for( const auto& block : model.blocks() )
             {
-                OPENGEODE_DATA_EXCEPTION(
+                OpenGeodeGeosciencesImplicitException::check(
                     ( block.mesh().type_name()
                         == TetrahedralSolid3D::type_name_static() ),
+                    nullptr, OpenGeodeException::TYPE::data,
                     "[StratigraphicModel::instantiate_stratigraphic_"
                     "attribute_on_blocks] Blocks must be meshed as "
                     "TetrahedralSolids, which is not the case for block "
@@ -240,9 +241,10 @@ namespace geode
         void set_stratigraphic_location(
             const Block3D& block, index_t vertex_id, Point2D value )
         {
-            OPENGEODE_DATA_EXCEPTION(
+            OpenGeodeGeosciencesImplicitException::check(
                 stratigraphic_location_attributes_.find( block.id() )
                     != stratigraphic_location_attributes_.end(),
+                nullptr, OpenGeodeException::TYPE::data,
                 "[StratigraphicModel::set_stratigraphic_location] "
                 "Couldn't find block uuid in the attributes registered - Try "
                 "instantiating your attribute first." );
@@ -371,7 +373,10 @@ namespace geode
                 const auto polygon_block_vertices =
                     block_vertices_from_surface_polygon(
                         model, block, surface, polygon_id );
-                OPENGEODE_EXCEPTION( polygon_block_vertices.size() == 1,
+                OpenGeodeGeosciencesImplicitException::check(
+                    polygon_block_vertices.size() == 1,
+                    surface_mesh.polygon_barycenter( polygon_id ),
+                    OpenGeodeException::TYPE::internal,
                     "[StratigraphicModel::stratigraphic_surface] Did not "
                     "find one polyhedron in the given block from a polygon of "
                     "the given surface." );
@@ -430,7 +435,10 @@ namespace geode
                 const auto polygon_block_vertices =
                     oriented_block_vertices_from_surface_polygon(
                         model, block, surface, polygon_id );
-                OPENGEODE_EXCEPTION( polygon_block_vertices.nb_facets() == 2,
+                OpenGeodeGeosciencesImplicitException::check(
+                    polygon_block_vertices.nb_facets() == 2,
+                    surface_mesh.polygon_barycenter( polygon_id ),
+                    OpenGeodeException::TYPE::internal,
                     "[StratigraphicModel::stratigraphic_surface] Did not "
                     "find two polyhedra in the given block from a polygon of "
                     "the given surface." );

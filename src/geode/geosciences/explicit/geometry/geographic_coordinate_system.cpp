@@ -83,7 +83,8 @@ namespace geode
                 }
                 const auto status = transformer->Transform(
                     1, &values[0], &values[1], &values[2] );
-                OPENGEODE_EXCEPTION( status,
+                OpenGeodeGeosciencesExplicitException::check( status, nullptr,
+                    OpenGeodeException::TYPE::internal,
                     "[GeographicCoordinateSystem::convert_geographic_"
                     "coordinate_system] Failed to convert coordinates" );
                 for( const auto d : LRange{ dimension } )

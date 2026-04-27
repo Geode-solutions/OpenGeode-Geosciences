@@ -81,9 +81,9 @@ namespace geode
             print_available_extensions< StructuralModelInputFactory >(
                 "StructuralModel" );
             print_available_extensions< BRepInputFactory >( "BRep" );
-            throw OpenGeodeException{
-                "Cannot load StratigraphicModel from file: ", filename
-            };
+            throw OpenGeodeGeosciencesImplicitException{ nullptr,
+                OpenGeodeException::TYPE::internal,
+                "Cannot load StratigraphicModel from file: ", filename };
         }
     }
 

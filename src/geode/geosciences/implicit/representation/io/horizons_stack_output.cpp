@@ -52,8 +52,9 @@ namespace geode
             Logger::error( e.what() );
             print_available_extensions<
                 HorizonsStackOutputFactory< dimension > >( TYPE );
-            throw OpenGeodeException{ "Cannot save HorizonsStack in file: ",
-                filename };
+            throw OpenGeodeGeosciencesImplicitException{ nullptr,
+                OpenGeodeException::TYPE::internal,
+                "Cannot save HorizonsStack in file: ", filename };
         }
     }
 
