@@ -57,9 +57,10 @@ PYBIND11_MODULE( opengeode_geosciences_py_explicit, module )
 {
     module.doc() = "OpenGeode-Geosciences Python binding for explicit library";
     pybind11::module::import( "opengeode" );
-    pybind11::class_< geode::GeosciencesExplicitLibrary >(
-        module, "GeosciencesExplicitLibrary" )
-        .def( "initialize", &geode::GeosciencesExplicitLibrary::initialize );
+    pybind11::class_< geode::OpenGeodeGeosciencesExplicitLibrary >(
+        module, "OpenGeodeGeosciencesExplicitLibrary" )
+        .def( "initialize",
+            &geode::OpenGeodeGeosciencesExplicitLibrary::initialize );
     geode::define_fault_block( module );
     geode::define_fault( module );
     geode::define_horizon( module );
