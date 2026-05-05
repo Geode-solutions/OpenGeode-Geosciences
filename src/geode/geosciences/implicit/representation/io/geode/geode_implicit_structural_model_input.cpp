@@ -49,7 +49,7 @@ namespace geode
         ImplicitStructuralModel model;
         const auto impl_filename = absl::StrCat(
             zip_reader.directory(), "/implicit_model_impl.og_istrm" );
-        OpenGeodeGeosciencesImplicitException::check(
+        OpenGeodeGeosciencesImplicitException::check_exception(
             std::filesystem::exists( to_string( impl_filename ) ), nullptr,
             OpenGeodeException::TYPE::data,
             "[OpenGeodeImplicitStructuralModelInput::read] Error in reading "
@@ -61,7 +61,7 @@ namespace geode
         Deserializer archive{ context, file };
         archive.object( model );
         const auto& adapter = archive.adapter();
-        OpenGeodeGeosciencesImplicitException::check(
+        OpenGeodeGeosciencesImplicitException::check_exception(
             adapter.error() == bitsery::ReaderError::NoError
                 && adapter.isCompletedSuccessfully()
                 && std::get< 1 >( context ).isValid(),

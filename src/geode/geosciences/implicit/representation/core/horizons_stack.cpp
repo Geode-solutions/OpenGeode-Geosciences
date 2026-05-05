@@ -177,7 +177,7 @@ namespace geode
         const uuid& component ) const
     {
         auto component_is_a_horizon = this->has_horizon( component );
-        OpenGeodeGeosciencesImplicitException::check(
+        OpenGeodeGeosciencesImplicitException::check_exception(
             component_is_a_horizon || this->has_stratigraphic_unit( component ),
             nullptr, OpenGeodeException::TYPE::data,
             "[HorizonsStack::is_conformal_above] Given component with uuid ",
@@ -192,7 +192,7 @@ namespace geode
         else
         {
             const auto& horizon_above = this->above( component );
-            OpenGeodeGeosciencesImplicitException::check(
+            OpenGeodeGeosciencesImplicitException::check_exception(
                 horizon_above.has_value(), nullptr,
                 OpenGeodeException::TYPE::data,
                 "[HorizonsStack::is_conformal_above] No horizon above given "
@@ -211,7 +211,7 @@ namespace geode
         const uuid& component ) const
     {
         auto component_is_a_horizon = this->has_horizon( component );
-        OpenGeodeGeosciencesImplicitException::check(
+        OpenGeodeGeosciencesImplicitException::check_exception(
             component_is_a_horizon || this->has_stratigraphic_unit( component ),
             nullptr, OpenGeodeException::TYPE::data,
             "[HorizonsStack::is_conformal_above] Given component with uuid ",
@@ -226,7 +226,7 @@ namespace geode
         else
         {
             const auto& horizon_under = this->under( component );
-            OpenGeodeGeosciencesImplicitException::check(
+            OpenGeodeGeosciencesImplicitException::check_exception(
                 horizon_under.has_value(), nullptr,
                 OpenGeodeException::TYPE::data,
                 "[HorizonsStack::is_conformal_under] No horizon under given "

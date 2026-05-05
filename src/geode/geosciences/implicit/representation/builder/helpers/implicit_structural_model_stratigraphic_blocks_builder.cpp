@@ -416,23 +416,23 @@ namespace geode
             return {};
         }
         const auto& horizons_stack = implicit_model.horizons_stack();
-        OpenGeodeGeosciencesImplicitException::check(
+        OpenGeodeGeosciencesImplicitException::check_exception(
             horizons_stack.nb_stratigraphic_units() > 0, nullptr,
             OpenGeodeException::TYPE::data,
             "[complete_stratigraphic_unit_block_relationships_from_available_"
             "data] Horizons stack is empty (no stratigraphic units)." );
-        OpenGeodeGeosciencesImplicitException::check(
+        OpenGeodeGeosciencesImplicitException::check_exception(
             horizons_stack.nb_horizons() > 0, nullptr,
             OpenGeodeException::TYPE::data,
             "[complete_stratigraphic_unit_block_relationships_from_available_"
             "data] Horizons stack is empty (no horizons)." );
-        OpenGeodeGeosciencesImplicitException::check(
+        OpenGeodeGeosciencesImplicitException::check_exception(
             horizons_stack.top_horizon().has_value()
                 && horizons_stack.bottom_horizon().has_value(),
             nullptr, OpenGeodeException::TYPE::data,
             "[complete_stratigraphic_unit_block_relationships_from_available_"
             "data] Horizons stack is empty (no top and bottom horizons)." );
-        OpenGeodeGeosciencesImplicitException::check(
+        OpenGeodeGeosciencesImplicitException::check_exception(
             implicit_model.nb_horizons() > 0, nullptr,
             OpenGeodeException::TYPE::data,
             "[complete_stratigraphic_unit_block_relationships_from_available_"

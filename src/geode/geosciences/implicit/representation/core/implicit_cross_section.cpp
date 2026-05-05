@@ -127,7 +127,7 @@ namespace geode
         std::optional< double > horizon_implicit_value(
             const Horizon2D& horizon ) const
         {
-            OpenGeodeGeosciencesImplicitException::check(
+            OpenGeodeGeosciencesImplicitException::check_exception(
                 horizons_stack_.has_horizon( horizon.id() ), nullptr,
                 OpenGeodeException::TYPE::data,
                 "[horizon_implicit_value] You cannot access the isovalue of "
@@ -146,13 +146,13 @@ namespace geode
             double implicit_function_value, const Horizon2D& horizon ) const
         {
             const auto increasing = increasing_stack_isovalues();
-            OpenGeodeGeosciencesImplicitException::check(
+            OpenGeodeGeosciencesImplicitException::check_exception(
                 increasing.has_value(), nullptr, OpenGeodeException::TYPE::data,
                 "[implicit_value_is_above_horizon] Could not find if "
                 "implicit values were increasing or decreasing in the horizon "
                 "stack." );
             const auto it = horizon_isovalues_.find( horizon.id() );
-            OpenGeodeGeosciencesImplicitException::check(
+            OpenGeodeGeosciencesImplicitException::check_exception(
                 it != horizon_isovalues_.end(), nullptr,
                 OpenGeodeException::TYPE::data,
                 "[implicit_value_is_above_horizon] Cannot find horizon "
@@ -222,7 +222,7 @@ namespace geode
             implicit_attributes_.reserve( model.nb_surfaces() );
             for( const auto& surface : model.surfaces() )
             {
-                OpenGeodeGeosciencesImplicitException::check(
+                OpenGeodeGeosciencesImplicitException::check_exception(
                     ( surface.mesh().type_name()
                         == TriangulatedSurface2D::type_name_static() ),
                     nullptr, OpenGeodeException::TYPE::data,
@@ -252,7 +252,7 @@ namespace geode
         void set_implicit_value(
             const Surface2D& surface, index_t vertex_id, double value )
         {
-            OpenGeodeGeosciencesImplicitException::check(
+            OpenGeodeGeosciencesImplicitException::check_exception(
                 implicit_attributes_.find( surface.id() )
                     != implicit_attributes_.end(),
                 nullptr, OpenGeodeException::TYPE::data,
@@ -271,7 +271,7 @@ namespace geode
         void set_horizon_implicit_value(
             const Horizon2D& horizon, double isovalue )
         {
-            OpenGeodeGeosciencesImplicitException::check(
+            OpenGeodeGeosciencesImplicitException::check_exception(
                 horizons_stack_.has_horizon( horizon.id() ), nullptr,
                 OpenGeodeException::TYPE::data,
                 "[horizon_implicit_value] You cannot change the isovalue of "

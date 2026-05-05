@@ -209,7 +209,7 @@ namespace geode
         {
             for( const auto& surface : model.surfaces() )
             {
-                OpenGeodeGeosciencesImplicitException::check(
+                OpenGeodeGeosciencesImplicitException::check_exception(
                     ( surface.mesh().type_name()
                         == TriangulatedSurface2D::type_name_static() ),
                     nullptr, OpenGeodeException::TYPE::data,
@@ -242,7 +242,7 @@ namespace geode
         void set_stratigraphic_location(
             const Surface2D& surface, index_t vertex_id, Point1D value )
         {
-            OpenGeodeGeosciencesImplicitException::check(
+            OpenGeodeGeosciencesImplicitException::check_exception(
                 stratigraphic_location_attributes_.find( surface.id() )
                     != stratigraphic_location_attributes_.end(),
                 nullptr, OpenGeodeException::TYPE::data,
@@ -366,7 +366,7 @@ namespace geode
                 const auto edge_surface_vertices =
                     surface_vertices_from_line_edge(
                         model, surface, line, edge_id );
-                OpenGeodeGeosciencesImplicitException::check(
+                OpenGeodeGeosciencesImplicitException::check_exception(
                     edge_surface_vertices.size() == 1,
                     line_mesh.edge_barycenter( edge_id ),
                     OpenGeodeException::TYPE::data,
@@ -426,7 +426,7 @@ namespace geode
                 const auto edge_surface_vertices =
                     oriented_surface_vertices_from_line_edge(
                         model, surface, line, edge_id );
-                OpenGeodeGeosciencesImplicitException::check(
+                OpenGeodeGeosciencesImplicitException::check_exception(
                     edge_surface_vertices.nb_edges() == 2,
                     line_mesh.edge_barycenter( edge_id ),
                     OpenGeodeException::TYPE::data,

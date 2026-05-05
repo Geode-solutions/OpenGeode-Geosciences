@@ -174,7 +174,7 @@ namespace geode
             Serializer archive{ context, file };
             archive.object( *this );
             archive.adapter().flush();
-            OpenGeodeGeosciencesImplicitException::check(
+            OpenGeodeGeosciencesImplicitException::check_exception(
                 std::get< 1 >( context ).isValid(), nullptr,
                 OpenGeodeException::TYPE::internal,
                 "[Relationships::save] Error while writing file: ", filename );
@@ -191,7 +191,7 @@ namespace geode
             Deserializer archive{ context, file };
             archive.object( *this );
             const auto& adapter = archive.adapter();
-            OpenGeodeGeosciencesImplicitException::check(
+            OpenGeodeGeosciencesImplicitException::check_exception(
                 adapter.error() == bitsery::ReaderError::NoError
                     && adapter.isCompletedSuccessfully()
                     && std::get< 1 >( context ).isValid(),

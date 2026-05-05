@@ -58,14 +58,14 @@ namespace
     void check_number_of_horizons_and_stratigraphic_units(
         geode::index_t nb_horizons, geode::index_t nb_units )
     {
-        geode::OpenGeodeGeosciencesImplicitException::check(
+        geode::OpenGeodeGeosciencesImplicitException::check_exception(
             nb_horizons <= nb_units + 1, nullptr,
             geode::OpenGeodeException::TYPE::data,
             "[check_number_of_horizons_and_stratigraphic_units] Too many "
             "horizons compared "
             "to stratigraphic units (",
             nb_horizons, ", should be less than ", nb_units, ")" );
-        geode::OpenGeodeGeosciencesImplicitException::check(
+        geode::OpenGeodeGeosciencesImplicitException::check_exception(
             nb_units <= nb_horizons + 1, nullptr,
             geode::OpenGeodeException::TYPE::data,
             "[check_number_of_horizons_and_stratigraphic_units] Too many "
@@ -257,8 +257,8 @@ namespace geode
             ImplicitStructuralModel&& implicit_model,
             local_index_t implicit_axis )
         {
-            OpenGeodeGeosciencesImplicitException::check( implicit_axis < 3,
-                nullptr, OpenGeodeException::TYPE::data,
+            OpenGeodeGeosciencesImplicitException::check_exception(
+                implicit_axis < 3, nullptr, OpenGeodeException::TYPE::data,
                 "[create_stratigraphic_model_from_brep_attribute_and_coords] "
                 "Give a valid axis (0, 1, or 2)." );
 
@@ -421,7 +421,7 @@ namespace geode
                 su_above = horizon_stack.above( current_horizon.value() );
                 horizon_counter++;
             }
-            OpenGeodeGeosciencesImplicitException::check(
+            OpenGeodeGeosciencesImplicitException::check_exception(
                 horizon_counter == nb_horizons, nullptr,
                 OpenGeodeException::TYPE::data,
                 "[repair_horizon_stack_if_possible] Missing or wrong "

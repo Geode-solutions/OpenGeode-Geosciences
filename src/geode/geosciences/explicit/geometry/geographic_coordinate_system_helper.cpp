@@ -57,7 +57,7 @@ namespace
         using GeoCRS = typename geode::GeographicCoordinateSystem< Mesh::dim >;
         const auto& crs_manager =
             mesh.main_coordinate_reference_system_manager();
-        geode::OpenGeodeGeosciencesExplicitException::check(
+        geode::OpenGeodeGeosciencesExplicitException::check_exception(
             !crs_manager.coordinate_reference_system_exists( crs_name ),
             nullptr, geode::OpenGeodeException::TYPE::data,
             "[convert_components_coordinate_reference_system] New CRS name "
@@ -68,7 +68,7 @@ namespace
             std::make_shared< GeoCRS >( mesh.vertex_attribute_manager(), info );
         if( mesh.nb_vertices() != 0 )
         {
-            geode::OpenGeodeGeosciencesExplicitException::check(
+            geode::OpenGeodeGeosciencesExplicitException::check_exception(
                 crs_manager.active_coordinate_reference_system().type_name()
                     == GeoCRS::type_name_static(),
                 nullptr, geode::OpenGeodeException::TYPE::data,

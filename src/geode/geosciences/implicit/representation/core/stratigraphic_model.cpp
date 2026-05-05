@@ -195,7 +195,7 @@ namespace geode
         {
             for( const auto& block : model.blocks() )
             {
-                OpenGeodeGeosciencesImplicitException::check(
+                OpenGeodeGeosciencesImplicitException::check_exception(
                     ( block.mesh().type_name()
                         == TetrahedralSolid3D::type_name_static() ),
                     nullptr, OpenGeodeException::TYPE::data,
@@ -241,7 +241,7 @@ namespace geode
         void set_stratigraphic_location(
             const Block3D& block, index_t vertex_id, Point2D value )
         {
-            OpenGeodeGeosciencesImplicitException::check(
+            OpenGeodeGeosciencesImplicitException::check_exception(
                 stratigraphic_location_attributes_.find( block.id() )
                     != stratigraphic_location_attributes_.end(),
                 nullptr, OpenGeodeException::TYPE::data,
@@ -373,7 +373,7 @@ namespace geode
                 const auto polygon_block_vertices =
                     block_vertices_from_surface_polygon(
                         model, block, surface, polygon_id );
-                OpenGeodeGeosciencesImplicitException::check(
+                OpenGeodeGeosciencesImplicitException::check_exception(
                     polygon_block_vertices.size() == 1,
                     surface_mesh.polygon_barycenter( polygon_id ),
                     OpenGeodeException::TYPE::internal,
@@ -435,7 +435,7 @@ namespace geode
                 const auto polygon_block_vertices =
                     oriented_block_vertices_from_surface_polygon(
                         model, block, surface, polygon_id );
-                OpenGeodeGeosciencesImplicitException::check(
+                OpenGeodeGeosciencesImplicitException::check_exception(
                     polygon_block_vertices.nb_facets() == 2,
                     surface_mesh.polygon_barycenter( polygon_id ),
                     OpenGeodeException::TYPE::internal,

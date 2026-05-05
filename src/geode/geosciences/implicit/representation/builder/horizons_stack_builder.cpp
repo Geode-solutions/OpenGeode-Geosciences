@@ -48,8 +48,8 @@ namespace geode
     {
         const auto nb_components = horizons_stack_.nb_horizons()
                                    + horizons_stack_.nb_stratigraphic_units();
-        OpenGeodeGeosciencesImplicitException::check( nb_components == 0,
-            nullptr, OpenGeodeException::TYPE::data,
+        OpenGeodeGeosciencesImplicitException::check_exception(
+            nb_components == 0, nullptr, OpenGeodeException::TYPE::data,
             "[HorizonsStackBuild::copy] HorizonsStack "
             "should be empty before copy." );
         if( const auto name = horizons_stack.name() )
@@ -91,8 +91,8 @@ namespace geode
     {
         const auto nb_components = horizons_stack_.nb_horizons()
                                    + horizons_stack_.nb_stratigraphic_units();
-        OpenGeodeGeosciencesImplicitException::check( nb_components == 0,
-            nullptr, OpenGeodeException::TYPE::data,
+        OpenGeodeGeosciencesImplicitException::check_exception(
+            nb_components == 0, nullptr, OpenGeodeException::TYPE::data,
             "[HorizonsStackBuild::copy] HorizonsStack "
             "should be empty before copy." );
         if( const auto name = horizons_stack.name() )
@@ -156,7 +156,7 @@ namespace geode
         HorizonsStackBuilder< dimension >::add_horizon_in_stratigraphic_unit(
             const StratigraphicUnit< dimension >& strati_unit )
     {
-        OpenGeodeGeosciencesImplicitException::check(
+        OpenGeodeGeosciencesImplicitException::check_exception(
             horizons_stack_.has_stratigraphic_unit( strati_unit.id() ), nullptr,
             OpenGeodeException::TYPE::data,
             "[HorizonsStackBuilder::add_horizon_in_stratigraphic_"
