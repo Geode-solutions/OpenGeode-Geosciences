@@ -53,48 +53,53 @@ void add_faults(
     geode::CrossSection& model, geode::CrossSectionBuilder& builder )
 {
     const auto& fault0 = builder.add_fault();
-    OPENGEODE_EXCEPTION( !model.fault( fault0 ).has_type(),
-        "[Test] Addition of a Fault in CrossSection is not correct" );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        !model.fault( fault0 ).has_type(),
+        "Addition of a Fault in CrossSection is not correct" );
 
     const auto& fault1 =
         builder.add_fault( geode::Fault2D::FAULT_TYPE::reverse );
     builder.set_fault_name( fault1, "fault1" );
-    OPENGEODE_EXCEPTION(
+    geode::OpenGeodeGeosciencesExplicitException::test(
         model.fault( fault1 ).type() == geode::Fault2D::FAULT_TYPE::reverse,
-        "[Test] Addition of a Fault in CrossSection is not correct (wrong "
+        "Addition of a Fault in CrossSection is not correct (wrong "
         "type)" );
-    OPENGEODE_EXCEPTION( model.nb_faults() == 2,
-        "[Test] Number of faults in CrossSection should be 2" );
-    OPENGEODE_EXCEPTION(
-        model.fault( fault1 ).name() == "fault1", "[Test] Wrong Fault name" );
+    geode::OpenGeodeGeosciencesExplicitException::test( model.nb_faults() == 2,
+        "Number of faults in CrossSection should be 2" );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        model.fault( fault1 ).name() == "fault1", "Wrong Fault name" );
 }
 
 void add_horizons(
     geode::CrossSection& model, geode::CrossSectionBuilder& builder )
 {
     const auto& horizon0 = builder.add_horizon();
-    OPENGEODE_EXCEPTION( model.horizon( horizon0 ).contact_type()
-                             == geode::Horizon2D::CONTACT_TYPE::conformal,
-        "[Test] Addition of a Horizon in CrossSection is not correct" );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        model.horizon( horizon0 ).contact_type()
+            == geode::Horizon2D::CONTACT_TYPE::conformal,
+        "Addition of a Horizon in CrossSection is not correct" );
 
     const auto& horizon1 =
         builder.add_horizon( geode::Horizon2D::CONTACT_TYPE::conformal );
-    OPENGEODE_EXCEPTION( model.horizon( horizon1 ).contact_type()
-                             == geode::Horizon2D::CONTACT_TYPE::conformal,
-        "[Test] Addition of a Horizon in CrossSection is not correct (wrong "
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        model.horizon( horizon1 ).contact_type()
+            == geode::Horizon2D::CONTACT_TYPE::conformal,
+        "Addition of a Horizon in CrossSection is not correct (wrong "
         "type)" );
 
     const auto& horizon2 =
         builder.add_horizon( geode::Horizon2D::CONTACT_TYPE::erosion );
     builder.set_horizon_name( horizon2, "horizon2" );
-    OPENGEODE_EXCEPTION( model.horizon( horizon2 ).contact_type()
-                             == geode::Horizon2D::CONTACT_TYPE::erosion,
-        "[Test] Addition of a Horizon in CrossSection is not correct (wrong "
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        model.horizon( horizon2 ).contact_type()
+            == geode::Horizon2D::CONTACT_TYPE::erosion,
+        "Addition of a Horizon in CrossSection is not correct (wrong "
         "type)" );
-    OPENGEODE_EXCEPTION( model.nb_horizons() == 3,
-        "[Test] Number of horizons in CrossSection should be 3" );
-    OPENGEODE_EXCEPTION( model.horizon( horizon2 ).name() == "horizon2",
-        "[Test] Wrong Horizon name" );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        model.nb_horizons() == 3,
+        "Number of horizons in CrossSection should be 3" );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        model.horizon( horizon2 ).name() == "horizon2", "Wrong Horizon name" );
 }
 
 void add_fault_blocks(
@@ -105,14 +110,16 @@ void add_fault_blocks(
     const auto& uid = builder.add_fault_block();
     geode_unused( uid );
     builder.set_fault_block_name( fault_block1, "hanging_wall" );
-    OPENGEODE_EXCEPTION( model.nb_fault_blocks() == 3,
-        "[Test] Number of fault blocks in CrossSection should be 3" );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        model.nb_fault_blocks() == 3,
+        "Number of fault blocks in CrossSection should be 3" );
     builder.remove_fault_block( model.fault_block( fault_block0 ) );
-    OPENGEODE_EXCEPTION(
+    geode::OpenGeodeGeosciencesExplicitException::test(
         model.fault_block( fault_block1 ).name() == "hanging_wall",
-        "[Test] Wrong FaultBlock name" );
-    OPENGEODE_EXCEPTION( model.nb_fault_blocks() == 2,
-        "[Test] Number of fault blocks in CrossSection should be 2" );
+        "Wrong FaultBlock name" );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        model.nb_fault_blocks() == 2,
+        "Number of fault blocks in CrossSection should be 2" );
 }
 
 void add_stratigraphic_units(
@@ -123,15 +130,17 @@ void add_stratigraphic_units(
     const auto& uid = builder.add_stratigraphic_unit();
     geode_unused( uid );
     builder.set_stratigraphic_unit_name( stratigraphic_unit1, "cretaceous" );
-    OPENGEODE_EXCEPTION( model.nb_stratigraphic_units() == 3,
-        "[Test] Number of stratigraphic_units in CrossSection should be 3" );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        model.nb_stratigraphic_units() == 3,
+        "Number of stratigraphic_units in CrossSection should be 3" );
     builder.remove_stratigraphic_unit(
         model.stratigraphic_unit( stratigraphic_unit0 ) );
-    OPENGEODE_EXCEPTION(
+    geode::OpenGeodeGeosciencesExplicitException::test(
         model.stratigraphic_unit( stratigraphic_unit1 ).name() == "cretaceous",
-        "[Test] Wrong StratigraphicUnit name" );
-    OPENGEODE_EXCEPTION( model.nb_stratigraphic_units() == 2,
-        "[Test] Number of stratigraphic_units in CrossSection should be 2" );
+        "Wrong StratigraphicUnit name" );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        model.nb_stratigraphic_units() == 2,
+        "Number of stratigraphic_units in CrossSection should be 2" );
 }
 
 void add_lines( geode::CrossSectionBuilder& builder )
@@ -162,27 +171,36 @@ void do_checks( const geode::CrossSection& model,
     absl::Span< const geode::uuid > fault_blocks_uuids,
     absl::Span< const geode::uuid > stratigraphic_units_uuids )
 {
-    OPENGEODE_EXCEPTION( model.nb_items( faults_uuids[0] ) == 3,
-        "[Test] Number of items in fault_uuids[0] should be 3" );
-    OPENGEODE_EXCEPTION( model.nb_items( faults_uuids[1] ) == 2,
-        "[Test] Number of items in fault_uuids[1] should be 2" );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        model.nb_items( faults_uuids[0] ) == 3,
+        "Number of items in fault_uuids[0] should be 3" );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        model.nb_items( faults_uuids[1] ) == 2,
+        "Number of items in fault_uuids[1] should be 2" );
 
-    OPENGEODE_EXCEPTION( model.nb_items( horizons_uuids[0] ) == 1,
-        "[Test] Number of items in horizons_uuids[0] should be 1" );
-    OPENGEODE_EXCEPTION( model.nb_items( horizons_uuids[1] ) == 0,
-        "[Test] Number of items in horizons_uuids[1] should be 0" );
-    OPENGEODE_EXCEPTION( model.nb_items( horizons_uuids[2] ) == 3,
-        "[Test] Number of items in horizons_uuids[2] should be 3" );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        model.nb_items( horizons_uuids[0] ) == 1,
+        "Number of items in horizons_uuids[0] should be 1" );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        model.nb_items( horizons_uuids[1] ) == 0,
+        "Number of items in horizons_uuids[1] should be 0" );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        model.nb_items( horizons_uuids[2] ) == 3,
+        "Number of items in horizons_uuids[2] should be 3" );
 
-    OPENGEODE_EXCEPTION( model.nb_items( fault_blocks_uuids[0] ) == 2,
-        "[Test] Number of items in fault_blocks_uuids[0] should be 2" );
-    OPENGEODE_EXCEPTION( model.nb_items( fault_blocks_uuids[1] ) == 2,
-        "[Test] Number of items in fault_blocks_uuids[1] should be 2" );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        model.nb_items( fault_blocks_uuids[0] ) == 2,
+        "Number of items in fault_blocks_uuids[0] should be 2" );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        model.nb_items( fault_blocks_uuids[1] ) == 2,
+        "Number of items in fault_blocks_uuids[1] should be 2" );
 
-    OPENGEODE_EXCEPTION( model.nb_items( stratigraphic_units_uuids[0] ) == 2,
-        "[Test] Number of items in stratigraphic_units_uuids[0] should be 2" );
-    OPENGEODE_EXCEPTION( model.nb_items( stratigraphic_units_uuids[1] ) == 2,
-        "[Test] Number of items in stratigraphic_units_uuids[1] should be 2" );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        model.nb_items( stratigraphic_units_uuids[0] ) == 2,
+        "Number of items in stratigraphic_units_uuids[0] should be 2" );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        model.nb_items( stratigraphic_units_uuids[1] ) == 2,
+        "Number of items in stratigraphic_units_uuids[1] should be 2" );
 
     for( const auto i : geode::Range{ 8 } )
     {
@@ -190,37 +208,40 @@ void do_checks( const geode::CrossSection& model,
         {
             continue;
         }
-        OPENGEODE_EXCEPTION( model.nb_collections( line_uuids[i] ) == 1,
-            "[Test] Number of collections in which line_uuids[", i,
+        geode::OpenGeodeGeosciencesExplicitException::test(
+            model.nb_collections( line_uuids[i] ) == 1,
+            "Number of collections in which line_uuids[", i,
             "] is should be 1" );
     }
 
     for( const auto i : geode::Range{ 4 } )
     {
-        OPENGEODE_EXCEPTION( model.nb_collections( surface_uuids[i] ) == 2,
-            "[Test] Number of collections in which surface_uuids[", i,
+        geode::OpenGeodeGeosciencesExplicitException::test(
+            model.nb_collections( surface_uuids[i] ) == 2,
+            "Number of collections in which surface_uuids[", i,
             "] is should be 2 (one StratigraphicUnit and one FaultBlock" );
     }
 
-    OPENGEODE_EXCEPTION(
+    geode::OpenGeodeGeosciencesExplicitException::test(
         count_items( model.horizon_items( model.horizon( horizons_uuids[2] ) ) )
             == 3,
-        "[Test] Number of iterations on items in "
+        "Number of iterations on items in "
         "horizons_uuids[2] should be 3" );
-    OPENGEODE_EXCEPTION(
+    geode::OpenGeodeGeosciencesExplicitException::test(
         count_items( model.fault_items( model.fault( faults_uuids[1] ) ) ) == 2,
-        "[Test] Number of iterations on items in "
+        "Number of iterations on items in "
         "faults_uuids[1] should be 2" );
-    OPENGEODE_EXCEPTION( count_items( model.fault_block_items(
-                             model.fault_block( fault_blocks_uuids[0] ) ) )
-                             == 2,
-        "[Test] Number of iterations on items in "
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        count_items( model.fault_block_items(
+            model.fault_block( fault_blocks_uuids[0] ) ) )
+            == 2,
+        "Number of iterations on items in "
         "fault_blocks_uuids[0] should be 2" );
-    OPENGEODE_EXCEPTION(
+    geode::OpenGeodeGeosciencesExplicitException::test(
         count_items( model.stratigraphic_unit_items(
             model.stratigraphic_unit( stratigraphic_units_uuids[0] ) ) )
             == 2,
-        "[Test] Number of iterations on items in "
+        "Number of iterations on items in "
         "stratigraphic_units_uuids[0] should be 2" );
 }
 
@@ -317,14 +338,18 @@ void build_relations_between_geometry_and_geology(
 
 void check_reloaded_model( const geode::CrossSection& reloaded_model )
 {
-    OPENGEODE_EXCEPTION( reloaded_model.nb_lines() == 8,
-        "[Test] Number of lines in reloaded model should be 8" );
-    OPENGEODE_EXCEPTION( reloaded_model.nb_horizons() == 3,
-        "[Test] Number of horizons in reloaded model should be 3" );
-    OPENGEODE_EXCEPTION( reloaded_model.nb_faults() == 2,
-        "[Test] Number of faults in reloaded model should be 2" );
-    OPENGEODE_EXCEPTION( reloaded_model.nb_fault_blocks() == 2,
-        "[Test] Number of fault blocks in reloaded model should be 2" );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        reloaded_model.nb_lines() == 8,
+        "Number of lines in reloaded model should be 8" );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        reloaded_model.nb_horizons() == 3,
+        "Number of horizons in reloaded model should be 3" );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        reloaded_model.nb_faults() == 2,
+        "Number of faults in reloaded model should be 2" );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        reloaded_model.nb_fault_blocks() == 2,
+        "Number of fault blocks in reloaded model should be 2" );
 }
 
 void test_io( const geode::CrossSection& model )
@@ -341,41 +366,44 @@ void test_copy( const geode::CrossSection& model )
     geode::CrossSection copy;
     geode::CrossSectionBuilder copier( copy );
     copier.copy( model );
-    OPENGEODE_EXCEPTION( copy.nb_surfaces() == 4,
-        "[Test] Number of surfaces in copied model should be 4" );
-    OPENGEODE_EXCEPTION( copy.nb_lines() == 8,
-        "[Test] Number of lines in copied model should be 8" );
-    OPENGEODE_EXCEPTION( copy.nb_horizons() == 3,
-        "[Test] Number of horizons in copied model should be 3" );
-    OPENGEODE_EXCEPTION( copy.nb_faults() == 2,
-        "[Test] Number of faults in copied model should be 2" );
-    OPENGEODE_EXCEPTION( copy.nb_fault_blocks() == 2,
-        "[Test] Number of fault blocks in copied model should be 2" );
-    OPENGEODE_EXCEPTION( copy.nb_stratigraphic_units() == 2,
-        "[Test] Number of stratigraphic units in copied model should be 2" );
+    geode::OpenGeodeGeosciencesExplicitException::test( copy.nb_surfaces() == 4,
+        "Number of surfaces in copied model should be 4" );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        copy.nb_lines() == 8, "Number of lines in copied model should be 8" );
+    geode::OpenGeodeGeosciencesExplicitException::test( copy.nb_horizons() == 3,
+        "Number of horizons in copied model should be 3" );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        copy.nb_faults() == 2, "Number of faults in copied model should be 2" );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        copy.nb_fault_blocks() == 2,
+        "Number of fault blocks in copied model should be 2" );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        copy.nb_stratigraphic_units() == 2,
+        "Number of stratigraphic units in copied model should be 2" );
     geode::index_t nb_surface_boundaries{ 0 };
     for( const auto& surface : copy.surfaces() )
     {
         nb_surface_boundaries += count_items( copy.boundaries( surface ) );
     }
-    OPENGEODE_EXCEPTION( nb_surface_boundaries == 4,
-        "[Test] Number of boundaries of Surfaces in copied model should be 4" );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        nb_surface_boundaries == 4,
+        "Number of boundaries of Surfaces in copied model should be 4" );
 
     geode::index_t nb_fault_items{ 0 };
     for( const auto& fault : copy.faults() )
     {
         nb_fault_items += count_items( copy.fault_items( fault ) );
     }
-    OPENGEODE_EXCEPTION( nb_fault_items == 5,
-        "[Test] Number of items in faults in copied model should be 5, got ",
+    geode::OpenGeodeGeosciencesExplicitException::test( nb_fault_items == 5,
+        "Number of items in faults in copied model should be 5, got ",
         nb_fault_items );
     geode::index_t nb_horizon_items{ 0 };
     for( const auto& horizon : copy.horizons() )
     {
         nb_horizon_items += count_items( copy.horizon_items( horizon ) );
     }
-    OPENGEODE_EXCEPTION( nb_horizon_items == 4,
-        "[Test] Number of items in stratigraphic_units "
+    geode::OpenGeodeGeosciencesExplicitException::test( nb_horizon_items == 4,
+        "Number of items in stratigraphic_units "
         "in copied model should be 4" );
     geode::index_t nb_fault_block_items{ 0 };
     for( const auto& fault_block : copy.fault_blocks() )
@@ -383,16 +411,18 @@ void test_copy( const geode::CrossSection& model )
         nb_fault_block_items +=
             count_items( copy.fault_block_items( fault_block ) );
     }
-    OPENGEODE_EXCEPTION( nb_fault_block_items == 4,
-        "[Test] Number of items in fault_blocks in copied model should be 4" );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        nb_fault_block_items == 4,
+        "Number of items in fault_blocks in copied model should be 4" );
     geode::index_t nb_stratigraphic_unit_items{ 0 };
     for( const auto& stratigraphic_unit : copy.stratigraphic_units() )
     {
         nb_stratigraphic_unit_items +=
             count_items( copy.stratigraphic_unit_items( stratigraphic_unit ) );
     }
-    OPENGEODE_EXCEPTION( nb_stratigraphic_unit_items == 4,
-        "[Test] Number of items in stratigraphic_units in copied model should "
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        nb_stratigraphic_unit_items == 4,
+        "Number of items in stratigraphic_units in copied model should "
         "be 4" );
 }
 
@@ -407,8 +437,8 @@ void modify_model(
             builder.set_fault_type(
                 fault.id(), geode::Fault2D::FAULT_TYPE::strike_slip );
         }
-        OPENGEODE_EXCEPTION(
-            fault.has_type(), "[Test] All faults should have a type" );
+        geode::OpenGeodeGeosciencesExplicitException::test(
+            fault.has_type(), "All faults should have a type" );
     }
     for( const auto& horizon : model.horizons() )
     {
@@ -435,17 +465,18 @@ void modify_model(
     // Add a new fault and remove it
     const auto temp_id = builder.add_fault();
     builder.remove_fault( model.fault( temp_id ) );
-    OPENGEODE_EXCEPTION( model.nb_horizons() == 0,
-        "[Test] Number of horizons in modified model should be 0" );
-    OPENGEODE_EXCEPTION( model.nb_faults() == 2,
-        "[Test] Number of faults in modified model should be 2" );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        model.nb_horizons() == 0,
+        "Number of horizons in modified model should be 0" );
+    geode::OpenGeodeGeosciencesExplicitException::test( model.nb_faults() == 2,
+        "Number of faults in modified model should be 2" );
 }
 
 int main()
 {
     try
     {
-        geode::GeosciencesExplicitLibrary::initialize();
+        geode::OpenGeodeGeosciencesExplicitLibrary::initialize();
 
         geode::CrossSection model;
         geode::CrossSectionBuilder builder( model );

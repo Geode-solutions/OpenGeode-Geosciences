@@ -54,8 +54,8 @@ void test_crs()
 {
     const auto infos =
         geode::GeographicCoordinateSystem3D::geographic_coordinate_systems();
-    OPENGEODE_EXCEPTION(
-        infos.size() == 13181, "[Test] Wrong number of supported CRS" );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        infos.size() == 13181, "Wrong number of supported CRS" );
 
     constexpr geode::index_t NB_POINTS{ 4 };
     geode::AttributeManager manager;
@@ -79,8 +79,9 @@ void test_crs()
     };
     for( const auto p : geode::Range{ NB_POINTS } )
     {
-        OPENGEODE_EXCEPTION( lambert2.point( p ).inexact_equal( answers[p] ),
-            "[Test] Wrong coordinate conversion" );
+        geode::OpenGeodeGeosciencesExplicitException::test(
+            lambert2.point( p ).inexact_equal( answers[p] ),
+            "Wrong coordinate conversion" );
     }
 }
 
@@ -88,7 +89,7 @@ int main()
 {
     try
     {
-        geode::GeosciencesExplicitLibrary::initialize();
+        geode::OpenGeodeGeosciencesExplicitLibrary::initialize();
         test_bitsery();
         test_crs();
 

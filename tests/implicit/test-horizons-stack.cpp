@@ -42,11 +42,11 @@ void test_horizons_stack()
         "There should be a warning on empty iteration after this" );
     for( const auto& horizon : horizons_stack.bottom_to_top_horizons() )
     {
-        geode::Logger::debug( "[Test] Found horizon ", horizon.id().string() );
+        geode::Logger::debug( "Found horizon ", horizon.id().string() );
         counter++;
     }
-    OPENGEODE_EXCEPTION(
-        counter == 0, "[Test] Range should not have iterated on any horizon." );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        counter == 0, "Range should not have iterated on any horizon." );
 
     const auto& hor0 = stack_builder.add_horizon();
     const auto& hor1 = stack_builder.add_horizon();
@@ -55,10 +55,12 @@ void test_horizons_stack()
     const auto& unit0 = stack_builder.add_stratigraphic_unit();
     const geode::uuid unit1{};
     stack_builder.add_stratigraphic_unit( unit1 );
-    OPENGEODE_EXCEPTION( horizons_stack.nb_horizons() == 3,
-        "[Test] Horizons Stack should have 3 horizons." );
-    OPENGEODE_EXCEPTION( horizons_stack.nb_stratigraphic_units() == 2,
-        "[Test] Horizons Stack should have 2 Stratigraphic Units." );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        horizons_stack.nb_horizons() == 3,
+        "Horizons Stack should have 3 horizons." );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        horizons_stack.nb_stratigraphic_units() == 2,
+        "Horizons Stack should have 2 Stratigraphic Units." );
     stack_builder.set_horizon_under( horizons_stack.horizon( hor0 ),
         horizons_stack.stratigraphic_unit( unit0 ) );
     stack_builder.set_horizon_above( horizons_stack.horizon( hor1 ),
@@ -71,49 +73,57 @@ void test_horizons_stack()
     for( const auto& unit : horizons_stack.stratigraphic_units() )
     {
         const auto& unit_id = unit.id();
-        OPENGEODE_EXCEPTION( horizons_stack.above( unit_id ),
-            "[Test] Unit should have a horizon above." );
-        OPENGEODE_EXCEPTION( horizons_stack.under( unit_id ),
-            "[Test] Unit should have a horizon under." );
+        geode::OpenGeodeGeosciencesImplicitException::test(
+            horizons_stack.above( unit_id ).has_value(),
+            "Unit should have a horizon above." );
+        geode::OpenGeodeGeosciencesImplicitException::test(
+            horizons_stack.under( unit_id ).has_value(),
+            "Unit should have a horizon under." );
     }
-    OPENGEODE_EXCEPTION(
+    geode::OpenGeodeGeosciencesImplicitException::test(
         horizons_stack.above( horizons_stack.above( unit0 ).value() ).value()
             == unit1,
-        "[Test] Unit 1 should be found from unit 0." );
+        "Unit 1 should be found from unit 0." );
     const auto insertion_info = stack_builder.add_horizon_in_stratigraphic_unit(
         horizons_stack.stratigraphic_unit( unit1 ) );
-    OPENGEODE_EXCEPTION( horizons_stack.above( hor1 ).value()
-                             == insertion_info.strati_unit_under_id,
-        "[Test] New bottom unit should be found above horizon 1." );
-    OPENGEODE_EXCEPTION(
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        horizons_stack.above( hor1 ).value()
+            == insertion_info.strati_unit_under_id,
+        "New bottom unit should be found above horizon 1." );
+    geode::OpenGeodeGeosciencesImplicitException::test(
         horizons_stack.above( horizons_stack.above( hor1 ).value() ).value()
             == insertion_info.new_horizon_id,
-        "[Test] New horizon should be found from horizon 1." );
+        "New horizon should be found from horizon 1." );
 
     geode::detail::repair_horizon_stack_if_possible(
         horizons_stack, stack_builder );
-    OPENGEODE_EXCEPTION( horizons_stack.nb_horizons() == 4,
-        "[Test] Horizons Stack should have 4 horizons after repair." );
-    OPENGEODE_EXCEPTION( horizons_stack.nb_stratigraphic_units() == 5,
-        "[Test] Horizons Stack should have 5 Stratigraphic Units after "
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        horizons_stack.nb_horizons() == 4,
+        "Horizons Stack should have 4 horizons after repair." );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        horizons_stack.nb_stratigraphic_units() == 5,
+        "Horizons Stack should have 5 Stratigraphic Units after "
         "repair." );
     const auto bottom_horizon = horizons_stack.bottom_horizon();
-    OPENGEODE_EXCEPTION(
-        bottom_horizon, "[Test] There should be a bottom horizon" );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        bottom_horizon.has_value(), "There should be a bottom horizon" );
     const auto bottom_unit_id = horizons_stack.under( bottom_horizon.value() );
-    OPENGEODE_EXCEPTION( bottom_unit_id,
-        "[Test] There should be a stratigraphic unit under the "
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        bottom_unit_id.has_value(),
+        "There should be a stratigraphic unit under the "
         "bottom horizon" );
     for( const auto& horizon : horizons_stack.horizons() )
     {
         const auto& horizon_id = horizon.id();
-        OPENGEODE_EXCEPTION( horizons_stack.above( horizon_id ),
-            "[Test] Horizon should have a unit above." );
-        OPENGEODE_EXCEPTION( horizons_stack.under( horizon_id ),
-            "[Test] Horizon should have a unit under." );
-        OPENGEODE_EXCEPTION(
+        geode::OpenGeodeGeosciencesImplicitException::test(
+            horizons_stack.above( horizon_id ).has_value(),
+            "Horizon should have a unit above." );
+        geode::OpenGeodeGeosciencesImplicitException::test(
+            horizons_stack.under( horizon_id ).has_value(),
+            "Horizon should have a unit under." );
+        geode::OpenGeodeGeosciencesImplicitException::test(
             horizons_stack.is_above( horizon_id, bottom_unit_id.value() ),
-            "[Test] Horizon should be above the bottom unit." );
+            "Horizon should be above the bottom unit." );
     }
 
     const auto stack_path = absl::StrCat( "test_HorizonStack.",
@@ -128,77 +138,84 @@ void test_horizons_stack( const geode::HorizonsStack2D& horizons_stack )
 {
     std::array< std::string, 4 > horizons_list{ "h1", "h2", "h3", "h4" };
     std::array< std::string, 3 > units_list{ "su1", "su2", "su3" };
-    OPENGEODE_EXCEPTION( horizons_stack.nb_horizons() == 4,
-        "[Test] Created Horizons Stack should have 4 horizons." );
-    OPENGEODE_EXCEPTION( horizons_stack.nb_stratigraphic_units() == 5,
-        "[Test] Created Horizons Stack should have 5 Stratigraphic Units." );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        horizons_stack.nb_horizons() == 4,
+        "Created Horizons Stack should have 4 horizons." );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        horizons_stack.nb_stratigraphic_units() == 5,
+        "Created Horizons Stack should have 5 Stratigraphic Units." );
     const auto bot_horizon = horizons_stack.bottom_horizon().value();
-    OPENGEODE_EXCEPTION(
+    geode::OpenGeodeGeosciencesImplicitException::test(
         horizons_stack.horizon( bot_horizon ).name() == horizons_list[0],
-        "[Test] Wrong name for bottom horizon." );
-    OPENGEODE_EXCEPTION(
+        "Wrong name for bottom horizon." );
+    geode::OpenGeodeGeosciencesImplicitException::test(
         horizons_stack
                 .stratigraphic_unit(
                     horizons_stack.above( bot_horizon ).value() )
                 .name()
             == units_list[0],
-        "[Test] Wrong name for unit above bottom horizon." );
+        "Wrong name for unit above bottom horizon." );
     const auto bot_horizon_id =
         geode::detail::horizon_id_from_name( horizons_stack, horizons_list[0] );
-    OPENGEODE_EXCEPTION(
+    geode::OpenGeodeGeosciencesImplicitException::test(
         bot_horizon_id && bot_horizon_id.value() == bot_horizon,
-        "[Test] Should have found bottom horizon from first horizon name" );
+        "Should have found bottom horizon from first horizon name" );
     const auto top_horizon_id =
         geode::detail::horizon_id_from_name( horizons_stack, horizons_list[3] );
-    OPENGEODE_EXCEPTION(
+    geode::OpenGeodeGeosciencesImplicitException::test(
         top_horizon_id
             && top_horizon_id.value() == horizons_stack.top_horizon(),
-        "[Test] Should have found top horizon from last horizon name" );
+        "Should have found top horizon from last horizon name" );
     geode::index_t counter{ 0 };
     for( const auto& horizon : horizons_stack.bottom_to_top_horizons() )
     {
-        OPENGEODE_EXCEPTION( horizon.name() == horizons_list[counter],
-            "[Test] Should have found horizon ", horizons_list[counter],
+        geode::OpenGeodeGeosciencesImplicitException::test(
+            horizon.name() == horizons_list[counter],
+            "Should have found horizon ", horizons_list[counter],
             " as horizon number ", counter, ", not ", horizon.name().value() );
         counter++;
     }
-    OPENGEODE_EXCEPTION( counter == 4,
-        "[Test] Bottom to top Range did not pass through all horizons" );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        counter == 4, "Bottom to top Range did not pass through all horizons" );
     for( const auto& horizon : horizons_stack.top_to_bottom_horizons() )
     {
         counter--;
-        OPENGEODE_EXCEPTION( horizon.name() == horizons_list[counter],
-            "[Test] Should have found horizon ", horizons_list[counter],
+        geode::OpenGeodeGeosciencesImplicitException::test(
+            horizon.name() == horizons_list[counter],
+            "Should have found horizon ", horizons_list[counter],
             " as horizon number ", counter, ", not ", horizon.name().value() );
     }
-    OPENGEODE_EXCEPTION( counter == 0,
-        "[Test] Top to bottom Range did not pass through all horizons" );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        counter == 0, "Top to bottom Range did not pass through all horizons" );
     for( const auto& s_unit : horizons_stack.bottom_to_top_units() )
     {
         if( counter != 0 && counter < 4 )
         {
-            OPENGEODE_EXCEPTION( s_unit.name() == units_list[counter - 1],
-                "[Test] Should have found stratigraphic unit ",
+            geode::OpenGeodeGeosciencesImplicitException::test(
+                s_unit.name() == units_list[counter - 1],
+                "Should have found stratigraphic unit ",
                 units_list[counter - 1], " as unit number ", counter, ", not ",
                 s_unit.name().value() );
         }
         counter++;
     }
-    OPENGEODE_EXCEPTION( counter == 5,
-        "[Test] Range did not pass through all stratigraphic units" );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        counter == 5, "Range did not pass through all stratigraphic units" );
     for( const auto& s_unit : horizons_stack.top_to_bottom_units() )
     {
         counter--;
         if( counter != 0 && counter < 4 )
         {
-            OPENGEODE_EXCEPTION( s_unit.name() == units_list[counter - 1],
-                "[Test] Should have found stratigraphic unit ",
+            geode::OpenGeodeGeosciencesImplicitException::test(
+                s_unit.name() == units_list[counter - 1],
+                "Should have found stratigraphic unit ",
                 units_list[counter - 1], " as unit number ", counter, ", not ",
                 s_unit.name().value() );
         }
     }
-    OPENGEODE_EXCEPTION( counter == 0, "[Test] Top to bottom Range did not "
-                                       "pass through all stratigraphic units" );
+    geode::OpenGeodeGeosciencesImplicitException::test( counter == 0,
+        "Top to bottom Range did not "
+        "pass through all stratigraphic units" );
 }
 
 void test_create_horizons_stack_top_to_bottom()
@@ -226,7 +243,7 @@ int main()
     try
     {
         geode::Logger::info( "Starting test" );
-        geode::GeosciencesImplicitLibrary::initialize();
+        geode::OpenGeodeGeosciencesImplicitLibrary::initialize();
         test_horizons_stack();
         test_create_horizons_stack_bottom_to_top();
         test_create_horizons_stack_top_to_bottom();

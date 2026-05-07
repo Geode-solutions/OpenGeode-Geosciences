@@ -22,4 +22,4 @@ import opengeode
 
 from opengeode_geosciences_py_implicit import *
 
-GeosciencesImplicitLibrary.initialize()
+OpenGeodeGeosciencesImplicitLibrary.initialize()

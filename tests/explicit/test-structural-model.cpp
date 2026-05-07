@@ -51,20 +51,21 @@ void add_faults(
     geode::StructuralModel& model, geode::StructuralModelBuilder& builder )
 {
     const auto& fault0 = builder.add_fault();
-    OPENGEODE_EXCEPTION( !model.fault( fault0 ).has_type(),
-        "[Test] Addition of a Fault in StructuralModel is not correct" );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        !model.fault( fault0 ).has_type(),
+        "Addition of a Fault in StructuralModel is not correct" );
 
     const auto& fault1 =
         builder.add_fault( geode::Fault3D::FAULT_TYPE::reverse );
     builder.set_fault_name( fault1, "fault1" );
-    OPENGEODE_EXCEPTION(
+    geode::OpenGeodeGeosciencesExplicitException::test(
         model.fault( fault1 ).type() == geode::Fault3D::FAULT_TYPE::reverse,
-        "[Test] Addition of a Fault in StructuralModel is not correct (wrong "
+        "Addition of a Fault in StructuralModel is not correct (wrong "
         "type)" );
-    OPENGEODE_EXCEPTION( model.nb_faults() == 2,
-        "[Test] Number of faults in StructuralModel should be 2" );
-    OPENGEODE_EXCEPTION(
-        model.fault( fault1 ).name() == "fault1", "[Test] Wrong Fault name" );
+    geode::OpenGeodeGeosciencesExplicitException::test( model.nb_faults() == 2,
+        "Number of faults in StructuralModel should be 2" );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        model.fault( fault1 ).name() == "fault1", "Wrong Fault name" );
 
     for( auto& fault : model.faults() )
     {
@@ -73,39 +74,45 @@ void add_faults(
             builder.set_fault_name(
                 fault.id(), absl::StrCat( "new_", name.value() ) );
         }
-        OPENGEODE_EXCEPTION( fault.component_type().get() == "Fault",
-            "[Test] Wrong Fault component type" );
+        geode::OpenGeodeGeosciencesExplicitException::test(
+            fault.component_type().get() == "Fault",
+            "Wrong Fault component type" );
     }
-    OPENGEODE_EXCEPTION( model.fault( fault1 ).name() == "new_fault1",
-        "[Test] Wrong modified Fault name" );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        model.fault( fault1 ).name() == "new_fault1",
+        "Wrong modified Fault name" );
 }
 
 void add_horizons(
     geode::StructuralModel& model, geode::StructuralModelBuilder& builder )
 {
     const auto& horizon0 = builder.add_horizon();
-    OPENGEODE_EXCEPTION( model.horizon( horizon0 ).contact_type()
-                             == geode::Horizon3D::CONTACT_TYPE::conformal,
-        "[Test] Addition of a Horizon in StructuralModel is not correct" );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        model.horizon( horizon0 ).contact_type()
+            == geode::Horizon3D::CONTACT_TYPE::conformal,
+        "Addition of a Horizon in StructuralModel is not correct" );
 
     const auto& horizon1 =
         builder.add_horizon( geode::Horizon3D::CONTACT_TYPE::conformal );
-    OPENGEODE_EXCEPTION( model.horizon( horizon1 ).contact_type()
-                             == geode::Horizon3D::CONTACT_TYPE::conformal,
-        "[Test] Addition of a Horizon in StructuralModel is not correct (wrong "
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        model.horizon( horizon1 ).contact_type()
+            == geode::Horizon3D::CONTACT_TYPE::conformal,
+        "Addition of a Horizon in StructuralModel is not correct (wrong "
         "type)" );
 
     const auto& horizon2 =
         builder.add_horizon( geode::Horizon3D::CONTACT_TYPE::erosion );
     builder.set_horizon_name( horizon2, "horizon2" );
-    OPENGEODE_EXCEPTION( model.horizon( horizon2 ).contact_type()
-                             == geode::Horizon3D::CONTACT_TYPE::erosion,
-        "[Test] Addition of a Horizon in StructuralModel is not correct (wrong "
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        model.horizon( horizon2 ).contact_type()
+            == geode::Horizon3D::CONTACT_TYPE::erosion,
+        "Addition of a Horizon in StructuralModel is not correct (wrong "
         "type)" );
-    OPENGEODE_EXCEPTION( model.nb_horizons() == 3,
-        "[Test] Number of horizons in StructuralModel should be 3" );
-    OPENGEODE_EXCEPTION( model.horizon( horizon2 ).name() == "horizon2",
-        "[Test] Wrong Horizon name" );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        model.nb_horizons() == 3,
+        "Number of horizons in StructuralModel should be 3" );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        model.horizon( horizon2 ).name() == "horizon2", "Wrong Horizon name" );
 
     for( auto& horizon : model.horizons() )
     {
@@ -114,11 +121,13 @@ void add_horizons(
             builder.set_horizon_name(
                 horizon.id(), absl::StrCat( "new_", name.value() ) );
         }
-        OPENGEODE_EXCEPTION( horizon.component_type().get() == "Horizon",
-            "[Test] Wrong Horizon component type" );
+        geode::OpenGeodeGeosciencesExplicitException::test(
+            horizon.component_type().get() == "Horizon",
+            "Wrong Horizon component type" );
     }
-    OPENGEODE_EXCEPTION( model.horizon( horizon2 ).name() == "new_horizon2",
-        "[Test] Wrong modified Horizon name" );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        model.horizon( horizon2 ).name() == "new_horizon2",
+        "Wrong modified Horizon name" );
 }
 
 void add_lines( geode::BRepBuilder& builder )
@@ -146,17 +155,22 @@ void do_checks( const geode::StructuralModel& model,
     absl::Span< const geode::uuid > faults_uuids,
     absl::Span< const geode::uuid > horizons_uuids )
 {
-    OPENGEODE_EXCEPTION( model.nb_items( faults_uuids[0] ) == 3,
-        "[Test] Number of items in fault_uuids[0] should be 3" );
-    OPENGEODE_EXCEPTION( model.nb_items( faults_uuids[1] ) == 2,
-        "[Test] Number of items in fault_uuids[1] should be 2" );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        model.nb_items( faults_uuids[0] ) == 3,
+        "Number of items in fault_uuids[0] should be 3" );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        model.nb_items( faults_uuids[1] ) == 2,
+        "Number of items in fault_uuids[1] should be 2" );
 
-    OPENGEODE_EXCEPTION( model.nb_items( horizons_uuids[0] ) == 1,
-        "[Test] Number of items in horizons_uuids[0] should be 1" );
-    OPENGEODE_EXCEPTION( model.nb_items( horizons_uuids[1] ) == 0,
-        "[Test] Number of items in horizons_uuids[1] should be 0" );
-    OPENGEODE_EXCEPTION( model.nb_items( horizons_uuids[2] ) == 3,
-        "[Test] Number of items in horizons_uuids[2] should be 3" );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        model.nb_items( horizons_uuids[0] ) == 1,
+        "Number of items in horizons_uuids[0] should be 1" );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        model.nb_items( horizons_uuids[1] ) == 0,
+        "Number of items in horizons_uuids[1] should be 0" );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        model.nb_items( horizons_uuids[2] ) == 3,
+        "Number of items in horizons_uuids[2] should be 3" );
 
     for( const auto i : geode::Range{ 8 } )
     {
@@ -164,29 +178,30 @@ void do_checks( const geode::StructuralModel& model,
         {
             continue;
         }
-        OPENGEODE_EXCEPTION( model.nb_collections( surface_uuids[i] ) == 1,
-            "[Test] Number of collections in which surfaces_uuids[", i,
+        geode::OpenGeodeGeosciencesExplicitException::test(
+            model.nb_collections( surface_uuids[i] ) == 1,
+            "Number of collections in which surfaces_uuids[", i,
             "] is should be 1" );
     }
 
-    OPENGEODE_EXCEPTION(
+    geode::OpenGeodeGeosciencesExplicitException::test(
         count_items( model.horizon_items( model.horizon( horizons_uuids[2] ) ) )
             == 3,
-        "[Test] Number of iterations on items in "
+        "Number of iterations on items in "
         "horizons_uuids[2] should be 3" );
-    OPENGEODE_EXCEPTION(
+    geode::OpenGeodeGeosciencesExplicitException::test(
         count_items( model.fault_items( model.fault( faults_uuids[1] ) ) ) == 2,
-        "[Test] Number of iterations on items in "
+        "Number of iterations on items in "
         "faults_uuids[1] should be 2" );
 }
 
 void build_relations_between_geometry_and_geology(
     geode::StructuralModel& model, geode::StructuralModelBuilder& builder )
 {
-    OPENGEODE_EXCEPTION(
-        model.nb_lines() == 8, "[Test] Wrong number of lines" );
-    OPENGEODE_EXCEPTION(
-        model.nb_surfaces() == 8, "[Test] Wrong number of surfaces" );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        model.nb_lines() == 8, "Wrong number of lines" );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        model.nb_surfaces() == 8, "Wrong number of surfaces" );
     std::vector< geode::uuid > surfaces_uuids;
     surfaces_uuids.reserve( model.nb_surfaces() );
     for( const auto& surface : model.surfaces() )
@@ -233,12 +248,15 @@ void build_relations_between_geometry_and_geology(
 
 void check_reloaded_model( const geode::StructuralModel& reloaded_model )
 {
-    OPENGEODE_EXCEPTION( reloaded_model.nb_surfaces() == 8,
-        "[Test] Number of surfaces in reloaded model should be 8" );
-    OPENGEODE_EXCEPTION( reloaded_model.nb_horizons() == 3,
-        "[Test] Number of horizons in reloaded model should be 3" );
-    OPENGEODE_EXCEPTION( reloaded_model.nb_faults() == 2,
-        "[Test] Number of faults in reloaded model should be 2" );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        reloaded_model.nb_surfaces() == 8,
+        "Number of surfaces in reloaded model should be 8" );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        reloaded_model.nb_horizons() == 3,
+        "Number of horizons in reloaded model should be 3" );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        reloaded_model.nb_faults() == 2,
+        "Number of faults in reloaded model should be 2" );
 }
 
 void test_io( const geode::StructuralModel& model )
@@ -256,14 +274,18 @@ void test_copy( const geode::StructuralModel& model )
     geode::StructuralModel copy;
     geode::StructuralModelBuilder copier( copy );
     const auto mapping = copier.copy( model );
-    OPENGEODE_EXCEPTION( copy.nb_surfaces() == model.nb_surfaces(),
-        "[Test] Number of surfaces in copied model should be 8" );
-    OPENGEODE_EXCEPTION( copy.nb_horizons() == model.nb_horizons(),
-        "[Test] Number of horizons in copied model should be 3" );
-    OPENGEODE_EXCEPTION( copy.nb_faults() == model.nb_faults(),
-        "[Test] Number of faults in copied model should be 2" );
-    OPENGEODE_EXCEPTION( copy.nb_fault_blocks() == model.nb_fault_blocks(),
-        "[Test] Number of fault blocks in copied model should be 0" );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        copy.nb_surfaces() == model.nb_surfaces(),
+        "Number of surfaces in copied model should be 8" );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        copy.nb_horizons() == model.nb_horizons(),
+        "Number of horizons in copied model should be 3" );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        copy.nb_faults() == model.nb_faults(),
+        "Number of faults in copied model should be 2" );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        copy.nb_fault_blocks() == model.nb_fault_blocks(),
+        "Number of fault blocks in copied model should be 0" );
     const auto& surfaces_mapping =
         mapping.at( geode::Surface3D::component_type_static() );
     const auto& lines_mapping =
@@ -276,9 +298,9 @@ void test_copy( const geode::StructuralModel& model )
         {
             const auto& boundary_copy =
                 copy.line( lines_mapping.in2out( boundary.id() ) );
-            OPENGEODE_EXCEPTION(
-                copy.is_boundary( boundary_copy, surface_copy ),
-                "[Test] Copied line ", boundary_copy.component_id().string(),
+            geode::OpenGeodeGeosciencesExplicitException::test(
+                copy.is_boundary( boundary_copy, surface_copy ), "Copied line ",
+                boundary_copy.component_id().string(),
                 " should be boundary of copied surface ",
                 surface_copy.component_id().string() );
         }
@@ -293,9 +315,9 @@ void test_copy( const geode::StructuralModel& model )
         {
             const auto& item_copy =
                 copy.surface( surfaces_mapping.in2out( item.id() ) );
-            OPENGEODE_EXCEPTION(
-                copy.is_item( item_copy.id(), fault_copy.id() ),
-                "[Test] Copied line ", item_copy.component_id().string(),
+            geode::OpenGeodeGeosciencesExplicitException::test(
+                copy.is_item( item_copy.id(), fault_copy.id() ), "Copied line ",
+                item_copy.component_id().string(),
                 " should be item of copied fault ",
                 fault_copy.component_id().string() );
         }
@@ -310,9 +332,9 @@ void test_copy( const geode::StructuralModel& model )
         {
             const auto& item_copy =
                 copy.surface( surfaces_mapping.in2out( item.id() ) );
-            OPENGEODE_EXCEPTION(
+            geode::OpenGeodeGeosciencesExplicitException::test(
                 copy.is_item( item_copy.id(), horizon_copy.id() ),
-                "[Test] Copied line ", item_copy.component_id().string(),
+                "Copied line ", item_copy.component_id().string(),
                 " should be item of copied horizon ",
                 horizon_copy.component_id().string() );
         }
@@ -330,8 +352,8 @@ void modify_model(
             builder.set_fault_type(
                 fault.id(), geode::Fault3D::FAULT_TYPE::strike_slip );
         }
-        OPENGEODE_EXCEPTION(
-            fault.has_type(), "[Test] All faults should have a type" );
+        geode::OpenGeodeGeosciencesExplicitException::test(
+            fault.has_type(), "All faults should have a type" );
     }
     for( const auto& horizon : model.horizons() )
     {
@@ -358,10 +380,11 @@ void modify_model(
     // Add a new fault and remove it
     const auto temp_id = builder.add_fault();
     builder.remove_fault( model.fault( temp_id ) );
-    OPENGEODE_EXCEPTION( model.nb_horizons() == 0,
-        "[Test] Number of horizons in modified model should be 0" );
-    OPENGEODE_EXCEPTION( model.nb_faults() == 2,
-        "[Test] Number of faults in modified model should be 2" );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        model.nb_horizons() == 0,
+        "Number of horizons in modified model should be 0" );
+    geode::OpenGeodeGeosciencesExplicitException::test( model.nb_faults() == 2,
+        "Number of faults in modified model should be 2" );
 }
 
 geode::BRep build_brep()
@@ -377,7 +400,7 @@ int main()
 {
     try
     {
-        geode::GeosciencesExplicitLibrary::initialize();
+        geode::OpenGeodeGeosciencesExplicitLibrary::initialize();
 
         geode::StructuralModel model{ build_brep() };
         geode::StructuralModelBuilder builder( model );

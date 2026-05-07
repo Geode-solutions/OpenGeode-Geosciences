@@ -71,8 +71,9 @@ namespace geode
             print_available_extensions< CrossSectionInputFactory >( TYPE );
             Logger::info( "Other extensions are available in parent classes." );
             print_available_extensions< SectionInputFactory >( "Section" );
-            throw OpenGeodeException{ "Cannot load CrossSection from file: ",
-                filename };
+            throw OpenGeodeGeosciencesExplicitException{ nullptr,
+                OpenGeodeException::TYPE::internal,
+                "Cannot load CrossSection from file: ", filename };
         }
     }
 

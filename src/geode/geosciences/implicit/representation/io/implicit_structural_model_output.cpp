@@ -58,9 +58,9 @@ namespace geode
             print_available_extensions< StructuralModelOutputFactory >(
                 "StructuralModel" );
             print_available_extensions< BRepOutputFactory >( "BRep" );
-            throw OpenGeodeException{
-                "Cannot save ImplicitStructuralModel in file: ", filename
-            };
+            throw OpenGeodeGeosciencesImplicitException{ nullptr,
+                OpenGeodeException::TYPE::internal,
+                "Cannot save ImplicitStructuralModel in file: ", filename };
         }
     }
 

@@ -40,8 +40,9 @@ void test_structural_model_fault_blocks_builder()
     auto model_A2 = geode::load_structural_model(
         absl::StrCat( geode::DATA_PATH, "modelA2.og_strm" ) );
     geode::build_structural_model_fault_blocks( model_A2 );
-    OPENGEODE_EXCEPTION( model_A2.nb_fault_blocks() == 3,
-        "[Test] Number of fault blocks in model should be 3" );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        model_A2.nb_fault_blocks() == 3,
+        "Number of fault blocks in model should be 3" );
     geode::save_structural_model(
         model_A2, "modelA2_with_fault_blocks.og_strm" );
 }
@@ -50,7 +51,7 @@ int main()
 {
     try
     {
-        geode::GeosciencesExplicitLibrary::initialize();
+        geode::OpenGeodeGeosciencesExplicitLibrary::initialize();
         test_structural_model_fault_blocks_builder();
         geode::Logger::info( "TEST SUCCESS" );
         return 0;

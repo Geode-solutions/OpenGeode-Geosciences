@@ -34,6 +34,12 @@ find_package(OpenGeode REQUIRED CONFIG)
 find_package(Async++ REQUIRED CONFIG)
 find_package(GDAL REQUIRED CONFIG)
 
+install(
+    FILES include/geode/geosciences/project.hpp
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/geode/geosciences
+    COMPONENT public
+)
+
 #------------------------------------------------------------------------------------------------
 # Configure the OpenGeode-Geosciences libraries
 add_subdirectory(src/geode)

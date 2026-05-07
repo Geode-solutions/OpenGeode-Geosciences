@@ -74,38 +74,40 @@ void test_section( const geode::StratigraphicSection& implicit_model )
     const auto& surface0 = implicit_model.surface( surface0_id );
     const auto& strati_pt1 =
         implicit_model.stratigraphic_coordinates( surface0, 1773 );
-    OPENGEODE_EXCEPTION(
+    geode::OpenGeodeGeosciencesImplicitException::test(
         strati_pt1.stratigraphic_coordinates().inexact_equal( geode::Point2D{
             { surface0.mesh().point( 1773 ).value( 0 ), -1.940964 } } ),
-        "[Test] Wrong stratigraphic coordinates for point 1773 at position [",
+        "Wrong stratigraphic coordinates for point 1773 at position [",
         surface0.mesh().point( 1773 ).string(),
         "] with stratigraphic coordinates [", strati_pt1.string(), "]." );
     const auto query2 = surface0.mesh().point( 1832 );
     const auto strati_pt2 =
         implicit_model.stratigraphic_coordinates( surface0, query2 );
-    OPENGEODE_EXCEPTION(
+    geode::OpenGeodeGeosciencesImplicitException::test(
         strati_pt2->stratigraphic_coordinates().inexact_equal(
             implicit_model.stratigraphic_coordinates( surface0, 1832 )
                 .stratigraphic_coordinates() ),
-        "[Test] Wrong stratigraphic coordinates for point at position [",
+        "Wrong stratigraphic coordinates for point at position [",
         query2.string(), "] with stratigraphic coordinates [",
         strati_pt2->string(), "]." );
     const geode::Point2D query3{ { 3.32700324, 4.44508266 } };
     const auto strati_pt3 =
         implicit_model.stratigraphic_coordinates( surface0, query3 );
-    OPENGEODE_EXCEPTION(
+    geode::OpenGeodeGeosciencesImplicitException::test(
         strati_pt3->stratigraphic_coordinates().inexact_equal(
             geode::Point2D{ { query3.value( 0 ), -1.889619 } } ),
-        "[Test] Wrong stratigraphic coordinates for point at position [",
+        "Wrong stratigraphic coordinates for point at position [",
         query3.string(), "] with stratigraphic coordinates [",
         strati_pt3->string(), "]." );
     const auto stratigraphic_bbox = implicit_model.stratigraphic_bounding_box();
-    OPENGEODE_EXCEPTION( stratigraphic_bbox.min().inexact_equal(
-                             geode::Point2D{ { 0, -6.5798343 } } ),
-        "[Test] Wrong stratigraphic coordinates bounding box minimum." );
-    OPENGEODE_EXCEPTION( stratigraphic_bbox.max().inexact_equal(
-                             geode::Point2D{ { 15, 10.4703907 } } ),
-        "[Test] Wrong stratigraphic coordinates bounding box minimum." );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        stratigraphic_bbox.min().inexact_equal(
+            geode::Point2D{ { 0, -6.5798343 } } ),
+        "Wrong stratigraphic coordinates bounding box minimum." );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        stratigraphic_bbox.max().inexact_equal(
+            geode::Point2D{ { 15, 10.4703907 } } ),
+        "Wrong stratigraphic coordinates bounding box minimum." );
 }
 
 void test_save_stratigraphic_lines(
@@ -166,7 +168,7 @@ int main()
     try
     {
         geode::Logger::info( "Starting test" );
-        geode::GeosciencesImplicitLibrary::initialize();
+        geode::OpenGeodeGeosciencesImplicitLibrary::initialize();
         const auto model = import_section_with_stratigraphy();
         test_section( model );
         test_save_stratigraphic_lines( model );

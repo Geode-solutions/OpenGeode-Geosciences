@@ -23,14 +23,13 @@
 
 #pragma once
 
-#include <geode/basic/common.hpp>
-#include <geode/basic/library.hpp>
-
-#include <geode/geosciences/explicit/opengeode_geosciences_explicit_export.hpp>
-#include <geode/geosciences/project.hpp>
+#include <geode/basic/assert.hpp>
 
 namespace geode
 {
-    OPENGEODE_LIBRARY(
-        opengeode_geosciences_explicit_api, OpenGeodeGeosciences, Explicit );
+    class OpenGeodeGeosciencesException : public OpenGeodeException
+    {
+    protected:
+        using OpenGeodeException::OpenGeodeException;
+    };
 } // namespace geode
