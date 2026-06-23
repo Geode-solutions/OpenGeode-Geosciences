@@ -259,6 +259,7 @@ int main()
     {
         geode::Logger::info( "Starting test" );
         geode::OpenGeodeGeosciencesImplicitLibrary::initialize();
+        geode::Logger::set_level( geode::Logger::LEVEL::debug );
         geode::StratigraphicModel model{ geode::load_structural_model(
             absl::StrCat( geode::DATA_PATH, "vri2.og_strm" ) ) };
         const geode::uuid block1_id{ "00000000-c271-42e7-8000-00002c3147ed" };
@@ -266,7 +267,9 @@ int main()
         test_model( model, block1_id );
         geode::Logger::info( "Testing copy" );
         test_copy( model, block1_id );
+        DEBUG( "Testing save stratigraphic surfaces" );
         test_save_stratigraphic_surfaces( model );
+        DEBUG( "Testing IO" );
         test_io( model, block1_id );
 
         geode::Logger::info( "TEST SUCCESS" );

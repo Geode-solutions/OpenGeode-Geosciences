@@ -67,15 +67,14 @@ namespace geode
                 .def( "horizon_id_from_name_2d", &horizon_id_from_name< 2 > )
                 .def( "horizon_id_from_name_3d", &horizon_id_from_name< 3 > )
                 .def( "implicit_section_from_cross_section_scalar_field",
-                    []( CrossSection& model, std::string_view attribute_name ) {
+                    []( CrossSection& model, const uuid& attribute_id ) {
                         return implicit_section_from_cross_section_scalar_field(
-                            model.clone(), attribute_name );
+                            model.clone(), attribute_id );
                     } )
                 .def( "implicit_model_from_structural_model_scalar_field",
-                    []( StructuralModel& model,
-                        std::string_view attribute_name ) {
+                    []( StructuralModel& model, const uuid& attribute_id ) {
                         return implicit_model_from_structural_model_scalar_field(
-                            model.clone(), attribute_name );
+                            model.clone(), attribute_id );
                     } )
                 .def( "stratigraphic_model_from_implicit_model_and_coords",
                     []( ImplicitStructuralModel& implicit_model,

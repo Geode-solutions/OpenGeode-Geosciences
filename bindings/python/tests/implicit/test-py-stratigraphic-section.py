@@ -43,8 +43,11 @@ def import_section_with_stratigraphy():
 
     for surface in stratigraphic_section.surfaces():
         mesh = surface.mesh()
-        scalar_attribute = mesh.vertex_attribute_manager().find_attribute_double(
+        scalar_attributes = mesh.vertex_attribute_manager().attribute_ids_matching_name(
             "curvature_min"
+        )
+        scalar_attribute = mesh.vertex_attribute_manager().find_read_only_attribute_double(
+            scalar_attributes[0]
         )
         for vertex_id in range(mesh.nb_vertices()):
             model_builder.set_stratigraphic_coordinates(
