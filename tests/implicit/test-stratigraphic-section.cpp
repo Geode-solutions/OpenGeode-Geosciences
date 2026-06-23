@@ -56,8 +56,8 @@ geode::StratigraphicSection import_section_with_stratigraphy()
     {
         const auto& mesh = surface.mesh();
         const auto scalar_attribute =
-            mesh.vertex_attribute_manager().find_attribute< double >(
-                "curvature_min" );
+            mesh.vertex_attribute_manager().find_read_only_attribute< double >(
+                scalar_attributes.value().front() );
         for( const auto vertex_id : geode::Range{ mesh.nb_vertices() } )
         {
             model_builder.set_stratigraphic_coordinates( surface, vertex_id,

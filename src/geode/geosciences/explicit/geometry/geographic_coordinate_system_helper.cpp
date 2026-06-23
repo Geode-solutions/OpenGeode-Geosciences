@@ -115,13 +115,17 @@ namespace
             const geode::AttributeCoordinateReferenceSystem< Mesh::dim >& >(
             crs_manager.find_coordinate_reference_system( old_crs_name ) );
         auto& attribute_manager = mesh.vertex_attribute_manager();
-        attribute_manager.rename_attribute(
-            attribute_crs.attribute_name(), info.name );
+        auto attribute =
+            attribute_manager.template find_attribute< geode::VariableAttribute,
+                geode::Point< Mesh::dim > >( attribute_crs.attribute_id() );
+        geode::IdentifierBuilder attribute_identifier_builder{ *attribute };
+        attribute_identifier_builder.set_name( info.name );
         auto crs_builder =
             builder.main_coordinate_reference_system_manager_builder();
         crs_builder.register_coordinate_reference_system( crs_name,
             std::make_shared< geode::GeographicCoordinateSystem< Mesh::dim > >(
-                attribute_manager, std::move( info ) ) );
+                attribute_manager, attribute_crs.attribute_id(),
+                std::move( info ) ) );
         crs_builder.delete_coordinate_reference_system( old_crs_name );
         crs_builder.set_active_coordinate_reference_system( crs_name );
     }

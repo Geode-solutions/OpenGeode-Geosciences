@@ -25,6 +25,7 @@
 
 #include <optional>
 
+#include <geode/basic/bitsery_archive.hpp>
 #include <geode/basic/pimpl.hpp>
 
 #include <geode/geosciences/implicit/common.hpp>
@@ -62,6 +63,7 @@ namespace geode
 
         using stratigraphic_location_type = Point1D;
         StratigraphicSection();
+        StratigraphicSection( BITSERY );
         StratigraphicSection(
             StratigraphicSection&& stratigraphic_section ) noexcept;
         explicit StratigraphicSection(
@@ -144,6 +146,9 @@ namespace geode
                 const Surface2D& surface, const Line2D& line ) const;
 
         [[nodiscard]] BoundingBox2D stratigraphic_bounding_box() const;
+
+        [[nodiscard]] uuid surface_stratigraphic_location_attribute_id(
+            const uuid& surface ) const;
 
     public:
         void initialize_stratigraphic_query_trees(

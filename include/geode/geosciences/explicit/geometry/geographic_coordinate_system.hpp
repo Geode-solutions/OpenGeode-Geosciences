@@ -80,6 +80,11 @@ namespace geode
     public:
         GeographicCoordinateSystem(
             AttributeManager& manager, GeographicCoordinateSystemInfo info );
+
+        GeographicCoordinateSystem( AttributeManager& manager,
+            const geode::uuid& uuid,
+            GeographicCoordinateSystemInfo info );
+
         ~GeographicCoordinateSystem();
 
         [[nodiscard]] static GeographicCoordinateSystem< dimension >

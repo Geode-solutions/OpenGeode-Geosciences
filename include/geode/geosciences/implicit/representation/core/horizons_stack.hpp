@@ -23,6 +23,7 @@
 
 #pragma once
 
+#include <geode/basic/bitsery_archive.hpp>
 #include <geode/basic/identifier.hpp>
 #include <geode/basic/pimpl.hpp>
 
@@ -134,6 +135,7 @@ namespace geode
         using Components = tuple_cat< MeshComponents, CollectionComponents >;
 
         HorizonsStack();
+        HorizonsStack( BITSERY );
         HorizonsStack( HorizonsStack< dimension >&& horizons_stack ) noexcept;
         ~HorizonsStack();
 

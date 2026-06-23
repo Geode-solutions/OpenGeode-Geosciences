@@ -218,8 +218,18 @@ namespace geode
                     "TriangulatedSurface2D, which is not the case for surface "
                     "with uuid '",
                     surface.id().string(), "'." );
-                if( !surface.mesh().vertex_attribute_manager().attribute_exists(
-                        STRATIGRAPHIC_LOCATION_ATTRIBUTE_NAME ) )
+                if( const auto attribute_ids = surface.mesh()
+                        .vertex_attribute_manager()
+                        .attribute_ids_matching_name(
+                            STRATIGRAPHIC_LOCATION_ATTRIBUTE_NAME ) )
+                {
+                    stratigraphic_location_attributes_.try_emplace(
+                        surface.id(),
+                        TriangulatedSurfacePointFunction< 2, 1 >::find(
+                            surface.mesh< TriangulatedSurface2D >(),
+                            attribute_ids.value().at( 0 ) ) );
+                }
+                else
                 {
                     stratigraphic_location_attributes_.try_emplace(
                         surface.id(),
@@ -227,14 +237,6 @@ namespace geode
                             surface.mesh< TriangulatedSurface2D >(),
                             STRATIGRAPHIC_LOCATION_ATTRIBUTE_NAME,
                             Point1D{ { 0 } } ) );
-                }
-                else
-                {
-                    stratigraphic_location_attributes_.try_emplace(
-                        surface.id(),
-                        TriangulatedSurfacePointFunction< 2, 1 >::find(
-                            surface.mesh< TriangulatedSurface2D >(),
-                            STRATIGRAPHIC_LOCATION_ATTRIBUTE_NAME ) );
                 }
             }
         }
@@ -257,6 +259,13 @@ namespace geode
         void reset_stratigraphic_aabb_tree( const Surface2D& surface )
         {
             surface_stratigraphic_aabb_trees_.at( surface.id() ).reset();
+        }
+
+        uuid surface_stratigraphic_location_attribute_id(
+            const uuid& surface_id ) const
+        {
+            return stratigraphic_location_attributes_.at( surface_id )
+                .attribute_function_id();
         }
 
     private:
@@ -354,10 +363,15 @@ namespace geode
             auto strati_line = line.mesh().clone();
             auto strati_line_builder =
                 EdgedCurveBuilder2D::create( *strati_line );
+            auto associated_polygon_edge_attribute_id =
+                strati_line->edge_attribute_manager()
+                    .create_attribute< VariableAttribute, PolygonEdge >(
+                        STRATIGRAPHIC_LINE_POLYGON_EDGE_ATTRIBUTE_NAME, {},
+                        AttributeProperties{} );
             auto associated_polygon_edge_attribute =
                 strati_line->edge_attribute_manager()
-                    .find_or_create_attribute< VariableAttribute, PolygonEdge >(
-                        STRATIGRAPHIC_LINE_POLYGON_EDGE_ATTRIBUTE_NAME, {} );
+                    .find_attribute< VariableAttribute, PolygonEdge >(
+                        associated_polygon_edge_attribute_id );
             const auto& line_mesh = line.mesh();
             std::vector< bool > vertices_checked(
                 line_mesh.nb_vertices(), false );
@@ -411,13 +425,17 @@ namespace geode
                 strati_lines.emplace_back( line_mesh.clone() );
                 strati_line_builders[i] =
                     EdgedCurveBuilder2D::create( *strati_lines[i] );
+                const auto associated_polygon_edge_attribute_id =
+                    strati_lines[i]
+                        ->edge_attribute_manager()
+                        .create_attribute< VariableAttribute, PolygonEdge >(
+                            STRATIGRAPHIC_LINE_POLYGON_EDGE_ATTRIBUTE_NAME, {},
+                            AttributeProperties{} );
                 associated_polygon_edge_attributes[i] =
                     strati_lines[i]
                         ->edge_attribute_manager()
-                        .find_or_create_attribute< VariableAttribute,
-                            PolygonEdge >(
-                            STRATIGRAPHIC_LINE_POLYGON_EDGE_ATTRIBUTE_NAME,
-                            {} );
+                        .find_attribute< VariableAttribute, PolygonEdge >(
+                            associated_polygon_edge_attribute_id );
             }
             std::vector< bool > vertices_checked(
                 line_mesh.nb_vertices(), false );
@@ -474,6 +492,11 @@ namespace geode
     StratigraphicSection::StratigraphicSection()
     {
         impl_->initialize_stratigraphic_query_trees( *this );
+    }
+
+    StratigraphicSection::StratigraphicSection( BITSERY bitsery )
+        : ImplicitCrossSection{ bitsery }
+    {
     }
 
     StratigraphicSection::StratigraphicSection(
@@ -578,6 +601,12 @@ namespace geode
     BoundingBox2D StratigraphicSection::stratigraphic_bounding_box() const
     {
         return impl_->stratigraphic_bounding_box( *this );
+    }
+
+    uuid StratigraphicSection::surface_stratigraphic_location_attribute_id(
+        const uuid& surface_id ) const
+    {
+        return impl_->surface_stratigraphic_location_attribute_id( surface_id );
     }
 
     void StratigraphicSection::initialize_stratigraphic_query_trees(

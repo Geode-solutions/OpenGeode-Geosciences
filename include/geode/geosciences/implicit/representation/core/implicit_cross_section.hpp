@@ -25,6 +25,7 @@
 
 #include <optional>
 
+#include <geode/basic/bitsery_archive.hpp>
 #include <geode/basic/pimpl.hpp>
 
 #include <geode/geosciences/explicit/representation/core/cross_section.hpp>
@@ -56,6 +57,7 @@ namespace geode
             "geode_implicit_attribute";
         using implicit_attribute_type = double;
         ImplicitCrossSection();
+        ImplicitCrossSection( BITSERY );
         ImplicitCrossSection( ImplicitCrossSection&& implicit_model ) noexcept;
         explicit ImplicitCrossSection( CrossSection&& cross_section ) noexcept;
         ImplicitCrossSection( const ImplicitCrossSection& initial_model,

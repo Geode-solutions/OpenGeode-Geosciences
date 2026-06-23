@@ -57,7 +57,7 @@ namespace geode
     {
         const UnzipFile zip_reader{ this->filename(), uuid{}.string() };
         zip_reader.extract_all();
-        HorizonsStack< dimension > horizons_stack;
+        HorizonsStack< dimension > horizons_stack{ BITSERY::constructor };
         load_horizons_stack_files( horizons_stack, zip_reader.directory() );
         return horizons_stack;
     }

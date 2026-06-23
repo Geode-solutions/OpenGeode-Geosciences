@@ -123,6 +123,16 @@ namespace geode
     }
 
     template < index_t dimension >
+    GeographicCoordinateSystem< dimension >::GeographicCoordinateSystem(
+        AttributeManager& manager,
+        const uuid& uuid,
+        GeographicCoordinateSystemInfo info )
+        : AttributeCoordinateReferenceSystem< dimension >{ manager, uuid },
+          impl_{ std::move( info ) }
+    {
+    }
+
+    template < index_t dimension >
     GeographicCoordinateSystem< dimension >::~GeographicCoordinateSystem() =
         default;
 

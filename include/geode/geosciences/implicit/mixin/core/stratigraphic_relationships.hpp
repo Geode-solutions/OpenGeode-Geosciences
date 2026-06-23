@@ -54,6 +54,7 @@ namespace geode
 
     public:
         StratigraphicRelationships();
+        StratigraphicRelationships( BITSERY );
         ~StratigraphicRelationships();
 
         [[nodiscard]] bool is_above(

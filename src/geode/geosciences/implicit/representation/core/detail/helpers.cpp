@@ -148,10 +148,14 @@ namespace geode
                     surface.mesh< TriangulatedSurface2D >().clone();
                 auto surface_builder =
                     TriangulatedSurfaceBuilder2D::create( *strati_surface );
+                const auto xyz_attribute_id =
+                    strati_surface->vertex_attribute_manager()
+                        .create_attribute< VariableAttribute, Point2D >(
+                            "geode_xyz", Point2D{ { 0, 0 } }, { false, true } );
                 auto xyz_attribute =
                     strati_surface->vertex_attribute_manager()
-                        .find_or_create_attribute< VariableAttribute, Point2D >(
-                            "geode_xyz", Point2D{ { 0, 0 } }, { false, true } );
+                        .find_attribute< VariableAttribute, Point2D >(
+                            xyz_attribute_id );
                 for( const auto pt_id : Range{ strati_surface->nb_vertices() } )
                 {
                     xyz_attribute->set_value(
@@ -177,11 +181,15 @@ namespace geode
                 auto strati_solid = block.mesh< TetrahedralSolid3D >().clone();
                 auto surface_builder =
                     TetrahedralSolidBuilder3D::create( *strati_solid );
-                auto xyz_attribute =
+                auto xyz_attribute_id =
                     strati_solid->vertex_attribute_manager()
-                        .find_or_create_attribute< VariableAttribute, Point3D >(
+                        .create_attribute< VariableAttribute, Point3D >(
                             "geode_xyz", Point3D{ { 0, 0, 0 } },
                             { false, true } );
+                auto xyz_attribute =
+                    strati_solid->vertex_attribute_manager()
+                        .find_attribute< VariableAttribute, Point3D >(
+                            xyz_attribute_id );
                 for( const auto pt_id : Range{ strati_solid->nb_vertices() } )
                 {
                     xyz_attribute->set_value(
@@ -199,22 +207,27 @@ namespace geode
         }
 
         ImplicitCrossSection implicit_section_from_cross_section_scalar_field(
-            CrossSection&& section, std::string_view scalar_attribute_name )
+            CrossSection&& section, const uuid& scalar_atribute_id )
         {
             for( const auto& surface : section.surfaces() )
             {
                 const auto& surface_mesh = surface.mesh();
                 auto scalar_attribute =
                     surface_mesh.vertex_attribute_manager()
-                        .find_attribute<
+                        .find_read_only_attribute<
                             ImplicitCrossSection::implicit_attribute_type >(
-                            scalar_attribute_name );
-                auto implicit_attribute =
+                            scalar_atribute_id );
+                auto implicit_attribute_id =
                     surface_mesh.vertex_attribute_manager()
-                        .find_or_create_attribute< VariableAttribute,
+                        .create_attribute< VariableAttribute,
                             ImplicitCrossSection::implicit_attribute_type >(
                             ImplicitCrossSection::IMPLICIT_ATTRIBUTE_NAME, 0,
                             { false, true } );
+                auto implicit_attribute =
+                    surface_mesh.vertex_attribute_manager()
+                        .find_attribute< VariableAttribute,
+                            ImplicitCrossSection::implicit_attribute_type >(
+                            implicit_attribute_id );
                 for( const auto vertex_id :
                     Range{ surface_mesh.nb_vertices() } )
                 {
@@ -227,23 +240,27 @@ namespace geode
 
         ImplicitStructuralModel
             implicit_model_from_structural_model_scalar_field(
-                StructuralModel&& model,
-                std::string_view scalar_attribute_name )
+                StructuralModel&& model, const uuid& scalar_atribute_id )
         {
             for( const auto& block : model.blocks() )
             {
                 const auto& block_mesh = block.mesh();
                 auto scalar_attribute =
                     block_mesh.vertex_attribute_manager()
-                        .find_attribute<
+                        .find_read_only_attribute<
                             ImplicitStructuralModel::implicit_attribute_type >(
-                            scalar_attribute_name );
-                auto implicit_attribute =
+                            scalar_atribute_id );
+                auto implicit_attribute_id =
                     block_mesh.vertex_attribute_manager()
-                        .find_or_create_attribute< VariableAttribute,
+                        .create_attribute< VariableAttribute,
                             ImplicitStructuralModel::implicit_attribute_type >(
                             ImplicitStructuralModel::IMPLICIT_ATTRIBUTE_NAME, 0,
                             { false, true } );
+                auto implicit_attribute =
+                    block_mesh.vertex_attribute_manager()
+                        .find_attribute< VariableAttribute,
+                            ImplicitStructuralModel::implicit_attribute_type >(
+                            implicit_attribute_id );
                 for( const auto vertex_id : Range{ block_mesh.nb_vertices() } )
                 {
                     implicit_attribute->set_value(
@@ -267,13 +284,18 @@ namespace geode
             for( const auto& block : implicit_model.blocks() )
             {
                 const auto& block_mesh = block.mesh();
-                auto strati_location_attribute =
+                auto strati_location_attribute_id =
                     block_mesh.vertex_attribute_manager()
-                        .find_or_create_attribute< VariableAttribute,
+                        .create_attribute< VariableAttribute,
                             StratigraphicModel::stratigraphic_location_type >(
                             StratigraphicModel::
                                 STRATIGRAPHIC_LOCATION_ATTRIBUTE_NAME,
                             Point2D{ { 0, 0 } }, { false, true } );
+                auto strati_location_attribute =
+                    block_mesh.vertex_attribute_manager()
+                        .find_attribute< VariableAttribute,
+                            StratigraphicModel::stratigraphic_location_type >(
+                            strati_location_attribute_id );
                 for( const auto vertex_id : Range{ block_mesh.nb_vertices() } )
                 {
                     const auto& vertex_point = block_mesh.point( vertex_id );

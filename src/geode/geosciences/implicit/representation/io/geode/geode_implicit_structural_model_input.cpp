@@ -46,7 +46,7 @@ namespace geode
     {
         const UnzipFile zip_reader{ this->filename(), uuid{}.string() };
         zip_reader.extract_all();
-        ImplicitStructuralModel model;
+        ImplicitStructuralModel model{ BITSERY::constructor };
         const auto impl_filename = absl::StrCat(
             zip_reader.directory(), "/implicit_model_impl.og_istrm" );
         OpenGeodeGeosciencesImplicitException::check_exception(

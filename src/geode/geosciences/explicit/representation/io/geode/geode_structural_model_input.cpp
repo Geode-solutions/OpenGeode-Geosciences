@@ -56,7 +56,7 @@ namespace geode
     {
         const UnzipFile zip_reader{ filename(), uuid{}.string() };
         zip_reader.extract_all();
-        StructuralModel structural_model;
+        StructuralModel structural_model{ BITSERY::constructor };
         detail::load_structural_model_files(
             structural_model, zip_reader.directory() );
         return structural_model;

@@ -46,7 +46,7 @@ namespace geode
     {
         const UnzipFile zip_reader{ this->filename(), uuid{}.string() };
         zip_reader.extract_all();
-        ImplicitCrossSection section;
+        ImplicitCrossSection section{ BITSERY::constructor };
         const auto impl_filename = absl::StrCat(
             zip_reader.directory(), "/implicit_section_impl.og_ixsctn" );
         OpenGeodeGeosciencesImplicitException::check_exception(

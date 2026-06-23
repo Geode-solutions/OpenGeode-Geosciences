@@ -24,6 +24,7 @@
 #pragma once
 
 #include <geode/basic/algorithm.hpp>
+#include <geode/basic/bitsery_archive.hpp>
 
 #include <geode/model/mixin/core/corner.hpp>
 #include <geode/model/mixin/core/corner_collection.hpp>
@@ -147,6 +148,7 @@ namespace geode
         using Components = tuple_cat< MeshComponents, CollectionComponents >;
 
         CrossSection() = default;
+        CrossSection( BITSERY );
         CrossSection( CrossSection&& ) noexcept = default;
         explicit CrossSection( Section&& section ) noexcept;
         CrossSection( const CrossSection& initial_model,

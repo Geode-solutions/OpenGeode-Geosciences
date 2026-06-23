@@ -56,6 +56,8 @@ namespace geode
     public:
         Impl() = default;
 
+        Impl( BITSERY bitsery ) : horizons_stack_{ bitsery } {}
+
         void initialize_implicit_query_trees(
             const ImplicitCrossSection& model )
         {
@@ -231,20 +233,22 @@ namespace geode
                     "TriangulatedSurface2D, which is not the case for surface "
                     "with uuid '",
                     surface.id().string(), "'." );
-                if( !surface.mesh().vertex_attribute_manager().attribute_exists(
-                        IMPLICIT_ATTRIBUTE_NAME ) )
+                if( const auto attribute_ids = surface.mesh()
+                        .vertex_attribute_manager()
+                        .attribute_ids_matching_name(
+                            IMPLICIT_ATTRIBUTE_NAME ) )
+                {
+                    implicit_attributes_.try_emplace( surface.id(),
+                        TriangulatedSurfaceScalarFunction2D::find(
+                            surface.mesh< TriangulatedSurface2D >(),
+                            attribute_ids.value().at( 0 ) ) );
+                }
+                else
                 {
                     implicit_attributes_.try_emplace( surface.id(),
                         TriangulatedSurfaceScalarFunction2D::create(
                             surface.mesh< TriangulatedSurface2D >(),
                             IMPLICIT_ATTRIBUTE_NAME, 0 ) );
-                }
-                else
-                {
-                    implicit_attributes_.try_emplace( surface.id(),
-                        TriangulatedSurfaceScalarFunction2D::find(
-                            surface.mesh< TriangulatedSurface2D >(),
-                            IMPLICIT_ATTRIBUTE_NAME ) );
                 }
             }
         }
@@ -335,6 +339,11 @@ namespace geode
     ImplicitCrossSection::ImplicitCrossSection()
     {
         impl_->initialize_implicit_query_trees( *this );
+    }
+
+    ImplicitCrossSection::ImplicitCrossSection( BITSERY bitsery )
+        : CrossSection{ bitsery }, impl_{ bitsery }
+    {
     }
 
     ImplicitCrossSection::ImplicitCrossSection(

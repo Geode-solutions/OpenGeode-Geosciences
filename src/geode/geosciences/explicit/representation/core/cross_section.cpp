@@ -191,6 +191,8 @@ namespace geode
         return { *this, stratigraphic_unit };
     }
 
+    CrossSection::CrossSection( BITSERY bitsery ) : Section{ bitsery } {}
+
     CrossSection::CrossSection( Section&& section ) noexcept
         : Section{ std::move( section ) }
     {

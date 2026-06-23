@@ -54,6 +54,8 @@ namespace geode
     public:
         Impl() = default;
 
+        Impl( BITSERY bitsery ) : horizons_stack_{ bitsery } {}
+
         void initialize_implicit_query_trees(
             const ImplicitStructuralModel& model )
         {
@@ -71,6 +73,11 @@ namespace geode
                     block.id(), DistanceToTetrahedron3D{
                                     block.mesh< TetrahedralSolid3D >() } );
             }
+        }
+
+        uuid block_implicit_function_attribute_id( const uuid& block_id ) const
+        {
+            return implicit_attributes_.at( block_id ).attribute_function_id();
         }
 
         double implicit_value( const Block3D& block, index_t vertex_id ) const
@@ -233,20 +240,22 @@ namespace geode
                     "on_blocks] Blocks must be meshed as TetrahedralSolids, "
                     "which is not the case for block with uuid '",
                     block.id().string(), "'." );
-                if( !block.mesh().vertex_attribute_manager().attribute_exists(
-                        IMPLICIT_ATTRIBUTE_NAME ) )
+                if( const auto attribute_ids = block.mesh()
+                        .vertex_attribute_manager()
+                        .attribute_ids_matching_name(
+                            IMPLICIT_ATTRIBUTE_NAME ) )
+                {
+                    implicit_attributes_.try_emplace(
+                        block.id(), TetrahedralSolidScalarFunction3D::find(
+                                        block.mesh< TetrahedralSolid3D >(),
+                                        attribute_ids.value().at( 0 ) ) );
+                }
+                else
                 {
                     implicit_attributes_.try_emplace(
                         block.id(), TetrahedralSolidScalarFunction3D::create(
                                         block.mesh< TetrahedralSolid3D >(),
                                         IMPLICIT_ATTRIBUTE_NAME, 0 ) );
-                }
-                else
-                {
-                    implicit_attributes_.try_emplace(
-                        block.id(), TetrahedralSolidScalarFunction3D::find(
-                                        block.mesh< TetrahedralSolid3D >(),
-                                        IMPLICIT_ATTRIBUTE_NAME ) );
                 }
             }
         }
@@ -343,6 +352,11 @@ namespace geode
         impl_->initialize_implicit_query_trees( *this );
     }
 
+    ImplicitStructuralModel::ImplicitStructuralModel( BITSERY bitsery )
+        : StructuralModel{ bitsery }, impl_{ bitsery }
+    {
+    }
+
     ImplicitStructuralModel::ImplicitStructuralModel(
         ImplicitStructuralModel&& other ) noexcept
         : StructuralModel{ std::move( other ) },
@@ -394,6 +408,12 @@ namespace geode
         const uuid& id ) const
     {
         return detail::model_component( *this, id );
+    }
+
+    uuid ImplicitStructuralModel::block_implicit_function_attribute_id(
+        const uuid& block_id ) const
+    {
+        return impl_->block_implicit_function_attribute_id( block_id );
     }
 
     double ImplicitStructuralModel::implicit_value(
