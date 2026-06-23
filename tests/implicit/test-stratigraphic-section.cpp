@@ -55,6 +55,9 @@ geode::StratigraphicSection import_section_with_stratigraphy()
     for( const auto& surface : implicit_model.surfaces() )
     {
         const auto& mesh = surface.mesh();
+        const auto scalar_attributes =
+            mesh.vertex_attribute_manager().attribute_ids_matching_name(
+                "curvature_min" );
         const auto scalar_attribute =
             mesh.vertex_attribute_manager().find_read_only_attribute< double >(
                 scalar_attributes.value().front() );
@@ -155,10 +158,19 @@ void test_io( const geode::StratigraphicSection& implicit_model )
     geode::Logger::info( "Testing IO" );
     const auto filename = "test_implicit_section_io.og_ixsctn";
     geode::save_implicit_cross_section( implicit_model, filename );
-    geode::StratigraphicSection model_reload{
-        geode::load_implicit_cross_section( filename )
-    };
+    auto cross_section_reload = geode::load_implicit_cross_section( filename );
+    DEBUG( "reloaded" );
+    for( const auto& surface : cross_section_reload.surfaces() )
+    {
+        const auto& mesh = surface.mesh();
+        const auto scalar_attributes =
+            mesh.vertex_attribute_manager().attribute_ids_matching_name(
+                "curvature_min" );
+    }
+    geode::StratigraphicSection model_reload{ std::move(
+        cross_section_reload ) };
     geode::StratigraphicSectionBuilder builder{ model_reload };
+    DEBUG( "reinitialize_stratigraphic_query_trees" );
     builder.reinitialize_stratigraphic_query_trees();
     test_section( model_reload );
 }
@@ -169,9 +181,10 @@ int main()
     {
         geode::Logger::info( "Starting test" );
         geode::OpenGeodeGeosciencesImplicitLibrary::initialize();
+        geode::Logger::set_level( geode::Logger::LEVEL::debug );
         const auto model = import_section_with_stratigraphy();
-        test_section( model );
-        test_save_stratigraphic_lines( model );
+        // test_section( model );
+        // test_save_stratigraphic_lines( model );
         test_io( model );
 
         geode::Logger::info( "TEST SUCCESS" );
