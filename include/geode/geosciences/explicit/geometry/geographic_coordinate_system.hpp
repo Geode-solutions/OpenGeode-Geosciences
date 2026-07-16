@@ -82,7 +82,7 @@ namespace geode
             AttributeManager& manager, GeographicCoordinateSystemInfo info );
 
         GeographicCoordinateSystem( AttributeManager& manager,
-            const geode::uuid& uuid,
+            const uuid& uuid,
             GeographicCoordinateSystemInfo info );
 
         ~GeographicCoordinateSystem();
