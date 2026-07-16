@@ -63,10 +63,6 @@ namespace geode
         void import_old_stratigraphic_attribute_values_from_attribute_name(
             std::string_view attribute_name );
 
-        void
-            import_old_stratigraphic_attribute_values_from_attribute_name_from_attribute_id(
-                const uuid& old_implicit_attribute_id );
-
         void copy_stratigraphic_attribute_values(
             ModelCopyMapping& mapping, const StratigraphicModel& other_model );
 

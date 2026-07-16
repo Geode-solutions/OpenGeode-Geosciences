@@ -48,10 +48,6 @@ namespace geode
                 "import_old_stratigraphic_attribute_values_from_attribute_name",
                 &StratigraphicModelBuilder::
                     import_old_stratigraphic_attribute_values_from_attribute_name )
-            .def( "import_old_stratigraphic_attribute_values_from_attribute_"
-                  "name_from_attribute_id",
-                &StratigraphicModelBuilder::
-                    import_old_stratigraphic_attribute_values_from_attribute_name_from_attribute_id )
             .def( "copy_stratigraphic_attribute_values",
                 &StratigraphicModelBuilder::
                     copy_stratigraphic_attribute_values );
