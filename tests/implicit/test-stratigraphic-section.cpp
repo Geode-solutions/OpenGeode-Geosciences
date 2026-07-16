@@ -78,7 +78,8 @@ geode::StratigraphicSection import_section_with_stratigraphy()
         const auto& mesh = surface.mesh();
         for( const auto vertex_id : geode::Range{ mesh.nb_vertices() } )
         {
-            SDEBUG( model.stratigraphic_coordinates( surface, vertex_id ) );
+            SDEBUG( implicit_model.stratigraphic_coordinates(
+                surface, vertex_id ) );
         }
     }
     return implicit_model;

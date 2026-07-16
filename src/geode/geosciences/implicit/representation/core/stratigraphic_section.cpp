@@ -502,6 +502,7 @@ namespace geode
         StratigraphicSection&& other ) noexcept
         : ImplicitCrossSection{ std::move( other ) }
     {
+        DEBUG( "StratigraphicSection move constructor" );
         impl_->initialize_stratigraphic_query_trees( *this );
     }
 
