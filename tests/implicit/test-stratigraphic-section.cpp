@@ -181,6 +181,7 @@ int main()
         geode::OpenGeodeGeosciencesImplicitLibrary::initialize();
         geode::Logger::set_level( geode::Logger::LEVEL::debug );
         const auto model = import_section_with_stratigraphy();
+        DEBUG( "end of import" );
         SDEBUG( model.stratigraphic_location_attribute_id() );
         DEBUG( "Testing section" );
         for( const auto& surface : model.surfaces() )
