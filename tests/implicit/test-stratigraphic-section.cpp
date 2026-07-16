@@ -184,7 +184,7 @@ int main()
         geode::OpenGeodeGeosciencesImplicitLibrary::initialize();
         geode::Logger::set_level( geode::Logger::LEVEL::debug );
         const auto model = import_section_with_stratigraphy();
-        // test_section( model );
+        test_section( model );
         // test_save_stratigraphic_lines( model );
         test_io( model );
 
