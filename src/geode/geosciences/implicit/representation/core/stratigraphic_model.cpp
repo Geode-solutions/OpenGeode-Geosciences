@@ -512,7 +512,8 @@ namespace geode
 
     StratigraphicModel::StratigraphicModel(
         StratigraphicModel&& other ) noexcept
-        : ImplicitStructuralModel{ std::move( other ) }
+        : ImplicitStructuralModel{ std::move( other ) },
+          impl_{ std::move( other.impl_ ) }
     {
         impl_->initialize_stratigraphic_query_trees( *this );
     }

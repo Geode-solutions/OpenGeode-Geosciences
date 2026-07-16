@@ -207,7 +207,6 @@ namespace geode
         void instantiate_stratigraphic_location_on_surfaces(
             const StratigraphicSection& model )
         {
-            DEBUG( "instantiating stratigraphic location on surfaces" );
             for( const auto& surface : model.surfaces() )
             {
                 OpenGeodeGeosciencesImplicitException::check_exception(
@@ -500,7 +499,8 @@ namespace geode
 
     StratigraphicSection::StratigraphicSection(
         StratigraphicSection&& other ) noexcept
-        : ImplicitCrossSection{ std::move( other ) }
+        : ImplicitCrossSection{ std::move( other ) },
+          impl_{ std::move( other.impl_ ) }
     {
         DEBUG( "StratigraphicSection move constructor" );
         impl_->initialize_stratigraphic_query_trees( *this );
