@@ -170,8 +170,9 @@ void test_io( const geode::StratigraphicSection& implicit_model )
     geode::StratigraphicSection model_reload{ std::move(
         cross_section_reload ) };
     geode::StratigraphicSectionBuilder builder{ model_reload };
-    DEBUG( "reinitialize_stratigraphic_query_trees" );
     builder.reinitialize_stratigraphic_query_trees();
+    builder.import_old_stratigraphic_attribute_values_from_attribute_id(
+        implicit_model.stratigraphic_location_attribute_id() );
     test_section( model_reload );
 }
 
@@ -183,7 +184,7 @@ int main()
         geode::OpenGeodeGeosciencesImplicitLibrary::initialize();
         geode::Logger::set_level( geode::Logger::LEVEL::debug );
         const auto model = import_section_with_stratigraphy();
-        // test_section( model );
+        test_section( model );
         // test_save_stratigraphic_lines( model );
         test_io( model );
 
