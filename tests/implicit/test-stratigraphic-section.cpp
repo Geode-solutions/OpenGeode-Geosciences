@@ -73,7 +73,7 @@ geode::StratigraphicSection import_section_with_stratigraphy()
         }
     }
     DEBUG( "out of loop" );
-    for( const auto& surface : model.surfaces() )
+    for( const auto& surface : implicit_model.surfaces() )
     {
         const auto& mesh = surface.mesh();
         for( const auto vertex_id : geode::Range{ mesh.nb_vertices() } )
