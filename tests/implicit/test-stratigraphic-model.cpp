@@ -255,6 +255,20 @@ void test_io(
     test_model( model_reload, block1_id );
 }
 
+void test_move( geode::StratigraphicModel& implicit_model )
+{
+    const auto old_implicit_id = implicit_model.implicit_attribute_id();
+    const auto old_strati_id =
+        implicit_model.stratigraphic_location_attribute_id();
+    geode::StratigraphicModel moved_model{ std::move( implicit_model ) };
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        moved_model.implicit_attribute_id() == old_implicit_id,
+        "Implicit attribute id not moved." );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        moved_model.stratigraphic_location_attribute_id() == old_strati_id,
+        "Stratigraphic location attribute id not moved." );
+}
+
 int main()
 {
     try
@@ -278,7 +292,7 @@ int main()
         test_save_stratigraphic_surfaces( model );
         DEBUG( "Testing IO" );
         test_io( model, block1_id );
-
+        test_move( model );
         geode::Logger::info( "TEST SUCCESS" );
         return 0;
     }
