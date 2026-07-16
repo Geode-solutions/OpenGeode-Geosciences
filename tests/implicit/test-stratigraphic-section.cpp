@@ -52,8 +52,10 @@ geode::StratigraphicSection import_section_with_stratigraphy()
         geode::load_section(
             absl::StrCat( geode::DATA_PATH, "test_section.og_sctn" ) ) ) };
     geode::StratigraphicSectionBuilder model_builder{ implicit_model };
+    SDEBUG( implicit_model.stratigraphic_location_attribute_id() );
     for( const auto& surface : implicit_model.surfaces() )
     {
+        SDEBUG( surface.id() );
         const auto& mesh = surface.mesh();
         const auto scalar_attributes =
             mesh.vertex_attribute_manager().attribute_ids_matching_name(
@@ -179,6 +181,7 @@ int main()
         geode::OpenGeodeGeosciencesImplicitLibrary::initialize();
         geode::Logger::set_level( geode::Logger::LEVEL::debug );
         const auto model = import_section_with_stratigraphy();
+        SDEBUG( model.stratigraphic_location_attribute_id() );
         DEBUG( "Testing section" );
         for( const auto& surface : model.surfaces() )
         {
