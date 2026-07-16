@@ -179,6 +179,15 @@ int main()
         geode::OpenGeodeGeosciencesImplicitLibrary::initialize();
         geode::Logger::set_level( geode::Logger::LEVEL::debug );
         const auto model = import_section_with_stratigraphy();
+        DEBUG( "Testing section" );
+        for( const auto& surface : model.surfaces() )
+        {
+            const auto& mesh = surface.mesh();
+            for( const auto vertex_id : geode::Range{ mesh.nb_vertices() } )
+            {
+                SDEBUG( model.stratigraphic_coordinates( surface, vertex_id ) );
+            }
+        }
         test_section( model );
         // test_save_stratigraphic_lines( model );
         test_io( model );
