@@ -48,6 +48,7 @@ namespace geode
     {
         auto mappings = ImplicitStructuralModelBuilder::copy( implicit_model );
         stratigraphic_model_.initialize_stratigraphic_query_trees( {} );
+        copy_stratigraphic_attribute_values( mappings, implicit_model );
         return mappings;
     }
 
@@ -108,4 +109,36 @@ namespace geode
             }
         }
     }
+
+    void StratigraphicModelBuilder::copy_stratigraphic_attribute_values(
+        ModelCopyMapping& mapping, const StratigraphicModel& other_model )
+    {
+        const auto& block_mapping =
+            mapping.at( Block3D::component_type_static() );
+        for( const auto& old_block : other_model.blocks() )
+        {
+            auto& old_block_vertex_attribute_manager =
+                old_block.mesh().vertex_attribute_manager();
+            const auto old_attribute =
+                old_block_vertex_attribute_manager
+                    .find_read_only_attribute< Point2D >(
+                        other_model.stratigraphic_location_attribute_id() );
+            auto& new_block = stratigraphic_model_.block(
+                block_mapping.in2out( old_block.id() ) );
+            auto& new_block_vertex_attribute_manager =
+                new_block.mesh().vertex_attribute_manager();
+            auto new_attribute =
+                new_block_vertex_attribute_manager
+                    .find_attribute< VariableAttribute, Point2D >(
+                        stratigraphic_model_
+                            .stratigraphic_location_attribute_id() );
+            for( const auto vertex :
+                geode::Range{ new_block.mesh().nb_vertices() } )
+            {
+                new_attribute->set_value(
+                    vertex, old_attribute->value( vertex ) );
+            }
+        }
+    }
+
 } // namespace geode

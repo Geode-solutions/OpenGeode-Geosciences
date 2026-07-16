@@ -250,6 +250,8 @@ void test_io(
     };
     geode::StratigraphicModelBuilder builder{ model_reload };
     builder.reinitialize_stratigraphic_query_trees();
+    builder.import_old_stratigraphic_attribute_values_from_attribute_name(
+        geode::StratigraphicModel::STRATIGRAPHIC_LOCATION_ATTRIBUTE_NAME );
     test_model( model_reload, block1_id );
 }
 
@@ -265,6 +267,8 @@ int main()
         geode::StratigraphicModelBuilder builder{ model };
         builder.import_old_implicit_attribute_values_from_attribute_name(
             geode::ImplicitStructuralModel::IMPLICIT_ATTRIBUTE_NAME );
+        builder.import_old_stratigraphic_attribute_values_from_attribute_name(
+            geode::StratigraphicModel::STRATIGRAPHIC_LOCATION_ATTRIBUTE_NAME );
         const geode::uuid block1_id{ "00000000-c271-42e7-8000-00002c3147ed" };
         add_horizons_stack_to_model( model, block1_id );
         test_model( model, block1_id );
