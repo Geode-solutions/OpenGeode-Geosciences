@@ -207,6 +207,7 @@ namespace geode
         void instantiate_stratigraphic_location_on_surfaces(
             const StratigraphicSection& model )
         {
+            DEBUG( "instantiating stratigraphic location on surfaces" );
             for( const auto& surface : model.surfaces() )
             {
                 OpenGeodeGeosciencesImplicitException::check_exception(
@@ -218,16 +219,14 @@ namespace geode
                     "TriangulatedSurface2D, which is not the case for surface "
                     "with uuid '",
                     surface.id().string(), "'." );
-                if( const auto attribute_ids = surface.mesh()
-                        .vertex_attribute_manager()
-                        .attribute_ids_matching_name(
-                            STRATIGRAPHIC_LOCATION_ATTRIBUTE_NAME ) )
+                if( surface.mesh().vertex_attribute_manager().attribute_exists(
+                        stratigraphic_location_attribute_id_ ) )
                 {
                     stratigraphic_location_attributes_.try_emplace(
                         surface.id(),
                         TriangulatedSurfacePointFunction< 2, 1 >::find(
                             surface.mesh< TriangulatedSurface2D >(),
-                            attribute_ids.value().at( 0 ) ) );
+                            stratigraphic_location_attribute_id_ ) );
                 }
                 else
                 {
@@ -236,6 +235,7 @@ namespace geode
                         TriangulatedSurfacePointFunction< 2, 1 >::create(
                             surface.mesh< TriangulatedSurface2D >(),
                             STRATIGRAPHIC_LOCATION_ATTRIBUTE_NAME,
+                            stratigraphic_location_attribute_id_,
                             Point1D{ { 0 } } ) );
                 }
             }
@@ -261,11 +261,9 @@ namespace geode
             surface_stratigraphic_aabb_trees_.at( surface.id() ).reset();
         }
 
-        uuid surface_stratigraphic_location_attribute_id(
-            const uuid& surface_id ) const
+        const uuid& stratigraphic_location_attribute_id() const
         {
-            return stratigraphic_location_attributes_.at( surface_id )
-                .attribute_function_id();
+            return stratigraphic_location_attribute_id_;
         }
 
     private:
@@ -487,6 +485,7 @@ namespace geode
             surface_stratigraphic_aabb_trees_;
         absl::flat_hash_map< uuid, StratigraphicDistanceToTriangle >
             surface_stratigraphic_distance_to_triangles_;
+        const uuid stratigraphic_location_attribute_id_;
     };
 
     StratigraphicSection::StratigraphicSection()
@@ -603,10 +602,10 @@ namespace geode
         return impl_->stratigraphic_bounding_box( *this );
     }
 
-    uuid StratigraphicSection::surface_stratigraphic_location_attribute_id(
-        const uuid& surface_id ) const
+    const uuid&
+        StratigraphicSection::stratigraphic_location_attribute_id() const
     {
-        return impl_->surface_stratigraphic_location_attribute_id( surface_id );
+        return impl_->stratigraphic_location_attribute_id();
     }
 
     void StratigraphicSection::initialize_stratigraphic_query_trees(

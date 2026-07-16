@@ -49,7 +49,13 @@ namespace geode
 
         ModelCopyMapping copy( const ImplicitStructuralModel& implicit_model );
 
+        void import_old_implicit_attribute_values_from_attribute_name(
+            std::string_view old_implicit_attribute_name );
+
         void copy_implicit_information( ModelCopyMapping& mapping,
+            const ImplicitStructuralModel& other_model );
+
+        void copy_implicit_attribute_values( ModelCopyMapping& mapping,
             const ImplicitStructuralModel& other_model );
 
         void reinitialize_implicit_query_trees();

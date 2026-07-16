@@ -144,8 +144,7 @@ namespace geode
 
         [[nodiscard]] BoundingBox3D stratigraphic_bounding_box() const;
 
-        [[nodiscard]] uuid block_stratigraphic_location_attribute_id(
-            const uuid& block_id ) const;
+        [[nodiscard]] const uuid& stratigraphic_location_attribute_id() const;
 
     public:
         void initialize_stratigraphic_query_trees(

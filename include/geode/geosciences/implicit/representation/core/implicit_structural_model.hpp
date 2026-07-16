@@ -89,8 +89,7 @@ namespace geode
             return native_extension_static();
         }
 
-        [[nodiscard]] uuid block_implicit_function_attribute_id(
-            const uuid& block_id ) const;
+        [[nodiscard]] const uuid& implicit_attribute_id() const;
 
         /*!
          * Return the implicit value at the given vertex of the given block.

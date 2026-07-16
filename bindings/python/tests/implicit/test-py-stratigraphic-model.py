@@ -141,6 +141,7 @@ if __name__ == "__main__":
     data_dir = os.path.abspath(os.path.join(test_dir, "../../../../tests/data"))
     structural_model = geode_exp.load_structural_model(data_dir + "/vri2.og_strm")
     stratigraphic_model = geode_imp.StratigraphicModel(structural_model)
-
+    builder = geode_imp.ImplicitStructuralModelBuilder(stratigraphic_model)
+    builder.import_old_implicit_attribute_values_from_attribute_name("geode_implicit_attribute")
     test_model(stratigraphic_model)
     test_save_stratigraphic_surfaces(stratigraphic_model)

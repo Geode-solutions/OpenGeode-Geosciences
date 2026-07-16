@@ -73,6 +73,11 @@ namespace geode
             }
         }
 
+        const uuid& implicit_attribute_id() const
+        {
+            return implicit_attribute_id_;
+        }
+
         double implicit_value(
             const Surface2D& surface, index_t vertex_id ) const
         {
@@ -114,6 +119,12 @@ namespace geode
                 return closest_triangle;
             }
             return std::nullopt;
+        }
+
+        absl::flat_hash_map< uuid, TriangulatedSurfaceScalarFunction2D >&
+            implicit_attributes()
+        {
+            return implicit_attributes_;
         }
 
         const HorizonsStack2D& horizons_stack() const
@@ -233,22 +244,21 @@ namespace geode
                     "TriangulatedSurface2D, which is not the case for surface "
                     "with uuid '",
                     surface.id().string(), "'." );
-                if( const auto attribute_ids = surface.mesh()
-                        .vertex_attribute_manager()
-                        .attribute_ids_matching_name(
-                            IMPLICIT_ATTRIBUTE_NAME ) )
+                if( surface.mesh().vertex_attribute_manager().attribute_exists(
+                        implicit_attribute_id_ ) )
                 {
                     implicit_attributes_.try_emplace( surface.id(),
                         TriangulatedSurfaceScalarFunction2D::find(
                             surface.mesh< TriangulatedSurface2D >(),
-                            attribute_ids.value().at( 0 ) ) );
+                            implicit_attribute_id_ ) );
                 }
                 else
                 {
                     implicit_attributes_.try_emplace( surface.id(),
                         TriangulatedSurfaceScalarFunction2D::create(
                             surface.mesh< TriangulatedSurface2D >(),
-                            IMPLICIT_ATTRIBUTE_NAME, 0 ) );
+                            IMPLICIT_ATTRIBUTE_NAME, implicit_attribute_id_,
+                            0 ) );
                 }
             }
         }
@@ -315,14 +325,26 @@ namespace geode
             archive.ext( *this,
                 Growable< Archive, Impl >{
                     { []( Archive& local_archive, Impl& impl ) {
-                        local_archive.ext( impl.horizon_isovalues_,
-                            bitsery::ext::StdMap{
-                                impl.horizon_isovalues_.max_size() },
-                            []( Archive& map_archive, uuid& id, double& item ) {
-                                map_archive.object( id );
-                                map_archive.value8b( item );
-                            } );
-                    } } } );
+                         local_archive.ext( impl.horizon_isovalues_,
+                             bitsery::ext::StdMap{
+                                 impl.horizon_isovalues_.max_size() },
+                             []( Archive& map_archive, uuid& id,
+                                 double& item ) {
+                                 map_archive.object( id );
+                                 map_archive.value8b( item );
+                             } );
+                     },
+                        []( Archive& local_archive, Impl& impl ) {
+                            local_archive.ext( impl.horizon_isovalues_,
+                                bitsery::ext::StdMap{
+                                    impl.horizon_isovalues_.max_size() },
+                                []( Archive& map_archive, uuid& id,
+                                    double& item ) {
+                                    map_archive.object( id );
+                                    map_archive.value8b( item );
+                                } );
+                            local_archive.object( impl.implicit_attribute_id_ );
+                        } } } );
         }
 
     private:
@@ -334,6 +356,7 @@ namespace geode
             surface_mesh_aabb_trees_;
         absl::flat_hash_map< uuid, DistanceToTriangle2D >
             surface_distance_to_triangles_;
+        geode::uuid implicit_attribute_id_{};
     };
 
     ImplicitCrossSection::ImplicitCrossSection()
@@ -391,6 +414,11 @@ namespace geode
     const Component2D& ImplicitCrossSection::component( const uuid& id ) const
     {
         return detail::model_component( *this, id );
+    }
+
+    const uuid& ImplicitCrossSection::implicit_attribute_id() const
+    {
+        return impl_->implicit_attribute_id();
     }
 
     double ImplicitCrossSection::implicit_value(
@@ -491,11 +519,43 @@ namespace geode
     template < typename Archive >
     void ImplicitCrossSection::serialize( Archive& archive )
     {
-        archive.ext(
-            *this, Growable< Archive, ImplicitCrossSection >{
-                       { []( Archive& a, ImplicitCrossSection& model ) {
-                           a.object( model.impl_ );
-                       } } } );
+        archive.ext( *this,
+            Growable< Archive, ImplicitCrossSection >{
+                { []( Archive& a, ImplicitCrossSection& model ) {
+                     a.object( model.impl_ );
+                     for( const auto& surface : model.surfaces() )
+                     {
+                         const auto& surface_mesh = surface.mesh();
+                         const auto old_implicit_attribute_id =
+                             model.impl_->implicit_attributes()
+                                 .at( surface.id() )
+                                 .attribute_function_id();
+                         const auto old_implicit_attribute =
+                             surface_mesh.vertex_attribute_manager()
+                                 .find_read_only_attribute< double >(
+                                     old_implicit_attribute_id );
+                         surface_mesh.vertex_attribute_manager()
+                             .create_attribute< VariableAttribute, double >(
+                                 IMPLICIT_ATTRIBUTE_NAME,
+                                 model.impl_->implicit_attribute_id(), 0,
+                                 { false, true } );
+                         auto new_implicit_attribute =
+                             surface_mesh.vertex_attribute_manager()
+                                 .find_attribute< VariableAttribute, double >(
+                                     model.impl_->implicit_attribute_id() );
+                         for( const auto vertex_id :
+                             geode::Range{ surface_mesh.nb_vertices() } )
+                         {
+                             new_implicit_attribute->set_value( vertex_id,
+                                 old_implicit_attribute->value( vertex_id ) );
+                         }
+                     }
+                     model.impl_->initialize_implicit_query_trees( model );
+                 },
+                    []( Archive& a, ImplicitCrossSection& model ) {
+                        a.object( model.impl_ );
+                        model.impl_->initialize_implicit_query_trees( model );
+                    } } } );
     }
 
     SERIALIZE_BITSERY_ARCHIVE(

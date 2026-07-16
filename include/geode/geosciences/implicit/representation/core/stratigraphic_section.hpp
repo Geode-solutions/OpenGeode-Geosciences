@@ -147,8 +147,7 @@ namespace geode
 
         [[nodiscard]] BoundingBox2D stratigraphic_bounding_box() const;
 
-        [[nodiscard]] uuid surface_stratigraphic_location_attribute_id(
-            const uuid& surface ) const;
+        [[nodiscard]] const uuid& stratigraphic_location_attribute_id() const;
 
     public:
         void initialize_stratigraphic_query_trees(

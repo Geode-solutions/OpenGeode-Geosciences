@@ -262,6 +262,9 @@ int main()
         geode::Logger::set_level( geode::Logger::LEVEL::debug );
         geode::StratigraphicModel model{ geode::load_structural_model(
             absl::StrCat( geode::DATA_PATH, "vri2.og_strm" ) ) };
+        geode::StratigraphicModelBuilder builder{ model };
+        builder.import_old_implicit_attribute_values_from_attribute_name(
+            geode::ImplicitStructuralModel::IMPLICIT_ATTRIBUTE_NAME );
         const geode::uuid block1_id{ "00000000-c271-42e7-8000-00002c3147ed" };
         add_horizons_stack_to_model( model, block1_id );
         test_model( model, block1_id );

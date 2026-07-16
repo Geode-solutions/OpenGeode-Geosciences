@@ -204,15 +204,13 @@ namespace geode
                     "TetrahedralSolids, which is not the case for block "
                     "with uuid '",
                     block.id().string(), "'." );
-                if( const auto attribute_ids = block.mesh()
-                        .vertex_attribute_manager()
-                        .attribute_ids_matching_name(
-                            STRATIGRAPHIC_LOCATION_ATTRIBUTE_NAME ) )
+                if( block.mesh().vertex_attribute_manager().attribute_exists(
+                        stratigraphic_location_attribute_id_ ) )
                 {
-                    stratigraphic_location_attributes_.try_emplace(
-                        block.id(), TetrahedralSolidPointFunction< 3, 2 >::find(
-                                        block.mesh< TetrahedralSolid3D >(),
-                                        attribute_ids.value().at( 0 ) ) );
+                    stratigraphic_location_attributes_.try_emplace( block.id(),
+                        TetrahedralSolidPointFunction< 3, 2 >::find(
+                            block.mesh< TetrahedralSolid3D >(),
+                            stratigraphic_location_attribute_id_ ) );
                 }
                 else
                 {
@@ -220,6 +218,7 @@ namespace geode
                         TetrahedralSolidPointFunction< 3, 2 >::create(
                             block.mesh< TetrahedralSolid3D >(),
                             STRATIGRAPHIC_LOCATION_ATTRIBUTE_NAME,
+                            stratigraphic_location_attribute_id_,
                             Point2D{ { 0, 0 } } ) );
                 }
             }
@@ -260,11 +259,9 @@ namespace geode
             block_stratigraphic_aabb_trees_.at( block.id() ).reset();
         }
 
-        uuid block_stratigraphic_location_attribute_id(
-            const uuid& block_id ) const
+        const uuid& stratigraphic_location_attribute_id() const
         {
-            return stratigraphic_location_attributes_.at( block_id )
-                .attribute_function_id();
+            return stratigraphic_location_attribute_id_;
         }
 
     private:
@@ -500,6 +497,7 @@ namespace geode
             block_stratigraphic_aabb_trees_;
         absl::flat_hash_map< uuid, StratigraphicDistanceToTetrahedron >
             block_stratigraphic_distance_to_tetras_;
+        geode::uuid stratigraphic_location_attribute_id_{};
     };
 
     StratigraphicModel::StratigraphicModel()
@@ -615,10 +613,9 @@ namespace geode
         return impl_->stratigraphic_bounding_box( *this );
     }
 
-    uuid StratigraphicModel::block_stratigraphic_location_attribute_id(
-        const uuid& block_id ) const
+    const uuid& StratigraphicModel::stratigraphic_location_attribute_id() const
     {
-        return impl_->block_stratigraphic_location_attribute_id( block_id );
+        return impl_->stratigraphic_location_attribute_id();
     }
 
     void StratigraphicModel::initialize_stratigraphic_query_trees(

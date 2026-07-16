@@ -47,6 +47,8 @@ namespace geode
         const UnzipFile zip_reader{ this->filename(), uuid{}.string() };
         zip_reader.extract_all();
         ImplicitStructuralModel model{ BITSERY::constructor };
+        detail::load_implicit_structural_model_files(
+            model, zip_reader.directory() );
         const auto impl_filename = absl::StrCat(
             zip_reader.directory(), "/implicit_model_impl.og_istrm" );
         OpenGeodeGeosciencesImplicitException::check_exception(
@@ -69,8 +71,6 @@ namespace geode
             "[OpenGeodeImplicitStructuralModelOutput::load_model_impl] "
             "Error while reading file: ",
             impl_filename );
-        detail::load_implicit_structural_model_files(
-            model, zip_reader.directory() );
         return model;
     }
 
@@ -83,8 +83,8 @@ namespace geode
             builder.set_horizons_stack( load_horizons_stack< 3 >(
                 absl::StrCat( directory, "/horizons_stack.",
                     HorizonsStack3D::native_extension_static() ) ) );
-            builder.reinitialize_implicit_query_trees();
             load_structural_model_files( model, directory );
+            // builder.reinitialize_implicit_query_trees();
         }
     } // namespace detail
 } // namespace geode

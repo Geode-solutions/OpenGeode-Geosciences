@@ -61,6 +61,12 @@ namespace geode
             index_t vertex_id,
             const StratigraphicPoint2D& value );
 
+        void import_old_stratigraphic_attribute_values_from_attribute_name(
+            std::string_view old_stratigraphic_attribute_name );
+
+        void import_old_stratigraphic_attribute_values_from_attribute_id(
+            const uuid& old_stratigraphic_attribute_id );
+
     private:
         StratigraphicSection& stratigraphic_section_;
     };

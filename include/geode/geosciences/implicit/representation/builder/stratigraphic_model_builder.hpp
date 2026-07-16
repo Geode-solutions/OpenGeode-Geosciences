@@ -60,6 +60,13 @@ namespace geode
             index_t vertex_id,
             const StratigraphicPoint3D& value );
 
+        void import_old_stratigraphic_attribute_values_from_attribute_name(
+            std::string_view attribute_name );
+
+        void
+            import_old_stratigraphic_attribute_values_from_attribute_name_from_attribute_id(
+                const uuid& old_implicit_attribute_id );
+
     private:
         StratigraphicModel& stratigraphic_model_;
     };
