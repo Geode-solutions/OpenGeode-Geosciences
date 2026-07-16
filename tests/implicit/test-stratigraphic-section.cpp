@@ -72,6 +72,7 @@ geode::StratigraphicSection import_section_with_stratigraphy()
                 surface, vertex_id ) );
         }
     }
+    DEBUG( "out of loop" );
     return implicit_model;
 }
 
