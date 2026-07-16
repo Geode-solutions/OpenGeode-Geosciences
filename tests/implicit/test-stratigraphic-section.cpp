@@ -66,6 +66,8 @@ geode::StratigraphicSection import_section_with_stratigraphy()
             model_builder.set_stratigraphic_coordinates( surface, vertex_id,
                 geode::Point2D{ { mesh.point( vertex_id ).value( 0 ),
                     scalar_attribute->value( vertex_id ) } } );
+            SDEBUG( implicit_model.stratigraphic_coordinates(
+                surface, vertex_id ) );
         }
     }
     return implicit_model;
