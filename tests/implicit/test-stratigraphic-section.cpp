@@ -158,17 +158,10 @@ void test_io( const geode::StratigraphicSection& implicit_model )
     geode::Logger::info( "Testing IO" );
     const auto filename = "test_implicit_section_io.og_ixsctn";
     geode::save_implicit_cross_section( implicit_model, filename );
-    auto cross_section_reload = geode::load_implicit_cross_section( filename );
     DEBUG( "reloaded" );
-    for( const auto& surface : cross_section_reload.surfaces() )
-    {
-        const auto& mesh = surface.mesh();
-        const auto scalar_attributes =
-            mesh.vertex_attribute_manager().attribute_ids_matching_name(
-                "curvature_min" );
-    }
-    geode::StratigraphicSection model_reload{ std::move(
-        cross_section_reload ) };
+    geode::StratigraphicSection model_reload{
+        geode::load_implicit_cross_section( filename )
+    };
     geode::StratigraphicSectionBuilder builder{ model_reload };
     builder.reinitialize_stratigraphic_query_trees();
     builder.import_old_stratigraphic_attribute_values_from_attribute_id(
