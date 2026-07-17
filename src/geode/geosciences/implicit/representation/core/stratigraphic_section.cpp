@@ -67,9 +67,6 @@ namespace geode
             {
                 surface_stratigraphic_aabb_trees_.try_emplace( surface.id() );
             }
-            surface_stratigraphic_distance_to_triangles_.reserve(
-                model.nb_surfaces() );
-            build_model_stratigraphic_distance_to_mesh_elements( model );
         }
 
         StratigraphicPoint2D stratigraphic_coordinates(
@@ -149,16 +146,16 @@ namespace geode
             const Surface2D& surface,
             const StratigraphicPoint2D& stratigraphic_point ) const
         {
+            StratigraphicDistanceToTriangle distance_to_triangles{ model,
+                surface };
             const auto closest_triangle =
                 std::get< 0 >( surface_stratigraphic_aabb_trees_
                         .at( surface.id() )(
                             create_stratigraphic_aabb_tree, model, surface )
                         .closest_element_box(
                             stratigraphic_point.stratigraphic_coordinates(),
-                            surface_stratigraphic_distance_to_triangles_.at(
-                                surface.id() ) ) );
-            if( surface_stratigraphic_distance_to_triangles_.at( surface.id() )(
-                    stratigraphic_point, closest_triangle )
+                            distance_to_triangles ) );
+            if( distance_to_triangles( stratigraphic_point, closest_triangle )
                 < GLOBAL_EPSILON )
             {
                 return closest_triangle;
@@ -342,16 +339,6 @@ namespace geode
             return AABBTree2D{ std::move( box_vector ) };
         }
 
-        void build_model_stratigraphic_distance_to_mesh_elements(
-            const StratigraphicSection& model )
-        {
-            for( const auto& surface : model.surfaces() )
-            {
-                surface_stratigraphic_distance_to_triangles_.try_emplace(
-                    surface.id(), model, surface );
-            }
-        }
-
         std::unique_ptr< EdgedCurve2D > stratigraphic_boundary_line(
             const StratigraphicSection& model,
             const Surface2D& surface,
@@ -482,8 +469,6 @@ namespace geode
             stratigraphic_location_attributes_;
         absl::flat_hash_map< uuid, CachedValue< AABBTree2D > >
             surface_stratigraphic_aabb_trees_;
-        absl::flat_hash_map< uuid, StratigraphicDistanceToTriangle >
-            surface_stratigraphic_distance_to_triangles_;
         const uuid stratigraphic_location_attribute_id_;
     };
 

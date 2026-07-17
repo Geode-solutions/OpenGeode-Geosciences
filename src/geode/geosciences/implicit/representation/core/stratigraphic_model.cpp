@@ -66,9 +66,6 @@ namespace geode
             {
                 block_stratigraphic_aabb_trees_.try_emplace( block.id() );
             }
-            block_stratigraphic_distance_to_tetras_.reserve(
-                model.nb_blocks() );
-            build_model_stratigraphic_distance_to_mesh_elements( model );
         }
 
         StratigraphicPoint3D stratigraphic_coordinates(
@@ -152,13 +149,14 @@ namespace geode
             const auto& block_stratigraphic_aabb =
                 block_stratigraphic_aabb_trees_.at( block.id() )(
                     create_stratigraphic_aabb_tree, model, block );
+            const auto& starti_point =
+                stratigraphic_point.stratigraphic_coordinates();
+            StratigraphicDistanceToTetrahedron distance_to_tetra{ model,
+                block };
             auto closest_tetrahedron =
                 std::get< 0 >( block_stratigraphic_aabb.closest_element_box(
-                    stratigraphic_point.stratigraphic_coordinates(),
-                    block_stratigraphic_distance_to_tetras_.at(
-                        block.id() ) ) );
-            if( block_stratigraphic_distance_to_tetras_.at( block.id() )(
-                    stratigraphic_point, closest_tetrahedron )
+                    starti_point, distance_to_tetra ) );
+            if( distance_to_tetra( stratigraphic_point, closest_tetrahedron )
                 < GLOBAL_EPSILON )
             {
                 return closest_tetrahedron;
@@ -346,16 +344,6 @@ namespace geode
             return AABBTree3D{ std::move( box_vector ) };
         }
 
-        void build_model_stratigraphic_distance_to_mesh_elements(
-            const StratigraphicModel& model )
-        {
-            for( const auto& block : model.blocks() )
-            {
-                block_stratigraphic_distance_to_tetras_.try_emplace(
-                    block.id(), model, block );
-            }
-        }
-
         std::unique_ptr< TriangulatedSurface3D > stratigraphic_boundary_surface(
             const StratigraphicModel& model,
             const Block3D& block,
@@ -490,13 +478,11 @@ namespace geode
             return strati_surfaces;
         }
 
-    private:
+    public:
         absl::flat_hash_map< uuid, TetrahedralSolidPointFunction< 3, 2 > >
             stratigraphic_location_attributes_;
         absl::flat_hash_map< uuid, CachedValue< AABBTree3D > >
             block_stratigraphic_aabb_trees_;
-        absl::flat_hash_map< uuid, StratigraphicDistanceToTetrahedron >
-            block_stratigraphic_distance_to_tetras_;
         geode::uuid stratigraphic_location_attribute_id_{};
     };
 
