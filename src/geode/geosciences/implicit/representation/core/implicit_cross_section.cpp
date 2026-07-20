@@ -63,13 +63,9 @@ namespace geode
         {
             instantiate_implicit_attribute_on_surfaces( model );
             surface_mesh_aabb_trees_.reserve( model.nb_surfaces() );
-            surface_distance_to_triangles_.reserve( model.nb_surfaces() );
             for( const auto& surface : model.surfaces() )
             {
                 surface_mesh_aabb_trees_.try_emplace( surface.id() );
-                surface_distance_to_triangles_.try_emplace( surface.id(),
-                    DistanceToTriangle2D{
-                        surface.mesh< TriangulatedSurface2D >() } );
             }
         }
 
@@ -107,14 +103,14 @@ namespace geode
         std::optional< index_t > containing_polygon(
             const Surface2D& surface, const Point2D& point ) const
         {
-            const auto closest_triangle = std::get< 0 >(
-                surface_mesh_aabb_trees_
-                    .at( surface.id() )( create_aabb_tree, surface.mesh() )
-                    .closest_element_box( point,
-                        surface_distance_to_triangles_.at( surface.id() ) ) );
-            if( surface_distance_to_triangles_.at( surface.id() )(
-                    point, closest_triangle )
-                < GLOBAL_EPSILON )
+            DistanceToTriangle2D distance_action{
+                surface.mesh< TriangulatedSurface2D >()
+            };
+            const auto closest_triangle =
+                std::get< 0 >( surface_mesh_aabb_trees_
+                        .at( surface.id() )( create_aabb_tree, surface.mesh() )
+                        .closest_element_box( point, distance_action ) );
+            if( distance_action( point, closest_triangle ) < GLOBAL_EPSILON )
             {
                 return closest_triangle;
             }
@@ -354,8 +350,6 @@ namespace geode
         absl::flat_hash_map< uuid, double > horizon_isovalues_;
         absl::flat_hash_map< uuid, CachedValue< AABBTree2D > >
             surface_mesh_aabb_trees_;
-        absl::flat_hash_map< uuid, DistanceToTriangle2D >
-            surface_distance_to_triangles_;
         geode::uuid implicit_attribute_id_{};
     };
 
