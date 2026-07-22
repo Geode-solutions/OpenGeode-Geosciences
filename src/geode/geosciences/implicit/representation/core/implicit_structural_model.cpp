@@ -220,14 +220,11 @@ namespace geode
             implicit_attributes_.reserve( model.nb_blocks() );
             for( const auto& block : model.blocks() )
             {
-                OpenGeodeGeosciencesImplicitException::check_exception(
-                    ( block.mesh().type_name()
-                        == TetrahedralSolid3D::type_name_static() ),
-                    nullptr, OpenGeodeException::TYPE::data,
-                    "[ImplicitStructuralModel::instantiate_implicit_attribute_"
-                    "on_blocks] Blocks must be meshed as TetrahedralSolids, "
-                    "which is not the case for block with uuid '",
-                    block.id().string(), "'." );
+                if( block.mesh().type_name()
+                    != TetrahedralSolid3D::type_name_static() )
+                {
+                    continue;
+                }
                 if( block.mesh().vertex_attribute_manager().attribute_exists(
                         implicit_attribute_id_ ) )
                 {
@@ -524,6 +521,11 @@ namespace geode
                      for( const auto& block : model.blocks() )
                      {
                          const auto& block_mesh = block.mesh();
+                         if( block_mesh.type_name()
+                             != TetrahedralSolid3D::type_name_static() )
+                         {
+                             continue;
+                         }
                          if( const auto old_implicit_attribute_id =
                                  block_mesh.vertex_attribute_manager()
                                      .attribute_ids_matching_name(
