@@ -197,6 +197,8 @@ namespace geode
         return { *this, stratigraphic_unit };
     }
 
+    StructuralModel::StructuralModel( BITSERY bitery ) : BRep{ bitery } {}
+
     StructuralModel::StructuralModel( BRep&& brep ) noexcept
         : BRep{ std::move( brep ) }
     {

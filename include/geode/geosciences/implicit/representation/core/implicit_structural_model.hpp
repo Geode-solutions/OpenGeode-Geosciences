@@ -25,6 +25,7 @@
 
 #include <optional>
 
+#include <geode/basic/bitsery_archive.hpp>
 #include <geode/basic/pimpl.hpp>
 
 #include <geode/geosciences/explicit/representation/core/structural_model.hpp>
@@ -63,6 +64,7 @@ namespace geode
             "geode_implicit_attribute";
         using implicit_attribute_type = double;
         ImplicitStructuralModel();
+        ImplicitStructuralModel( BITSERY );
         ImplicitStructuralModel(
             ImplicitStructuralModel&& implicit_model ) noexcept;
         explicit ImplicitStructuralModel(
@@ -86,6 +88,8 @@ namespace geode
         {
             return native_extension_static();
         }
+
+        [[nodiscard]] const uuid& implicit_attribute_id() const;
 
         /*!
          * Return the implicit value at the given vertex of the given block.

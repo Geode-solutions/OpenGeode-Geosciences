@@ -39,9 +39,13 @@ namespace geode
             pybind11::smart_holder >( module, "StratigraphicModel" )
             .def( pybind11::init<>() )
             .def( pybind11::init( []( ImplicitStructuralModel& model ) {
+                Logger::info( "Converting ImplicitStructuralModel to "
+                              "StratigraphicModel" );
                 return StratigraphicModel{ model.clone() };
             } ) )
             .def( pybind11::init( []( StructuralModel& model ) {
+                Logger::info(
+                    "Converting StructuralModel to StratigraphicModel" );
                 return StratigraphicModel{ model.clone() };
             } ) )
             .def( "stratigraphic_coordinates_from_vertex_id",
@@ -72,6 +76,8 @@ namespace geode
             .def( "native_extension", &StratigraphicModel::native_extension )
             .def( "stratigraphic_model_component",
                 &StratigraphicModel::component,
-                pybind11::return_value_policy::reference );
+                pybind11::return_value_policy::reference )
+            .def( "stratigraphic_location_attribute_id",
+                &StratigraphicModel::stratigraphic_location_attribute_id );
     }
 } // namespace geode

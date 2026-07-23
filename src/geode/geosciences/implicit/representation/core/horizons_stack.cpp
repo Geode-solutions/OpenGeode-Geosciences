@@ -66,6 +66,12 @@ namespace geode
     HorizonsStack< dimension >::HorizonsStack() = default;
 
     template < index_t dimension >
+    HorizonsStack< dimension >::HorizonsStack( BITSERY bitsery )
+        : StratigraphicRelationships{ bitsery }
+    {
+    }
+
+    template < index_t dimension >
     HorizonsStack< dimension >::HorizonsStack(
         HorizonsStack< dimension >&& ) noexcept = default;
 

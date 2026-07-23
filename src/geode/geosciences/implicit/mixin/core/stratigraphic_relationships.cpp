@@ -54,6 +54,8 @@ namespace geode
             initialize_relation_attributes();
         }
 
+        Impl( BITSERY bitsery ) : RelationshipsImpl( bitsery ) {}
+
         bool is_above( const uuid& above_id, const uuid& under_id ) const
         {
             auto current = under_id;
@@ -202,10 +204,24 @@ namespace geode
     private:
         void initialize_relation_attributes()
         {
-            above_relations_ =
+            const auto ids =
+                relation_attribute_manager().attribute_ids_matching_name(
+                    "geode_above_relations" );
+            if( ids.has_value() )
+            {
+                above_relations_ = relation_attribute_manager()
+                                       .find_attribute< SparseAttribute, bool >(
+                                           ids.value()[0] );
+                return;
+            }
+            const auto above_relations_id =
                 relation_attribute_manager()
-                    .find_or_create_attribute< SparseAttribute, bool >(
-                        "geode_above_relations", false );
+                    .create_attribute< SparseAttribute, bool >(
+                        "geode_above_relations", false,
+                        geode::AttributeProperties{} );
+            above_relations_ = relation_attribute_manager()
+                                   .find_attribute< SparseAttribute, bool >(
+                                       above_relations_id );
         }
 
         std::optional< index_t > relation_edge(
@@ -284,6 +300,10 @@ namespace geode
     };
 
     StratigraphicRelationships::StratigraphicRelationships() = default;
+    StratigraphicRelationships::StratigraphicRelationships( BITSERY bitsery )
+        : impl_( bitsery )
+    {
+    }
     StratigraphicRelationships::StratigraphicRelationships(
         StratigraphicRelationships&& ) noexcept = default;
     StratigraphicRelationships& StratigraphicRelationships::operator=(

@@ -24,6 +24,7 @@
 #pragma once
 
 #include <geode/basic/algorithm.hpp>
+#include <geode/basic/bitsery_archive.hpp>
 
 #include <geode/model/mixin/core/block.hpp>
 #include <geode/model/mixin/core/block_collection.hpp>
@@ -150,6 +151,7 @@ namespace geode
         using Components = tuple_cat< MeshComponents, CollectionComponents >;
 
         StructuralModel() = default;
+        StructuralModel( BITSERY );
         StructuralModel( StructuralModel&& ) noexcept = default;
         explicit StructuralModel( BRep&& brep ) noexcept;
         StructuralModel( const StructuralModel& initial_model,

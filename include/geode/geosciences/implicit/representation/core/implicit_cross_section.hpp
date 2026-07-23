@@ -25,7 +25,9 @@
 
 #include <optional>
 
+#include <geode/basic/bitsery_archive.hpp>
 #include <geode/basic/pimpl.hpp>
+#include <geode/basic/uuid.hpp>
 
 #include <geode/geosciences/explicit/representation/core/cross_section.hpp>
 #include <geode/geosciences/implicit/common.hpp>
@@ -56,6 +58,7 @@ namespace geode
             "geode_implicit_attribute";
         using implicit_attribute_type = double;
         ImplicitCrossSection();
+        ImplicitCrossSection( BITSERY );
         ImplicitCrossSection( ImplicitCrossSection&& implicit_model ) noexcept;
         explicit ImplicitCrossSection( CrossSection&& cross_section ) noexcept;
         ImplicitCrossSection( const ImplicitCrossSection& initial_model,
@@ -83,6 +86,11 @@ namespace geode
          */
         [[nodiscard]] double implicit_value(
             const Surface2D& surface, index_t vertex_id ) const;
+
+        /*!
+         * Return the implicit function attribute id.
+         */
+        [[nodiscard]] const uuid& implicit_attribute_id() const;
 
         /*!
          * Return the implicit value of the point, calculated in the polygon
