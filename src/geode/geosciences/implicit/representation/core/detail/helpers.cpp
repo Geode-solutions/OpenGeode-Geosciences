@@ -148,10 +148,18 @@ namespace geode
                     surface.mesh< TriangulatedSurface2D >().clone();
                 auto surface_builder =
                     TriangulatedSurfaceBuilder2D::create( *strati_surface );
+                AttributeValues< Point2D > xyz_attribute_default_values;
+                xyz_attribute_default_values.default_value = Point2D{};
+                xyz_attribute_default_values.no_value = Point2D{};
+                AttributeProperties xyz_attribute_properties;
+                xyz_attribute_properties.assignable = false;
+                xyz_attribute_properties.interpolable = true;
+                xyz_attribute_properties.transferable = true;
                 const auto xyz_attribute_id =
                     strati_surface->vertex_attribute_manager()
                         .create_attribute< VariableAttribute, Point2D >(
-                            "geode_xyz", Point2D{ { 0, 0 } }, { false, true } );
+                            "geode_xyz", xyz_attribute_default_values,
+                            xyz_attribute_properties );
                 auto xyz_attribute =
                     strati_surface->vertex_attribute_manager()
                         .find_attribute< VariableAttribute, Point2D >(
@@ -181,11 +189,18 @@ namespace geode
                 auto strati_solid = block.mesh< TetrahedralSolid3D >().clone();
                 auto surface_builder =
                     TetrahedralSolidBuilder3D::create( *strati_solid );
+                AttributeValues< Point3D > xyz_attribute_default_values;
+                xyz_attribute_default_values.default_value = Point3D{};
+                xyz_attribute_default_values.no_value = Point3D{};
+                AttributeProperties xyz_attribute_properties;
+                xyz_attribute_properties.assignable = false;
+                xyz_attribute_properties.interpolable = true;
+                xyz_attribute_properties.transferable = true;
                 auto xyz_attribute_id =
                     strati_solid->vertex_attribute_manager()
                         .create_attribute< VariableAttribute, Point3D >(
-                            "geode_xyz", Point3D{ { 0, 0, 0 } },
-                            { false, true } );
+                            "geode_xyz", xyz_attribute_default_values,
+                            xyz_attribute_properties );
                 auto xyz_attribute =
                     strati_solid->vertex_attribute_manager()
                         .find_attribute< VariableAttribute, Point3D >(
@@ -217,12 +232,21 @@ namespace geode
                         .find_read_only_attribute<
                             ImplicitCrossSection::implicit_attribute_type >(
                             scalar_atribute_id );
+                AttributeValues< ImplicitCrossSection::implicit_attribute_type >
+                    implicit_attribute_default_values;
+                implicit_attribute_default_values.default_value = 0;
+                implicit_attribute_default_values.no_value = 0;
+                AttributeProperties implicit_attribute_properties;
+                implicit_attribute_properties.assignable = false;
+                implicit_attribute_properties.interpolable = true;
+                implicit_attribute_properties.transferable = true;
                 auto implicit_attribute_id =
                     surface_mesh.vertex_attribute_manager()
                         .create_attribute< VariableAttribute,
                             ImplicitCrossSection::implicit_attribute_type >(
-                            ImplicitCrossSection::IMPLICIT_ATTRIBUTE_NAME, 0,
-                            { false, true } );
+                            ImplicitCrossSection::IMPLICIT_ATTRIBUTE_NAME,
+                            implicit_attribute_default_values,
+                            implicit_attribute_properties );
                 auto implicit_attribute =
                     surface_mesh.vertex_attribute_manager()
                         .find_attribute< VariableAttribute,
@@ -250,12 +274,22 @@ namespace geode
                         .find_read_only_attribute<
                             ImplicitStructuralModel::implicit_attribute_type >(
                             scalar_atribute_id );
+                AttributeValues<
+                    ImplicitStructuralModel::implicit_attribute_type >
+                    implicit_attribute_default_values;
+                implicit_attribute_default_values.default_value = 0;
+                implicit_attribute_default_values.no_value = 0;
+                AttributeProperties implicit_attribute_properties;
+                implicit_attribute_properties.assignable = false;
+                implicit_attribute_properties.interpolable = true;
+                implicit_attribute_properties.transferable = true;
                 auto implicit_attribute_id =
                     block_mesh.vertex_attribute_manager()
                         .create_attribute< VariableAttribute,
                             ImplicitStructuralModel::implicit_attribute_type >(
-                            ImplicitStructuralModel::IMPLICIT_ATTRIBUTE_NAME, 0,
-                            { false, true } );
+                            ImplicitStructuralModel::IMPLICIT_ATTRIBUTE_NAME,
+                            implicit_attribute_default_values,
+                            implicit_attribute_properties );
                 auto implicit_attribute =
                     block_mesh.vertex_attribute_manager()
                         .find_attribute< VariableAttribute,
@@ -284,13 +318,24 @@ namespace geode
             for( const auto& block : implicit_model.blocks() )
             {
                 const auto& block_mesh = block.mesh();
+                AttributeValues<
+                    StratigraphicModel::stratigraphic_location_type >
+                    strati_location_attribute_default_values;
+                strati_location_attribute_default_values.default_value =
+                    Point2D{};
+                strati_location_attribute_default_values.no_value = Point2D{};
+                AttributeProperties strati_location_attribute_properties;
+                strati_location_attribute_properties.assignable = false;
+                strati_location_attribute_properties.interpolable = true;
+                strati_location_attribute_properties.transferable = true;
                 auto strati_location_attribute_id =
                     block_mesh.vertex_attribute_manager()
                         .create_attribute< VariableAttribute,
                             StratigraphicModel::stratigraphic_location_type >(
                             StratigraphicModel::
                                 STRATIGRAPHIC_LOCATION_ATTRIBUTE_NAME,
-                            Point2D{ { 0, 0 } }, { false, true } );
+                            strati_location_attribute_default_values,
+                            strati_location_attribute_properties );
                 auto strati_location_attribute =
                     block_mesh.vertex_attribute_manager()
                         .find_attribute< VariableAttribute,

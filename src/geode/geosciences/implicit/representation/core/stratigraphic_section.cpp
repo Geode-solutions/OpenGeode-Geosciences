@@ -347,11 +347,20 @@ namespace geode
             auto strati_line = line.mesh().clone();
             auto strati_line_builder =
                 EdgedCurveBuilder2D::create( *strati_line );
+            AttributeValues< PolygonEdge >
+                associated_polygon_edge_default_values;
+            associated_polygon_edge_default_values.default_value = {};
+            associated_polygon_edge_default_values.no_value = {};
+            AttributeProperties associated_polygon_edge_properties;
+            associated_polygon_edge_properties.assignable = false;
+            associated_polygon_edge_properties.interpolable = false;
+            associated_polygon_edge_properties.transferable = true;
             auto associated_polygon_edge_attribute_id =
                 strati_line->edge_attribute_manager()
                     .create_attribute< VariableAttribute, PolygonEdge >(
-                        STRATIGRAPHIC_LINE_POLYGON_EDGE_ATTRIBUTE_NAME, {},
-                        AttributeProperties{} );
+                        STRATIGRAPHIC_LINE_POLYGON_EDGE_ATTRIBUTE_NAME,
+                        associated_polygon_edge_default_values,
+                        associated_polygon_edge_properties );
             auto associated_polygon_edge_attribute =
                 strati_line->edge_attribute_manager()
                     .find_attribute< VariableAttribute, PolygonEdge >(

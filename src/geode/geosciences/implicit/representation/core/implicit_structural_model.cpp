@@ -526,6 +526,14 @@ namespace geode
                          {
                              continue;
                          }
+                         AttributeValues< double >
+                             implicit_attribute_default_values;
+                         implicit_attribute_default_values.default_value = 0;
+                         implicit_attribute_default_values.no_value = 0;
+                         AttributeProperties implicit_attribute_properties;
+                         implicit_attribute_properties.assignable = false;
+                         implicit_attribute_properties.interpolable = true;
+                         implicit_attribute_properties.transferable = true;
                          if( const auto old_implicit_attribute_id =
                                  block_mesh.vertex_attribute_manager()
                                      .attribute_ids_matching_name(
@@ -536,11 +544,13 @@ namespace geode
                                      .find_read_only_attribute< double >(
                                          old_implicit_attribute_id.value()
                                              .front() );
+
                              block_mesh.vertex_attribute_manager()
                                  .create_attribute< VariableAttribute, double >(
                                      IMPLICIT_ATTRIBUTE_NAME,
-                                     model.impl_->implicit_attribute_id(), 0,
-                                     { false, true } );
+                                     model.impl_->implicit_attribute_id(),
+                                     implicit_attribute_default_values,
+                                     implicit_attribute_properties );
                              auto new_implicit_attribute =
                                  block_mesh.vertex_attribute_manager()
                                      .find_attribute< VariableAttribute,
@@ -559,8 +569,9 @@ namespace geode
                              block_mesh.vertex_attribute_manager()
                                  .create_attribute< VariableAttribute, double >(
                                      IMPLICIT_ATTRIBUTE_NAME,
-                                     model.impl_->implicit_attribute_id(), 0,
-                                     { false, true } );
+                                     model.impl_->implicit_attribute_id(),
+                                     implicit_attribute_default_values,
+                                     implicit_attribute_properties );
                          }
                      }
                      model.impl_->initialize_implicit_query_trees( model );

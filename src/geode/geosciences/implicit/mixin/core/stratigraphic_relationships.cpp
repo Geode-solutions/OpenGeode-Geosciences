@@ -214,11 +214,18 @@ namespace geode
                                            ids.value()[0] );
                 return;
             }
+            AttributeValues< bool > above_relations_default_values;
+            above_relations_default_values.default_value = false;
+            above_relations_default_values.no_value = false;
+            AttributeProperties above_relations_properties;
+            above_relations_properties.assignable = false;
+            above_relations_properties.interpolable = false;
+            above_relations_properties.transferable = true;
             const auto above_relations_id =
                 relation_attribute_manager()
                     .create_attribute< SparseAttribute, bool >(
-                        "geode_above_relations", false,
-                        geode::AttributeProperties{} );
+                        "geode_above_relations", above_relations_default_values,
+                        above_relations_properties );
             above_relations_ = relation_attribute_manager()
                                    .find_attribute< SparseAttribute, bool >(
                                        above_relations_id );
