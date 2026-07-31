@@ -353,11 +353,20 @@ namespace geode
                 surface.mesh< TriangulatedSurface3D >().clone();
             auto strati_surface_builder =
                 SurfaceMeshBuilder3D::create( *strati_surface );
+            AttributeValues< PolyhedronFacet >
+                associated_polyhedron_facet_default_values;
+            associated_polyhedron_facet_default_values.default_value = {};
+            associated_polyhedron_facet_default_values.no_value = {};
+            AttributeProperties associated_polyhedron_facet_properties;
+            associated_polyhedron_facet_properties.assignable = false;
+            associated_polyhedron_facet_properties.interpolable = false;
+            associated_polyhedron_facet_properties.transferable = true;
             auto associated_polyhedron_facet_attribute_id =
                 strati_surface->polygon_attribute_manager()
                     .create_attribute< VariableAttribute, PolyhedronFacet >(
                         STRATIGRAPHIC_SURFACE_POLYHEDRON_FACET_ATTRIBUTE_NAME,
-                        {}, AttributeProperties{} );
+                        associated_polyhedron_facet_default_values,
+                        associated_polyhedron_facet_properties );
             auto associated_polyhedron_facet_attribute =
                 strati_surface->polygon_attribute_manager()
                     .find_attribute< VariableAttribute, PolyhedronFacet >(
@@ -417,12 +426,21 @@ namespace geode
                 strati_surfaces.emplace_back( surface_mesh.clone() );
                 strati_surface_builders[i] =
                     SurfaceMeshBuilder3D::create( *strati_surfaces[i] );
+                AttributeValues< PolyhedronFacet >
+                    associated_polyhedron_facet_default_values;
+                associated_polyhedron_facet_default_values.default_value = {};
+                associated_polyhedron_facet_default_values.no_value = {};
+                AttributeProperties associated_polyhedron_facet_properties;
+                associated_polyhedron_facet_properties.assignable = false;
+                associated_polyhedron_facet_properties.interpolable = false;
+                associated_polyhedron_facet_properties.transferable = true;
                 const auto associated_polyhedron_facet_attribute_id =
                     strati_surfaces[i]
                         ->polygon_attribute_manager()
                         .create_attribute< VariableAttribute, PolyhedronFacet >(
                             STRATIGRAPHIC_SURFACE_POLYHEDRON_FACET_ATTRIBUTE_NAME,
-                            {}, AttributeProperties{} );
+                            associated_polyhedron_facet_default_values,
+                            associated_polyhedron_facet_properties );
                 associated_polyhedron_facet_attributes[i] =
                     strati_surfaces[i]
                         ->polygon_attribute_manager()
