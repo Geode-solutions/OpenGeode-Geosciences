@@ -56,10 +56,9 @@ namespace geode
     class opengeode_geosciences_implicit_api ImplicitStructuralModel
         : public StructuralModel
     {
+    public:
         PASSKEY(
             ImplicitStructuralModelBuilder, ImplicitStructuralModelBuilderKey );
-
-    public:
         static constexpr auto IMPLICIT_ATTRIBUTE_NAME =
             "geode_implicit_attribute";
         using implicit_attribute_type = double;

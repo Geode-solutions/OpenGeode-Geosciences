@@ -46,6 +46,8 @@ namespace geode
     class Horizon final : public Component< dimension >
     {
         OPENGEODE_DISABLE_COPY( Horizon );
+
+    public:
         PASSKEY( HorizonsBuilder< dimension >, HorizonsBuilderKey );
         PASSKEY( Horizons< dimension >, HorizonsKey );
 

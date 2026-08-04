@@ -42,9 +42,9 @@ namespace geode
     class Horizons
     {
         OPENGEODE_DISABLE_COPY( Horizons );
-        PASSKEY( HorizonsBuilder< dimension >, HorizonsBuilderKey );
 
     public:
+        PASSKEY( HorizonsBuilder< dimension >, HorizonsBuilderKey );
         using Builder = HorizonsBuilder< dimension >;
         using Type = Horizon< dimension >;
         using CONTACT_TYPE = typename Horizon< dimension >::CONTACT_TYPE;

@@ -54,9 +54,9 @@ namespace geode
                           public StratigraphicUnits< dimension >,
                           public Identifier
     {
+    public:
         PASSKEY( HorizonsStackBuilder< dimension >, HorizonsStackBuilderKey );
 
-    public:
         enum struct RANGEORDER
         {
             bottom_to_top,

@@ -53,9 +53,8 @@ namespace geode
     class opengeode_geosciences_implicit_api StratigraphicSection
         : public ImplicitCrossSection
     {
-        PASSKEY( StratigraphicSectionBuilder, StratigraphicSectionBuilderKey );
-
     public:
+        PASSKEY( StratigraphicSectionBuilder, StratigraphicSectionBuilderKey );
         static constexpr auto STRATIGRAPHIC_LOCATION_ATTRIBUTE_NAME =
             "geode_stratigraphic_location";
         static constexpr auto STRATIGRAPHIC_LINE_POLYGON_EDGE_ATTRIBUTE_NAME =

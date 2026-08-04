@@ -46,6 +46,8 @@ namespace geode
     class Fault final : public Component< dimension >
     {
         OPENGEODE_DISABLE_COPY( Fault );
+
+    public:
         PASSKEY( Faults< dimension >, FaultsKey );
         PASSKEY( FaultsBuilder< dimension >, FaultsBuilderKey );
 

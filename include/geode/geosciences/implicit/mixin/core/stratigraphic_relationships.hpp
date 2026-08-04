@@ -49,6 +49,7 @@ namespace geode
      */
     class opengeode_geosciences_implicit_api StratigraphicRelationships
     {
+    public:
         PASSKEY( StratigraphicRelationshipsBuilder,
             StratigraphicRelationshipsBuilderKey );
 

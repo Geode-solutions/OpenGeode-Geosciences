@@ -42,10 +42,10 @@ namespace geode
     class opengeode_geosciences_explicit_api StratigraphicUnits
     {
         OPENGEODE_DISABLE_COPY( StratigraphicUnits );
-        PASSKEY( StratigraphicUnitsBuilder< dimension >,
-            StratigraphicUnitsBuilderKey );
 
     public:
+        PASSKEY( StratigraphicUnitsBuilder< dimension >,
+            StratigraphicUnitsBuilderKey );
         using Builder = StratigraphicUnitsBuilder< dimension >;
         using Type = StratigraphicUnit< dimension >;
 

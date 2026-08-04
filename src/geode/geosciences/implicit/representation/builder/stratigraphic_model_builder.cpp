@@ -47,7 +47,8 @@ namespace geode
         const StratigraphicModel& implicit_model )
     {
         auto mappings = ImplicitStructuralModelBuilder::copy( implicit_model );
-        stratigraphic_model_.initialize_stratigraphic_query_trees( {} );
+        stratigraphic_model_.initialize_stratigraphic_query_trees(
+            StratigraphicModel::StratigraphicModelBuilderKey{} );
         copy_stratigraphic_attribute_values( mappings, implicit_model );
         return mappings;
     }
@@ -55,21 +56,24 @@ namespace geode
     void StratigraphicModelBuilder::reinitialize_stratigraphic_query_trees()
     {
         this->reinitialize_implicit_query_trees();
-        stratigraphic_model_.initialize_stratigraphic_query_trees( {} );
+        stratigraphic_model_.initialize_stratigraphic_query_trees(
+            StratigraphicModel::StratigraphicModelBuilderKey{} );
     }
 
     void StratigraphicModelBuilder::
         instantiate_stratigraphic_attribute_on_blocks()
     {
         this->instantiate_implicit_attribute_on_blocks();
-        stratigraphic_model_.instantiate_stratigraphic_location_on_blocks( {} );
+        stratigraphic_model_.instantiate_stratigraphic_location_on_blocks(
+            StratigraphicModel::StratigraphicModelBuilderKey{} );
     }
 
     void StratigraphicModelBuilder::set_stratigraphic_location(
         const Block3D& block, index_t vertex_id, Point2D value )
     {
-        stratigraphic_model_.set_stratigraphic_location(
-            block, vertex_id, std::move( value ), {} );
+        stratigraphic_model_.set_stratigraphic_location( block, vertex_id,
+            std::move( value ),
+            StratigraphicModel::StratigraphicModelBuilderKey{} );
     }
 
     void StratigraphicModelBuilder::set_stratigraphic_coordinates(
@@ -78,8 +82,9 @@ namespace geode
         const StratigraphicPoint3D& value )
     {
         this->set_implicit_value( block, vertex_id, value.implicit_value() );
-        stratigraphic_model_.set_stratigraphic_location(
-            block, vertex_id, value.stratigraphic_location(), {} );
+        stratigraphic_model_.set_stratigraphic_location( block, vertex_id,
+            value.stratigraphic_location(),
+            StratigraphicModel::StratigraphicModelBuilderKey{} );
     }
 
     void StratigraphicModelBuilder::

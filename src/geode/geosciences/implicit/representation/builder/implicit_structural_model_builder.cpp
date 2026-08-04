@@ -86,7 +86,8 @@ namespace geode
         ModelCopyMapping& mapping, const ImplicitStructuralModel& other_model )
     {
         HorizonsStackBuilder3D{ implicit_model_.modifiable_horizons_stack(
-                                    {} ) }
+                                    typename ImplicitStructuralModel::
+                                        ImplicitStructuralModelBuilderKey{} ) }
             .copy( mapping, other_model.horizons_stack() );
         const auto& horizon_mapping =
             mapping.at( Horizon3D::component_type_static() );
@@ -98,8 +99,10 @@ namespace geode
                 const auto& new_horizon =
                     implicit_model_.horizons_stack().horizon(
                         horizon_mapping.in2out( horizon.id() ) );
-                implicit_model_.set_horizon_implicit_value(
-                    new_horizon, isovalue.value(), {} );
+                implicit_model_.set_horizon_implicit_value( new_horizon,
+                    isovalue.value(),
+                    typename ImplicitStructuralModel::
+                        ImplicitStructuralModelBuilderKey{} );
             }
         }
     }
@@ -136,38 +139,50 @@ namespace geode
 
     void ImplicitStructuralModelBuilder::reinitialize_implicit_query_trees()
     {
-        implicit_model_.initialize_implicit_query_trees( {} );
+        implicit_model_.initialize_implicit_query_trees(
+            typename ImplicitStructuralModel::
+                ImplicitStructuralModelBuilderKey{} );
     }
 
     void ImplicitStructuralModelBuilder::
         instantiate_implicit_attribute_on_blocks()
     {
-        implicit_model_.instantiate_implicit_attribute_on_blocks( {} );
+        implicit_model_.instantiate_implicit_attribute_on_blocks(
+            typename ImplicitStructuralModel::
+                ImplicitStructuralModelBuilderKey{} );
     }
 
     void ImplicitStructuralModelBuilder::set_implicit_value(
         const Block3D& block, index_t vertex_id, double value )
     {
-        implicit_model_.set_implicit_value( block, vertex_id, value, {} );
+        implicit_model_.set_implicit_value( block, vertex_id, value,
+            typename ImplicitStructuralModel::
+                ImplicitStructuralModelBuilderKey{} );
     }
 
     void ImplicitStructuralModelBuilder::set_horizons_stack(
         HorizonsStack3D&& stack )
     {
-        implicit_model_.set_horizons_stack( std::move( stack ), {} );
+        implicit_model_.set_horizons_stack( std::move( stack ),
+            typename ImplicitStructuralModel::
+                ImplicitStructuralModelBuilderKey{} );
     }
 
     void ImplicitStructuralModelBuilder::set_horizon_implicit_value(
         const Horizon3D& horizon, double isovalue )
     {
-        implicit_model_.set_horizon_implicit_value( horizon, isovalue, {} );
+        implicit_model_.set_horizon_implicit_value( horizon, isovalue,
+            typename ImplicitStructuralModel::
+                ImplicitStructuralModelBuilderKey{} );
     }
 
     HorizonsStackBuilder3D
         ImplicitStructuralModelBuilder::horizons_stack_builder()
     {
         return HorizonsStackBuilder3D{
-            implicit_model_.modifiable_horizons_stack( {} )
+            implicit_model_.modifiable_horizons_stack(
+                typename ImplicitStructuralModel::
+                    ImplicitStructuralModelBuilderKey{} )
         };
     }
 } // namespace geode
