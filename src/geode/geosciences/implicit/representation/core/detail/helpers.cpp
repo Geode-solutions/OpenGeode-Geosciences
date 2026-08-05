@@ -563,7 +563,7 @@ namespace geode
                             .stratigraphic_coordinates()
                     };
                     if( tetrahedron_volume_sign( strati_tetra )
-                        == Sign::negative )
+                        == SIGN::negative )
                     {
                         invalid_tetrahedra.emplace_back( block.id(), tetra_id );
                         Logger::info(
