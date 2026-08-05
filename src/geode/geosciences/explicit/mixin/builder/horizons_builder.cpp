@@ -31,48 +31,56 @@ namespace geode
     template < index_t dimension >
     const uuid& HorizonsBuilder< dimension >::create_horizon()
     {
-        return horizons_.create_horizon( {} );
+        return horizons_.create_horizon(
+            typename Horizon< dimension >::HorizonsBuilderKey{} );
     }
 
     template < index_t dimension >
     const uuid& HorizonsBuilder< dimension >::create_horizon(
         CONTACT_TYPE type )
     {
-        return horizons_.create_horizon( type, {} );
+        return horizons_.create_horizon(
+            type, typename Horizon< dimension >::HorizonsBuilderKey{} );
     }
 
     template < index_t dimension >
     void HorizonsBuilder< dimension >::create_horizon( uuid horizon_id )
     {
-        horizons_.create_horizon( std::move( horizon_id ), {} );
+        horizons_.create_horizon( std::move( horizon_id ),
+            typename Horizon< dimension >::HorizonsBuilderKey{} );
     }
 
     template < index_t dimension >
     void HorizonsBuilder< dimension >::create_horizon(
         uuid horizon_id, CONTACT_TYPE type )
     {
-        horizons_.create_horizon( std::move( horizon_id ), type, {} );
+        horizons_.create_horizon( std::move( horizon_id ), type,
+            typename Horizon< dimension >::HorizonsBuilderKey{} );
     }
 
     template < index_t dimension >
     void HorizonsBuilder< dimension >::delete_horizon(
         const Horizon< dimension >& horizon )
     {
-        horizons_.delete_horizon( horizon, {} );
+        horizons_.delete_horizon(
+            horizon, typename Horizon< dimension >::HorizonsBuilderKey{} );
     }
 
     template < index_t dimension >
     void HorizonsBuilder< dimension >::load_horizons(
         std::string_view directory )
     {
-        return horizons_.load_horizons( directory, {} );
+        return horizons_.load_horizons(
+            directory, typename Horizon< dimension >::HorizonsBuilderKey{} );
     }
 
     template < index_t dimension >
     void HorizonsBuilder< dimension >::set_horizon_contact_type(
         const uuid& horizon_id, CONTACT_TYPE contact_type )
     {
-        horizons_.modifiable_horizon( horizon_id, {} )
+        horizons_
+            .modifiable_horizon( horizon_id,
+                typename Horizon< dimension >::HorizonsBuilderKey{} )
             .set_contact_type( contact_type,
                 typename Horizon< dimension >::HorizonsBuilderKey{} );
     }
@@ -81,8 +89,11 @@ namespace geode
     void HorizonsBuilder< dimension >::set_horizon_name(
         const uuid& id, std::string_view name )
     {
-        horizons_.modifiable_horizon( id, {} ).set_horizon_name(
-            name, typename Horizon< dimension >::HorizonsBuilderKey{} );
+        horizons_
+            .modifiable_horizon(
+                id, typename Horizon< dimension >::HorizonsBuilderKey{} )
+            .set_horizon_name(
+                name, typename Horizon< dimension >::HorizonsBuilderKey{} );
     }
 
     template class opengeode_geosciences_explicit_api HorizonsBuilder< 2 >;

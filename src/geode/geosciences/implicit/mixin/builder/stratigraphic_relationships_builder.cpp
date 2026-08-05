@@ -34,39 +34,50 @@ namespace geode
     void StratigraphicRelationshipsBuilder::unregister_component(
         const uuid& id )
     {
-        relationships_.remove_component( id, {} );
+        relationships_.remove_component( id,
+            StratigraphicRelationships::
+                StratigraphicRelationshipsBuilderKey{} );
     }
 
     index_t StratigraphicRelationshipsBuilder::add_above_relation(
         const ComponentID& above, const ComponentID& under )
     {
-        return relationships_.add_above_relation( above, under, {} );
+        return relationships_.add_above_relation( above, under,
+            StratigraphicRelationships::
+                StratigraphicRelationshipsBuilderKey{} );
     }
 
     void StratigraphicRelationshipsBuilder::remove_relation(
         const uuid& id1, const uuid& id2 )
     {
-        return relationships_.remove_relation( id1, id2, {} );
+        return relationships_.remove_relation( id1, id2,
+            StratigraphicRelationships::
+                StratigraphicRelationshipsBuilderKey{} );
     }
 
     void StratigraphicRelationshipsBuilder::remove_above_relation(
         const uuid& id1, const uuid& id2 )
     {
-        relationships_.remove_above_relation( id1, id2, {} );
+        relationships_.remove_above_relation( id1, id2,
+            StratigraphicRelationships::
+                StratigraphicRelationshipsBuilderKey{} );
     }
 
     void StratigraphicRelationshipsBuilder::copy_stratigraphic_relationships(
         const ModelCopyMapping& mapping,
         const StratigraphicRelationships& relationships )
     {
-        relationships_.copy_stratigraphic_relationships(
-            mapping, relationships, {} );
+        relationships_.copy_stratigraphic_relationships( mapping, relationships,
+            StratigraphicRelationships::
+                StratigraphicRelationshipsBuilderKey{} );
     }
 
     void StratigraphicRelationshipsBuilder::load_stratigraphic_relationships(
         std::string_view directory )
     {
-        relationships_.load_stratigraphic_relationships( directory, {} );
+        relationships_.load_stratigraphic_relationships( directory,
+            StratigraphicRelationships::
+                StratigraphicRelationshipsBuilderKey{} );
     }
 
 } // namespace geode

@@ -51,9 +51,8 @@ namespace geode
     class opengeode_geosciences_implicit_api ImplicitCrossSection
         : public CrossSection
     {
-        PASSKEY( ImplicitCrossSectionBuilder, ImplicitCrossSectionBuilderKey );
-
     public:
+        PASSKEY( ImplicitCrossSectionBuilder, ImplicitCrossSectionBuilderKey );
         static constexpr auto IMPLICIT_ATTRIBUTE_NAME =
             "geode_implicit_attribute";
         using implicit_attribute_type = double;

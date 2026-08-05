@@ -48,14 +48,16 @@ namespace geode
     {
         auto mappings =
             ImplicitCrossSectionBuilder::copy( stratigraphic_section );
-        stratigraphic_section_.initialize_stratigraphic_query_trees( {} );
+        stratigraphic_section_.initialize_stratigraphic_query_trees(
+            StratigraphicSection::StratigraphicSectionBuilderKey{} );
         return mappings;
     }
 
     void StratigraphicSectionBuilder::reinitialize_stratigraphic_query_trees()
     {
         this->reinitialize_implicit_query_trees();
-        stratigraphic_section_.initialize_stratigraphic_query_trees( {} );
+        stratigraphic_section_.initialize_stratigraphic_query_trees(
+            StratigraphicSection::StratigraphicSectionBuilderKey{} );
     }
 
     void StratigraphicSectionBuilder::
@@ -63,14 +65,15 @@ namespace geode
     {
         this->instantiate_implicit_attribute_on_surfaces();
         stratigraphic_section_.instantiate_stratigraphic_location_on_surfaces(
-            {} );
+            StratigraphicSection::StratigraphicSectionBuilderKey{} );
     }
 
     void StratigraphicSectionBuilder::set_stratigraphic_location(
         const Surface2D& surface, index_t vertex_id, Point1D value )
     {
-        stratigraphic_section_.set_stratigraphic_location(
-            surface, vertex_id, std::move( value ), {} );
+        stratigraphic_section_.set_stratigraphic_location( surface, vertex_id,
+            std::move( value ),
+            StratigraphicSection::StratigraphicSectionBuilderKey{} );
     }
 
     void StratigraphicSectionBuilder::set_stratigraphic_coordinates(
@@ -79,8 +82,9 @@ namespace geode
         const StratigraphicPoint2D& value )
     {
         this->set_implicit_value( surface, vertex_id, value.implicit_value() );
-        stratigraphic_section_.set_stratigraphic_location(
-            surface, vertex_id, value.stratigraphic_location(), {} );
+        stratigraphic_section_.set_stratigraphic_location( surface, vertex_id,
+            value.stratigraphic_location(),
+            StratigraphicSection::StratigraphicSectionBuilderKey{} );
     }
 
     void StratigraphicSectionBuilder::

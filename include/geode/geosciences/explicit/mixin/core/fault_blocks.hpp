@@ -42,9 +42,9 @@ namespace geode
     class opengeode_geosciences_explicit_api FaultBlocks
     {
         OPENGEODE_DISABLE_COPY( FaultBlocks );
-        PASSKEY( FaultBlocksBuilder< dimension >, FaultBlocksBuilderKey );
 
     public:
+        PASSKEY( FaultBlocksBuilder< dimension >, FaultBlocksBuilderKey );
         using Builder = FaultBlocksBuilder< dimension >;
         using Type = FaultBlock< dimension >;
 

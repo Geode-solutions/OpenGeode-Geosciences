@@ -63,12 +63,16 @@ namespace geode
         if( const auto horizon_id = horizons_stack.bottom_horizon() )
         {
             horizons_stack_.set_bottom_horizon(
-                horizons_mapping.in2out( horizon_id.value() ), {} );
+                horizons_mapping.in2out( horizon_id.value() ),
+                typename HorizonsStack<
+                    dimension >::HorizonsStackBuilderKey() );
         }
         if( const auto horizon_id = horizons_stack.top_horizon() )
         {
             horizons_stack_.set_top_horizon(
-                horizons_mapping.in2out( horizon_id.value() ), {} );
+                horizons_mapping.in2out( horizon_id.value() ),
+                typename HorizonsStack<
+                    dimension >::HorizonsStackBuilderKey() );
         }
         return mapping;
     }
@@ -106,12 +110,16 @@ namespace geode
         if( const auto horizon_id = horizons_stack.bottom_horizon() )
         {
             horizons_stack_.set_bottom_horizon(
-                horizons_mapping.in2out( horizon_id.value() ), {} );
+                horizons_mapping.in2out( horizon_id.value() ),
+                typename HorizonsStack<
+                    dimension >::HorizonsStackBuilderKey() );
         }
         if( const auto horizon_id = horizons_stack.top_horizon() )
         {
             horizons_stack_.set_top_horizon(
-                horizons_mapping.in2out( horizon_id.value() ), {} );
+                horizons_mapping.in2out( horizon_id.value() ),
+                typename HorizonsStack<
+                    dimension >::HorizonsStackBuilderKey() );
         }
     }
 
@@ -239,7 +247,8 @@ namespace geode
     template < index_t dimension >
     void HorizonsStackBuilder< dimension >::compute_top_and_bottom_horizons()
     {
-        horizons_stack_.compute_top_and_bottom_horizons( {} );
+        horizons_stack_.compute_top_and_bottom_horizons(
+            typename HorizonsStack< dimension >::HorizonsStackBuilderKey() );
     }
 
     template class opengeode_geosciences_implicit_api HorizonsStackBuilder< 2 >;

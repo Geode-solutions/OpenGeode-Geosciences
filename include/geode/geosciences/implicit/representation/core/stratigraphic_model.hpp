@@ -50,9 +50,8 @@ namespace geode
     class opengeode_geosciences_implicit_api StratigraphicModel
         : public ImplicitStructuralModel
     {
-        PASSKEY( StratigraphicModelBuilder, StratigraphicModelBuilderKey );
-
     public:
+        PASSKEY( StratigraphicModelBuilder, StratigraphicModelBuilderKey );
         static constexpr auto STRATIGRAPHIC_LOCATION_ATTRIBUTE_NAME =
             "geode_stratigraphic_location";
         static constexpr auto
