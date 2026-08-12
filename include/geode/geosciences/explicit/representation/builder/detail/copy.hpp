@@ -34,9 +34,11 @@ namespace geode
     namespace detail
     {
         using Mapping = BijectiveMapping< uuid >;
-        template < typename ModelFrom, typename BuilderTo >
-        void copy_faults(
-            const ModelFrom& from, BuilderTo& builder_to, Mapping& mapping )
+        template < typename ModelFrom, typename ModelTo >
+        void copy_faults( const ModelFrom& from,
+            const ModelTo& model_to,
+            typename ModelTo::Builder& builder_to,
+            Mapping& mapping )
         {
             for( const auto& fault : from.faults() )
             {
@@ -46,26 +48,32 @@ namespace geode
                     builder_to.add_fault( fault_id );
                     if( const auto name = fault.name() )
                     {
-                        builder_to.set_fault_name( fault_id, name.value() );
+                        builder_to.set_fault_name(
+                            model_to.fault( fault_id ), name.value() );
                     }
-                    builder_to.set_fault_type( fault_id, fault.type() );
+                    builder_to.set_fault_type(
+                        model_to.fault( fault_id ), fault.type() );
                 }
                 else
                 {
                     const auto& fault_id = builder_to.add_fault();
                     if( const auto name = fault.name() )
                     {
-                        builder_to.set_fault_name( fault_id, name.value() );
+                        builder_to.set_fault_name(
+                            model_to.fault( fault_id ), name.value() );
                     }
-                    builder_to.set_fault_type( fault_id, fault.type() );
+                    builder_to.set_fault_type(
+                        model_to.fault( fault_id ), fault.type() );
                     mapping.map( fault.id(), fault_id );
                 }
             }
         }
 
-        template < typename ModelFrom, typename BuilderTo >
-        void copy_horizons(
-            const ModelFrom& from, BuilderTo& builder_to, Mapping& mapping )
+        template < typename ModelFrom, typename ModelTo >
+        void copy_horizons( const ModelFrom& from,
+            const ModelTo& model_to,
+            typename ModelTo::Builder& builder_to,
+            Mapping& mapping )
         {
             for( const auto& horizon : from.horizons() )
             {
@@ -75,10 +83,12 @@ namespace geode
                     builder_to.add_horizon( horizon_id );
                     if( const auto name = horizon.name() )
                     {
-                        builder_to.set_horizon_name( horizon_id, name.value() );
+                        builder_to.set_horizon_name(
+                            model_to.horizon( horizon_id ), name.value() );
                     }
                     builder_to.set_horizon_contact_type(
-                        horizon_id, horizon.contact_type() );
+                        model_to.horizon( horizon_id ),
+                        horizon.contact_type() );
                 }
                 else
                 {
@@ -86,17 +96,21 @@ namespace geode
                     mapping.map( horizon.id(), horizon_id );
                     if( const auto name = horizon.name() )
                     {
-                        builder_to.set_horizon_name( horizon_id, name.value() );
+                        builder_to.set_horizon_name(
+                            model_to.horizon( horizon_id ), name.value() );
                     }
                     builder_to.set_horizon_contact_type(
-                        horizon_id, horizon.contact_type() );
+                        model_to.horizon( horizon_id ),
+                        horizon.contact_type() );
                 }
             }
         }
 
-        template < typename ModelFrom, typename BuilderTo >
-        void copy_fault_blocks(
-            const ModelFrom& from, BuilderTo& builder_to, Mapping& mapping )
+        template < typename ModelFrom, typename ModelTo >
+        void copy_fault_blocks( const ModelFrom& from,
+            const ModelTo& model_to,
+            typename ModelTo::Builder& builder_to,
+            Mapping& mapping )
         {
             for( const auto& fault_block : from.fault_blocks() )
             {
@@ -108,7 +122,8 @@ namespace geode
                     if( const auto name = fault_block.name() )
                     {
                         builder_to.set_fault_block_name(
-                            fault_block_id, name.value() );
+                            model_to.fault_block( fault_block_id ),
+                            name.value() );
                     }
                 }
                 else
@@ -117,16 +132,19 @@ namespace geode
                     if( const auto name = fault_block.name() )
                     {
                         builder_to.set_fault_block_name(
-                            fault_block_id, name.value() );
+                            model_to.fault_block( fault_block_id ),
+                            name.value() );
                     }
                     mapping.map( fault_block.id(), fault_block_id );
                 }
             }
         }
 
-        template < typename ModelFrom, typename BuilderTo >
-        void copy_stratigraphic_units(
-            const ModelFrom& from, BuilderTo& builder_to, Mapping& mapping )
+        template < typename ModelFrom, typename ModelTo >
+        void copy_stratigraphic_units( const ModelFrom& from,
+            const ModelTo& model_to,
+            typename ModelTo::Builder& builder_to,
+            Mapping& mapping )
         {
             for( const auto& stratigraphic_unit : from.stratigraphic_units() )
             {
@@ -138,7 +156,9 @@ namespace geode
                     if( const auto name = stratigraphic_unit.name() )
                     {
                         builder_to.set_stratigraphic_unit_name(
-                            stratigraphic_unit_id, name.value() );
+                            model_to.stratigraphic_unit(
+                                stratigraphic_unit_id ),
+                            name.value() );
                     }
                 }
                 else
@@ -150,7 +170,9 @@ namespace geode
                     if( const auto name = stratigraphic_unit.name() )
                     {
                         builder_to.set_stratigraphic_unit_name(
-                            stratigraphic_unit_id, name.value() );
+                            model_to.stratigraphic_unit(
+                                stratigraphic_unit_id ),
+                            name.value() );
                     }
                 }
             }

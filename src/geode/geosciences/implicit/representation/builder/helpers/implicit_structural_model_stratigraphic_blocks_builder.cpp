@@ -57,7 +57,7 @@ namespace
                 if( const auto name = stratigraphic_unit.name() )
                 {
                     builder_.set_stratigraphic_unit_name(
-                        stratigraphic_unit.id(), name.value() );
+                        stratigraphic_unit, name.value() );
                 }
             }
         }

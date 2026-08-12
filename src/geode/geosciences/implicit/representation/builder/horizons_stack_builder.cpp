@@ -82,9 +82,10 @@ namespace geode
         const HorizonsStack< dimension >& horizons_stack )
     {
         ModelCopyMapping mappings;
-        detail::copy_horizons( horizons_stack, *this,
+        detail::copy_horizons( horizons_stack, horizons_stack_, *this,
             mappings[Horizon< dimension >::component_type_static()] );
-        detail::copy_stratigraphic_units( horizons_stack, *this,
+        detail::copy_stratigraphic_units( horizons_stack, horizons_stack_,
+            *this,
             mappings[StratigraphicUnit< dimension >::component_type_static()] );
         return mappings;
     }
@@ -128,9 +129,10 @@ namespace geode
         ModelCopyMapping& mapping,
         const HorizonsStack< dimension >& horizons_stack )
     {
-        detail::copy_horizons( horizons_stack, *this,
+        detail::copy_horizons( horizons_stack, horizons_stack_, *this,
             mapping[Horizon< dimension >::component_type_static()] );
-        detail::copy_stratigraphic_units( horizons_stack, *this,
+        detail::copy_stratigraphic_units( horizons_stack, horizons_stack_,
+            *this,
             mapping[StratigraphicUnit< dimension >::component_type_static()] );
     }
 

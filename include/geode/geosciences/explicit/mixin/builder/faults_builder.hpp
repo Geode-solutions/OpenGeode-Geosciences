@@ -41,10 +41,11 @@ namespace geode
     public:
         void load_faults( std::string_view directory );
 
-        void set_fault_type( const uuid& fault_id,
+        void set_fault_type( const Fault< dimension >& fault,
             typename Fault< dimension >::FAULT_TYPE type );
 
-        void set_fault_name( const uuid& id, std::string_view name );
+        void set_fault_name(
+            const Fault< dimension >& fault, std::string_view name );
 
     protected:
         explicit FaultsBuilder( Faults< dimension >& faults )
