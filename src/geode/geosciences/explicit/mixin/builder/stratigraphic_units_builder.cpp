@@ -66,12 +66,13 @@ namespace geode
 
     template < index_t dimension >
     void StratigraphicUnitsBuilder< dimension >::set_stratigraphic_unit_name(
-        const uuid& id, std::string_view name )
+        const StratigraphicUnit< dimension >& stratigraphic_unit,
+        std::string_view name )
     {
         stratigraphic_units_
-            .modifiable_stratigraphic_unit(
-                id, typename StratigraphicUnit<
-                        dimension >::StratigraphicUnitsBuilderKey{} )
+            .modifiable_stratigraphic_unit( stratigraphic_unit.id(),
+                typename StratigraphicUnit<
+                    dimension >::StratigraphicUnitsBuilderKey{} )
             .set_stratigraphic_unit_name(
                 name, typename StratigraphicUnit<
                           dimension >::StratigraphicUnitsBuilderKey{} );

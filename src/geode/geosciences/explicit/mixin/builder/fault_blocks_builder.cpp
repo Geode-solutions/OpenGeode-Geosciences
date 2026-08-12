@@ -61,11 +61,11 @@ namespace geode
 
     template < index_t dimension >
     void FaultBlocksBuilder< dimension >::set_fault_block_name(
-        const uuid& id, std::string_view name )
+        const FaultBlock< dimension >& fault_block, std::string_view name )
     {
         fault_blocks_
-            .modifiable_fault_block(
-                id, typename FaultBlock< dimension >::FaultBlocksBuilderKey{} )
+            .modifiable_fault_block( fault_block.id(),
+                typename FaultBlock< dimension >::FaultBlocksBuilderKey{} )
             .set_fault_block_name( name,
                 typename FaultBlock< dimension >::FaultBlocksBuilderKey{} );
     }

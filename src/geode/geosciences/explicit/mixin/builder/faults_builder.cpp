@@ -75,21 +75,22 @@ namespace geode
 
     template < index_t dimension >
     void FaultsBuilder< dimension >::set_fault_type(
-        const uuid& fault_id, typename Fault< dimension >::FAULT_TYPE type )
+        const Fault< dimension >& fault,
+        typename Fault< dimension >::FAULT_TYPE type )
     {
         faults_
             .modifiable_fault(
-                fault_id, typename Fault< dimension >::FaultsBuilderKey{} )
+                fault.id(), typename Fault< dimension >::FaultsBuilderKey{} )
             .set_type( type, typename Fault< dimension >::FaultsBuilderKey{} );
     }
 
     template < index_t dimension >
     void FaultsBuilder< dimension >::set_fault_name(
-        const uuid& id, std::string_view name )
+        const Fault< dimension >& fault, std::string_view name )
     {
         faults_
             .modifiable_fault(
-                id, typename Fault< dimension >::FaultsBuilderKey{} )
+                fault.id(), typename Fault< dimension >::FaultsBuilderKey{} )
             .set_fault_name(
                 name, typename Fault< dimension >::FaultsBuilderKey{} );
     }

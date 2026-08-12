@@ -56,7 +56,7 @@ void add_horizons_stack_to_model(
     {
         horizons_stack_builder.add_horizon( horizon.id() );
         horizons_stack_builder.set_horizon_name(
-            horizon.id(), absl::StrCat( "horizon_", counter ) );
+            horizon, absl::StrCat( "horizon_", counter ) );
         builder.set_horizon_implicit_value( horizon, counter++ );
     }
     for( const auto& block : model.blocks() )

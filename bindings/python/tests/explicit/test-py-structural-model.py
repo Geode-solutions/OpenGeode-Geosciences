@@ -37,7 +37,7 @@ def add_faults(model, builder):
         raise ValueError("[Test] Addition of a Fault in StructuralModel is not correct")
 
     fault1 = builder.add_fault()
-    builder.set_fault_name(fault1, "fault1")
+    builder.set_fault_name(model.fault(fault1), "fault1")
     if model.nb_faults() != 2:
         raise ValueError("[Test] Number of faults in StructuralModel should be 2")
     if model.fault(fault1).name() != "fault1":
@@ -46,7 +46,7 @@ def add_faults(model, builder):
     for fault in model.faults():
         name = fault.name()
         if name is not None:
-            builder.set_fault_name(fault.id(), "new_" + name)
+            builder.set_fault_name(fault, "new_" + name)
     if model.fault(fault1).name() != "new_fault1":
         raise ValueError("[Test] Wrong modified Fault name")
 
@@ -63,7 +63,7 @@ def add_horizons(model, builder):
 
     horizon1 = builder.add_horizon()
     horizon2 = builder.add_horizon()
-    builder.set_horizon_name(horizon2, "horizon2")
+    builder.set_horizon_name(model.horizon(horizon2), "horizon2")
     if model.nb_horizons() != 3:
         raise ValueError("[Test] Number of horizons in StructuralModel should be 3")
     if model.horizon(horizon2).name() != "horizon2":
@@ -72,7 +72,7 @@ def add_horizons(model, builder):
     for horizon in model.horizons():
         name = horizon.name()
         if name is not None:
-            builder.set_horizon_name(horizon.id(), "new_" + name)
+            builder.set_horizon_name(horizon, "new_" + name)
     if model.horizon(horizon2).name() != "new_horizon2":
         raise ValueError("[Test] Wrong modified Horizon name")
 
@@ -212,14 +212,14 @@ def modify_model(model, builder):
     for horizon in model.horizons():
         horizons_ids.append(horizon.id())
         builder.set_horizon_contact_type(
-            horizon.id(), geosciences.Horizon3D.CONTACT_TYPE.TOPOGRAPHY
+            horizon, geosciences.Horizon3D.CONTACT_TYPE.TOPOGRAPHY
         )
 
     for horizon_id in horizons_ids:
         builder.remove_horizon(model.horizon(horizon_id))
 
     for fault in model.faults():
-        builder.set_fault_type(fault.id(), geosciences.Fault3D.FAULT_TYPE.LISTRIC)
+        builder.set_fault_type(fault, geosciences.Fault3D.FAULT_TYPE.LISTRIC)
         if fault.has_type() == False:
             raise ValueError("[Test] All faults should have a type")
 

@@ -42,7 +42,8 @@ namespace geode
         void load_stratigraphic_units( std::string_view directory );
 
         void set_stratigraphic_unit_name(
-            const uuid& id, std::string_view name );
+            const StratigraphicUnit< dimension >& stratigraphic_unit,
+            std::string_view name );
 
     protected:
         explicit StratigraphicUnitsBuilder(

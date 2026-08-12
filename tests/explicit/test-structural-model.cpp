@@ -57,7 +57,7 @@ void add_faults(
 
     const auto& fault1 =
         builder.add_fault( geode::Fault3D::FAULT_TYPE::reverse );
-    builder.set_fault_name( fault1, "fault1" );
+    builder.set_fault_name( model.fault( fault1 ), "fault1" );
     geode::OpenGeodeGeosciencesExplicitException::test(
         model.fault( fault1 ).type() == geode::Fault3D::FAULT_TYPE::reverse,
         "Addition of a Fault in StructuralModel is not correct (wrong "
@@ -72,7 +72,7 @@ void add_faults(
         if( const auto name = fault.name() )
         {
             builder.set_fault_name(
-                fault.id(), absl::StrCat( "new_", name.value() ) );
+                fault, absl::StrCat( "new_", name.value() ) );
         }
         geode::OpenGeodeGeosciencesExplicitException::test(
             fault.component_type().get() == "Fault",
@@ -102,7 +102,7 @@ void add_horizons(
 
     const auto& horizon2 =
         builder.add_horizon( geode::Horizon3D::CONTACT_TYPE::erosion );
-    builder.set_horizon_name( horizon2, "horizon2" );
+    builder.set_horizon_name( model.horizon( horizon2 ), "horizon2" );
     geode::OpenGeodeGeosciencesExplicitException::test(
         model.horizon( horizon2 ).contact_type()
             == geode::Horizon3D::CONTACT_TYPE::erosion,
@@ -119,7 +119,7 @@ void add_horizons(
         if( const auto name = horizon.name() )
         {
             builder.set_horizon_name(
-                horizon.id(), absl::StrCat( "new_", name.value() ) );
+                horizon, absl::StrCat( "new_", name.value() ) );
         }
         geode::OpenGeodeGeosciencesExplicitException::test(
             horizon.component_type().get() == "Horizon",
@@ -350,7 +350,7 @@ void modify_model(
         if( !fault.has_type() )
         {
             builder.set_fault_type(
-                fault.id(), geode::Fault3D::FAULT_TYPE::strike_slip );
+                fault, geode::Fault3D::FAULT_TYPE::strike_slip );
         }
         geode::OpenGeodeGeosciencesExplicitException::test(
             fault.has_type(), "All faults should have a type" );
@@ -361,7 +361,7 @@ void modify_model(
             == geode::Horizon3D::CONTACT_TYPE::conformal )
         {
             builder.set_horizon_contact_type(
-                horizon.id(), geode::Horizon3D::CONTACT_TYPE::erosion );
+                horizon, geode::Horizon3D::CONTACT_TYPE::erosion );
         }
     }
 

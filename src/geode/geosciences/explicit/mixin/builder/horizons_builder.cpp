@@ -76,10 +76,10 @@ namespace geode
 
     template < index_t dimension >
     void HorizonsBuilder< dimension >::set_horizon_contact_type(
-        const uuid& horizon_id, CONTACT_TYPE contact_type )
+        const Horizon< dimension >& horizon, CONTACT_TYPE contact_type )
     {
         horizons_
-            .modifiable_horizon( horizon_id,
+            .modifiable_horizon( horizon.id(),
                 typename Horizon< dimension >::HorizonsBuilderKey{} )
             .set_contact_type( contact_type,
                 typename Horizon< dimension >::HorizonsBuilderKey{} );
@@ -87,11 +87,11 @@ namespace geode
 
     template < index_t dimension >
     void HorizonsBuilder< dimension >::set_horizon_name(
-        const uuid& id, std::string_view name )
+        const Horizon< dimension >& horizon, std::string_view name )
     {
         horizons_
-            .modifiable_horizon(
-                id, typename Horizon< dimension >::HorizonsBuilderKey{} )
+            .modifiable_horizon( horizon.id(),
+                typename Horizon< dimension >::HorizonsBuilderKey{} )
             .set_horizon_name(
                 name, typename Horizon< dimension >::HorizonsBuilderKey{} );
     }

@@ -62,14 +62,14 @@ namespace geode
     void StructuralModelBuilder::copy_geological_components(
         ModelCopyMapping& mappings, const StructuralModel& structural_model )
     {
-        detail::copy_faults( structural_model, *this,
+        detail::copy_faults( structural_model, structural_model_, *this,
             mappings[Fault3D::component_type_static()] );
-        detail::copy_horizons( structural_model, *this,
+        detail::copy_horizons( structural_model, structural_model_, *this,
             mappings[Horizon3D::component_type_static()] );
-        detail::copy_fault_blocks( structural_model, *this,
+        detail::copy_fault_blocks( structural_model, structural_model_, *this,
             mappings[FaultBlock3D::component_type_static()] );
-        detail::copy_stratigraphic_units( structural_model, *this,
-            mappings[StratigraphicUnit3D::component_type_static()] );
+        detail::copy_stratigraphic_units( structural_model, structural_model_,
+            *this, mappings[StratigraphicUnit3D::component_type_static()] );
     }
 
     const uuid& StructuralModelBuilder::add_fault()
