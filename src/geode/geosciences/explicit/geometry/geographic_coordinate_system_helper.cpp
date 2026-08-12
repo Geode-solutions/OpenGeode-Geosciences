@@ -94,7 +94,7 @@ namespace
         for( const auto& component : range )
         {
             const auto& mesh = component.mesh();
-            auto builder = get_mesh_builder( component.id() );
+            auto builder = get_mesh_builder( component );
             convert_coordinate_reference_system(
                 mesh, *builder, crs_name, info );
         }
@@ -142,7 +142,7 @@ namespace
         for( const auto& component : range )
         {
             const auto& mesh = component.mesh();
-            auto builder = get_mesh_builder( component.id() );
+            auto builder = get_mesh_builder( component );
             convert_attribute_to_geographic_coordinate_reference_system(
                 mesh, *builder, crs_name, info );
         }
@@ -201,21 +201,25 @@ namespace geode
         const GeographicCoordinateSystemInfo& info )
     {
         convert_components_attribute_to_geographic_coordinate_reference_system<
-            3 >( info, crs_name, brep.corners(), [&builder]( const uuid& id ) {
-            return builder.corner_mesh_builder( id );
-        } );
+            3 >( info, crs_name, brep.corners(),
+            [&builder]( const Corner3D& corner ) {
+                return builder.corner_mesh_builder( corner );
+            } );
         convert_components_attribute_to_geographic_coordinate_reference_system<
-            3 >( info, crs_name, brep.lines(), [&builder]( const uuid& id ) {
-            return builder.line_mesh_builder( id );
-        } );
+            3 >(
+            info, crs_name, brep.lines(), [&builder]( const Line3D& line ) {
+                return builder.line_mesh_builder( line );
+            } );
         convert_components_attribute_to_geographic_coordinate_reference_system<
-            3 >( info, crs_name, brep.surfaces(), [&builder]( const uuid& id ) {
-            return builder.surface_mesh_builder( id );
-        } );
+            3 >( info, crs_name, brep.surfaces(),
+            [&builder]( const Surface3D& surface ) {
+                return builder.surface_mesh_builder( surface );
+            } );
         convert_components_attribute_to_geographic_coordinate_reference_system<
-            3 >( info, crs_name, brep.blocks(), [&builder]( const uuid& id ) {
-            return builder.block_mesh_builder( id );
-        } );
+            3 >(
+            info, crs_name, brep.blocks(), [&builder]( const Block3D& block ) {
+                return builder.block_mesh_builder( block );
+            } );
     }
 
     void assign_section_geographic_coordinate_system_info(
@@ -225,18 +229,19 @@ namespace geode
         const GeographicCoordinateSystemInfo& info )
     {
         convert_components_attribute_to_geographic_coordinate_reference_system<
-            2 >(
-            info, crs_name, section.corners(), [&builder]( const uuid& id ) {
-                return builder.corner_mesh_builder( id );
+            2 >( info, crs_name, section.corners(),
+            [&builder]( const Corner2D& corner ) {
+                return builder.corner_mesh_builder( corner );
             } );
         convert_components_attribute_to_geographic_coordinate_reference_system<
-            2 >( info, crs_name, section.lines(), [&builder]( const uuid& id ) {
-            return builder.line_mesh_builder( id );
-        } );
-        convert_components_attribute_to_geographic_coordinate_reference_system<
             2 >(
-            info, crs_name, section.surfaces(), [&builder]( const uuid& id ) {
-                return builder.surface_mesh_builder( id );
+            info, crs_name, section.lines(), [&builder]( const Line2D& line ) {
+                return builder.line_mesh_builder( line );
+            } );
+        convert_components_attribute_to_geographic_coordinate_reference_system<
+            2 >( info, crs_name, section.surfaces(),
+            [&builder]( const Surface2D& surface ) {
+                return builder.surface_mesh_builder( surface );
             } );
     }
 
@@ -289,21 +294,21 @@ namespace geode
         std::string_view crs_name,
         const GeographicCoordinateSystemInfo& info )
     {
-        convert_components_coordinate_reference_system< 3 >(
-            info, crs_name, brep.corners(), [&builder]( const uuid& id ) {
-                return builder.corner_mesh_builder( id );
+        convert_components_coordinate_reference_system< 3 >( info, crs_name,
+            brep.corners(), [&builder]( const Corner3D& corner ) {
+                return builder.corner_mesh_builder( corner );
             } );
         convert_components_coordinate_reference_system< 3 >(
-            info, crs_name, brep.lines(), [&builder]( const uuid& id ) {
-                return builder.line_mesh_builder( id );
+            info, crs_name, brep.lines(), [&builder]( const Line3D& line ) {
+                return builder.line_mesh_builder( line );
+            } );
+        convert_components_coordinate_reference_system< 3 >( info, crs_name,
+            brep.surfaces(), [&builder]( const Surface3D& surface ) {
+                return builder.surface_mesh_builder( surface );
             } );
         convert_components_coordinate_reference_system< 3 >(
-            info, crs_name, brep.surfaces(), [&builder]( const uuid& id ) {
-                return builder.surface_mesh_builder( id );
-            } );
-        convert_components_coordinate_reference_system< 3 >(
-            info, crs_name, brep.blocks(), [&builder]( const uuid& id ) {
-                return builder.block_mesh_builder( id );
+            info, crs_name, brep.blocks(), [&builder]( const Block3D& block ) {
+                return builder.block_mesh_builder( block );
             } );
     }
 
@@ -312,17 +317,17 @@ namespace geode
         std::string_view crs_name,
         const GeographicCoordinateSystemInfo& info )
     {
-        convert_components_coordinate_reference_system< 2 >(
-            info, crs_name, section.corners(), [&builder]( const uuid& id ) {
-                return builder.corner_mesh_builder( id );
+        convert_components_coordinate_reference_system< 2 >( info, crs_name,
+            section.corners(), [&builder]( const Corner2D& corner ) {
+                return builder.corner_mesh_builder( corner );
             } );
         convert_components_coordinate_reference_system< 2 >(
-            info, crs_name, section.lines(), [&builder]( const uuid& id ) {
-                return builder.line_mesh_builder( id );
+            info, crs_name, section.lines(), [&builder]( const Line2D& line ) {
+                return builder.line_mesh_builder( line );
             } );
-        convert_components_coordinate_reference_system< 2 >(
-            info, crs_name, section.surfaces(), [&builder]( const uuid& id ) {
-                return builder.surface_mesh_builder( id );
+        convert_components_coordinate_reference_system< 2 >( info, crs_name,
+            section.surfaces(), [&builder]( const Surface2D& surface ) {
+                return builder.surface_mesh_builder( surface );
             } );
     }
 
