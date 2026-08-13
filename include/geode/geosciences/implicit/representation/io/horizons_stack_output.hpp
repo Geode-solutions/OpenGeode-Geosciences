@@ -63,6 +63,11 @@ namespace geode
     ALIAS_2D_AND_3D( HorizonsStackOutput );
 
     template < index_t dimension >
+    [[nodiscard]] bool is_horizons_stack_saveable(
+        const HorizonsStack< dimension >& horizons_stack,
+        std::string_view filename );
+
+    template < index_t dimension >
     using HorizonsStackOutputFactory = Factory< std::string,
         HorizonsStackOutput< dimension >,
         std::string_view >;

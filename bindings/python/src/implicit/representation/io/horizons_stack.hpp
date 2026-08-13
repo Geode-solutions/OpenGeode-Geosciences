@@ -41,6 +41,10 @@
         "is_horizons_stack_loadable" + std::to_string( dimension ) + "D";      \
     module.def( loadable##dimension.c_str(),                                   \
         &is_horizons_stack_loadable< dimension > );                            \
+    const auto saveable##dimension =                                           \
+        "is_horizons_stack_saveable" + std::to_string( dimension ) + "D";      \
+    module.def( saveable##dimension.c_str(),                                   \
+        &is_horizons_stack_saveable< dimension > );                            \
     const auto check##dimension =                                              \
         "horizons_stack_additional_files" + std::to_string( dimension ) + "D"; \
     module.def( check##dimension.c_str(),                                      \
