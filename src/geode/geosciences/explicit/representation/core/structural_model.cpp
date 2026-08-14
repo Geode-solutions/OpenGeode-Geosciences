@@ -63,7 +63,7 @@ namespace geode
     const Surface3D& StructuralModel::HorizonItemRange::operator*() const
     {
         return structural_model_.surface(
-            Relationships::ItemRangeIterator::operator*().id() );
+            Relationships::ItemRangeIterator::operator*().id );
     }
 
     StructuralModel::HorizonItemRange StructuralModel::horizon_items(
@@ -101,7 +101,7 @@ namespace geode
     const Surface3D& StructuralModel::FaultItemRange::operator*() const
     {
         return structural_model_.surface(
-            Relationships::ItemRangeIterator::operator*().id() );
+            Relationships::ItemRangeIterator::operator*().id );
     }
 
     StructuralModel::FaultItemRange StructuralModel::fault_items(
@@ -143,7 +143,7 @@ namespace geode
     const Block3D& StructuralModel::FaultBlockItemRange::operator*() const
     {
         return structural_model_.block(
-            Relationships::ItemRangeIterator::operator*().id() );
+            Relationships::ItemRangeIterator::operator*().id );
     }
 
     StructuralModel::FaultBlockItemRange StructuralModel::fault_block_items(
@@ -187,7 +187,7 @@ namespace geode
         StructuralModel::StratigraphicUnitItemRange::operator*() const
     {
         return structural_model_.block(
-            Relationships::ItemRangeIterator::operator*().id() );
+            Relationships::ItemRangeIterator::operator*().id );
     }
 
     StructuralModel::StratigraphicUnitItemRange

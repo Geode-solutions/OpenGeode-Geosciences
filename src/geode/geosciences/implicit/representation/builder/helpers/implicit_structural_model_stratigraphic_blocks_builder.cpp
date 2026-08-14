@@ -147,7 +147,7 @@ namespace
             for( const auto& block_collection :
                 model_.collections( block.id() ) )
             {
-                if( block_collection.type()
+                if( block_collection.type
                     == geode::StratigraphicUnit3D::component_type_static() )
                 {
                     return true;
@@ -327,12 +327,12 @@ namespace
                 for( const auto& collection :
                     model_.collections( boundary.id() ) )
                 {
-                    if( collection.type()
+                    if( collection.type
                         != geode::Horizon3D::component_type_static() )
                     {
                         continue;
                     }
-                    const auto& horizon = model_.horizon( collection.id() );
+                    const auto& horizon = model_.horizon( collection.id );
                     if( horizon.contact_type()
                         == geode::Horizon3D::CONTACT_TYPE::conformal )
                     {
