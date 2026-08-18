@@ -148,10 +148,22 @@ namespace geode
                     surface.mesh< TriangulatedSurface2D >().clone();
                 auto surface_builder =
                     TriangulatedSurfaceBuilder2D::create( *strati_surface );
+                AttributeValues< Point2D > xyz_attribute_default_values;
+                xyz_attribute_default_values.default_value = Point2D{};
+                xyz_attribute_default_values.no_value = Point2D{};
+                AttributeProperties xyz_attribute_properties;
+                xyz_attribute_properties.assignable = false;
+                xyz_attribute_properties.interpolable = true;
+                xyz_attribute_properties.transferable = true;
+                const auto xyz_attribute_id =
+                    strati_surface->vertex_attribute_manager()
+                        .create_attribute< VariableAttribute, Point2D >(
+                            "geode_xyz", xyz_attribute_default_values,
+                            xyz_attribute_properties );
                 auto xyz_attribute =
                     strati_surface->vertex_attribute_manager()
-                        .find_or_create_attribute< VariableAttribute, Point2D >(
-                            "geode_xyz", Point2D{ { 0, 0 } }, { false, true } );
+                        .find_attribute< VariableAttribute, Point2D >(
+                            xyz_attribute_id );
                 for( const auto pt_id : Range{ strati_surface->nb_vertices() } )
                 {
                     xyz_attribute->set_value(
@@ -177,11 +189,22 @@ namespace geode
                 auto strati_solid = block.mesh< TetrahedralSolid3D >().clone();
                 auto surface_builder =
                     TetrahedralSolidBuilder3D::create( *strati_solid );
+                AttributeValues< Point3D > xyz_attribute_default_values;
+                xyz_attribute_default_values.default_value = Point3D{};
+                xyz_attribute_default_values.no_value = Point3D{};
+                AttributeProperties xyz_attribute_properties;
+                xyz_attribute_properties.assignable = false;
+                xyz_attribute_properties.interpolable = true;
+                xyz_attribute_properties.transferable = true;
+                auto xyz_attribute_id =
+                    strati_solid->vertex_attribute_manager()
+                        .create_attribute< VariableAttribute, Point3D >(
+                            "geode_xyz", xyz_attribute_default_values,
+                            xyz_attribute_properties );
                 auto xyz_attribute =
                     strati_solid->vertex_attribute_manager()
-                        .find_or_create_attribute< VariableAttribute, Point3D >(
-                            "geode_xyz", Point3D{ { 0, 0, 0 } },
-                            { false, true } );
+                        .find_attribute< VariableAttribute, Point3D >(
+                            xyz_attribute_id );
                 for( const auto pt_id : Range{ strati_solid->nb_vertices() } )
                 {
                     xyz_attribute->set_value(
@@ -199,22 +222,36 @@ namespace geode
         }
 
         ImplicitCrossSection implicit_section_from_cross_section_scalar_field(
-            CrossSection&& section, std::string_view scalar_attribute_name )
+            CrossSection&& section, const uuid& scalar_atribute_id )
         {
             for( const auto& surface : section.surfaces() )
             {
                 const auto& surface_mesh = surface.mesh();
                 auto scalar_attribute =
                     surface_mesh.vertex_attribute_manager()
-                        .find_attribute<
+                        .find_read_only_attribute<
                             ImplicitCrossSection::implicit_attribute_type >(
-                            scalar_attribute_name );
+                            scalar_atribute_id );
+                AttributeValues< ImplicitCrossSection::implicit_attribute_type >
+                    implicit_attribute_default_values;
+                implicit_attribute_default_values.default_value = 0;
+                implicit_attribute_default_values.no_value = 0;
+                AttributeProperties implicit_attribute_properties;
+                implicit_attribute_properties.assignable = false;
+                implicit_attribute_properties.interpolable = true;
+                implicit_attribute_properties.transferable = true;
+                auto implicit_attribute_id =
+                    surface_mesh.vertex_attribute_manager()
+                        .create_attribute< VariableAttribute,
+                            ImplicitCrossSection::implicit_attribute_type >(
+                            ImplicitCrossSection::IMPLICIT_ATTRIBUTE_NAME,
+                            implicit_attribute_default_values,
+                            implicit_attribute_properties );
                 auto implicit_attribute =
                     surface_mesh.vertex_attribute_manager()
-                        .find_or_create_attribute< VariableAttribute,
+                        .find_attribute< VariableAttribute,
                             ImplicitCrossSection::implicit_attribute_type >(
-                            ImplicitCrossSection::IMPLICIT_ATTRIBUTE_NAME, 0,
-                            { false, true } );
+                            implicit_attribute_id );
                 for( const auto vertex_id :
                     Range{ surface_mesh.nb_vertices() } )
                 {
@@ -227,23 +264,37 @@ namespace geode
 
         ImplicitStructuralModel
             implicit_model_from_structural_model_scalar_field(
-                StructuralModel&& model,
-                std::string_view scalar_attribute_name )
+                StructuralModel&& model, const uuid& scalar_atribute_id )
         {
             for( const auto& block : model.blocks() )
             {
                 const auto& block_mesh = block.mesh();
                 auto scalar_attribute =
                     block_mesh.vertex_attribute_manager()
-                        .find_attribute<
+                        .find_read_only_attribute<
                             ImplicitStructuralModel::implicit_attribute_type >(
-                            scalar_attribute_name );
+                            scalar_atribute_id );
+                AttributeValues<
+                    ImplicitStructuralModel::implicit_attribute_type >
+                    implicit_attribute_default_values;
+                implicit_attribute_default_values.default_value = 0;
+                implicit_attribute_default_values.no_value = 0;
+                AttributeProperties implicit_attribute_properties;
+                implicit_attribute_properties.assignable = false;
+                implicit_attribute_properties.interpolable = true;
+                implicit_attribute_properties.transferable = true;
+                auto implicit_attribute_id =
+                    block_mesh.vertex_attribute_manager()
+                        .create_attribute< VariableAttribute,
+                            ImplicitStructuralModel::implicit_attribute_type >(
+                            ImplicitStructuralModel::IMPLICIT_ATTRIBUTE_NAME,
+                            implicit_attribute_default_values,
+                            implicit_attribute_properties );
                 auto implicit_attribute =
                     block_mesh.vertex_attribute_manager()
-                        .find_or_create_attribute< VariableAttribute,
+                        .find_attribute< VariableAttribute,
                             ImplicitStructuralModel::implicit_attribute_type >(
-                            ImplicitStructuralModel::IMPLICIT_ATTRIBUTE_NAME, 0,
-                            { false, true } );
+                            implicit_attribute_id );
                 for( const auto vertex_id : Range{ block_mesh.nb_vertices() } )
                 {
                     implicit_attribute->set_value(
@@ -267,13 +318,29 @@ namespace geode
             for( const auto& block : implicit_model.blocks() )
             {
                 const auto& block_mesh = block.mesh();
-                auto strati_location_attribute =
+                AttributeValues<
+                    StratigraphicModel::stratigraphic_location_type >
+                    strati_location_attribute_default_values;
+                strati_location_attribute_default_values.default_value =
+                    Point2D{};
+                strati_location_attribute_default_values.no_value = Point2D{};
+                AttributeProperties strati_location_attribute_properties;
+                strati_location_attribute_properties.assignable = false;
+                strati_location_attribute_properties.interpolable = true;
+                strati_location_attribute_properties.transferable = true;
+                auto strati_location_attribute_id =
                     block_mesh.vertex_attribute_manager()
-                        .find_or_create_attribute< VariableAttribute,
+                        .create_attribute< VariableAttribute,
                             StratigraphicModel::stratigraphic_location_type >(
                             StratigraphicModel::
                                 STRATIGRAPHIC_LOCATION_ATTRIBUTE_NAME,
-                            Point2D{ { 0, 0 } }, { false, true } );
+                            strati_location_attribute_default_values,
+                            strati_location_attribute_properties );
+                auto strati_location_attribute =
+                    block_mesh.vertex_attribute_manager()
+                        .find_attribute< VariableAttribute,
+                            StratigraphicModel::stratigraphic_location_type >(
+                            strati_location_attribute_id );
                 for( const auto vertex_id : Range{ block_mesh.nb_vertices() } )
                 {
                     const auto& vertex_point = block_mesh.point( vertex_id );
@@ -299,30 +366,34 @@ namespace geode
             if( nb_horizons == 0 )
             {
                 const auto& only_su = builder.add_stratigraphic_unit();
-                builder.set_stratigraphic_unit_name( only_su, units_names[0] );
+                builder.set_stratigraphic_unit_name(
+                    stack.stratigraphic_unit( only_su ), units_names[0] );
                 return stack;
             }
             auto current_horizon = builder.add_horizon();
-            builder.set_horizon_name( current_horizon, horizons_names[0] );
+            builder.set_horizon_name(
+                stack.horizon( current_horizon ), horizons_names[0] );
             const auto& su_above = builder.add_stratigraphic_unit();
             builder.set_horizon_under( stack.horizon( current_horizon ),
                 stack.stratigraphic_unit( su_above ) );
             bool highest_unit_to_create{ nb_units < nb_horizons };
             if( !highest_unit_to_create )
             {
-                builder.set_stratigraphic_unit_name( su_above, units_names[0] );
+                builder.set_stratigraphic_unit_name(
+                    stack.stratigraphic_unit( su_above ), units_names[0] );
             }
             for( const auto counter : Range{ 1, horizons_names.size() } )
             {
                 const auto& su_under = builder.add_stratigraphic_unit();
                 builder.set_stratigraphic_unit_name(
-                    su_under, units_names[highest_unit_to_create ? counter - 1
-                                                                 : counter] );
+                    stack.stratigraphic_unit( su_under ),
+                    units_names[highest_unit_to_create ? counter - 1
+                                                       : counter] );
                 builder.set_horizon_above( stack.horizon( current_horizon ),
                     stack.stratigraphic_unit( su_under ) );
                 current_horizon = builder.add_horizon();
                 builder.set_horizon_name(
-                    current_horizon, horizons_names[counter] );
+                    stack.horizon( current_horizon ), horizons_names[counter] );
                 builder.set_horizon_under( stack.horizon( current_horizon ),
                     stack.stratigraphic_unit( su_under ) );
             }
@@ -332,7 +403,7 @@ namespace geode
             if( nb_units > nb_horizons )
             {
                 builder.set_stratigraphic_unit_name(
-                    su_under, units_names.back() );
+                    stack.stratigraphic_unit( su_under ), units_names.back() );
             }
             builder.compute_top_and_bottom_horizons();
             return stack;
@@ -352,30 +423,34 @@ namespace geode
             if( nb_horizons == 0 )
             {
                 const auto& only_su = builder.add_stratigraphic_unit();
-                builder.set_stratigraphic_unit_name( only_su, units_names[0] );
+                builder.set_stratigraphic_unit_name(
+                    stack.stratigraphic_unit( only_su ), units_names[0] );
                 return stack;
             }
             auto current_horizon = builder.add_horizon();
-            builder.set_horizon_name( current_horizon, horizons_names[0] );
+            builder.set_horizon_name(
+                stack.horizon( current_horizon ), horizons_names[0] );
             const auto& su_under = builder.add_stratigraphic_unit();
             builder.set_horizon_above( stack.horizon( current_horizon ),
                 stack.stratigraphic_unit( su_under ) );
             bool lowest_unit_to_create{ nb_units < nb_horizons };
             if( !lowest_unit_to_create )
             {
-                builder.set_stratigraphic_unit_name( su_under, units_names[0] );
+                builder.set_stratigraphic_unit_name(
+                    stack.stratigraphic_unit( su_under ), units_names[0] );
             }
             for( const auto counter : Range{ 1, horizons_names.size() } )
             {
                 const auto& su_above = builder.add_stratigraphic_unit();
                 builder.set_stratigraphic_unit_name(
-                    su_above, units_names[lowest_unit_to_create ? counter - 1
-                                                                : counter] );
+                    stack.stratigraphic_unit( su_above ),
+                    units_names[lowest_unit_to_create ? counter - 1
+                                                      : counter] );
                 builder.set_horizon_under( stack.horizon( current_horizon ),
                     stack.stratigraphic_unit( su_above ) );
                 current_horizon = builder.add_horizon();
                 builder.set_horizon_name(
-                    current_horizon, horizons_names[counter] );
+                    stack.horizon( current_horizon ), horizons_names[counter] );
                 builder.set_horizon_above( stack.horizon( current_horizon ),
                     stack.stratigraphic_unit( su_above ) );
             }
@@ -385,7 +460,7 @@ namespace geode
             if( nb_units > nb_horizons )
             {
                 builder.set_stratigraphic_unit_name(
-                    su_above, units_names.back() );
+                    stack.stratigraphic_unit( su_above ), units_names.back() );
             }
             builder.compute_top_and_bottom_horizons();
             return stack;
@@ -496,7 +571,7 @@ namespace geode
                             .stratigraphic_coordinates()
                     };
                     if( tetrahedron_volume_sign( strati_tetra )
-                        == Sign::negative )
+                        == SIGN::negative )
                     {
                         invalid_tetrahedra.emplace_back( block.id(), tetra_id );
                         Logger::info(

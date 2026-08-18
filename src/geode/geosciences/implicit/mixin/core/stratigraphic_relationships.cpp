@@ -54,6 +54,8 @@ namespace geode
             initialize_relation_attributes();
         }
 
+        Impl( BITSERY bitsery ) : RelationshipsImpl( bitsery ) {}
+
         bool is_above( const uuid& above_id, const uuid& under_id ) const
         {
             auto current = under_id;
@@ -80,7 +82,7 @@ namespace geode
                 return false;
             }
             return graph_component_id( { edge_id.value(), ABOVE_EDGE_VERTEX } )
-                       .id()
+                       .id
                    == above;
         }
 
@@ -101,7 +103,7 @@ namespace geode
                 if( edge_vertex.vertex_id == UNDER_EDGE_VERTEX )
                 {
                     return this->graph_component_id( edge_vertex.opposite() )
-                        .id();
+                        .id;
                 }
             }
             return std::nullopt;
@@ -124,7 +126,7 @@ namespace geode
                 if( edge_vertex.vertex_id == ABOVE_EDGE_VERTEX )
                 {
                     return this->graph_component_id( edge_vertex.opposite() )
-                        .id();
+                        .id;
                 }
             }
             return std::nullopt;
@@ -133,7 +135,7 @@ namespace geode
         index_t add_above_relation(
             const ComponentID& above, const ComponentID& under )
         {
-            if( const auto id = relation_edge( above.id(), under.id() ) )
+            if( const auto id = relation_edge( above.id, under.id ) )
             {
                 above_relations_->set_value( id.value(), true );
                 return id.value();
@@ -202,10 +204,31 @@ namespace geode
     private:
         void initialize_relation_attributes()
         {
-            above_relations_ =
+            const auto ids =
+                relation_attribute_manager().attribute_ids_matching_name(
+                    "geode_above_relations" );
+            if( ids.has_value() )
+            {
+                above_relations_ = relation_attribute_manager()
+                                       .find_attribute< SparseAttribute, bool >(
+                                           ids.value()[0] );
+                return;
+            }
+            AttributeValues< bool > above_relations_default_values;
+            above_relations_default_values.default_value = false;
+            above_relations_default_values.no_value = false;
+            AttributeProperties above_relations_properties;
+            above_relations_properties.assignable = false;
+            above_relations_properties.interpolable = false;
+            above_relations_properties.transferable = true;
+            const auto above_relations_id =
                 relation_attribute_manager()
-                    .find_or_create_attribute< SparseAttribute, bool >(
-                        "geode_above_relations", false );
+                    .create_attribute< SparseAttribute, bool >(
+                        "geode_above_relations", above_relations_default_values,
+                        above_relations_properties );
+            above_relations_ = relation_attribute_manager()
+                                   .find_attribute< SparseAttribute, bool >(
+                                       above_relations_id );
         }
 
         std::optional< index_t > relation_edge(
@@ -226,7 +249,7 @@ namespace geode
             {
                 const auto& other =
                     this->graph_component_id( edge_vertex.opposite() );
-                if( to == other.id() )
+                if( to == other.id )
                 {
                     return edge_vertex.edge_id;
                 }
@@ -284,6 +307,10 @@ namespace geode
     };
 
     StratigraphicRelationships::StratigraphicRelationships() = default;
+    StratigraphicRelationships::StratigraphicRelationships( BITSERY bitsery )
+        : impl_( bitsery )
+    {
+    }
     StratigraphicRelationships::StratigraphicRelationships(
         StratigraphicRelationships&& ) noexcept = default;
     StratigraphicRelationships& StratigraphicRelationships::operator=(

@@ -50,6 +50,9 @@ namespace geode
             .def( "set_horizon_implicit_value",
                 &ImplicitStructuralModelBuilder::set_horizon_implicit_value )
             .def( "horizons_stack_builder",
-                &ImplicitStructuralModelBuilder::horizons_stack_builder );
+                &ImplicitStructuralModelBuilder::horizons_stack_builder )
+            .def( "import_old_implicit_attribute_values_from_attribute_name",
+                &ImplicitStructuralModelBuilder::
+                    import_old_implicit_attribute_values_from_attribute_name );
     }
 } // namespace geode

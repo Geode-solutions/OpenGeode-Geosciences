@@ -31,56 +31,68 @@ namespace geode
     template < index_t dimension >
     const uuid& FaultsBuilder< dimension >::create_fault()
     {
-        return faults_.create_fault( {} );
+        return faults_.create_fault(
+            typename Fault< dimension >::FaultsBuilderKey{} );
     }
 
     template < index_t dimension >
     const uuid& FaultsBuilder< dimension >::create_fault(
         typename Fault< dimension >::FAULT_TYPE type )
     {
-        return faults_.create_fault( type, {} );
+        return faults_.create_fault(
+            type, typename Fault< dimension >::FaultsBuilderKey{} );
     }
 
     template < index_t dimension >
     void FaultsBuilder< dimension >::create_fault( uuid fault_id )
     {
-        faults_.create_fault( std::move( fault_id ), {} );
+        faults_.create_fault( std::move( fault_id ),
+            typename Fault< dimension >::FaultsBuilderKey{} );
     }
 
     template < index_t dimension >
     void FaultsBuilder< dimension >::create_fault(
         uuid fault_id, typename Fault< dimension >::FAULT_TYPE type )
     {
-        faults_.create_fault( std::move( fault_id ), type, {} );
+        faults_.create_fault( std::move( fault_id ), type,
+            typename Fault< dimension >::FaultsBuilderKey{} );
     }
 
     template < index_t dimension >
     void FaultsBuilder< dimension >::delete_fault(
         const Fault< dimension >& fault )
     {
-        faults_.delete_fault( fault, {} );
+        faults_.delete_fault(
+            fault, typename Fault< dimension >::FaultsBuilderKey{} );
     }
 
     template < index_t dimension >
     void FaultsBuilder< dimension >::load_faults( std::string_view directory )
     {
-        return faults_.load_faults( directory, {} );
+        return faults_.load_faults(
+            directory, typename Fault< dimension >::FaultsBuilderKey{} );
     }
 
     template < index_t dimension >
     void FaultsBuilder< dimension >::set_fault_type(
-        const uuid& fault_id, typename Fault< dimension >::FAULT_TYPE type )
+        const Fault< dimension >& fault,
+        typename Fault< dimension >::FAULT_TYPE type )
     {
-        faults_.modifiable_fault( fault_id, {} )
+        faults_
+            .modifiable_fault(
+                fault.id(), typename Fault< dimension >::FaultsBuilderKey{} )
             .set_type( type, typename Fault< dimension >::FaultsBuilderKey{} );
     }
 
     template < index_t dimension >
     void FaultsBuilder< dimension >::set_fault_name(
-        const uuid& id, std::string_view name )
+        const Fault< dimension >& fault, std::string_view name )
     {
-        faults_.modifiable_fault( id, {} ).set_fault_name(
-            name, typename Fault< dimension >::FaultsBuilderKey{} );
+        faults_
+            .modifiable_fault(
+                fault.id(), typename Fault< dimension >::FaultsBuilderKey{} )
+            .set_fault_name(
+                name, typename Fault< dimension >::FaultsBuilderKey{} );
     }
 
     template class opengeode_geosciences_explicit_api FaultsBuilder< 2 >;

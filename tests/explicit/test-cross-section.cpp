@@ -59,7 +59,7 @@ void add_faults(
 
     const auto& fault1 =
         builder.add_fault( geode::Fault2D::FAULT_TYPE::reverse );
-    builder.set_fault_name( fault1, "fault1" );
+    builder.set_fault_name( model.fault( fault1 ), "fault1" );
     geode::OpenGeodeGeosciencesExplicitException::test(
         model.fault( fault1 ).type() == geode::Fault2D::FAULT_TYPE::reverse,
         "Addition of a Fault in CrossSection is not correct (wrong "
@@ -89,7 +89,7 @@ void add_horizons(
 
     const auto& horizon2 =
         builder.add_horizon( geode::Horizon2D::CONTACT_TYPE::erosion );
-    builder.set_horizon_name( horizon2, "horizon2" );
+    builder.set_horizon_name( model.horizon( horizon2 ), "horizon2" );
     geode::OpenGeodeGeosciencesExplicitException::test(
         model.horizon( horizon2 ).contact_type()
             == geode::Horizon2D::CONTACT_TYPE::erosion,
@@ -109,7 +109,8 @@ void add_fault_blocks(
     const auto& fault_block1 = builder.add_fault_block();
     const auto& uid = builder.add_fault_block();
     geode_unused( uid );
-    builder.set_fault_block_name( fault_block1, "hanging_wall" );
+    builder.set_fault_block_name(
+        model.fault_block( fault_block1 ), "hanging_wall" );
     geode::OpenGeodeGeosciencesExplicitException::test(
         model.nb_fault_blocks() == 3,
         "Number of fault blocks in CrossSection should be 3" );
@@ -129,7 +130,8 @@ void add_stratigraphic_units(
     const auto& stratigraphic_unit1 = builder.add_stratigraphic_unit();
     const auto& uid = builder.add_stratigraphic_unit();
     geode_unused( uid );
-    builder.set_stratigraphic_unit_name( stratigraphic_unit1, "cretaceous" );
+    builder.set_stratigraphic_unit_name(
+        model.stratigraphic_unit( stratigraphic_unit1 ), "cretaceous" );
     geode::OpenGeodeGeosciencesExplicitException::test(
         model.nb_stratigraphic_units() == 3,
         "Number of stratigraphic_units in CrossSection should be 3" );
@@ -435,7 +437,7 @@ void modify_model(
         if( !fault.has_type() )
         {
             builder.set_fault_type(
-                fault.id(), geode::Fault2D::FAULT_TYPE::strike_slip );
+                fault, geode::Fault2D::FAULT_TYPE::strike_slip );
         }
         geode::OpenGeodeGeosciencesExplicitException::test(
             fault.has_type(), "All faults should have a type" );
@@ -446,7 +448,7 @@ void modify_model(
             == geode::Horizon2D::CONTACT_TYPE::conformal )
         {
             builder.set_horizon_contact_type(
-                horizon.id(), geode::Horizon2D::CONTACT_TYPE::erosion );
+                horizon, geode::Horizon2D::CONTACT_TYPE::erosion );
         }
     }
 

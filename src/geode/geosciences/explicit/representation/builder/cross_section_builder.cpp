@@ -65,13 +65,13 @@ namespace geode
     void CrossSectionBuilder::copy_geological_components(
         ModelCopyMapping& mappings, const CrossSection& cross_section )
     {
-        detail::copy_faults(
-            cross_section, *this, mappings[Fault2D::component_type_static()] );
-        detail::copy_horizons( cross_section, *this,
+        detail::copy_faults( cross_section, cross_section_, *this,
+            mappings[Fault2D::component_type_static()] );
+        detail::copy_horizons( cross_section, cross_section_, *this,
             mappings[Horizon2D::component_type_static()] );
-        detail::copy_fault_blocks( cross_section, *this,
+        detail::copy_fault_blocks( cross_section, cross_section_, *this,
             mappings[FaultBlock2D::component_type_static()] );
-        detail::copy_stratigraphic_units( cross_section, *this,
+        detail::copy_stratigraphic_units( cross_section, cross_section_, *this,
             mappings[StratigraphicUnit2D::component_type_static()] );
     }
 

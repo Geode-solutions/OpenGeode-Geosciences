@@ -56,19 +56,22 @@ namespace geode
     public:
         Impl() = default;
 
+        Impl( BITSERY bitsery ) : horizons_stack_{ bitsery } {}
+
         void initialize_implicit_query_trees(
             const ImplicitCrossSection& model )
         {
             instantiate_implicit_attribute_on_surfaces( model );
             surface_mesh_aabb_trees_.reserve( model.nb_surfaces() );
-            surface_distance_to_triangles_.reserve( model.nb_surfaces() );
             for( const auto& surface : model.surfaces() )
             {
                 surface_mesh_aabb_trees_.try_emplace( surface.id() );
-                surface_distance_to_triangles_.try_emplace( surface.id(),
-                    DistanceToTriangle2D{
-                        surface.mesh< TriangulatedSurface2D >() } );
             }
+        }
+
+        const uuid& implicit_attribute_id() const
+        {
+            return implicit_attribute_id_;
         }
 
         double implicit_value(
@@ -100,18 +103,24 @@ namespace geode
         std::optional< index_t > containing_polygon(
             const Surface2D& surface, const Point2D& point ) const
         {
-            const auto closest_triangle = std::get< 0 >(
-                surface_mesh_aabb_trees_
-                    .at( surface.id() )( create_aabb_tree, surface.mesh() )
-                    .closest_element_box( point,
-                        surface_distance_to_triangles_.at( surface.id() ) ) );
-            if( surface_distance_to_triangles_.at( surface.id() )(
-                    point, closest_triangle )
-                < GLOBAL_EPSILON )
+            DistanceToTriangle2D distance_action{
+                surface.mesh< TriangulatedSurface2D >()
+            };
+            const auto closest_triangle =
+                std::get< 0 >( surface_mesh_aabb_trees_
+                        .at( surface.id() )( create_aabb_tree, surface.mesh() )
+                        .closest_element_box( point, distance_action ) );
+            if( distance_action( point, closest_triangle ) < GLOBAL_EPSILON )
             {
                 return closest_triangle;
             }
             return std::nullopt;
+        }
+
+        absl::flat_hash_map< uuid, TriangulatedSurfaceScalarFunction2D >&
+            implicit_attributes()
+        {
+            return implicit_attributes_;
         }
 
         const HorizonsStack2D& horizons_stack() const
@@ -231,20 +240,21 @@ namespace geode
                     "TriangulatedSurface2D, which is not the case for surface "
                     "with uuid '",
                     surface.id().string(), "'." );
-                if( !surface.mesh().vertex_attribute_manager().attribute_exists(
-                        IMPLICIT_ATTRIBUTE_NAME ) )
-                {
-                    implicit_attributes_.try_emplace( surface.id(),
-                        TriangulatedSurfaceScalarFunction2D::create(
-                            surface.mesh< TriangulatedSurface2D >(),
-                            IMPLICIT_ATTRIBUTE_NAME, 0 ) );
-                }
-                else
+                if( surface.mesh().vertex_attribute_manager().attribute_exists(
+                        implicit_attribute_id_ ) )
                 {
                     implicit_attributes_.try_emplace( surface.id(),
                         TriangulatedSurfaceScalarFunction2D::find(
                             surface.mesh< TriangulatedSurface2D >(),
-                            IMPLICIT_ATTRIBUTE_NAME ) );
+                            implicit_attribute_id_ ) );
+                }
+                else
+                {
+                    implicit_attributes_.try_emplace( surface.id(),
+                        TriangulatedSurfaceScalarFunction2D::create(
+                            surface.mesh< TriangulatedSurface2D >(),
+                            IMPLICIT_ATTRIBUTE_NAME, implicit_attribute_id_,
+                            0 ) );
                 }
             }
         }
@@ -311,14 +321,26 @@ namespace geode
             archive.ext( *this,
                 Growable< Archive, Impl >{
                     { []( Archive& local_archive, Impl& impl ) {
-                        local_archive.ext( impl.horizon_isovalues_,
-                            bitsery::ext::StdMap{
-                                impl.horizon_isovalues_.max_size() },
-                            []( Archive& map_archive, uuid& id, double& item ) {
-                                map_archive.object( id );
-                                map_archive.value8b( item );
-                            } );
-                    } } } );
+                         local_archive.ext( impl.horizon_isovalues_,
+                             bitsery::ext::StdMap{
+                                 impl.horizon_isovalues_.max_size() },
+                             []( Archive& map_archive, uuid& id,
+                                 double& item ) {
+                                 map_archive.object( id );
+                                 map_archive.value8b( item );
+                             } );
+                     },
+                        []( Archive& local_archive, Impl& impl ) {
+                            local_archive.ext( impl.horizon_isovalues_,
+                                bitsery::ext::StdMap{
+                                    impl.horizon_isovalues_.max_size() },
+                                []( Archive& map_archive, uuid& id,
+                                    double& item ) {
+                                    map_archive.object( id );
+                                    map_archive.value8b( item );
+                                } );
+                            local_archive.object( impl.implicit_attribute_id_ );
+                        } } } );
         }
 
     private:
@@ -328,13 +350,17 @@ namespace geode
         absl::flat_hash_map< uuid, double > horizon_isovalues_;
         absl::flat_hash_map< uuid, CachedValue< AABBTree2D > >
             surface_mesh_aabb_trees_;
-        absl::flat_hash_map< uuid, DistanceToTriangle2D >
-            surface_distance_to_triangles_;
+        geode::uuid implicit_attribute_id_{};
     };
 
     ImplicitCrossSection::ImplicitCrossSection()
     {
         impl_->initialize_implicit_query_trees( *this );
+    }
+
+    ImplicitCrossSection::ImplicitCrossSection( BITSERY bitsery )
+        : CrossSection{ bitsery }, impl_{ bitsery }
+    {
     }
 
     ImplicitCrossSection::ImplicitCrossSection(
@@ -382,6 +408,11 @@ namespace geode
     const Component2D& ImplicitCrossSection::component( const uuid& id ) const
     {
         return detail::model_component( *this, id );
+    }
+
+    const uuid& ImplicitCrossSection::implicit_attribute_id() const
+    {
+        return impl_->implicit_attribute_id();
     }
 
     double ImplicitCrossSection::implicit_value(
@@ -482,11 +513,52 @@ namespace geode
     template < typename Archive >
     void ImplicitCrossSection::serialize( Archive& archive )
     {
-        archive.ext(
-            *this, Growable< Archive, ImplicitCrossSection >{
-                       { []( Archive& a, ImplicitCrossSection& model ) {
-                           a.object( model.impl_ );
-                       } } } );
+        archive.ext( *this,
+            Growable< Archive, ImplicitCrossSection >{
+                { []( Archive& a, ImplicitCrossSection& model ) {
+                     a.object( model.impl_ );
+                     for( const auto& surface : model.surfaces() )
+                     {
+                         const auto& surface_mesh = surface.mesh();
+                         const auto old_implicit_attribute_id =
+                             model.impl_->implicit_attributes()
+                                 .at( surface.id() )
+                                 .attribute_function_id();
+                         const auto old_implicit_attribute =
+                             surface_mesh.vertex_attribute_manager()
+                                 .find_read_only_attribute< double >(
+                                     old_implicit_attribute_id );
+                         AttributeValues< double >
+                             implicit_attribute_default_values;
+                         implicit_attribute_default_values.default_value = 0;
+                         implicit_attribute_default_values.no_value = 0;
+                         AttributeProperties implicit_attribute_properties;
+                         implicit_attribute_properties.assignable = false;
+                         implicit_attribute_properties.interpolable = true;
+                         implicit_attribute_properties.transferable = true;
+                         surface_mesh.vertex_attribute_manager()
+                             .create_attribute< VariableAttribute, double >(
+                                 IMPLICIT_ATTRIBUTE_NAME,
+                                 model.impl_->implicit_attribute_id(),
+                                 implicit_attribute_default_values,
+                                 implicit_attribute_properties );
+                         auto new_implicit_attribute =
+                             surface_mesh.vertex_attribute_manager()
+                                 .find_attribute< VariableAttribute, double >(
+                                     model.impl_->implicit_attribute_id() );
+                         for( const auto vertex_id :
+                             geode::Range{ surface_mesh.nb_vertices() } )
+                         {
+                             new_implicit_attribute->set_value( vertex_id,
+                                 old_implicit_attribute->value( vertex_id ) );
+                         }
+                     }
+                     model.impl_->initialize_implicit_query_trees( model );
+                 },
+                    []( Archive& a, ImplicitCrossSection& model ) {
+                        a.object( model.impl_ );
+                        model.impl_->initialize_implicit_query_trees( model );
+                    } } } );
     }
 
     SERIALIZE_BITSERY_ARCHIVE(

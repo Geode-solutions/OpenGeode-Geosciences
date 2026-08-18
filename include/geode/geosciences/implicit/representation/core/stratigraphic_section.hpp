@@ -25,6 +25,7 @@
 
 #include <optional>
 
+#include <geode/basic/bitsery_archive.hpp>
 #include <geode/basic/pimpl.hpp>
 
 #include <geode/geosciences/implicit/common.hpp>
@@ -52,9 +53,8 @@ namespace geode
     class opengeode_geosciences_implicit_api StratigraphicSection
         : public ImplicitCrossSection
     {
-        PASSKEY( StratigraphicSectionBuilder, StratigraphicSectionBuilderKey );
-
     public:
+        PASSKEY( StratigraphicSectionBuilder, StratigraphicSectionBuilderKey );
         static constexpr auto STRATIGRAPHIC_LOCATION_ATTRIBUTE_NAME =
             "geode_stratigraphic_location";
         static constexpr auto STRATIGRAPHIC_LINE_POLYGON_EDGE_ATTRIBUTE_NAME =
@@ -62,6 +62,7 @@ namespace geode
 
         using stratigraphic_location_type = Point1D;
         StratigraphicSection();
+        StratigraphicSection( BITSERY );
         StratigraphicSection(
             StratigraphicSection&& stratigraphic_section ) noexcept;
         explicit StratigraphicSection(
@@ -144,6 +145,8 @@ namespace geode
                 const Surface2D& surface, const Line2D& line ) const;
 
         [[nodiscard]] BoundingBox2D stratigraphic_bounding_box() const;
+
+        [[nodiscard]] const uuid& stratigraphic_location_attribute_id() const;
 
     public:
         void initialize_stratigraphic_query_trees(

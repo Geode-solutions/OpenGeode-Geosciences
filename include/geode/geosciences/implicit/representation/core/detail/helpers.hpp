@@ -71,13 +71,11 @@ namespace geode
 
         [[nodiscard]] ImplicitCrossSection opengeode_geosciences_implicit_api
             implicit_section_from_cross_section_scalar_field(
-                CrossSection&& section,
-                std::string_view scalar_attribute_name );
+                CrossSection&& section, const uuid& scalar_attribute_id );
 
         [[nodiscard]] ImplicitStructuralModel opengeode_geosciences_implicit_api
             implicit_model_from_structural_model_scalar_field(
-                StructuralModel&& model,
-                std::string_view scalar_attribute_name );
+                StructuralModel&& model, const uuid& scalar_attribute_id );
 
         [[nodiscard]] StratigraphicModel opengeode_geosciences_implicit_api
             stratigraphic_model_from_implicit_model_and_coords(

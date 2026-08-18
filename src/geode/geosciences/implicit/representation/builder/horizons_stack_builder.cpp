@@ -63,12 +63,16 @@ namespace geode
         if( const auto horizon_id = horizons_stack.bottom_horizon() )
         {
             horizons_stack_.set_bottom_horizon(
-                horizons_mapping.in2out( horizon_id.value() ), {} );
+                horizons_mapping.in2out( horizon_id.value() ),
+                typename HorizonsStack<
+                    dimension >::HorizonsStackBuilderKey() );
         }
         if( const auto horizon_id = horizons_stack.top_horizon() )
         {
             horizons_stack_.set_top_horizon(
-                horizons_mapping.in2out( horizon_id.value() ), {} );
+                horizons_mapping.in2out( horizon_id.value() ),
+                typename HorizonsStack<
+                    dimension >::HorizonsStackBuilderKey() );
         }
         return mapping;
     }
@@ -78,9 +82,10 @@ namespace geode
         const HorizonsStack< dimension >& horizons_stack )
     {
         ModelCopyMapping mappings;
-        detail::copy_horizons( horizons_stack, *this,
+        detail::copy_horizons( horizons_stack, horizons_stack_, *this,
             mappings[Horizon< dimension >::component_type_static()] );
-        detail::copy_stratigraphic_units( horizons_stack, *this,
+        detail::copy_stratigraphic_units( horizons_stack, horizons_stack_,
+            *this,
             mappings[StratigraphicUnit< dimension >::component_type_static()] );
         return mappings;
     }
@@ -106,12 +111,16 @@ namespace geode
         if( const auto horizon_id = horizons_stack.bottom_horizon() )
         {
             horizons_stack_.set_bottom_horizon(
-                horizons_mapping.in2out( horizon_id.value() ), {} );
+                horizons_mapping.in2out( horizon_id.value() ),
+                typename HorizonsStack<
+                    dimension >::HorizonsStackBuilderKey() );
         }
         if( const auto horizon_id = horizons_stack.top_horizon() )
         {
             horizons_stack_.set_top_horizon(
-                horizons_mapping.in2out( horizon_id.value() ), {} );
+                horizons_mapping.in2out( horizon_id.value() ),
+                typename HorizonsStack<
+                    dimension >::HorizonsStackBuilderKey() );
         }
     }
 
@@ -120,9 +129,10 @@ namespace geode
         ModelCopyMapping& mapping,
         const HorizonsStack< dimension >& horizons_stack )
     {
-        detail::copy_horizons( horizons_stack, *this,
+        detail::copy_horizons( horizons_stack, horizons_stack_, *this,
             mapping[Horizon< dimension >::component_type_static()] );
-        detail::copy_stratigraphic_units( horizons_stack, *this,
+        detail::copy_stratigraphic_units( horizons_stack, horizons_stack_,
+            *this,
             mapping[StratigraphicUnit< dimension >::component_type_static()] );
     }
 
@@ -239,7 +249,8 @@ namespace geode
     template < index_t dimension >
     void HorizonsStackBuilder< dimension >::compute_top_and_bottom_horizons()
     {
-        horizons_stack_.compute_top_and_bottom_horizons( {} );
+        horizons_stack_.compute_top_and_bottom_horizons(
+            typename HorizonsStack< dimension >::HorizonsStackBuilderKey() );
     }
 
     template class opengeode_geosciences_implicit_api HorizonsStackBuilder< 2 >;

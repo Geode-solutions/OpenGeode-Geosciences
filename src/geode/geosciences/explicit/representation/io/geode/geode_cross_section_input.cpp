@@ -54,7 +54,7 @@ namespace geode
     {
         const UnzipFile zip_reader{ filename(), uuid{}.string() };
         zip_reader.extract_all();
-        CrossSection cross_section;
+        CrossSection cross_section{ BITSERY::constructor };
         detail::load_cross_section_files(
             cross_section, zip_reader.directory() );
         return cross_section;

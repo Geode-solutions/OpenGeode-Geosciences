@@ -66,6 +66,12 @@ namespace geode
     HorizonsStack< dimension >::HorizonsStack() = default;
 
     template < index_t dimension >
+    HorizonsStack< dimension >::HorizonsStack( BITSERY bitsery )
+        : StratigraphicRelationships{ bitsery }
+    {
+    }
+
+    template < index_t dimension >
     HorizonsStack< dimension >::HorizonsStack(
         HorizonsStack< dimension >&& ) noexcept = default;
 
@@ -122,7 +128,7 @@ namespace geode
     {
         if( !impl_->top_horizon() || !impl_->bottom_horizon() )
         {
-            Logger::warn(
+            Logger::warning(
                 "[HorizonsStack::bottom_to_top_horizons] Iteration "
                 "on HorizonsStack will be empty: top and bottom "
                 "horizons have not been computed, or stack is empty." );
@@ -136,7 +142,7 @@ namespace geode
     {
         if( !impl_->top_horizon() || !impl_->bottom_horizon() )
         {
-            Logger::warn(
+            Logger::warning(
                 "[HorizonsStack::bottom_to_top_units] Iteration "
                 "on HorizonsStack will be empty: top and bottom "
                 "horizons have not been computed, or stack is empty" );
@@ -150,7 +156,7 @@ namespace geode
     {
         if( !impl_->top_horizon() || !impl_->bottom_horizon() )
         {
-            Logger::warn(
+            Logger::warning(
                 "[HorizonsStack::top_to_bottom_horizons] Iteration "
                 "on HorizonsStack will be empty: top and bottom "
                 "horizons have not been computed, or stack is empty." );
@@ -164,7 +170,7 @@ namespace geode
     {
         if( !impl_->top_horizon() || !impl_->bottom_horizon() )
         {
-            Logger::warn(
+            Logger::warning(
                 "[HorizonsStack::top_to_bottom_units] Iteration "
                 "on HorizonsStack will be empty: top and bottom "
                 "horizons have not been computed, or stack is empty" );
@@ -304,7 +310,7 @@ namespace geode
     {
         if( this->nb_horizons() == 0 )
         {
-            Logger::warn(
+            Logger::warning(
                 "[HorizonsStack::compute_top_and_bottom_horizons] No horizons "
                 "were provided in the HorizonsStack, top and bottom horizons "
                 "will be set to std::nullopt." );

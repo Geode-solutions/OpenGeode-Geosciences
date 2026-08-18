@@ -44,12 +44,12 @@ namespace geode
     class FaultBlock final : public Component< dimension >
     {
         OPENGEODE_DISABLE_COPY( FaultBlock );
-        PASSKEY( FaultBlocks< dimension >, FaultBlocksKey );
-        PASSKEY( FaultBlocksBuilder< dimension >, FaultBlocksBuilderKey );
 
         friend class bitsery::Access;
 
     public:
+        PASSKEY( FaultBlocks< dimension >, FaultBlocksKey );
+        PASSKEY( FaultBlocksBuilder< dimension >, FaultBlocksBuilderKey );
         FaultBlock( FaultBlock&& other ) noexcept;
         ~FaultBlock();
 

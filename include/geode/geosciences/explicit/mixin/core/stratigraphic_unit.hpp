@@ -43,6 +43,8 @@ namespace geode
     class StratigraphicUnit final : public Component< dimension >
     {
         OPENGEODE_DISABLE_COPY( StratigraphicUnit );
+
+    public:
         PASSKEY( StratigraphicUnits< dimension >, StratigraphicUnitsKey );
         PASSKEY( StratigraphicUnitsBuilder< dimension >,
             StratigraphicUnitsBuilderKey );

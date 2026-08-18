@@ -54,23 +54,22 @@ namespace geode
     public:
         Impl() = default;
 
+        Impl( BITSERY bitsery ) : horizons_stack_{ bitsery } {}
+
         void initialize_implicit_query_trees(
             const ImplicitStructuralModel& model )
         {
             instantiate_implicit_attribute_on_blocks( model );
             block_mesh_aabb_trees_.reserve( model.nb_blocks() );
-            block_distance_to_tetras_.reserve( model.nb_blocks() );
             for( const auto& block : model.blocks() )
             {
-                if( !block_is_meshed( block ) )
-                {
-                    continue;
-                }
                 block_mesh_aabb_trees_.try_emplace( block.id() );
-                block_distance_to_tetras_.try_emplace(
-                    block.id(), DistanceToTetrahedron3D{
-                                    block.mesh< TetrahedralSolid3D >() } );
             }
+        }
+
+        const uuid& implicit_attribute_id() const
+        {
+            return implicit_attribute_id_;
         }
 
         double implicit_value( const Block3D& block, index_t vertex_id ) const
@@ -100,13 +99,13 @@ namespace geode
         std::optional< index_t > containing_polyhedron(
             const Block3D& block, const Point3D& point ) const
         {
+            DistanceToTetrahedron3D distance_action{
+                block.mesh< TetrahedralSolid3D >()
+            };
             auto closest_tetrahedron = std::get< 0 >( block_mesh_aabb_trees_
                     .at( block.id() )( create_aabb_tree, block.mesh() )
-                    .closest_element_box(
-                        point, block_distance_to_tetras_.at( block.id() ) ) );
-            if( block_distance_to_tetras_.at( block.id() )(
-                    point, closest_tetrahedron )
-                < GLOBAL_EPSILON )
+                    .closest_element_box( point, distance_action ) );
+            if( distance_action( point, closest_tetrahedron ) < GLOBAL_EPSILON )
             {
                 return closest_tetrahedron;
             }
@@ -221,34 +220,34 @@ namespace geode
             implicit_attributes_.reserve( model.nb_blocks() );
             for( const auto& block : model.blocks() )
             {
-                if( !block_is_meshed( block ) )
+                if( block.mesh().type_name()
+                    != TetrahedralSolid3D::type_name_static() )
                 {
                     continue;
                 }
-                OpenGeodeGeosciencesImplicitException::check_exception(
-                    ( block.mesh().type_name()
-                        == TetrahedralSolid3D::type_name_static() ),
-                    nullptr, OpenGeodeException::TYPE::data,
-                    "[ImplicitStructuralModel::instantiate_implicit_attribute_"
-                    "on_blocks] Blocks must be meshed as TetrahedralSolids, "
-                    "which is not the case for block with uuid '",
-                    block.id().string(), "'." );
-                if( !block.mesh().vertex_attribute_manager().attribute_exists(
-                        IMPLICIT_ATTRIBUTE_NAME ) )
-                {
-                    implicit_attributes_.try_emplace(
-                        block.id(), TetrahedralSolidScalarFunction3D::create(
-                                        block.mesh< TetrahedralSolid3D >(),
-                                        IMPLICIT_ATTRIBUTE_NAME, 0 ) );
-                }
-                else
+                if( block.mesh().vertex_attribute_manager().attribute_exists(
+                        implicit_attribute_id_ ) )
                 {
                     implicit_attributes_.try_emplace(
                         block.id(), TetrahedralSolidScalarFunction3D::find(
                                         block.mesh< TetrahedralSolid3D >(),
-                                        IMPLICIT_ATTRIBUTE_NAME ) );
+                                        implicit_attribute_id_ ) );
+                }
+                else
+                {
+                    implicit_attributes_.try_emplace(
+                        block.id(), TetrahedralSolidScalarFunction3D::create(
+                                        block.mesh< TetrahedralSolid3D >(),
+                                        IMPLICIT_ATTRIBUTE_NAME,
+                                        implicit_attribute_id_, 0 ) );
                 }
             }
+        }
+
+        absl::flat_hash_map< uuid, TetrahedralSolidScalarFunction3D >&
+            implicit_attributes()
+        {
+            return implicit_attributes_;
         }
 
         void set_implicit_value(
@@ -317,14 +316,26 @@ namespace geode
             archive.ext( *this,
                 Growable< Archive, Impl >{
                     { []( Archive& local_archive, Impl& impl ) {
-                        local_archive.ext( impl.horizon_isovalues_,
-                            bitsery::ext::StdMap{
-                                impl.horizon_isovalues_.max_size() },
-                            []( Archive& map_archive, uuid& id, double& item ) {
-                                map_archive.object( id );
-                                map_archive.value8b( item );
-                            } );
-                    } } } );
+                         local_archive.ext( impl.horizon_isovalues_,
+                             bitsery::ext::StdMap{
+                                 impl.horizon_isovalues_.max_size() },
+                             []( Archive& map_archive, uuid& id,
+                                 double& item ) {
+                                 map_archive.object( id );
+                                 map_archive.value8b( item );
+                             } );
+                     },
+                        { []( Archive& local_archive, Impl& impl ) {
+                            local_archive.ext( impl.horizon_isovalues_,
+                                bitsery::ext::StdMap{
+                                    impl.horizon_isovalues_.max_size() },
+                                []( Archive& map_archive, uuid& id,
+                                    double& item ) {
+                                    map_archive.object( id );
+                                    map_archive.value8b( item );
+                                } );
+                            local_archive.object( impl.implicit_attribute_id_ );
+                        } } } } );
         }
 
     private:
@@ -334,13 +345,17 @@ namespace geode
         absl::flat_hash_map< uuid, double > horizon_isovalues_;
         absl::flat_hash_map< uuid, CachedValue< AABBTree3D > >
             block_mesh_aabb_trees_;
-        absl::flat_hash_map< uuid, DistanceToTetrahedron3D >
-            block_distance_to_tetras_;
+        geode::uuid implicit_attribute_id_{};
     };
 
     ImplicitStructuralModel::ImplicitStructuralModel()
     {
         impl_->initialize_implicit_query_trees( *this );
+    }
+
+    ImplicitStructuralModel::ImplicitStructuralModel( BITSERY bitsery )
+        : StructuralModel{ bitsery }, impl_{ bitsery }
+    {
     }
 
     ImplicitStructuralModel::ImplicitStructuralModel(
@@ -394,6 +409,11 @@ namespace geode
         const uuid& id ) const
     {
         return detail::model_component( *this, id );
+    }
+
+    const uuid& ImplicitStructuralModel::implicit_attribute_id() const
+    {
+        return impl_->implicit_attribute_id();
     }
 
     double ImplicitStructuralModel::implicit_value(
@@ -494,11 +514,72 @@ namespace geode
     template < typename Archive >
     void ImplicitStructuralModel::serialize( Archive& archive )
     {
-        archive.ext(
-            *this, Growable< Archive, ImplicitStructuralModel >{
-                       { []( Archive& a, ImplicitStructuralModel& model ) {
-                           a.object( model.impl_ );
-                       } } } );
+        archive.ext( *this,
+            Growable< Archive, ImplicitStructuralModel >{
+                { []( Archive& a, ImplicitStructuralModel& model ) {
+                     a.object( model.impl_ );
+                     for( const auto& block : model.blocks() )
+                     {
+                         const auto& block_mesh = block.mesh();
+                         if( block_mesh.type_name()
+                             != TetrahedralSolid3D::type_name_static() )
+                         {
+                             continue;
+                         }
+                         AttributeValues< double >
+                             implicit_attribute_default_values;
+                         implicit_attribute_default_values.default_value = 0;
+                         implicit_attribute_default_values.no_value = 0;
+                         AttributeProperties implicit_attribute_properties;
+                         implicit_attribute_properties.assignable = false;
+                         implicit_attribute_properties.interpolable = true;
+                         implicit_attribute_properties.transferable = true;
+                         if( const auto old_implicit_attribute_id =
+                                 block_mesh.vertex_attribute_manager()
+                                     .attribute_ids_matching_name(
+                                         IMPLICIT_ATTRIBUTE_NAME ) )
+                         {
+                             const auto old_implicit_attribute =
+                                 block_mesh.vertex_attribute_manager()
+                                     .find_read_only_attribute< double >(
+                                         old_implicit_attribute_id.value()
+                                             .front() );
+
+                             block_mesh.vertex_attribute_manager()
+                                 .create_attribute< VariableAttribute, double >(
+                                     IMPLICIT_ATTRIBUTE_NAME,
+                                     model.impl_->implicit_attribute_id(),
+                                     implicit_attribute_default_values,
+                                     implicit_attribute_properties );
+                             auto new_implicit_attribute =
+                                 block_mesh.vertex_attribute_manager()
+                                     .find_attribute< VariableAttribute,
+                                         double >(
+                                         model.impl_->implicit_attribute_id() );
+                             for( const auto vertex_id :
+                                 geode::Range{ block_mesh.nb_vertices() } )
+                             {
+                                 new_implicit_attribute->set_value(
+                                     vertex_id, old_implicit_attribute->value(
+                                                    vertex_id ) );
+                             }
+                         }
+                         else
+                         {
+                             block_mesh.vertex_attribute_manager()
+                                 .create_attribute< VariableAttribute, double >(
+                                     IMPLICIT_ATTRIBUTE_NAME,
+                                     model.impl_->implicit_attribute_id(),
+                                     implicit_attribute_default_values,
+                                     implicit_attribute_properties );
+                         }
+                     }
+                     model.impl_->initialize_implicit_query_trees( model );
+                 },
+                    []( Archive& a, ImplicitStructuralModel& model ) {
+                        a.object( model.impl_ );
+                        model.impl_->initialize_implicit_query_trees( model );
+                    } } } );
     }
 
     SERIALIZE_BITSERY_ARCHIVE(

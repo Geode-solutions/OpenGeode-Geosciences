@@ -26,6 +26,8 @@
 #include <geode/geosciences/explicit/representation/builder/cross_section_builder.hpp>
 #include <geode/geosciences/implicit/common.hpp>
 
+#include <geode/basic/uuid.hpp>
+
 namespace geode
 {
     class ImplicitCrossSection;
@@ -49,7 +51,16 @@ namespace geode
 
         ModelCopyMapping copy( const ImplicitCrossSection& implicit_model );
 
+        void import_old_implicit_attribute_values_from_attribute_name(
+            std::string_view old_implicit_attribute_name );
+
+        void import_old_implicit_attribute_values_from_attribute_id(
+            const uuid& old_implicit_attribute_id );
+
         void copy_implicit_information( ModelCopyMapping& mapping,
+            const ImplicitCrossSection& other_model );
+
+        void copy_implicit_attribute_values( ModelCopyMapping& mapping,
             const ImplicitCrossSection& other_model );
 
         void reinitialize_implicit_query_trees();

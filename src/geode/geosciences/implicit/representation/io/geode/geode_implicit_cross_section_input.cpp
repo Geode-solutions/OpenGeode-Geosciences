@@ -46,7 +46,9 @@ namespace geode
     {
         const UnzipFile zip_reader{ this->filename(), uuid{}.string() };
         zip_reader.extract_all();
-        ImplicitCrossSection section;
+        ImplicitCrossSection section{ BITSERY::constructor };
+        detail::load_implicit_cross_section_files(
+            section, zip_reader.directory() );
         const auto impl_filename = absl::StrCat(
             zip_reader.directory(), "/implicit_section_impl.og_ixsctn" );
         OpenGeodeGeosciencesImplicitException::check_exception(
@@ -69,8 +71,7 @@ namespace geode
             "[OpenGeodeImplicitCrossSectionOutput::load_section_impl] "
             "Error while reading file: ",
             impl_filename );
-        detail::load_implicit_cross_section_files(
-            section, zip_reader.directory() );
+
         return section;
     }
 
@@ -83,7 +84,7 @@ namespace geode
             builder.set_horizons_stack( load_horizons_stack< 2 >(
                 absl::StrCat( directory, "/horizons_stack.",
                     HorizonsStack2D::native_extension_static() ) ) );
-            builder.reinitialize_implicit_query_trees();
+            // builder.reinitialize_implicit_query_trees();
             load_cross_section_files( section, directory );
         }
     } // namespace detail

@@ -23,6 +23,7 @@
 
 #pragma once
 
+#include <geode/basic/bitsery_archive.hpp>
 #include <geode/basic/identifier.hpp>
 #include <geode/basic/pimpl.hpp>
 
@@ -53,9 +54,9 @@ namespace geode
                           public StratigraphicUnits< dimension >,
                           public Identifier
     {
+    public:
         PASSKEY( HorizonsStackBuilder< dimension >, HorizonsStackBuilderKey );
 
-    public:
         enum struct RANGEORDER
         {
             bottom_to_top,
@@ -134,6 +135,7 @@ namespace geode
         using Components = tuple_cat< MeshComponents, CollectionComponents >;
 
         HorizonsStack();
+        HorizonsStack( BITSERY );
         HorizonsStack( HorizonsStack< dimension >&& horizons_stack ) noexcept;
         ~HorizonsStack();
 

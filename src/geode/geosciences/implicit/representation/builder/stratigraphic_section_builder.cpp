@@ -23,7 +23,11 @@
 
 #include <geode/geosciences/implicit/representation/builder/stratigraphic_section_builder.hpp>
 
+#include <geode/basic/variable_attribute.hpp>
+
 #include <geode/geometry/point.hpp>
+
+#include <geode/mesh/core/surface_mesh.hpp>
 
 #include <geode/model/mixin/core/surface.hpp>
 
@@ -44,14 +48,16 @@ namespace geode
     {
         auto mappings =
             ImplicitCrossSectionBuilder::copy( stratigraphic_section );
-        stratigraphic_section_.initialize_stratigraphic_query_trees( {} );
+        stratigraphic_section_.initialize_stratigraphic_query_trees(
+            StratigraphicSection::StratigraphicSectionBuilderKey{} );
         return mappings;
     }
 
     void StratigraphicSectionBuilder::reinitialize_stratigraphic_query_trees()
     {
         this->reinitialize_implicit_query_trees();
-        stratigraphic_section_.initialize_stratigraphic_query_trees( {} );
+        stratigraphic_section_.initialize_stratigraphic_query_trees(
+            StratigraphicSection::StratigraphicSectionBuilderKey{} );
     }
 
     void StratigraphicSectionBuilder::
@@ -59,14 +65,15 @@ namespace geode
     {
         this->instantiate_implicit_attribute_on_surfaces();
         stratigraphic_section_.instantiate_stratigraphic_location_on_surfaces(
-            {} );
+            StratigraphicSection::StratigraphicSectionBuilderKey{} );
     }
 
     void StratigraphicSectionBuilder::set_stratigraphic_location(
         const Surface2D& surface, index_t vertex_id, Point1D value )
     {
-        stratigraphic_section_.set_stratigraphic_location(
-            surface, vertex_id, std::move( value ), {} );
+        stratigraphic_section_.set_stratigraphic_location( surface, vertex_id,
+            std::move( value ),
+            StratigraphicSection::StratigraphicSectionBuilderKey{} );
     }
 
     void StratigraphicSectionBuilder::set_stratigraphic_coordinates(
@@ -75,7 +82,67 @@ namespace geode
         const StratigraphicPoint2D& value )
     {
         this->set_implicit_value( surface, vertex_id, value.implicit_value() );
-        stratigraphic_section_.set_stratigraphic_location(
-            surface, vertex_id, value.stratigraphic_location(), {} );
+        stratigraphic_section_.set_stratigraphic_location( surface, vertex_id,
+            value.stratigraphic_location(),
+            StratigraphicSection::StratigraphicSectionBuilderKey{} );
+    }
+
+    void StratigraphicSectionBuilder::
+        import_old_stratigraphic_attribute_values_from_attribute_name(
+            std::string_view old_attribute_name )
+    {
+        for( const auto& surface : stratigraphic_section_.surfaces() )
+        {
+            auto& surface_vertex_attribute_manager =
+                surface.mesh().vertex_attribute_manager();
+            const auto old_attribute_id =
+                surface_vertex_attribute_manager
+                    .attribute_ids_matching_name( old_attribute_name )
+                    .value()
+                    .front();
+            const auto old_attribute =
+                surface_vertex_attribute_manager
+                    .find_read_only_attribute< Point1D >( old_attribute_id );
+            auto new_attribute =
+                surface_vertex_attribute_manager
+                    .find_attribute< VariableAttribute, Point1D >(
+                        stratigraphic_section_
+                            .stratigraphic_location_attribute_id() );
+            for( const auto vertex :
+                geode::Range{ surface.mesh().nb_vertices() } )
+            {
+                new_attribute->set_value(
+                    vertex, old_attribute->value( vertex ) );
+            }
+            surface_vertex_attribute_manager.delete_attribute(
+                old_attribute_id );
+        }
+    }
+
+    void StratigraphicSectionBuilder::
+        import_old_stratigraphic_attribute_values_from_attribute_id(
+            const uuid& old_attribute_id )
+    {
+        for( const auto& surface : stratigraphic_section_.surfaces() )
+        {
+            auto& surface_vertex_attribute_manager =
+                surface.mesh().vertex_attribute_manager();
+            const auto old_attribute =
+                surface_vertex_attribute_manager
+                    .find_read_only_attribute< Point1D >( old_attribute_id );
+            auto new_attribute =
+                surface_vertex_attribute_manager
+                    .find_attribute< VariableAttribute, Point1D >(
+                        stratigraphic_section_
+                            .stratigraphic_location_attribute_id() );
+            for( const auto vertex :
+                geode::Range{ surface.mesh().nb_vertices() } )
+            {
+                new_attribute->set_value(
+                    vertex, old_attribute->value( vertex ) );
+            }
+            surface_vertex_attribute_manager.delete_attribute(
+                old_attribute_id );
+        }
     }
 } // namespace geode

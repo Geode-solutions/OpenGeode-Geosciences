@@ -61,7 +61,7 @@ namespace geode
     const Line2D& CrossSection::HorizonItemRange::operator*() const
     {
         return cross_section_.line(
-            Relationships::ItemRangeIterator::operator*().id() );
+            Relationships::ItemRangeIterator::operator*().id );
     }
 
     CrossSection::HorizonItemRange CrossSection::horizon_items(
@@ -98,7 +98,7 @@ namespace geode
     const Line2D& CrossSection::FaultItemRange::operator*() const
     {
         return cross_section_.line(
-            Relationships::ItemRangeIterator::operator*().id() );
+            Relationships::ItemRangeIterator::operator*().id );
     }
 
     CrossSection::FaultItemRange CrossSection::fault_items(
@@ -138,7 +138,7 @@ namespace geode
     const Surface2D& CrossSection::FaultBlockItemRange::operator*() const
     {
         return cross_section_.surface(
-            Relationships::ItemRangeIterator::operator*().id() );
+            Relationships::ItemRangeIterator::operator*().id );
     }
 
     CrossSection::FaultBlockItemRange CrossSection::fault_block_items(
@@ -181,7 +181,7 @@ namespace geode
     const Surface2D& CrossSection::StratigraphicUnitItemRange::operator*() const
     {
         return cross_section_.surface(
-            Relationships::ItemRangeIterator::operator*().id() );
+            Relationships::ItemRangeIterator::operator*().id );
     }
 
     CrossSection::StratigraphicUnitItemRange
@@ -190,6 +190,8 @@ namespace geode
     {
         return { *this, stratigraphic_unit };
     }
+
+    CrossSection::CrossSection( BITSERY bitsery ) : Section{ bitsery } {}
 
     CrossSection::CrossSection( Section&& section ) noexcept
         : Section{ std::move( section ) }

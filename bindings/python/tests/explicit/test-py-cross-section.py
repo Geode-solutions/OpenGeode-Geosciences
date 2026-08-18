@@ -37,7 +37,7 @@ def add_faults(model, builder):
         raise ValueError("[Test] Addition of a Fault in CrossSection is not correct")
 
     fault1 = builder.add_fault()
-    builder.set_fault_name(fault1, "fault1")
+    builder.set_fault_name(model.fault(fault1), "fault1")
     if model.nb_faults() != 2:
         raise ValueError("[Test] Number of faults in CrossSection should be 2")
     if model.fault(fault1).name() != "fault1":
@@ -54,7 +54,7 @@ def add_horizons(model, builder):
 
     horizon1 = builder.add_horizon()
     horizon2 = builder.add_horizon()
-    builder.set_horizon_name(horizon2, "horizon2")
+    builder.set_horizon_name(model.horizon(horizon2),"horizon2")
     if model.nb_horizons() != 3:
         raise ValueError("[Test] Number of horizons in CrossSection should be 3")
     if model.horizon(horizon2).name() != "horizon2":
@@ -65,7 +65,7 @@ def add_fault_blocks(model, builder):
     fault_block0 = builder.add_fault_block()
     fault_block1 = builder.add_fault_block()
     builder.add_fault_block()
-    builder.set_fault_block_name(fault_block1, "hanging_wall")
+    builder.set_fault_block_name(model.fault_block(fault_block1),  "hanging_wall")
     if model.nb_fault_blocks() != 3:
         raise ValueError("[Test] Number of fault blocks in CrossSection should be 3")
     builder.remove_fault_block(model.fault_block(fault_block0))
@@ -79,7 +79,7 @@ def add_stratigraphic_units(model, builder):
     stratigraphic_unit0 = builder.add_stratigraphic_unit()
     stratigraphic_unit1 = builder.add_stratigraphic_unit()
     builder.add_stratigraphic_unit()
-    builder.set_stratigraphic_unit_name(stratigraphic_unit1, "cretaceous")
+    builder.set_stratigraphic_unit_name(model.stratigraphic_unit(stratigraphic_unit1), "cretaceous")
     if model.nb_stratigraphic_units() != 3:
         raise ValueError(
             "[Test] Number of stratigraphic_units in CrossSection should be 3"
@@ -341,14 +341,14 @@ def modify_model(model, builder):
     for horizon in model.horizons():
         horizons_ids.append(horizon.id())
         builder.set_horizon_contact_type(
-            horizon.id(), geosciences.Horizon2D.CONTACT_TYPE.TOPOGRAPHY
+            horizon, geosciences.Horizon2D.CONTACT_TYPE.TOPOGRAPHY
         )
 
     for horizon_id in horizons_ids:
         builder.remove_horizon(model.horizon(horizon_id))
 
     for fault in model.faults():
-        builder.set_fault_type(fault.id(), geosciences.Fault2D.FAULT_TYPE.LISTRIC)
+        builder.set_fault_type(fault, geosciences.Fault2D.FAULT_TYPE.LISTRIC)
         if fault.has_type() == False:
             raise ValueError("[Test] All faults should have a type")
 

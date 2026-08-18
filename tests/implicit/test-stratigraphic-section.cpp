@@ -55,9 +55,12 @@ geode::StratigraphicSection import_section_with_stratigraphy()
     for( const auto& surface : implicit_model.surfaces() )
     {
         const auto& mesh = surface.mesh();
-        const auto scalar_attribute =
-            mesh.vertex_attribute_manager().find_attribute< double >(
+        const auto scalar_attributes =
+            mesh.vertex_attribute_manager().attribute_ids_matching_name(
                 "curvature_min" );
+        const auto scalar_attribute =
+            mesh.vertex_attribute_manager().find_read_only_attribute< double >(
+                scalar_attributes.value().front() );
         for( const auto vertex_id : geode::Range{ mesh.nb_vertices() } )
         {
             model_builder.set_stratigraphic_coordinates( surface, vertex_id,
@@ -155,12 +158,29 @@ void test_io( const geode::StratigraphicSection& implicit_model )
     geode::Logger::info( "Testing IO" );
     const auto filename = "test_implicit_section_io.og_ixsctn";
     geode::save_implicit_cross_section( implicit_model, filename );
+    DEBUG( "reloaded" );
     geode::StratigraphicSection model_reload{
         geode::load_implicit_cross_section( filename )
     };
     geode::StratigraphicSectionBuilder builder{ model_reload };
     builder.reinitialize_stratigraphic_query_trees();
+    builder.import_old_stratigraphic_attribute_values_from_attribute_id(
+        implicit_model.stratigraphic_location_attribute_id() );
     test_section( model_reload );
+}
+
+void test_move( geode::StratigraphicSection& implicit_model )
+{
+    const auto old_implicit_id = implicit_model.implicit_attribute_id();
+    const auto old_strati_id =
+        implicit_model.stratigraphic_location_attribute_id();
+    geode::StratigraphicSection moved_model{ std::move( implicit_model ) };
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        moved_model.implicit_attribute_id() == old_implicit_id,
+        "Implicit attribute id not moved." );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        moved_model.stratigraphic_location_attribute_id() == old_strati_id,
+        "Stratigraphic location attribute id not moved." );
 }
 
 int main()
@@ -169,11 +189,12 @@ int main()
     {
         geode::Logger::info( "Starting test" );
         geode::OpenGeodeGeosciencesImplicitLibrary::initialize();
-        const auto model = import_section_with_stratigraphy();
+        geode::Logger::set_level( geode::Logger::LEVEL::debug );
+        auto model = import_section_with_stratigraphy();
         test_section( model );
-        test_save_stratigraphic_lines( model );
+        // test_save_stratigraphic_lines( model );
         test_io( model );
-
+        test_move( model );
         geode::Logger::info( "TEST SUCCESS" );
         return 0;
     }

@@ -23,6 +23,7 @@
 
 #pragma once
 
+#include <geode/basic/bitsery_archive.hpp>
 #include <geode/basic/pimpl.hpp>
 
 #include <geode/geosciences/implicit/common.hpp>
@@ -49,9 +50,8 @@ namespace geode
     class opengeode_geosciences_implicit_api StratigraphicModel
         : public ImplicitStructuralModel
     {
-        PASSKEY( StratigraphicModelBuilder, StratigraphicModelBuilderKey );
-
     public:
+        PASSKEY( StratigraphicModelBuilder, StratigraphicModelBuilderKey );
         static constexpr auto STRATIGRAPHIC_LOCATION_ATTRIBUTE_NAME =
             "geode_stratigraphic_location";
         static constexpr auto
@@ -59,6 +59,7 @@ namespace geode
                 "geode_associated_block_polyhedron_facet";
         using stratigraphic_location_type = Point2D;
         StratigraphicModel();
+        StratigraphicModel( BITSERY );
         StratigraphicModel( StratigraphicModel&& implicit_model ) noexcept;
         explicit StratigraphicModel(
             ImplicitStructuralModel&& structural_model ) noexcept;
@@ -141,6 +142,8 @@ namespace geode
                 const Block3D& block, const Surface3D& surface ) const;
 
         [[nodiscard]] BoundingBox3D stratigraphic_bounding_box() const;
+
+        [[nodiscard]] const uuid& stratigraphic_location_attribute_id() const;
 
     public:
         void initialize_stratigraphic_query_trees(
