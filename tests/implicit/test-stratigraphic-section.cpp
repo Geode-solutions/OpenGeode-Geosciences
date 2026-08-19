@@ -153,6 +153,13 @@ void test_save_stratigraphic_lines(
     }
 }
 
+void test_backward_io( std::string filename )
+{
+    const auto implicit_cross_section =
+        geode::load_implicit_cross_section( filename );
+    geode::save_implicit_cross_section( implicit_cross_section, filename );
+}
+
 void test_io( const geode::StratigraphicSection& implicit_model )
 {
     geode::Logger::info( "Testing IO" );
@@ -195,6 +202,8 @@ int main()
         // test_save_stratigraphic_lines( model );
         test_io( model );
         test_move( model );
+        test_backward_io( absl::StrCat(
+            geode::DATA_PATH, "test_old_implicit_crossection.og_ixsctn" ) );
         geode::Logger::info( "TEST SUCCESS" );
         return 0;
     }
