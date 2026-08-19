@@ -520,14 +520,6 @@ namespace geode
                      for( const auto& surface : model.surfaces() )
                      {
                          const auto& surface_mesh = surface.mesh();
-                         const auto old_implicit_attribute_id =
-                             model.impl_->implicit_attributes()
-                                 .at( surface.id() )
-                                 .attribute_function_id();
-                         const auto old_implicit_attribute =
-                             surface_mesh.vertex_attribute_manager()
-                                 .find_read_only_attribute< double >(
-                                     old_implicit_attribute_id );
                          AttributeValues< double >
                              implicit_attribute_default_values;
                          implicit_attribute_default_values.default_value = 0;
@@ -536,21 +528,43 @@ namespace geode
                          implicit_attribute_properties.assignable = false;
                          implicit_attribute_properties.interpolable = true;
                          implicit_attribute_properties.transferable = true;
-                         surface_mesh.vertex_attribute_manager()
-                             .create_attribute< VariableAttribute, double >(
-                                 IMPLICIT_ATTRIBUTE_NAME,
-                                 model.impl_->implicit_attribute_id(),
-                                 implicit_attribute_default_values,
-                                 implicit_attribute_properties );
-                         auto new_implicit_attribute =
-                             surface_mesh.vertex_attribute_manager()
-                                 .find_attribute< VariableAttribute, double >(
-                                     model.impl_->implicit_attribute_id() );
-                         for( const auto vertex_id :
-                             geode::Range{ surface_mesh.nb_vertices() } )
+                         if( const auto old_implicit_attribute_id =
+                                 surface_mesh.vertex_attribute_manager()
+                                     .attribute_ids_matching_name(
+                                         IMPLICIT_ATTRIBUTE_NAME ) )
                          {
-                             new_implicit_attribute->set_value( vertex_id,
-                                 old_implicit_attribute->value( vertex_id ) );
+                             const auto old_implicit_attribute =
+                                 surface_mesh.vertex_attribute_manager()
+                                     .find_read_only_attribute< double >(
+                                         old_implicit_attribute_id.value()
+                                             .front() );
+                             surface_mesh.vertex_attribute_manager()
+                                 .create_attribute< VariableAttribute, double >(
+                                     IMPLICIT_ATTRIBUTE_NAME,
+                                     model.impl_->implicit_attribute_id(),
+                                     implicit_attribute_default_values,
+                                     implicit_attribute_properties );
+                             auto new_implicit_attribute =
+                                 surface_mesh.vertex_attribute_manager()
+                                     .find_attribute< VariableAttribute,
+                                         double >(
+                                         model.impl_->implicit_attribute_id() );
+                             for( const auto vertex_id :
+                                 geode::Range{ surface_mesh.nb_vertices() } )
+                             {
+                                 new_implicit_attribute->set_value(
+                                     vertex_id, old_implicit_attribute->value(
+                                                    vertex_id ) );
+                             }
+                         }
+                         else
+                         {
+                             surface_mesh.vertex_attribute_manager()
+                                 .create_attribute< VariableAttribute, double >(
+                                     IMPLICIT_ATTRIBUTE_NAME,
+                                     model.impl_->implicit_attribute_id(),
+                                     implicit_attribute_default_values,
+                                     implicit_attribute_properties );
                          }
                      }
                      model.impl_->initialize_implicit_query_trees( model );
