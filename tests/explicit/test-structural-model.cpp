@@ -22,9 +22,13 @@
  */
 
 #include <geode/basic/assert.hpp>
+#include <geode/basic/attribute_manager.hpp>
 #include <geode/basic/logger.hpp>
 #include <geode/basic/range.hpp>
 #include <geode/basic/uuid.hpp>
+#include <geode/basic/variable_attribute.hpp>
+
+#include <geode/mesh/core/solid_mesh.hpp>
 
 #include <geode/model/mixin/core/block.hpp>
 #include <geode/model/mixin/core/line.hpp>
@@ -268,9 +272,9 @@ void check_physical_properties( const geode::StructuralModel& model,
     geode::OpenGeodeGeosciencesExplicitException::test(
         model.has_physical_property( geode::PHYSICAL_PROPERTY_NAME::porosity ),
         context, " Porosity physical property should exist" );
-    const auto& info = model.physical_property_attribute(
+    const auto& info = model.physical_property_info(
         geode::PHYSICAL_PROPERTY_NAME::porosity );
-    const auto& reference_info = reference.physical_property_attribute(
+    const auto& reference_info = reference.physical_property_info(
         geode::PHYSICAL_PROPERTY_NAME::porosity );
     geode::OpenGeodeGeosciencesExplicitException::test(
         info.component_type == reference_info.component_type
@@ -429,8 +433,14 @@ int main()
         add_faults( model, builder );
         add_horizons( model, builder );
         build_relations_between_geometry_and_geology( model, builder );
+        const geode::uuid porosity_attribute_id;
+        geode::AttributeValues< double > porosity_values;
+        porosity_values.default_value = 0.2;
+        porosity_values.no_value = -1.;
+        builder.create_blocks_attribute< geode::VariableAttribute, double >(
+            "porosity", porosity_attribute_id, porosity_values, {} );
         builder.set_physical_property( geode::PHYSICAL_PROPERTY_NAME::porosity,
-            geode::Block3D::component_type_static(), geode::uuid{} );
+            geode::Block3D::component_type_static(), porosity_attribute_id );
 
         test_io( model );
         test_copy( model );
