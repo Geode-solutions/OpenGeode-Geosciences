@@ -272,8 +272,8 @@ void check_physical_properties( const geode::StructuralModel& model,
     geode::OpenGeodeGeosciencesExplicitException::test(
         model.has_physical_property( geode::PHYSICAL_PROPERTY_NAME::porosity ),
         context, " Porosity physical property should exist" );
-    const auto& info = model.physical_property_info(
-        geode::PHYSICAL_PROPERTY_NAME::porosity );
+    const auto& info =
+        model.physical_property_info( geode::PHYSICAL_PROPERTY_NAME::porosity );
     const auto& reference_info = reference.physical_property_info(
         geode::PHYSICAL_PROPERTY_NAME::porosity );
     geode::OpenGeodeGeosciencesExplicitException::test(
