@@ -56,6 +56,7 @@ namespace geode
         copy_component_geometry( mappings, structural_model );
         copy_geological_components( mappings, structural_model );
         copy_relationships( mappings, structural_model );
+        copy_physical_properties( structural_model );
         return mappings;
     }
 
