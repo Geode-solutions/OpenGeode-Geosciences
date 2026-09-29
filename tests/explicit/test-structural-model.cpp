@@ -261,6 +261,23 @@ void check_reloaded_model( const geode::StructuralModel& reloaded_model )
         "Number of faults in reloaded model should be 2" );
 }
 
+void check_physical_properties( const geode::StructuralModel& model,
+    const geode::StructuralModel& reference,
+    std::string_view context )
+{
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        model.has_physical_property( geode::PHYSICAL_PROPERTY_NAME::porosity ),
+        context, " Porosity physical property should exist" );
+    const auto& info = model.physical_property_attribute(
+        geode::PHYSICAL_PROPERTY_NAME::porosity );
+    const auto& reference_info = reference.physical_property_attribute(
+        geode::PHYSICAL_PROPERTY_NAME::porosity );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        info.component_type == reference_info.component_type
+            && info.attribute_id == reference_info.attribute_id,
+        context, " Wrong porosity physical property info" );
+}
+
 void test_io( const geode::StructuralModel& model )
 {
     const auto file_io = absl::StrCat( "test.", model.native_extension() );
@@ -269,6 +286,7 @@ void test_io( const geode::StructuralModel& model )
     geode::StructuralModel reloaded_model =
         geode::load_structural_model( file_io );
     check_reloaded_model( reloaded_model );
+    check_physical_properties( reloaded_model, model, "[Test] reload" );
 }
 
 void test_copy( const geode::StructuralModel& model )
@@ -276,6 +294,8 @@ void test_copy( const geode::StructuralModel& model )
     geode::StructuralModel copy;
     geode::StructuralModelBuilder copier( copy );
     const auto mapping = copier.copy( model );
+    check_physical_properties( copy, model, "[Test] copy" );
+    check_physical_properties( model.clone(), model, "[Test] clone" );
     geode::OpenGeodeGeosciencesExplicitException::test(
         copy.nb_surfaces() == model.nb_surfaces(),
         "Number of surfaces in copied model should be 8" );
@@ -389,41 +409,6 @@ void modify_model(
         "Number of faults in modified model should be 2" );
 }
 
-void check_physical_properties( const geode::StructuralModel& model,
-    const geode::uuid& attribute_id,
-    std::string_view context )
-{
-    geode::OpenGeodeGeosciencesExplicitException::test(
-        model.has_physical_property( geode::PHYSICAL_PROPERTY_NAME::porosity ),
-        context, " Porosity physical property should exist" );
-    const auto& info = model.physical_property_attribute(
-        geode::PHYSICAL_PROPERTY_NAME::porosity );
-    geode::OpenGeodeGeosciencesExplicitException::test(
-        info.component_type == geode::Block3D::component_type_static()
-            && info.attribute_id == attribute_id,
-        context, " Wrong porosity physical property info" );
-}
-
-void test_physical_properties(
-    geode::StructuralModel& model, geode::StructuralModelBuilder& builder )
-{
-    const geode::uuid attribute_id;
-    builder.set_physical_property( geode::PHYSICAL_PROPERTY_NAME::porosity,
-        geode::Block3D::component_type_static(), attribute_id );
-
-    geode::StructuralModel copy;
-    geode::StructuralModelBuilder{ copy }.copy( model );
-    check_physical_properties( copy, attribute_id, "[Test] copy" );
-
-    check_physical_properties( model.clone(), attribute_id, "[Test] clone" );
-
-    const auto file_io =
-        absl::StrCat( "test_physical_properties.", model.native_extension() );
-    geode::save_structural_model( model, file_io );
-    check_physical_properties( geode::load_structural_model( file_io ),
-        attribute_id, "[Test] reload" );
-}
-
 geode::BRep build_brep()
 {
     geode::BRep brep;
@@ -444,10 +429,11 @@ int main()
         add_faults( model, builder );
         add_horizons( model, builder );
         build_relations_between_geometry_and_geology( model, builder );
+        builder.set_physical_property( geode::PHYSICAL_PROPERTY_NAME::porosity,
+            geode::Block3D::component_type_static(), geode::uuid{} );
 
         test_io( model );
         test_copy( model );
-        test_physical_properties( model, builder );
         modify_model( model, builder );
 
         geode::Logger::info( "TEST SUCCESS" );
