@@ -22,9 +22,15 @@
  */
 
 #include <geode/basic/assert.hpp>
+#include <geode/basic/attribute_manager.hpp>
 #include <geode/basic/logger.hpp>
 #include <geode/basic/range.hpp>
+#include <geode/basic/uuid.hpp>
+#include <geode/basic/variable_attribute.hpp>
 
+#include <geode/mesh/core/solid_mesh.hpp>
+
+#include <geode/model/mixin/core/block.hpp>
 #include <geode/model/mixin/core/line.hpp>
 #include <geode/model/mixin/core/surface.hpp>
 
@@ -259,6 +265,23 @@ void check_reloaded_model( const geode::StructuralModel& reloaded_model )
         "Number of faults in reloaded model should be 2" );
 }
 
+void check_physical_properties( const geode::StructuralModel& model,
+    const geode::StructuralModel& reference,
+    std::string_view context )
+{
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        model.has_physical_property( geode::PHYSICAL_PROPERTY_NAME::porosity ),
+        context, " Porosity physical property should exist" );
+    const auto& info =
+        model.physical_property_info( geode::PHYSICAL_PROPERTY_NAME::porosity );
+    const auto& reference_info = reference.physical_property_info(
+        geode::PHYSICAL_PROPERTY_NAME::porosity );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        info.component_type == reference_info.component_type
+            && info.attribute_id == reference_info.attribute_id,
+        context, " Wrong porosity physical property info" );
+}
+
 void test_io( const geode::StructuralModel& model )
 {
     const auto file_io = absl::StrCat( "test.", model.native_extension() );
@@ -267,6 +290,7 @@ void test_io( const geode::StructuralModel& model )
     geode::StructuralModel reloaded_model =
         geode::load_structural_model( file_io );
     check_reloaded_model( reloaded_model );
+    check_physical_properties( reloaded_model, model, "[Test] reload" );
 }
 
 void test_copy( const geode::StructuralModel& model )
@@ -274,6 +298,8 @@ void test_copy( const geode::StructuralModel& model )
     geode::StructuralModel copy;
     geode::StructuralModelBuilder copier( copy );
     const auto mapping = copier.copy( model );
+    check_physical_properties( copy, model, "[Test] copy" );
+    check_physical_properties( model.clone(), model, "[Test] clone" );
     geode::OpenGeodeGeosciencesExplicitException::test(
         copy.nb_surfaces() == model.nb_surfaces(),
         "Number of surfaces in copied model should be 8" );
@@ -407,6 +433,14 @@ int main()
         add_faults( model, builder );
         add_horizons( model, builder );
         build_relations_between_geometry_and_geology( model, builder );
+        const geode::uuid porosity_attribute_id;
+        geode::AttributeValues< double > porosity_values;
+        porosity_values.default_value = 0.2;
+        porosity_values.no_value = -1.;
+        builder.create_blocks_attribute< geode::VariableAttribute, double >(
+            "porosity", porosity_attribute_id, porosity_values, {} );
+        builder.set_physical_property( geode::PHYSICAL_PROPERTY_NAME::porosity,
+            geode::Block3D::component_type_static(), porosity_attribute_id );
 
         test_io( model );
         test_copy( model );
