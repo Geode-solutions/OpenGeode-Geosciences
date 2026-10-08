@@ -356,7 +356,6 @@ namespace geode
             AttributeValues< PolyhedronFacet >
                 associated_polyhedron_facet_default_values;
             associated_polyhedron_facet_default_values.default_value = {};
-            associated_polyhedron_facet_default_values.no_value = {};
             AttributeProperties associated_polyhedron_facet_properties;
             associated_polyhedron_facet_properties.assignable = false;
             associated_polyhedron_facet_properties.interpolable = false;
@@ -429,7 +428,6 @@ namespace geode
                 AttributeValues< PolyhedronFacet >
                     associated_polyhedron_facet_default_values;
                 associated_polyhedron_facet_default_values.default_value = {};
-                associated_polyhedron_facet_default_values.no_value = {};
                 AttributeProperties associated_polyhedron_facet_properties;
                 associated_polyhedron_facet_properties.assignable = false;
                 associated_polyhedron_facet_properties.interpolable = false;
