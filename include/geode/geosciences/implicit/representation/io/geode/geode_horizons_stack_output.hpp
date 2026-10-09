@@ -82,9 +82,10 @@ namespace geode
         std::vector< std::string > write(
             const HorizonsStack< dimension >& horizons_stack ) const final
         {
-            const ZipFile zip_writer{ this->filename(), uuid{}.string() };
+            ZipFile zip_writer{ this->filename(), uuid{}.string() };
             save_horizons_stack_files( horizons_stack, zip_writer.directory() );
             archive_horizons_stack_files( zip_writer );
+            zip_writer.finalize();
             return { to_string( this->filename() ) };
         }
     };
