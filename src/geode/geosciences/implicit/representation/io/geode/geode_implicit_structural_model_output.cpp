@@ -88,9 +88,10 @@ namespace geode
     std::vector< std::string > OpenGeodeImplicitStructuralModelOutput::write(
         const ImplicitStructuralModel& implicit_model ) const
     {
-        const ZipFile zip_writer{ this->filename(), uuid{}.string() };
+        ZipFile zip_writer{ this->filename(), uuid{}.string() };
         save_implicit_model_files( implicit_model, zip_writer.directory() );
         archive_implicit_model_files( zip_writer );
+        zip_writer.finalize();
         return { to_string( this->filename() ) };
     }
 } // namespace geode
