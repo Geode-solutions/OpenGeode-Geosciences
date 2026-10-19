@@ -44,6 +44,9 @@ namespace geode
         void set_fault_block_name(
             const FaultBlock< dimension >& fault_block, std::string_view name );
 
+        void set_fault_block_name(
+            const uuid& fault_block_id, std::string_view name );
+
     protected:
         explicit FaultBlocksBuilder( FaultBlocks< dimension >& fault_blocks )
             : fault_blocks_( fault_blocks )

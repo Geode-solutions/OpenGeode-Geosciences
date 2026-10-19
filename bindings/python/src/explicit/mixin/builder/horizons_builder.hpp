@@ -31,9 +31,24 @@
     pybind11::class_< HorizonsBuilder##dimension##D >(                         \
         module, name##dimension.c_str() )                                      \
         .def( "set_horizon_contact_type",                                      \
-            &HorizonsBuilder##dimension##D::set_horizon_contact_type )         \
+            static_cast< void ( HorizonsBuilder##dimension##D::* )(            \
+                const Horizon##dimension##D&,                                  \
+                Horizon##dimension##D::CONTACT_TYPE ) >(                       \
+                &HorizonsBuilder##dimension##D::set_horizon_contact_type ) )   \
+        .def( "set_horizon_contact_type",                                      \
+            static_cast< void ( HorizonsBuilder##dimension##D::* )(            \
+                const uuid&, Horizon##dimension##D::CONTACT_TYPE ) >(          \
+                &HorizonsBuilder##dimension##D::set_horizon_contact_type ),    \
+            pybind11::arg( "horizon_id" ), pybind11::arg( "contact_type" ) )   \
         .def( "set_horizon_name",                                              \
-            &HorizonsBuilder##dimension##D::set_horizon_name )
+            static_cast< void ( HorizonsBuilder##dimension##D::* )(            \
+                const Horizon##dimension##D&, std::string_view ) >(            \
+                &HorizonsBuilder##dimension##D::set_horizon_name ) )           \
+        .def( "set_horizon_name",                                              \
+            static_cast< void ( HorizonsBuilder##dimension##D::* )(            \
+                const uuid&, std::string_view ) >(                             \
+                &HorizonsBuilder##dimension##D::set_horizon_name ),            \
+            pybind11::arg( "horizon_id" ), pybind11::arg( "name" ) )
 
 namespace geode
 {
