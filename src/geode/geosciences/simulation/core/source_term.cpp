@@ -33,15 +33,14 @@ namespace geode
     template < typename Archive >
     void SourceTerm::serialize( Archive& archive )
     {
-        archive.ext(
-            *this, Growable< Archive, SourceTerm >{
-                       { []( Archive& local_archive, SourceTerm& source ) {
-                           local_archive.text1b(
-                               source.well, source.well.max_size() );
-                           local_archive.text1b(
-                               source.component, source.component.max_size() );
-                           local_archive.value8b( source.rate );
-                       } } } );
+        archive.ext( *this,
+            Growable< Archive, SourceTerm >{
+                { []( Archive& local_archive, SourceTerm& source ) {
+                    local_archive.text1b( source.well, source.well.max_size() );
+                    local_archive.text1b(
+                        source.component, source.component.max_size() );
+                    local_archive.value8b( source.rate );
+                } } } );
     }
 
     SERIALIZE_BITSERY_ARCHIVE(

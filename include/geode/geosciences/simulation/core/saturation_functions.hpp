@@ -105,8 +105,8 @@ namespace geode
     };
 
     /// Two-phase relative permeability curves (SWOF/SGOF-like)
-    struct opengeode_geosciences_simulation_api
-        TwoPhaseRelativePermeabilityTable
+    struct
+        opengeode_geosciences_simulation_api TwoPhaseRelativePermeabilityTable
     {
         PHASE wetting_phase{ PHASE::water };
         PHASE non_wetting_phase{ PHASE::oil };

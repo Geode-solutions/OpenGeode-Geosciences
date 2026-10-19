@@ -226,9 +226,9 @@ namespace
         Exception::test( problem.schedule().end_time == 2e6
                              && problem.schedule().max_time_step == 5e5,
             "[Test] Wrong schedule" );
-        Exception::test(
-            problem.output().frequency == 1e5 && problem.output().restart
-                && problem.output().restart_frequency == 1e6,
+        Exception::test( problem.output().frequency == 1e5
+                             && problem.output().restart
+                             && problem.output().restart_frequency == 1e6,
             "[Test] Wrong output" );
         Exception::test(
             problem.gravity().value( 2 ) == -9.81, "[Test] Wrong gravity" );
