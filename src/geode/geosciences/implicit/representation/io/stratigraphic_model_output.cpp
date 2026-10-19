@@ -63,7 +63,8 @@ namespace geode
             print_available_extensions< BRepOutputFactory >( "BRep" );
             throw OpenGeodeGeosciencesImplicitException{ nullptr,
                 OpenGeodeException::TYPE::internal,
-                "Cannot save StratigraphicModel in file: ", filename };
+                "Cannot save StratigraphicModel in file: ", filename, ": ",
+                e.what() };
         }
     }
 

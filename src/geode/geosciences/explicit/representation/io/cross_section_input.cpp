@@ -73,7 +73,8 @@ namespace geode
             print_available_extensions< SectionInputFactory >( "Section" );
             throw OpenGeodeGeosciencesExplicitException{ nullptr,
                 OpenGeodeException::TYPE::internal,
-                "Cannot load CrossSection from file: ", filename };
+                "Cannot load CrossSection from file: ", filename, ": ",
+                e.what() };
         }
     }
 
