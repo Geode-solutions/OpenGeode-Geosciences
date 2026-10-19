@@ -350,7 +350,6 @@ namespace geode
             AttributeValues< PolygonEdge >
                 associated_polygon_edge_default_values;
             associated_polygon_edge_default_values.default_value = {};
-            associated_polygon_edge_default_values.no_value = {};
             AttributeProperties associated_polygon_edge_properties;
             associated_polygon_edge_properties.assignable = false;
             associated_polygon_edge_properties.interpolable = false;

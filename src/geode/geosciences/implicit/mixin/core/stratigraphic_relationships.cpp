@@ -216,7 +216,6 @@ namespace geode
             }
             AttributeValues< bool > above_relations_default_values;
             above_relations_default_values.default_value = false;
-            above_relations_default_values.no_value = false;
             AttributeProperties above_relations_properties;
             above_relations_properties.assignable = false;
             above_relations_properties.interpolable = false;

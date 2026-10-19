@@ -89,9 +89,10 @@ namespace geode
     std::vector< std::string > OpenGeodeImplicitCrossSectionOutput::write(
         const ImplicitCrossSection& implicit_section ) const
     {
-        const ZipFile zip_writer{ this->filename(), uuid{}.string() };
+        ZipFile zip_writer{ this->filename(), uuid{}.string() };
         save_implicit_section_files( implicit_section, zip_writer.directory() );
         archive_implicit_section_files( zip_writer );
+        zip_writer.finalize();
         return { to_string( this->filename() ) };
     }
 } // namespace geode
