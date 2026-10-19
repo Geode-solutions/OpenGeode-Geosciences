@@ -1,0 +1,87 @@
+/*
+ * Copyright (c) 2019 - 2026 Geode-solutions
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ */
+
+#include <geode/geosciences/simulation/io/physical_problem_input.hpp>
+
+#include <geode/basic/detail/geode_input_impl.hpp>
+#include <geode/basic/io.hpp>
+#include <geode/basic/logger.hpp>
+
+#include <geode/geosciences/simulation/core/physical_problem.hpp>
+
+namespace geode
+{
+    PhysicalProblem load_physical_problem( std::string_view filename )
+    {
+        constexpr auto TYPE = "PhysicalProblem";
+        try
+        {
+            auto problem =
+                detail::geode_object_input_impl< PhysicalProblemInputFactory >(
+                    TYPE, filename );
+            Logger::info( TYPE, " has: ", problem.materials().size(),
+                " Materials, ", problem.nb_initial_conditions(),
+                " InitialConditions" );
+            return problem;
+        }
+        catch( const OpenGeodeException& e )
+        {
+            Logger::error( e.what() );
+            print_available_extensions< PhysicalProblemInputFactory >( TYPE );
+            throw OpenGeodeGeosciencesSimulationException{ nullptr,
+                OpenGeodeException::TYPE::internal,
+                "Cannot load PhysicalProblem from file: ", filename };
+        }
+    }
+
+    AdditionalFiles physical_problem_additional_files(
+        std::string_view filename )
+    {
+        const auto input =
+            detail::geode_object_input_reader< PhysicalProblemInputFactory >(
+                filename );
+        return input->additional_files();
+    }
+
+    Percentage is_physical_problem_loadable( std::string_view filename )
+    {
+        try
+        {
+            const auto input = detail::geode_object_input_reader<
+                PhysicalProblemInputFactory >( filename );
+            return input->is_loadable();
+        }
+        catch( ... )
+        {
+            return Percentage{ 0 };
+        }
+    }
+
+    index_t physical_problem_object_priority( std::string_view filename )
+    {
+        const auto input =
+            detail::geode_object_input_reader< PhysicalProblemInputFactory >(
+                filename );
+        return input->object_priority();
+    }
+} // namespace geode
