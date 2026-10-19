@@ -65,16 +65,4 @@ namespace geode
         template < typename Archive >
         void serialize( Archive& archive );
     };
-
-    /// Set when the problem solves the energy equation
-    struct opengeode_geosciences_simulation_api ThermalParameters
-    {
-        /// K
-        double reference_temperature{ 0 };
-
-    private:
-        friend class bitsery::Access;
-        template < typename Archive >
-        void serialize( Archive& archive );
-    };
 } // namespace geode

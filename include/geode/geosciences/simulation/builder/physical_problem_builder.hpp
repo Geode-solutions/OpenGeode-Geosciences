@@ -52,6 +52,8 @@ namespace geode
      * Edits a PhysicalProblem. Polymorphic objects (flow, fluid, laws,
      * initial conditions) are shared, not copied: do not modify them after
      * handing them to the builder.
+     * Removing a material, an initial condition or a source term shifts the
+     * indices of the following ones down by one.
      */
     class opengeode_geosciences_simulation_api PhysicalProblemBuilder
         : public IdentifierBuilder

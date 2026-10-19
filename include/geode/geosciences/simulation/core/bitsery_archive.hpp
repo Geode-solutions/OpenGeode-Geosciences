@@ -36,6 +36,9 @@ namespace geode
      * base. The leaf type name is written in files: it must never change.
      * Libraries defining their own leaf classes call this from a function
      * given to BitseryExtensions::register_functions.
+     * Such leaf classes are saved and loaded like the built-in ones, but
+     * validate_physical_problem does not check their content, and simulator
+     * writers reject the leaf classes they do not support.
      */
     template < typename Serializer, typename Base, typename Leaf >
     void register_simulation_leaf( PContext& context )

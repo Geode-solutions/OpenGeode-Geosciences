@@ -39,15 +39,19 @@ namespace geode
     /*!
      * Check the problem consistency, independently of any simulator and
      * model. Returns one message per issue, empty if the problem is valid.
+     * Only the content of the leaf classes defined in this library is
+     * checked: leaf classes registered by other libraries are accepted as is.
      */
     [[nodiscard]] std::vector< std::string >
         opengeode_geosciences_simulation_api validate_physical_problem(
             const PhysicalProblem& problem );
 
     /*!
-     * Check that every region referenced by the problem is a component or a
-     * collection of the model, and that the recorded model id, if any,
-     * matches. Returns one message per issue, empty if valid.
+     * Check that every region referenced by the problem is a Block or a
+     * collection of Blocks of the model (BlockCollection,
+     * StratigraphicUnit...), that no Block is covered by two materials or two
+     * initial conditions, and that the recorded model id, if any, matches.
+     * Returns one message per issue, empty if valid.
      */
     [[nodiscard]] std::vector< std::string >
         opengeode_geosciences_simulation_api validate_physical_problem_regions(

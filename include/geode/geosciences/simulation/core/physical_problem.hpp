@@ -36,7 +36,7 @@
 #include <geode/geometry/vector.hpp>
 
 #include <geode/geosciences/simulation/common.hpp>
-#include <geode/geosciences/simulation/core/schedule.hpp>
+#include <geode/geosciences/simulation/core/thermal_parameters.hpp>
 
 namespace geode
 {
@@ -46,6 +46,8 @@ namespace geode
     class InitialCondition;
     class SolverOptions;
     struct Material;
+    struct OutputSettings;
+    struct Schedule;
     struct SourceTerm;
     struct uuid;
 } // namespace geode

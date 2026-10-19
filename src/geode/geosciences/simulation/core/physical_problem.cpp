@@ -47,6 +47,7 @@
 #include <geode/geosciences/simulation/core/schedule.hpp>
 #include <geode/geosciences/simulation/core/solver_options.hpp>
 #include <geode/geosciences/simulation/core/source_term.hpp>
+#include <geode/geosciences/simulation/core/thermal_parameters.hpp>
 
 namespace geode
 {
@@ -237,24 +238,14 @@ namespace geode
         template < typename Archive >
         void serialize( Archive& archive )
         {
-            archive.ext( *this,
-                Growable< Archive, Impl >{
-                    { []( Archive& local_archive, Impl& impl ) {
-                         impl.serialize_core( local_archive );
-                     },
-                        []( Archive& local_archive, Impl& impl ) {
-                            impl.serialize_core( local_archive );
-                            local_archive.container( impl.source_terms_,
-                                impl.source_terms_.max_size(),
-                                []( Archive& source_archive,
-                                    SourceTerm& source_term ) {
-                                    source_archive.object( source_term );
-                                } );
-                        } } } );
+            archive.ext( *this, Growable< Archive, Impl >{
+                                    { []( Archive& local_archive, Impl& impl ) {
+                                        impl.serialize_members( local_archive );
+                                    } } } );
         }
 
         template < typename Archive >
-        void serialize_core( Archive& local_archive )
+        void serialize_members( Archive& local_archive )
         {
             local_archive.ext( model_id_, bitsery::ext::StdOptional{},
                 []( Archive& id_archive, uuid& recorded_model_id ) {
@@ -284,6 +275,10 @@ namespace geode
             local_archive.container8b( gravity );
             gravity_ = Vector3D{ gravity };
             local_archive.object( solver_options_ );
+            local_archive.container( source_terms_, source_terms_.max_size(),
+                []( Archive& source_archive, SourceTerm& source_term ) {
+                    source_archive.object( source_term );
+                } );
         }
 
     private:

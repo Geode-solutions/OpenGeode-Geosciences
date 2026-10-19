@@ -65,40 +65,15 @@ namespace geode
                         output.times, output.times.max_size() );
                     local_archive.value1b( output.binary );
                     local_archive.value1b( output.restart );
-                },
-                    []( Archive& local_archive, OutputSettings& output ) {
-                        local_archive.ext( output.frequency,
-                            bitsery::ext::StdOptional{},
-                            []( Archive& value_archive,
-                                double& frequency_value ) {
-                                value_archive.value8b( frequency_value );
-                            } );
-                        local_archive.container8b(
-                            output.times, output.times.max_size() );
-                        local_archive.value1b( output.binary );
-                        local_archive.value1b( output.restart );
-                        local_archive.ext( output.restart_frequency,
-                            bitsery::ext::StdOptional{},
-                            []( Archive& value_archive,
-                                double& frequency_value ) {
-                                value_archive.value8b( frequency_value );
-                            } );
-                    } } } );
-    }
-
-    template < typename Archive >
-    void ThermalParameters::serialize( Archive& archive )
-    {
-        archive.ext( *this,
-            Growable< Archive, ThermalParameters >{
-                { []( Archive& local_archive, ThermalParameters& thermal ) {
-                    local_archive.value8b( thermal.reference_temperature );
+                    local_archive.ext( output.restart_frequency,
+                        bitsery::ext::StdOptional{},
+                        []( Archive& value_archive, double& frequency_value ) {
+                            value_archive.value8b( frequency_value );
+                        } );
                 } } } );
     }
 
     SERIALIZE_BITSERY_ARCHIVE( opengeode_geosciences_simulation_api, Schedule );
     SERIALIZE_BITSERY_ARCHIVE(
         opengeode_geosciences_simulation_api, OutputSettings );
-    SERIALIZE_BITSERY_ARCHIVE(
-        opengeode_geosciences_simulation_api, ThermalParameters );
 } // namespace geode

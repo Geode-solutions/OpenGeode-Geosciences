@@ -27,8 +27,10 @@
 #include <cmath>
 #include <limits>
 #include <numeric>
+#include <optional>
 
 #include <absl/algorithm/container.h>
+#include <absl/container/flat_hash_map.h>
 #include <absl/container/flat_hash_set.h>
 #include <absl/strings/str_cat.h>
 #include <absl/types/span.h>
@@ -47,6 +49,7 @@
 #include <geode/geosciences/simulation/core/saturation_functions.hpp>
 #include <geode/geosciences/simulation/core/schedule.hpp>
 #include <geode/geosciences/simulation/core/source_term.hpp>
+#include <geode/geosciences/simulation/core/thermal_parameters.hpp>
 
 namespace
 {
@@ -757,35 +760,81 @@ namespace
         std::vector< std::string > issues_;
     };
 
-    absl::flat_hash_set< geode::uuid > model_region_candidates(
-        const geode::BRep& model )
+    // Blocks of a region: the Block itself, or the items of a collection of
+    // Blocks (BlockCollection, StratigraphicUnit...). No value if the region
+    // is neither.
+    std::optional< std::vector< geode::uuid > > region_blocks(
+        const geode::BRep& model, const geode::uuid& region )
     {
-        absl::flat_hash_set< geode::uuid > candidates;
-        for( const auto& block : model.blocks() )
+        if( model.has_block( region ) )
         {
-            candidates.insert( block.id() );
+            return std::vector< geode::uuid >{ region };
         }
-        for( const auto component :
-            geode::Range{ model.nb_components_with_relations() } )
+        std::vector< geode::uuid > blocks;
+        for( const auto& item : model.items( region ) )
         {
-            candidates.insert( model.component_with_relation( component ).id );
+            if( item.type != geode::Block3D::component_type_static() )
+            {
+                return std::nullopt;
+            }
+            blocks.push_back( item.id );
         }
-        return candidates;
+        if( blocks.empty() )
+        {
+            return std::nullopt;
+        }
+        return blocks;
     }
 
-    void check_regions_in_model( absl::Span< const geode::uuid > regions,
-        const absl::flat_hash_set< geode::uuid >& candidates,
-        std::vector< std::string >& issues )
+    // Checks that the regions of items of one kind (materials or initial
+    // conditions) are model regions, and that no Block gets two items
+    class RegionCoverageChecker
     {
-        for( const auto& region : regions )
+    public:
+        RegionCoverageChecker( const geode::BRep& model,
+            std::string_view item_kind,
+            std::vector< std::string >& issues )
+            : model_( model ), item_kind_( item_kind ), issues_( issues )
         {
-            if( !candidates.contains( region ) )
+        }
+
+        void check( geode::index_t item,
+            std::string_view item_name,
+            absl::Span< const geode::uuid > regions )
+        {
+            for( const auto& region : regions )
             {
-                issues.emplace_back( absl::StrCat(
-                    "Region ", region.string(), " is not in the model" ) );
+                const auto blocks = region_blocks( model_, region );
+                if( !blocks )
+                {
+                    issues_.emplace_back( absl::StrCat( "Region ",
+                        region.string(), " of ", item_kind_, " ", item_name,
+                        " is not a Block or a collection of Blocks of the "
+                        "model" ) );
+                    continue;
+                }
+                for( const auto& block : blocks.value() )
+                {
+                    const auto [owner, inserted] =
+                        block_items_.try_emplace( block, item, item_name );
+                    if( !inserted && owner->second.first != item )
+                    {
+                        issues_.emplace_back( absl::StrCat( "Block ",
+                            block.string(), " is covered by ", item_kind_, "s ",
+                            owner->second.second, " and ", item_name ) );
+                    }
+                }
             }
         }
-    }
+
+    private:
+        const geode::BRep& model_;
+        std::string_view item_kind_;
+        std::vector< std::string >& issues_;
+        absl::flat_hash_map< geode::uuid,
+            std::pair< geode::index_t, std::string > >
+            block_items_;
+    };
 } // namespace
 
 namespace geode
@@ -806,17 +855,21 @@ namespace geode
                 problem.model_id()->string(), ", not for model ",
                 model.id().string() ) );
         }
-        const auto candidates = model_region_candidates( model );
-        for( const auto& material : problem.materials() )
+        RegionCoverageChecker material_checker{ model, "material", issues };
+        for( const auto material_id : Indices{ problem.materials() } )
         {
-            check_regions_in_model( material.regions, candidates, issues );
+            const auto& material = problem.materials()[material_id];
+            material_checker.check(
+                material_id, material.name, material.regions );
         }
+        RegionCoverageChecker condition_checker{ model, "initial condition",
+            issues };
         for( const auto condition_id :
             Range{ problem.nb_initial_conditions() } )
         {
-            check_regions_in_model(
-                problem.initial_condition( condition_id ).regions, candidates,
-                issues );
+            condition_checker.check( condition_id,
+                absl::StrCat( "#", condition_id ),
+                problem.initial_condition( condition_id ).regions );
         }
         return issues;
     }

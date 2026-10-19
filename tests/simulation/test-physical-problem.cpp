@@ -53,6 +53,7 @@
 #include <geode/geosciences/simulation/core/schedule.hpp>
 #include <geode/geosciences/simulation/core/solver_options.hpp>
 #include <geode/geosciences/simulation/core/source_term.hpp>
+#include <geode/geosciences/simulation/core/thermal_parameters.hpp>
 #include <geode/geosciences/simulation/helpers/physical_problem_validation.hpp>
 #include <geode/geosciences/simulation/io/physical_problem_input.hpp>
 #include <geode/geosciences/simulation/io/physical_problem_output.hpp>
@@ -593,6 +594,24 @@ namespace
         Exception::test(
             geode::validate_physical_problem_regions( problem, model ).empty(),
             "[Test] Collection region should be valid" );
+        auto overlapping = problem.materials()[1];
+        overlapping.regions = { block_id };
+        builder.set_material( 1, overlapping );
+        const auto overlap_issues =
+            geode::validate_physical_problem_regions( problem, model );
+        Exception::test(
+            overlap_issues.size() == 1
+                && absl::StrContains( overlap_issues.front(), "is covered by" ),
+            "[Test] Block covered by a collection and by another material "
+            "should be reported" );
+        overlapping.regions.clear();
+        builder.set_material( 1, overlapping );
+        material.regions = { model_builder.add_surface() };
+        builder.set_material( 0, material );
+        Exception::test(
+            geode::validate_physical_problem_regions( problem, model ).size()
+                == 1,
+            "[Test] Surface region should be reported" );
         material.regions = { geode::uuid{} };
         builder.set_material( 0, material );
         Exception::test(
@@ -637,20 +656,6 @@ namespace
         Exception::test( !std::filesystem::exists( filename ),
             "[Test] No partial file should remain" );
     }
-
-    void test_backward_compatibility()
-    {
-        const auto problem = geode::load_physical_problem(
-            absl::StrCat( geode::DATA_PATH, "physical_problem_v1.og_phpb" ) );
-        check_dead_oil_fluid( problem );
-        Exception::test( problem.materials().size() == 2,
-            "[Test] Wrong v1 problem materials" );
-        Exception::test( problem.output().restart
-                             && !problem.output().restart_frequency
-                             && problem.source_terms().empty(),
-            "[Test] Wrong v1 problem output" );
-        check_no_issue( problem );
-    }
 } // namespace
 
 int main()
@@ -668,7 +673,6 @@ int main()
         test_condition_and_schedule_validation();
         test_region_validation();
         test_unregistered_type();
-        test_backward_compatibility();
 
         geode::Logger::info( "TEST SUCCESS" );
         return 0;

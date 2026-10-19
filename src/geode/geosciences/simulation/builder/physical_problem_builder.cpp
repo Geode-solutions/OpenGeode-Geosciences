@@ -29,10 +29,11 @@
 
 #include <geode/geosciences/simulation/core/flow_model.hpp>
 #include <geode/geosciences/simulation/core/initial_condition.hpp>
-#include <geode/geosciences/simulation/core/source_term.hpp>
 #include <geode/geosciences/simulation/core/material.hpp>
 #include <geode/geosciences/simulation/core/physical_problem.hpp>
 #include <geode/geosciences/simulation/core/schedule.hpp>
+#include <geode/geosciences/simulation/core/source_term.hpp>
+#include <geode/geosciences/simulation/core/thermal_parameters.hpp>
 
 namespace
 {
