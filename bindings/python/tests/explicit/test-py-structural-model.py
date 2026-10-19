@@ -231,6 +231,22 @@ def modify_model(model, builder):
         raise ValueError("[Test] Number of faults in modified model should be 2")
 
 
+def test_typed_creation():
+    model = geosciences.StructuralModel()
+    builder = geosciences.StructuralModelBuilder(model)
+    fault = builder.add_fault(geosciences.Fault3D.FAULT_TYPE.NORMAL)
+    if model.fault(fault).type() != geosciences.Fault3D.FAULT_TYPE.NORMAL:
+        raise ValueError("[Test] Fault should be created with its type")
+    horizon = builder.add_horizon(
+        contact_type=geosciences.Horizon3D.CONTACT_TYPE.EROSION
+    )
+    if (
+        model.horizon(horizon).contact_type()
+        != geosciences.Horizon3D.CONTACT_TYPE.EROSION
+    ):
+        raise ValueError("[Test] Horizon should be created with its contact type")
+
+
 if __name__ == "__main__":
     geosciences.OpenGeodeGeosciencesExplicitLibrary.initialize()
     model = geosciences.StructuralModel()
@@ -242,3 +258,4 @@ if __name__ == "__main__":
     test_io(model)
     test_copy(model)
     modify_model(model, builder)
+    test_typed_creation()

@@ -66,6 +66,10 @@ namespace geode
                     &repair_horizon_stack_if_possible< 3 > )
                 .def( "horizon_id_from_name_2d", &horizon_id_from_name< 2 > )
                 .def( "horizon_id_from_name_3d", &horizon_id_from_name< 3 > )
+                .def( "stratigraphic_unit_id_from_name_2d",
+                    &stratigraphic_unit_id_from_name< 2 > )
+                .def( "stratigraphic_unit_id_from_name_3d",
+                    &stratigraphic_unit_id_from_name< 3 > )
                 .def( "implicit_section_from_cross_section_scalar_field",
                     []( CrossSection& model, const uuid& attribute_id ) {
                         return implicit_section_from_cross_section_scalar_field(
