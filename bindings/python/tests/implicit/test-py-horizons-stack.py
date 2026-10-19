@@ -99,7 +99,7 @@ def test_ids_from_names():
     if geode_imp.stratigraphic_unit_id_from_name_3d(stack, "U4") is not None:
         raise ValueError("[Test] Stratigraphic unit U4 should not be found")
     horizon_id = geode_imp.horizon_id_from_name_3d(stack, "H1")
-    if stack.horizon(horizon_id).name() != "H1":
+    if horizon_id is None or stack.horizon(horizon_id).name() != "H1":
         raise ValueError("[Test] Horizon H1 should be found")
 
 
