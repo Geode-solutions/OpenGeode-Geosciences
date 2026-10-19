@@ -78,6 +78,17 @@ def test_horizons_stack():
     )
 
 
+def test_named_arguments():
+    stack = geode_imp.horizons_stack_from_top_to_bottom_names_3d(
+        horizons_names=["H2", "H1"], units_names=["U2"]
+    )
+    names = [unit.name() for unit in stack.top_to_bottom_units()]
+    if names != [None, "U2", None]:
+        raise ValueError("[Test] Only the unit between horizons should be named")
+    if "top to bottom" not in geode_imp.horizons_stack_from_top_to_bottom_names_3d.__doc__:
+        raise ValueError("[Test] Helper should be documented")
+
+
 def test_ids_from_names():
     stack = geode_imp.horizons_stack_from_top_to_bottom_names_3d(
         ["H2", "H1"], ["U3", "U2", "U1"]
@@ -98,3 +109,4 @@ if __name__ == "__main__":
 
     test_horizons_stack()
     test_ids_from_names()
+    test_named_arguments()
