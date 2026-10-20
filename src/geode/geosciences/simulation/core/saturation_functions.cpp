@@ -23,6 +23,8 @@
 
 #include <geode/geosciences/simulation/core/saturation_functions.hpp>
 
+#include <utility>
+
 #include <bitsery/traits/array.h>
 #include <bitsery/traits/string.h>
 #include <bitsery/traits/vector.h>
@@ -32,6 +34,65 @@
 
 namespace geode
 {
+    RelativePermeability::RelativePermeability( std::vector< PHASE > phases )
+        : phases_( std::move( phases ) )
+    {
+    }
+
+    BrooksCoreyRelativePermeability::BrooksCoreyRelativePermeability() =
+        default;
+
+    BrooksCoreyRelativePermeability::BrooksCoreyRelativePermeability(
+        std::vector< PHASE > phases,
+        std::vector< double > residual_saturations,
+        std::vector< double > exponents,
+        std::vector< double > max_values )
+        : RelativePermeability( std::move( phases ) ),
+          residual_saturations_( std::move( residual_saturations ) ),
+          exponents_( std::move( exponents ) ),
+          max_values_( std::move( max_values ) )
+    {
+    }
+
+    TableRelativePermeability::TableRelativePermeability() = default;
+
+    TableRelativePermeability::TableRelativePermeability(
+        std::vector< PHASE > phases,
+        std::vector< TwoPhaseRelativePermeabilityTable > tables )
+        : RelativePermeability( std::move( phases ) ),
+          tables_( std::move( tables ) )
+    {
+    }
+
+    CapillaryPressure::CapillaryPressure( std::vector< PHASE > phases )
+        : phases_( std::move( phases ) )
+    {
+    }
+
+    BrooksCoreyCapillaryPressure::BrooksCoreyCapillaryPressure() = default;
+
+    BrooksCoreyCapillaryPressure::BrooksCoreyCapillaryPressure(
+        std::vector< PHASE > phases,
+        std::vector< double > residual_saturations,
+        std::vector< double > entry_pressures,
+        std::vector< double > pore_size_distribution_indices )
+        : CapillaryPressure( std::move( phases ) ),
+          residual_saturations_( std::move( residual_saturations ) ),
+          entry_pressures_( std::move( entry_pressures ) ),
+          pore_size_distribution_indices_(
+              std::move( pore_size_distribution_indices ) )
+    {
+    }
+
+    TableCapillaryPressure::TableCapillaryPressure() = default;
+
+    TableCapillaryPressure::TableCapillaryPressure( std::vector< PHASE > phases,
+        std::vector< TwoPhaseCapillaryPressureTable > tables )
+        : CapillaryPressure( std::move( phases ) ),
+          tables_( std::move( tables ) )
+    {
+    }
+
     template < typename Archive >
     void SaturationTable::serialize( Archive& archive )
     {
@@ -63,7 +124,7 @@ namespace geode
             Growable< Archive, RelativePermeability >{
                 { []( Archive& local_archive, RelativePermeability& relperm ) {
                     local_archive.container4b(
-                        relperm.phases, relperm.phases.max_size() );
+                        relperm.phases_, relperm.phases_.max_size() );
                 } } } );
     }
 
@@ -76,12 +137,12 @@ namespace geode
                       BrooksCoreyRelativePermeability& relperm ) {
                     local_archive.ext( relperm,
                         bitsery::ext::BaseClass< RelativePermeability >{} );
-                    local_archive.container8b( relperm.residual_saturations,
-                        relperm.residual_saturations.max_size() );
+                    local_archive.container8b( relperm.residual_saturations_,
+                        relperm.residual_saturations_.max_size() );
                     local_archive.container8b(
-                        relperm.exponents, relperm.exponents.max_size() );
+                        relperm.exponents_, relperm.exponents_.max_size() );
                     local_archive.container8b(
-                        relperm.max_values, relperm.max_values.max_size() );
+                        relperm.max_values_, relperm.max_values_.max_size() );
                 } } } );
     }
 
@@ -108,8 +169,8 @@ namespace geode
                       TableRelativePermeability& relperm ) {
                     local_archive.ext( relperm,
                         bitsery::ext::BaseClass< RelativePermeability >{} );
-                    local_archive.container( relperm.tables,
-                        relperm.tables.max_size(),
+                    local_archive.container( relperm.tables_,
+                        relperm.tables_.max_size(),
                         []( Archive& table_archive,
                             TwoPhaseRelativePermeabilityTable& table ) {
                             table_archive.object( table );
@@ -134,7 +195,7 @@ namespace geode
             Growable< Archive, CapillaryPressure >{
                 { []( Archive& local_archive, CapillaryPressure& capillary ) {
                     local_archive.container4b(
-                        capillary.phases, capillary.phases.max_size() );
+                        capillary.phases_, capillary.phases_.max_size() );
                 } } } );
     }
 
@@ -147,13 +208,13 @@ namespace geode
                       BrooksCoreyCapillaryPressure& capillary ) {
                     local_archive.ext( capillary,
                         bitsery::ext::BaseClass< CapillaryPressure >{} );
-                    local_archive.container8b( capillary.residual_saturations,
-                        capillary.residual_saturations.max_size() );
-                    local_archive.container8b( capillary.entry_pressures,
-                        capillary.entry_pressures.max_size() );
+                    local_archive.container8b( capillary.residual_saturations_,
+                        capillary.residual_saturations_.max_size() );
+                    local_archive.container8b( capillary.entry_pressures_,
+                        capillary.entry_pressures_.max_size() );
                     local_archive.container8b(
-                        capillary.pore_size_distribution_indices,
-                        capillary.pore_size_distribution_indices.max_size() );
+                        capillary.pore_size_distribution_indices_,
+                        capillary.pore_size_distribution_indices_.max_size() );
                 } } } );
     }
 
@@ -179,8 +240,8 @@ namespace geode
                              TableCapillaryPressure& capillary ) {
                            local_archive.ext( capillary,
                                bitsery::ext::BaseClass< CapillaryPressure >{} );
-                           local_archive.container( capillary.tables,
-                               capillary.tables.max_size(),
+                           local_archive.container( capillary.tables_,
+                               capillary.tables_.max_size(),
                                []( Archive& table_archive,
                                    TwoPhaseCapillaryPressureTable& table ) {
                                    table_archive.object( table );

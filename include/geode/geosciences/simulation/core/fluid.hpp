@@ -28,6 +28,8 @@
 #include <string_view>
 #include <vector>
 
+#include <absl/types/span.h>
+
 #include <geode/geosciences/simulation/common.hpp>
 
 namespace bitsery
@@ -86,14 +88,22 @@ namespace geode
 
         [[nodiscard]] virtual std::string_view type_name() const = 0;
 
-    public:
         /// Order gives the phase index of every per-phase vector
-        std::vector< PHASE > phases;
+        [[nodiscard]] absl::Span< const PHASE > phases() const
+        {
+            return phases_;
+        }
+
         /// Order gives the component index of every composition vector
-        std::vector< FluidComponent > components;
+        [[nodiscard]] absl::Span< const FluidComponent > components() const
+        {
+            return components_;
+        }
 
     protected:
         FluidModel();
+        FluidModel( std::vector< PHASE > phases,
+            std::vector< FluidComponent > components );
         FluidModel( const FluidModel& );
         FluidModel( FluidModel&& ) noexcept;
         FluidModel& operator=( const FluidModel& );
@@ -104,6 +114,8 @@ namespace geode
 
     private:
         friend class bitsery::Access;
+        std::vector< PHASE > phases_;
+        std::vector< FluidComponent > components_;
     };
 
     /*!
@@ -119,6 +131,20 @@ namespace geode
         : public FluidModel
     {
     public:
+        SinglePhaseFluid();
+        /*!
+         * Units: reference_density in kg/m3, reference_viscosity in Pa.s,
+         * compressibility and viscosibility in 1/Pa, reference_pressure in Pa
+         */
+        SinglePhaseFluid( std::vector< PHASE > phases,
+            std::vector< FluidComponent > components,
+            double reference_density,
+            double reference_viscosity,
+            double compressibility,
+            double viscosibility,
+            double reference_pressure,
+            std::optional< FluidThermalProperties > thermal = std::nullopt );
+
         [[nodiscard]] static std::string_view type_name_static()
         {
             return "SinglePhaseFluid";
@@ -129,23 +155,54 @@ namespace geode
             return type_name_static();
         }
 
-    public:
         /// kg/m3
-        double reference_density{ 0 };
+        [[nodiscard]] double reference_density() const
+        {
+            return reference_density_;
+        }
+
         /// Pa.s
-        double reference_viscosity{ 0 };
+        [[nodiscard]] double reference_viscosity() const
+        {
+            return reference_viscosity_;
+        }
+
         /// 1/Pa
-        double compressibility{ 0 };
+        [[nodiscard]] double compressibility() const
+        {
+            return compressibility_;
+        }
+
         /// 1/Pa
-        double viscosibility{ 0 };
+        [[nodiscard]] double viscosibility() const
+        {
+            return viscosibility_;
+        }
+
         /// Pa
-        double reference_pressure{ 0 };
-        std::optional< FluidThermalProperties > thermal;
+        [[nodiscard]] double reference_pressure() const
+        {
+            return reference_pressure_;
+        }
+
+        [[nodiscard]] const std::optional< FluidThermalProperties >&
+            thermal() const
+        {
+            return thermal_;
+        }
 
     private:
         friend class bitsery::Access;
         template < typename Archive >
         void serialize( Archive& archive );
+
+    private:
+        double reference_density_{ 0 };
+        double reference_viscosity_{ 0 };
+        double compressibility_{ 0 };
+        double viscosibility_{ 0 };
+        double reference_pressure_{ 0 };
+        std::optional< FluidThermalProperties > thermal_;
     };
 
     /// Formation volume factor and viscosity of a hydrocarbon phase versus
@@ -186,6 +243,18 @@ namespace geode
         : public FluidModel
     {
     public:
+        DeadOilFluid();
+        /*!
+         * surface_densities in kg/m3, one per phase. One hydrocarbon PVT
+         * table per oil/gas phase. water_pvt is required if and only if water
+         * is a phase.
+         */
+        DeadOilFluid( std::vector< PHASE > phases,
+            std::vector< FluidComponent > components,
+            std::vector< double > surface_densities,
+            std::vector< HydrocarbonPvtTable > hydrocarbon_pvt,
+            std::optional< WaterPvt > water_pvt = std::nullopt );
+
         [[nodiscard]] static std::string_view type_name_static()
         {
             return "DeadOilFluid";
@@ -196,18 +265,34 @@ namespace geode
             return type_name_static();
         }
 
-    public:
         /// kg/m3, one per phase
-        std::vector< double > surface_densities;
+        [[nodiscard]] absl::Span< const double > surface_densities() const
+        {
+            return surface_densities_;
+        }
+
         /// One per oil/gas phase
-        std::vector< HydrocarbonPvtTable > hydrocarbon_pvt;
-        /// Required if and only if water is a phase
-        std::optional< WaterPvt > water_pvt;
+        [[nodiscard]] absl::Span< const HydrocarbonPvtTable >
+            hydrocarbon_pvt() const
+        {
+            return hydrocarbon_pvt_;
+        }
+
+        /// Defined if and only if water is a phase
+        [[nodiscard]] const std::optional< WaterPvt >& water_pvt() const
+        {
+            return water_pvt_;
+        }
 
     private:
         friend class bitsery::Access;
         template < typename Archive >
         void serialize( Archive& archive );
+
+    private:
+        std::vector< double > surface_densities_;
+        std::vector< HydrocarbonPvtTable > hydrocarbon_pvt_;
+        std::optional< WaterPvt > water_pvt_;
     };
 
     enum struct CO2_BRINE_CORRELATION
@@ -237,6 +322,17 @@ namespace geode
         : public FluidModel
     {
     public:
+        Co2BrineFluid();
+        /// salinity in mol/kg, pressure_range in Pa, temperature_range in K
+        Co2BrineFluid( std::vector< PHASE > phases,
+            std::vector< FluidComponent > components,
+            CO2_BRINE_CORRELATION correlation,
+            double salinity,
+            ValidityRange pressure_range,
+            ValidityRange temperature_range,
+            std::vector< double > ezrokhi_density_coefficients = {},
+            std::vector< double > ezrokhi_viscosity_coefficients = {} );
+
         [[nodiscard]] static std::string_view type_name_static()
         {
             return "Co2BrineFluid";
@@ -247,20 +343,52 @@ namespace geode
             return type_name_static();
         }
 
-    public:
-        CO2_BRINE_CORRELATION correlation{ CO2_BRINE_CORRELATION::phillips };
+        [[nodiscard]] CO2_BRINE_CORRELATION correlation() const
+        {
+            return correlation_;
+        }
+
         /// mol/kg
-        double salinity{ 0 };
+        [[nodiscard]] double salinity() const
+        {
+            return salinity_;
+        }
+
         /// Pa
-        ValidityRange pressure_range;
+        [[nodiscard]] const ValidityRange& pressure_range() const
+        {
+            return pressure_range_;
+        }
+
         /// K
-        ValidityRange temperature_range;
-        std::vector< double > ezrokhi_density_coefficients;
-        std::vector< double > ezrokhi_viscosity_coefficients;
+        [[nodiscard]] const ValidityRange& temperature_range() const
+        {
+            return temperature_range_;
+        }
+
+        [[nodiscard]] absl::Span< const double >
+            ezrokhi_density_coefficients() const
+        {
+            return ezrokhi_density_coefficients_;
+        }
+
+        [[nodiscard]] absl::Span< const double >
+            ezrokhi_viscosity_coefficients() const
+        {
+            return ezrokhi_viscosity_coefficients_;
+        }
 
     private:
         friend class bitsery::Access;
         template < typename Archive >
         void serialize( Archive& archive );
+
+    private:
+        CO2_BRINE_CORRELATION correlation_{ CO2_BRINE_CORRELATION::phillips };
+        double salinity_{ 0 };
+        ValidityRange pressure_range_;
+        ValidityRange temperature_range_;
+        std::vector< double > ezrokhi_density_coefficients_;
+        std::vector< double > ezrokhi_viscosity_coefficients_;
     };
 } // namespace geode

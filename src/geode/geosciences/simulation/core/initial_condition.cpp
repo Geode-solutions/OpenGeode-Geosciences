@@ -23,6 +23,8 @@
 
 #include <geode/geosciences/simulation/core/initial_condition.hpp>
 
+#include <utility>
+
 #include <bitsery/ext/std_optional.h>
 #include <bitsery/traits/array.h>
 #include <bitsery/traits/string.h>
@@ -33,6 +35,25 @@
 
 namespace geode
 {
+    InitialCondition::InitialCondition( std::vector< uuid > regions )
+        : regions_( std::move( regions ) )
+    {
+    }
+
+    UniformInitialCondition::UniformInitialCondition() = default;
+
+    UniformInitialCondition::UniformInitialCondition(
+        std::vector< uuid > regions,
+        double pressure,
+        std::optional< double > temperature,
+        std::vector< double > composition )
+        : InitialCondition( std::move( regions ) ),
+          pressure_( pressure ),
+          temperature_( temperature ),
+          composition_( std::move( composition ) )
+    {
+    }
+
     InitialCondition::InitialCondition() = default;
     InitialCondition::InitialCondition( const InitialCondition& ) = default;
     InitialCondition::InitialCondition( InitialCondition&& ) noexcept = default;
@@ -48,8 +69,8 @@ namespace geode
         archive.ext( *this,
             Growable< Archive, InitialCondition >{
                 { []( Archive& local_archive, InitialCondition& condition ) {
-                    local_archive.container( condition.regions,
-                        condition.regions.max_size(),
+                    local_archive.container( condition.regions_,
+                        condition.regions_.max_size(),
                         []( Archive& region_archive, uuid& region ) {
                             region_archive.object( region );
                         } );
@@ -65,15 +86,15 @@ namespace geode
                              UniformInitialCondition& condition ) {
                            local_archive.ext( condition,
                                bitsery::ext::BaseClass< InitialCondition >{} );
-                           local_archive.value8b( condition.pressure );
-                           local_archive.ext( condition.temperature,
+                           local_archive.value8b( condition.pressure_ );
+                           local_archive.ext( condition.temperature_,
                                bitsery::ext::StdOptional{},
                                []( Archive& value_archive,
                                    double& temperature_value ) {
                                    value_archive.value8b( temperature_value );
                                } );
-                           local_archive.container8b( condition.composition,
-                               condition.composition.max_size() );
+                           local_archive.container8b( condition.composition_,
+                               condition.composition_.max_size() );
                        } } } );
     }
 

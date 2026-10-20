@@ -27,6 +27,8 @@
 #include <string_view>
 #include <vector>
 
+#include <absl/types/span.h>
+
 #include <geode/basic/uuid.hpp>
 
 #include <geode/geosciences/simulation/common.hpp>
@@ -49,13 +51,16 @@ namespace geode
 
         [[nodiscard]] virtual std::string_view type_name() const = 0;
 
-    public:
         /// Model components or collections. Empty means every region without
         /// another initial condition.
-        std::vector< uuid > regions;
+        [[nodiscard]] absl::Span< const uuid > regions() const
+        {
+            return regions_;
+        }
 
     protected:
         InitialCondition();
+        explicit InitialCondition( std::vector< uuid > regions );
         InitialCondition( const InitialCondition& );
         InitialCondition( InitialCondition&& ) noexcept;
         InitialCondition& operator=( const InitialCondition& );
@@ -66,12 +71,24 @@ namespace geode
 
     private:
         friend class bitsery::Access;
+        std::vector< uuid > regions_;
     };
 
     class opengeode_geosciences_simulation_api UniformInitialCondition final
         : public InitialCondition
     {
     public:
+        UniformInitialCondition();
+        /*!
+         * Empty regions means every region without another initial condition.
+         * pressure in Pa, temperature in K, composition as global fractions
+         * in the fluid component order.
+         */
+        UniformInitialCondition( std::vector< uuid > regions,
+            double pressure,
+            std::optional< double > temperature = std::nullopt,
+            std::vector< double > composition = {} );
+
         [[nodiscard]] static std::string_view type_name_static()
         {
             return "UniformInitialCondition";
@@ -82,17 +99,32 @@ namespace geode
             return type_name_static();
         }
 
-    public:
         /// Pa
-        double pressure{ 0 };
+        [[nodiscard]] double pressure() const
+        {
+            return pressure_;
+        }
+
         /// K
-        std::optional< double > temperature;
+        [[nodiscard]] const std::optional< double >& temperature() const
+        {
+            return temperature_;
+        }
+
         /// Global fractions, in the fluid component order
-        std::vector< double > composition;
+        [[nodiscard]] absl::Span< const double > composition() const
+        {
+            return composition_;
+        }
 
     private:
         friend class bitsery::Access;
         template < typename Archive >
         void serialize( Archive& archive );
+
+    private:
+        double pressure_{ 0 };
+        std::optional< double > temperature_;
+        std::vector< double > composition_;
     };
 } // namespace geode

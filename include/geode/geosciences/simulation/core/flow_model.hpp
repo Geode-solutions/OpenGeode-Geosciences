@@ -57,9 +57,12 @@ namespace geode
 
         [[nodiscard]] virtual std::string_view type_name() const = 0;
 
-    public:
-        /// Shared, must not be modified once given to a PhysicalProblem
-        std::shared_ptr< FluidModel > fluid;
+        [[nodiscard]] bool has_fluid() const;
+
+        [[nodiscard]] const FluidModel& fluid() const;
+
+        /// The fluid is shared: do not modify it after this call
+        void set_fluid( std::shared_ptr< FluidModel > fluid );
 
     protected:
         FlowModel();
@@ -73,6 +76,7 @@ namespace geode
 
     private:
         friend class bitsery::Access;
+        std::shared_ptr< FluidModel > fluid_;
     };
 
     class opengeode_geosciences_simulation_api SinglePhaseFlow final
@@ -109,12 +113,20 @@ namespace geode
             return type_name_static();
         }
 
-    public:
-        COMPOSITION_BASIS basis{ COMPOSITION_BASIS::mole };
+        MultiphaseFlow();
+        explicit MultiphaseFlow( COMPOSITION_BASIS basis );
+
+        [[nodiscard]] COMPOSITION_BASIS basis() const
+        {
+            return basis_;
+        }
 
     private:
         friend class bitsery::Access;
         template < typename Archive >
         void serialize( Archive& archive );
+
+    private:
+        COMPOSITION_BASIS basis_{ COMPOSITION_BASIS::mole };
     };
 } // namespace geode

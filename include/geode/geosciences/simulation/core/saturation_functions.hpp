@@ -26,6 +26,8 @@
 #include <string_view>
 #include <vector>
 
+#include <absl/types/span.h>
+
 #include <geode/geosciences/simulation/common.hpp>
 #include <geode/geosciences/simulation/core/fluid.hpp>
 
@@ -60,12 +62,15 @@ namespace geode
 
         [[nodiscard]] virtual std::string_view type_name() const = 0;
 
-    public:
         /// Order gives the phase index of every per-phase vector
-        std::vector< PHASE > phases;
+        [[nodiscard]] absl::Span< const PHASE > phases() const
+        {
+            return phases_;
+        }
 
     protected:
         RelativePermeability();
+        explicit RelativePermeability( std::vector< PHASE > phases );
         RelativePermeability( const RelativePermeability& );
         RelativePermeability( RelativePermeability&& ) noexcept;
         RelativePermeability& operator=( const RelativePermeability& );
@@ -76,12 +81,20 @@ namespace geode
 
     private:
         friend class bitsery::Access;
+        std::vector< PHASE > phases_;
     };
 
     class opengeode_geosciences_simulation_api BrooksCoreyRelativePermeability
         final : public RelativePermeability
     {
     public:
+        BrooksCoreyRelativePermeability();
+        /// One value per phase in each vector, in the phase order
+        BrooksCoreyRelativePermeability( std::vector< PHASE > phases,
+            std::vector< double > residual_saturations,
+            std::vector< double > exponents,
+            std::vector< double > max_values );
+
         [[nodiscard]] static std::string_view type_name_static()
         {
             return "BrooksCoreyRelativePermeability";
@@ -92,16 +105,31 @@ namespace geode
             return type_name_static();
         }
 
-    public:
         /// One value per phase
-        std::vector< double > residual_saturations;
-        std::vector< double > exponents;
-        std::vector< double > max_values;
+        [[nodiscard]] absl::Span< const double > residual_saturations() const
+        {
+            return residual_saturations_;
+        }
+
+        [[nodiscard]] absl::Span< const double > exponents() const
+        {
+            return exponents_;
+        }
+
+        [[nodiscard]] absl::Span< const double > max_values() const
+        {
+            return max_values_;
+        }
 
     private:
         friend class bitsery::Access;
         template < typename Archive >
         void serialize( Archive& archive );
+
+    private:
+        std::vector< double > residual_saturations_;
+        std::vector< double > exponents_;
+        std::vector< double > max_values_;
     };
 
     /// Two-phase relative permeability curves (SWOF/SGOF-like)
@@ -125,6 +153,11 @@ namespace geode
         : public RelativePermeability
     {
     public:
+        TableRelativePermeability();
+        /// One table for two phases, two (water-oil and gas-oil) for three
+        TableRelativePermeability( std::vector< PHASE > phases,
+            std::vector< TwoPhaseRelativePermeabilityTable > tables );
+
         [[nodiscard]] static std::string_view type_name_static()
         {
             return "TableRelativePermeability";
@@ -135,14 +168,20 @@ namespace geode
             return type_name_static();
         }
 
-    public:
         /// One table for two phases, two (water-oil and gas-oil) for three
-        std::vector< TwoPhaseRelativePermeabilityTable > tables;
+        [[nodiscard]] absl::Span< const TwoPhaseRelativePermeabilityTable >
+            tables() const
+        {
+            return tables_;
+        }
 
     private:
         friend class bitsery::Access;
         template < typename Archive >
         void serialize( Archive& archive );
+
+    private:
+        std::vector< TwoPhaseRelativePermeabilityTable > tables_;
     };
 
     /*!
@@ -156,12 +195,15 @@ namespace geode
 
         [[nodiscard]] virtual std::string_view type_name() const = 0;
 
-    public:
         /// Order gives the phase index of every per-phase vector
-        std::vector< PHASE > phases;
+        [[nodiscard]] absl::Span< const PHASE > phases() const
+        {
+            return phases_;
+        }
 
     protected:
         CapillaryPressure();
+        explicit CapillaryPressure( std::vector< PHASE > phases );
         CapillaryPressure( const CapillaryPressure& );
         CapillaryPressure( CapillaryPressure&& ) noexcept;
         CapillaryPressure& operator=( const CapillaryPressure& );
@@ -172,6 +214,7 @@ namespace geode
 
     private:
         friend class bitsery::Access;
+        std::vector< PHASE > phases_;
     };
 
     /// Pc = entry_pressure * Se^(-1/lambda)
@@ -179,6 +222,16 @@ namespace geode
         final : public CapillaryPressure
     {
     public:
+        BrooksCoreyCapillaryPressure();
+        /*!
+         * One value per phase in each vector, in the phase order.
+         * entry_pressures in Pa, pore_size_distribution_indices is lambda.
+         */
+        BrooksCoreyCapillaryPressure( std::vector< PHASE > phases,
+            std::vector< double > residual_saturations,
+            std::vector< double > entry_pressures,
+            std::vector< double > pore_size_distribution_indices );
+
         [[nodiscard]] static std::string_view type_name_static()
         {
             return "BrooksCoreyCapillaryPressure";
@@ -189,18 +242,34 @@ namespace geode
             return type_name_static();
         }
 
-    public:
         /// One value per phase
-        std::vector< double > residual_saturations;
+        [[nodiscard]] absl::Span< const double > residual_saturations() const
+        {
+            return residual_saturations_;
+        }
+
         /// Pa
-        std::vector< double > entry_pressures;
+        [[nodiscard]] absl::Span< const double > entry_pressures() const
+        {
+            return entry_pressures_;
+        }
+
         /// lambda
-        std::vector< double > pore_size_distribution_indices;
+        [[nodiscard]] absl::Span< const double >
+            pore_size_distribution_indices() const
+        {
+            return pore_size_distribution_indices_;
+        }
 
     private:
         friend class bitsery::Access;
         template < typename Archive >
         void serialize( Archive& archive );
+
+    private:
+        std::vector< double > residual_saturations_;
+        std::vector< double > entry_pressures_;
+        std::vector< double > pore_size_distribution_indices_;
     };
 
     /// Capillary pressure (Pa) versus wetting phase saturation
@@ -220,6 +289,10 @@ namespace geode
         : public CapillaryPressure
     {
     public:
+        TableCapillaryPressure();
+        TableCapillaryPressure( std::vector< PHASE > phases,
+            std::vector< TwoPhaseCapillaryPressureTable > tables );
+
         [[nodiscard]] static std::string_view type_name_static()
         {
             return "TableCapillaryPressure";
@@ -230,12 +303,18 @@ namespace geode
             return type_name_static();
         }
 
-    public:
-        std::vector< TwoPhaseCapillaryPressureTable > tables;
+        [[nodiscard]] absl::Span< const TwoPhaseCapillaryPressureTable >
+            tables() const
+        {
+            return tables_;
+        }
 
     private:
         friend class bitsery::Access;
         template < typename Archive >
         void serialize( Archive& archive );
+
+    private:
+        std::vector< TwoPhaseCapillaryPressureTable > tables_;
     };
 } // namespace geode

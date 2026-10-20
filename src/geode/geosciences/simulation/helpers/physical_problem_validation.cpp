@@ -131,7 +131,7 @@ namespace
 
         const geode::FluidModel& fluid() const
         {
-            return *problem_.flow().fluid;
+            return problem_.fluid();
         }
 
         bool check_flow()
@@ -141,12 +141,12 @@ namespace
                 add_issue( "No flow model is defined" );
                 return false;
             }
-            if( !problem_.flow().fluid )
+            if( !problem_.flow().has_fluid() )
             {
                 add_issue( "The flow model has no fluid" );
                 return false;
             }
-            const auto nb_phases = fluid().phases.size();
+            const auto nb_phases = fluid().phases().size();
             if( is_multiphase() && nb_phases < 2 )
             {
                 add_issue( "Multiphase flow needs at least 2 fluid phases" );
@@ -185,7 +185,7 @@ namespace
 
         void check_fluid_phases()
         {
-            const auto& phases = fluid().phases;
+            const auto& phases = fluid().phases();
             for( const auto phase : phases )
             {
                 if( std::count( phases.begin(), phases.end(), phase ) > 1 )
@@ -200,7 +200,7 @@ namespace
         void check_fluid_components()
         {
             absl::flat_hash_set< std::string > names;
-            for( const auto& component : fluid().components )
+            for( const auto& component : fluid().components() )
             {
                 if( component.name.empty() )
                 {
@@ -221,15 +221,15 @@ namespace
 
         void check_single_phase_fluid( const geode::SinglePhaseFluid& fluid )
         {
-            if( fluid.reference_density <= 0 )
+            if( fluid.reference_density() <= 0 )
             {
                 add_issue( "SinglePhaseFluid density must be positive" );
             }
-            if( fluid.reference_viscosity <= 0 )
+            if( fluid.reference_viscosity() <= 0 )
             {
                 add_issue( "SinglePhaseFluid viscosity must be positive" );
             }
-            if( fluid.components.size() != 1 )
+            if( fluid.components().size() != 1 )
             {
                 add_issue( "SinglePhaseFluid needs exactly 1 component" );
             }
@@ -237,13 +237,13 @@ namespace
 
         void check_dead_oil_fluid( const geode::DeadOilFluid& fluid )
         {
-            const auto nb_phases = fluid.phases.size();
-            if( fluid.components.size() != nb_phases )
+            const auto nb_phases = fluid.phases().size();
+            if( fluid.components().size() != nb_phases )
             {
                 add_issue( "DeadOilFluid needs one component per phase" );
             }
-            if( fluid.surface_densities.size() != nb_phases
-                || !are_in_range( fluid.surface_densities,
+            if( fluid.surface_densities().size() != nb_phases
+                || !are_in_range( fluid.surface_densities(),
                     std::numeric_limits< double >::min(),
                     std::numeric_limits< double >::max() ) )
             {
@@ -251,8 +251,8 @@ namespace
                            "per phase" );
             }
             check_dead_oil_tables( fluid );
-            if( has_phase( fluid.phases, geode::PHASE::water )
-                != fluid.water_pvt.has_value() )
+            if( has_phase( fluid.phases(), geode::PHASE::water )
+                != fluid.water_pvt().has_value() )
             {
                 add_issue( "DeadOilFluid water PVT must be given if and only "
                            "if water is a phase" );
@@ -263,12 +263,14 @@ namespace
         {
             for( const auto phase : { geode::PHASE::oil, geode::PHASE::gas } )
             {
-                const auto nb_tables = std::count_if(
-                    fluid.hydrocarbon_pvt.begin(), fluid.hydrocarbon_pvt.end(),
-                    [phase]( const auto& table ) {
-                        return table.phase == phase;
-                    } );
-                const auto expected = has_phase( fluid.phases, phase ) ? 1 : 0;
+                const auto nb_tables =
+                    std::count_if( fluid.hydrocarbon_pvt().begin(),
+                        fluid.hydrocarbon_pvt().end(),
+                        [phase]( const auto& table ) {
+                            return table.phase == phase;
+                        } );
+                const auto expected =
+                    has_phase( fluid.phases(), phase ) ? 1 : 0;
                 if( nb_tables != expected )
                 {
                     add_issue( "DeadOilFluid needs ", expected,
@@ -276,7 +278,7 @@ namespace
                         ", found ", nb_tables );
                 }
             }
-            for( const auto& table : fluid.hydrocarbon_pvt )
+            for( const auto& table : fluid.hydrocarbon_pvt() )
             {
                 check_pvt_table( table );
             }
@@ -308,14 +310,14 @@ namespace
         {
             const std::array< geode::PHASE, 2 > expected{ geode::PHASE::gas,
                 geode::PHASE::water };
-            if( !same_phase_set( fluid.phases, expected )
-                || fluid.components.size() != 2 )
+            if( !same_phase_set( fluid.phases(), expected )
+                || fluid.components().size() != 2 )
             {
                 add_issue( "Co2BrineFluid needs phases gas and water and 2 "
                            "components" );
             }
-            check_validity_range( fluid.pressure_range, "pressure" );
-            check_validity_range( fluid.temperature_range, "temperature" );
+            check_validity_range( fluid.pressure_range(), "pressure" );
+            check_validity_range( fluid.temperature_range(), "temperature" );
         }
 
         void check_validity_range(
@@ -331,7 +333,7 @@ namespace
         void check_composition(
             absl::Span< const double > composition, std::string_view context )
         {
-            if( composition.size() != fluid().components.size() )
+            if( composition.size() != fluid().components().size() )
             {
                 add_issue( context, " composition needs one value per fluid "
                                     "component" );
@@ -432,7 +434,7 @@ namespace
             const geode::RelativePermeability& relperm,
             std::string_view material )
         {
-            if( !same_phase_set( relperm.phases, fluid().phases ) )
+            if( !same_phase_set( relperm.phases(), fluid().phases() ) )
             {
                 add_issue( "Material ", material,
                     " relative permeability phases must be the fluid phases" );
@@ -454,10 +456,10 @@ namespace
             const geode::BrooksCoreyRelativePermeability& relperm,
             std::string_view material )
         {
-            const auto nb_phases = relperm.phases.size();
-            if( relperm.residual_saturations.size() != nb_phases
-                || relperm.exponents.size() != nb_phases
-                || relperm.max_values.size() != nb_phases )
+            const auto nb_phases = relperm.phases().size();
+            if( relperm.residual_saturations().size() != nb_phases
+                || relperm.exponents().size() != nb_phases
+                || relperm.max_values().size() != nb_phases )
             {
                 add_issue( "Material ", material,
                     " Brooks-Corey relative permeability needs one value per "
@@ -465,8 +467,8 @@ namespace
                 return;
             }
             check_residual_saturations(
-                relperm.residual_saturations, material );
-            if( !are_in_range( relperm.max_values, 0, 1 ) )
+                relperm.residual_saturations(), material );
+            if( !are_in_range( relperm.max_values(), 0, 1 ) )
             {
                 add_issue( "Material ", material,
                     " relative permeability maximum values must be in [0, "
@@ -491,12 +493,12 @@ namespace
             const geode::TableRelativePermeability& relperm,
             std::string_view material )
         {
-            if( relperm.tables.empty() )
+            if( relperm.tables().empty() )
             {
                 add_issue( "Material ", material,
                     " table relative permeability has no table" );
             }
-            for( const auto& table : relperm.tables )
+            for( const auto& table : relperm.tables() )
             {
                 check_table_phases(
                     table.wetting_phase, table.non_wetting_phase, material );
@@ -509,8 +511,9 @@ namespace
             geode::PHASE non_wetting,
             std::string_view material )
         {
-            if( wetting == non_wetting || !has_phase( fluid().phases, wetting )
-                || !has_phase( fluid().phases, non_wetting ) )
+            if( wetting == non_wetting
+                || !has_phase( fluid().phases(), wetting )
+                || !has_phase( fluid().phases(), non_wetting ) )
             {
                 add_issue( "Material ", material,
                     " table phases must be two different fluid phases" );
@@ -565,11 +568,11 @@ namespace
             const geode::BrooksCoreyCapillaryPressure& capillary,
             std::string_view material )
         {
-            const auto nb_phases = capillary.phases.size();
-            if( !same_phase_set( capillary.phases, fluid().phases )
-                || capillary.residual_saturations.size() != nb_phases
-                || capillary.entry_pressures.size() != nb_phases
-                || capillary.pore_size_distribution_indices.size()
+            const auto nb_phases = capillary.phases().size();
+            if( !same_phase_set( capillary.phases(), fluid().phases() )
+                || capillary.residual_saturations().size() != nb_phases
+                || capillary.entry_pressures().size() != nb_phases
+                || capillary.pore_size_distribution_indices().size()
                        != nb_phases )
             {
                 add_issue( "Material ", material,
@@ -578,8 +581,8 @@ namespace
                 return;
             }
             check_residual_saturations(
-                capillary.residual_saturations, material );
-            if( !are_in_range( capillary.pore_size_distribution_indices,
+                capillary.residual_saturations(), material );
+            if( !are_in_range( capillary.pore_size_distribution_indices(),
                     std::numeric_limits< double >::min(),
                     std::numeric_limits< double >::max() ) )
             {
@@ -592,12 +595,12 @@ namespace
             const geode::TableCapillaryPressure& capillary,
             std::string_view material )
         {
-            if( capillary.tables.empty() )
+            if( capillary.tables().empty() )
             {
                 add_issue( "Material ", material,
                     " table capillary pressure has no table" );
             }
-            for( const auto& table : capillary.tables )
+            for( const auto& table : capillary.tables() )
             {
                 check_table_phases(
                     table.wetting_phase, table.non_wetting_phase, material );
@@ -619,9 +622,9 @@ namespace
             {
                 const auto& condition =
                     problem_.initial_condition( condition_id );
-                nb_defaults += condition.regions.empty() ? 1 : 0;
+                nb_defaults += condition.regions().empty() ? 1 : 0;
                 check_unique_regions(
-                    condition.regions, regions, "Initial condition" );
+                    condition.regions(), regions, "Initial condition" );
                 if( const auto* uniform =
                         dynamic_cast< const geode::UniformInitialCondition* >(
                             &condition ) )
@@ -640,19 +643,21 @@ namespace
         {
             if( is_multiphase() )
             {
-                check_composition( condition.composition, "Initial condition" );
+                check_composition(
+                    condition.composition(), "Initial condition" );
             }
-            else if( !condition.composition.empty() )
+            else if( !condition.composition().empty() )
             {
                 add_issue(
                     "Single phase initial condition must have no composition" );
             }
-            if( problem_.thermal() && !condition.temperature )
+            if( problem_.thermal() && !condition.temperature() )
             {
                 add_issue( "Thermal problem initial condition needs a "
                            "temperature" );
             }
-            if( condition.temperature && condition.temperature.value() <= 0 )
+            if( condition.temperature()
+                && condition.temperature().value() <= 0 )
             {
                 add_issue( "Initial temperature must be positive (K)" );
             }
@@ -668,7 +673,7 @@ namespace
                 {
                     add_issue( "A source term has no well" );
                 }
-                if( absl::c_none_of( fluid().components,
+                if( absl::c_none_of( fluid().components(),
                         [&source]( const geode::FluidComponent& component ) {
                             return component.name == source.component;
                         } ) )
@@ -709,7 +714,7 @@ namespace
             }
             const auto* single_phase =
                 dynamic_cast< const geode::SinglePhaseFluid* >( &fluid() );
-            if( single_phase && !single_phase->thermal )
+            if( single_phase && !single_phase->thermal() )
             {
                 add_issue( "SinglePhaseFluid needs thermal properties for a "
                            "thermal problem" );
@@ -869,7 +874,7 @@ namespace geode
         {
             condition_checker.check( condition_id,
                 absl::StrCat( "#", condition_id ),
-                problem.initial_condition( condition_id ).regions );
+                problem.initial_condition( condition_id ).regions() );
         }
         return issues;
     }

@@ -67,10 +67,9 @@ namespace geode
         problem_.set_flow( std::move( flow ), BuilderKey{} );
     }
 
-    void PhysicalProblemBuilder::set_thermal(
-        std::optional< ThermalParameters > thermal )
+    void PhysicalProblemBuilder::set_thermal( const ThermalParameters& thermal )
     {
-        problem_.set_thermal( std::move( thermal ), BuilderKey{} );
+        problem_.set_thermal( thermal, BuilderKey{} );
     }
 
     index_t PhysicalProblemBuilder::add_material( Material material )

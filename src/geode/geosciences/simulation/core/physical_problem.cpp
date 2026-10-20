@@ -81,12 +81,7 @@ namespace geode
 
         [[nodiscard]] const FluidModel& fluid() const
         {
-            const auto& flow_model = flow();
-            OpenGeodeGeosciencesSimulationException::check_exception(
-                static_cast< bool >( flow_model.fluid ), nullptr,
-                OpenGeodeException::TYPE::data,
-                "[PhysicalProblem::fluid] No fluid model is defined" );
-            return *flow_model.fluid;
+            return flow().fluid();
         }
 
         void set_flow( std::shared_ptr< FlowModel > flow )
@@ -99,9 +94,9 @@ namespace geode
             return thermal_;
         }
 
-        void set_thermal( std::optional< ThermalParameters > thermal )
+        void set_thermal( const ThermalParameters& thermal )
         {
-            thermal_ = std::move( thermal );
+            thermal_ = thermal;
         }
 
         [[nodiscard]] absl::Span< const Material > materials() const
@@ -374,80 +369,81 @@ namespace geode
     }
 
     void PhysicalProblem::set_model_id(
-        const uuid& model_id, PhysicalProblemBuilderKey )
+        const uuid& model_id, PhysicalProblemBuilderKey /*unused*/ )
     {
         impl_->set_model_id( model_id );
     }
 
-    void PhysicalProblem::set_flow(
-        std::shared_ptr< FlowModel > flow, PhysicalProblemBuilderKey )
+    void PhysicalProblem::set_flow( std::shared_ptr< FlowModel > flow,
+        PhysicalProblemBuilderKey /*unused*/ )
     {
         impl_->set_flow( std::move( flow ) );
     }
 
     void PhysicalProblem::set_thermal(
-        std::optional< ThermalParameters > thermal, PhysicalProblemBuilderKey )
+        const ThermalParameters& thermal, PhysicalProblemBuilderKey /*unused*/ )
     {
-        impl_->set_thermal( std::move( thermal ) );
+        impl_->set_thermal( thermal );
     }
 
     index_t PhysicalProblem::add_material(
-        Material material, PhysicalProblemBuilderKey )
+        Material material, PhysicalProblemBuilderKey /*unused*/ )
     {
         return impl_->add_material( std::move( material ) );
     }
 
-    void PhysicalProblem::set_material(
-        index_t material_id, Material material, PhysicalProblemBuilderKey )
+    void PhysicalProblem::set_material( index_t material_id,
+        Material material,
+        PhysicalProblemBuilderKey /*unused*/ )
     {
         impl_->set_material( material_id, std::move( material ) );
     }
 
     void PhysicalProblem::remove_material(
-        index_t material_id, PhysicalProblemBuilderKey )
+        index_t material_id, PhysicalProblemBuilderKey /*unused*/ )
     {
         impl_->remove_material( material_id );
     }
 
     index_t PhysicalProblem::add_initial_condition(
         std::shared_ptr< InitialCondition > initial_condition,
-        PhysicalProblemBuilderKey )
+        PhysicalProblemBuilderKey /*unused*/ )
     {
         return impl_->add_initial_condition( std::move( initial_condition ) );
     }
 
     void PhysicalProblem::remove_initial_condition(
-        index_t initial_condition_id, PhysicalProblemBuilderKey )
+        index_t initial_condition_id, PhysicalProblemBuilderKey /*unused*/ )
     {
         impl_->remove_initial_condition( initial_condition_id );
     }
 
     index_t PhysicalProblem::add_source_term(
-        SourceTerm source_term, PhysicalProblemBuilderKey )
+        SourceTerm source_term, PhysicalProblemBuilderKey /*unused*/ )
     {
         return impl_->add_source_term( std::move( source_term ) );
     }
 
     void PhysicalProblem::remove_source_term(
-        index_t source_term_id, PhysicalProblemBuilderKey )
+        index_t source_term_id, PhysicalProblemBuilderKey /*unused*/ )
     {
         impl_->remove_source_term( source_term_id );
     }
 
     void PhysicalProblem::set_schedule(
-        const Schedule& schedule, PhysicalProblemBuilderKey )
+        const Schedule& schedule, PhysicalProblemBuilderKey /*unused*/ )
     {
         impl_->set_schedule( schedule );
     }
 
     void PhysicalProblem::set_output(
-        OutputSettings output, PhysicalProblemBuilderKey )
+        OutputSettings output, PhysicalProblemBuilderKey /*unused*/ )
     {
         impl_->set_output( std::move( output ) );
     }
 
     void PhysicalProblem::set_gravity(
-        const Vector3D& gravity, PhysicalProblemBuilderKey )
+        const Vector3D& gravity, PhysicalProblemBuilderKey /*unused*/ )
     {
         impl_->set_gravity( gravity );
     }
@@ -455,13 +451,13 @@ namespace geode
     void PhysicalProblem::set_solver_option( std::string_view simulator,
         std::string_view key,
         std::string_view value,
-        PhysicalProblemBuilderKey )
+        PhysicalProblemBuilderKey /*unused*/ )
     {
         impl_->set_solver_option( simulator, key, value );
     }
 
     void PhysicalProblem::copy(
-        const PhysicalProblem& other, PhysicalProblemBuilderKey )
+        const PhysicalProblem& other, PhysicalProblemBuilderKey /*unused*/ )
     {
         *impl_ = *other.impl_;
     }

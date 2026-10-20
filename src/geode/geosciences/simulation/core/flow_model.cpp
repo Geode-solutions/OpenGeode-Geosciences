@@ -23,6 +23,8 @@
 
 #include <geode/geosciences/simulation/core/flow_model.hpp>
 
+#include <utility>
+
 #include <bitsery/ext/std_smart_ptr.h>
 #include <bitsery/traits/array.h>
 #include <bitsery/traits/string.h>
@@ -42,14 +44,42 @@ namespace geode
     FlowModel& FlowModel::operator=( FlowModel&& ) noexcept = default;
     FlowModel::~FlowModel() = default;
 
+    bool FlowModel::has_fluid() const
+    {
+        return static_cast< bool >( fluid_ );
+    }
+
+    const FluidModel& FlowModel::fluid() const
+    {
+        OpenGeodeGeosciencesSimulationException::check_exception( has_fluid(),
+            nullptr, OpenGeodeException::TYPE::data,
+            "[FlowModel::fluid] No fluid model is defined" );
+        return *fluid_;
+    }
+
+    void FlowModel::set_fluid( std::shared_ptr< FluidModel > fluid )
+    {
+        OpenGeodeGeosciencesSimulationException::check_exception(
+            static_cast< bool >( fluid ), nullptr,
+            OpenGeodeException::TYPE::data,
+            "[FlowModel::set_fluid] Fluid model is null" );
+        fluid_ = std::move( fluid );
+    }
+
     template < typename Archive >
     void FlowModel::serialize( Archive& archive )
     {
         archive.ext(
             *this, Growable< Archive, FlowModel >{ { []( Archive& local_archive,
                                                          FlowModel& flow ) {
-                local_archive.ext( flow.fluid, bitsery::ext::StdSmartPtr{} );
+                local_archive.ext( flow.fluid_, bitsery::ext::StdSmartPtr{} );
             } } } );
+    }
+
+    MultiphaseFlow::MultiphaseFlow() = default;
+
+    MultiphaseFlow::MultiphaseFlow( COMPOSITION_BASIS basis ) : basis_( basis )
+    {
     }
 
     template < typename Archive >
@@ -71,7 +101,7 @@ namespace geode
                        { []( Archive& local_archive, MultiphaseFlow& flow ) {
                            local_archive.ext(
                                flow, bitsery::ext::BaseClass< FlowModel >{} );
-                           local_archive.value4b( flow.basis );
+                           local_archive.value4b( flow.basis_ );
                        } } } );
     }
 

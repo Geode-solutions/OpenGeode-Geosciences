@@ -127,8 +127,8 @@ namespace geode
         void set_flow(
             std::shared_ptr< FlowModel > flow, PhysicalProblemBuilderKey );
 
-        void set_thermal( std::optional< ThermalParameters > thermal,
-            PhysicalProblemBuilderKey );
+        void set_thermal(
+            const ThermalParameters& thermal, PhysicalProblemBuilderKey );
 
         [[nodiscard]] index_t add_material(
             Material material, PhysicalProblemBuilderKey );

@@ -24,7 +24,6 @@
 #pragma once
 
 #include <memory>
-#include <optional>
 #include <string_view>
 
 #include <geode/basic/identifier_builder.hpp>
@@ -70,7 +69,8 @@ namespace geode
 
         void set_flow( std::shared_ptr< FlowModel > flow );
 
-        void set_thermal( std::optional< ThermalParameters > thermal );
+        /// Solves the energy equation. Problems are isothermal by default.
+        void set_thermal( const ThermalParameters& thermal );
 
         index_t add_material( Material material );
 
