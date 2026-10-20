@@ -55,7 +55,8 @@ namespace geode
             print_available_extensions< BRepOutputFactory >( "BRep" );
             throw OpenGeodeGeosciencesExplicitException{ nullptr,
                 OpenGeodeException::TYPE::internal,
-                "Cannot save StructuralModel in file: ", filename };
+                "Cannot save StructuralModel in file: ", filename, ": ",
+                e.what() };
         }
     }
 

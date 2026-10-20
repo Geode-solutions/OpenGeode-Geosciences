@@ -80,7 +80,8 @@ namespace geode
             print_available_extensions< BRepInputFactory >( "BRep" );
             throw OpenGeodeGeosciencesImplicitException{ nullptr,
                 OpenGeodeException::TYPE::internal,
-                "Cannot load ImplicitStructuralModel from file: ", filename };
+                "Cannot load ImplicitStructuralModel from file: ", filename,
+                ": ", e.what() };
         }
     }
 

@@ -34,6 +34,32 @@ namespace geode
 {
     namespace detail
     {
+        constexpr auto top_to_bottom_names_doc =
+            "Create a HorizonsStack from Horizon and StratigraphicUnit names, "
+            "both ordered from top to bottom. N horizons always create N+1 "
+            "units: [unit above the top horizon, units between horizons, unit "
+            "below the bottom horizon]. units_names may contain N+1 names (all "
+            "units named), N names (the bottom unit is unnamed) or N-1 names "
+            "(only the units between horizons are named).";
+        constexpr auto bottom_to_top_names_doc =
+            "Create a HorizonsStack from Horizon and StratigraphicUnit names, "
+            "both ordered from bottom to top. N horizons always create N+1 "
+            "units: [unit below the bottom horizon, units between horizons, "
+            "unit above the top horizon]. units_names may contain N+1 names "
+            "(all units named), N names (the top unit is unnamed) or N-1 names "
+            "(only the units between horizons are named).";
+        constexpr auto repair_doc =
+            "Add the missing StratigraphicUnits under the bottom Horizon and "
+            "above the top Horizon. Raise an error if the above/under "
+            "relations between Horizons and StratigraphicUnits are missing or "
+            "wrong in between";
+        constexpr auto horizon_id_doc =
+            "Return the uuid of the Horizon with the given name, or None if "
+            "there is none";
+        constexpr auto unit_id_doc =
+            "Return the uuid of the StratigraphicUnit with the given name, or "
+            "None if there is none";
+
         void define_implicit_model_helpers( pybind11::module& module )
         {
             module
@@ -53,19 +79,43 @@ namespace geode
                     &save_stratigraphic_surfaces )
                 .def( "save_stratigraphic_blocks", &save_stratigraphic_blocks )
                 .def( "horizons_stack_from_top_to_bottom_names_2d",
-                    &horizons_stack_from_top_to_bottom_names< 2 > )
+                    &horizons_stack_from_top_to_bottom_names< 2 >,
+                    pybind11::arg( "horizons_names" ),
+                    pybind11::arg( "units_names" ), top_to_bottom_names_doc )
                 .def( "horizons_stack_from_top_to_bottom_names_3d",
-                    &horizons_stack_from_top_to_bottom_names< 3 > )
+                    &horizons_stack_from_top_to_bottom_names< 3 >,
+                    pybind11::arg( "horizons_names" ),
+                    pybind11::arg( "units_names" ), top_to_bottom_names_doc )
                 .def( "horizons_stack_from_bottom_to_top_names_2d",
-                    &horizons_stack_from_bottom_to_top_names< 2 > )
+                    &horizons_stack_from_bottom_to_top_names< 2 >,
+                    pybind11::arg( "horizons_names" ),
+                    pybind11::arg( "units_names" ), bottom_to_top_names_doc )
                 .def( "horizons_stack_from_bottom_to_top_names_3d",
-                    &horizons_stack_from_bottom_to_top_names< 3 > )
+                    &horizons_stack_from_bottom_to_top_names< 3 >,
+                    pybind11::arg( "horizons_names" ),
+                    pybind11::arg( "units_names" ), bottom_to_top_names_doc )
                 .def( "repair_horizon_stack_if_possible_2d",
-                    &repair_horizon_stack_if_possible< 2 > )
+                    &repair_horizon_stack_if_possible< 2 >,
+                    pybind11::arg( "horizons_stack" ),
+                    pybind11::arg( "builder" ), repair_doc )
                 .def( "repair_horizon_stack_if_possible_3d",
-                    &repair_horizon_stack_if_possible< 3 > )
-                .def( "horizon_id_from_name_2d", &horizon_id_from_name< 2 > )
-                .def( "horizon_id_from_name_3d", &horizon_id_from_name< 3 > )
+                    &repair_horizon_stack_if_possible< 3 >,
+                    pybind11::arg( "horizons_stack" ),
+                    pybind11::arg( "builder" ), repair_doc )
+                .def( "horizon_id_from_name_2d", &horizon_id_from_name< 2 >,
+                    pybind11::arg( "horizons_stack" ),
+                    pybind11::arg( "horizon_name" ), horizon_id_doc )
+                .def( "horizon_id_from_name_3d", &horizon_id_from_name< 3 >,
+                    pybind11::arg( "horizons_stack" ),
+                    pybind11::arg( "horizon_name" ), horizon_id_doc )
+                .def( "stratigraphic_unit_id_from_name_2d",
+                    &stratigraphic_unit_id_from_name< 2 >,
+                    pybind11::arg( "horizons_stack" ),
+                    pybind11::arg( "unit_name" ), unit_id_doc )
+                .def( "stratigraphic_unit_id_from_name_3d",
+                    &stratigraphic_unit_id_from_name< 3 >,
+                    pybind11::arg( "horizons_stack" ),
+                    pybind11::arg( "unit_name" ), unit_id_doc )
                 .def( "implicit_section_from_cross_section_scalar_field",
                     []( CrossSection& model, const uuid& attribute_id ) {
                         return implicit_section_from_cross_section_scalar_field(

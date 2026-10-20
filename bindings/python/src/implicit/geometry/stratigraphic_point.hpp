@@ -42,7 +42,9 @@
             &StratigraphicPoint##dimension##D::set_stratigraphic_location )    \
         .def( "set_implicit_value",                                            \
             &StratigraphicPoint##dimension##D::set_implicit_value )            \
-        .def( "string", &StratigraphicPoint##dimension##D::string )
+        .def( "string", &StratigraphicPoint##dimension##D::string )            \
+        .def( "__str__", &StratigraphicPoint##dimension##D::string )           \
+        .def( "__repr__", &StratigraphicPoint##dimension##D::string )
 
 namespace geode
 {

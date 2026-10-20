@@ -76,7 +76,8 @@ namespace geode
             print_available_extensions< BRepInputFactory >( "BRep" );
             throw OpenGeodeGeosciencesExplicitException{ nullptr,
                 OpenGeodeException::TYPE::internal,
-                "Cannot load StructuralModel from file: ", filename };
+                "Cannot load StructuralModel from file: ", filename, ": ",
+                e.what() };
         }
     }
 

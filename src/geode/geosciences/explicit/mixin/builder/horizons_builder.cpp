@@ -96,6 +96,21 @@ namespace geode
                 name, typename Horizon< dimension >::HorizonsBuilderKey{} );
     }
 
+    template < index_t dimension >
+    void HorizonsBuilder< dimension >::set_horizon_contact_type(
+        const uuid& horizon_id, CONTACT_TYPE contact_type )
+    {
+        set_horizon_contact_type(
+            horizons_.horizon( horizon_id ), contact_type );
+    }
+
+    template < index_t dimension >
+    void HorizonsBuilder< dimension >::set_horizon_name(
+        const uuid& horizon_id, std::string_view name )
+    {
+        set_horizon_name( horizons_.horizon( horizon_id ), name );
+    }
+
     template class opengeode_geosciences_explicit_api HorizonsBuilder< 2 >;
     template class opengeode_geosciences_explicit_api HorizonsBuilder< 3 >;
 } // namespace geode

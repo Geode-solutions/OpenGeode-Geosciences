@@ -54,7 +54,8 @@ namespace geode
             print_available_extensions< SectionOutputFactory >( "Section" );
             throw OpenGeodeGeosciencesExplicitException{ nullptr,
                 OpenGeodeException::TYPE::internal,
-                "Cannot save CrossSection in file: ", filename };
+                "Cannot save CrossSection in file: ", filename, ": ",
+                e.what() };
         }
     }
 
