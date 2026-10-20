@@ -34,7 +34,8 @@
             static_cast< void ( FaultsBuilder##dimension##D::* )(              \
                 const Fault##dimension##D&,                                    \
                 Fault##dimension##D::FAULT_TYPE ) >(                           \
-                &FaultsBuilder##dimension##D::set_fault_type ) )               \
+                &FaultsBuilder##dimension##D::set_fault_type ),                \
+            pybind11::arg( "fault" ), pybind11::arg( "type" ) )                \
         .def( "set_fault_type",                                                \
             static_cast< void ( FaultsBuilder##dimension##D::* )(              \
                 const uuid&, Fault##dimension##D::FAULT_TYPE ) >(              \
@@ -43,7 +44,8 @@
         .def( "set_fault_name",                                                \
             static_cast< void ( FaultsBuilder##dimension##D::* )(              \
                 const Fault##dimension##D&, std::string_view ) >(              \
-                &FaultsBuilder##dimension##D::set_fault_name ) )               \
+                &FaultsBuilder##dimension##D::set_fault_name ),                \
+            pybind11::arg( "fault" ), pybind11::arg( "name" ) )                \
         .def( "set_fault_name",                                                \
             static_cast< void ( FaultsBuilder##dimension##D::* )(              \
                 const uuid&, std::string_view ) >(                             \

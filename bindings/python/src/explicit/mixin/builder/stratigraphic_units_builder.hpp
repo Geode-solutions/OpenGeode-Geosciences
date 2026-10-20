@@ -34,7 +34,8 @@
             static_cast< void ( StratigraphicUnitsBuilder##dimension##D::* )(  \
                 const StratigraphicUnit##dimension##D&, std::string_view ) >(  \
                 &StratigraphicUnitsBuilder##dimension##D::                     \
-                    set_stratigraphic_unit_name ) )                            \
+                    set_stratigraphic_unit_name ),                             \
+            pybind11::arg( "stratigraphic_unit" ), pybind11::arg( "name" ) )   \
         .def( "set_stratigraphic_unit_name",                                   \
             static_cast< void ( StratigraphicUnitsBuilder##dimension##D::* )(  \
                 const uuid&, std::string_view ) >(                             \

@@ -48,13 +48,13 @@ namespace geode
                     &CrossSectionBuilder::add_horizon ) )
             .def( "add_fault",
                 static_cast< const uuid& (
-                    CrossSectionBuilder::*) ( typename Fault2D::FAULT_TYPE ) >(
+                    CrossSectionBuilder::*) ( Fault2D::FAULT_TYPE ) >(
                     &CrossSectionBuilder::add_fault ),
                 pybind11::arg( "type" ) )
             .def( "add_horizon",
                 static_cast< const uuid& (
-                    CrossSectionBuilder::*) ( typename Horizon2D::
-                        CONTACT_TYPE ) >( &CrossSectionBuilder::add_horizon ),
+                    CrossSectionBuilder::*) ( Horizon2D::CONTACT_TYPE ) >(
+                    &CrossSectionBuilder::add_horizon ),
                 pybind11::arg( "contact_type" ) )
             .def( "add_fault_block",
                 static_cast< const uuid& (CrossSectionBuilder::*) () >(

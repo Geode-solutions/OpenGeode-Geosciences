@@ -262,6 +262,7 @@ def test_setters_with_uuid():
     builder.set_stratigraphic_unit_name(unit, "U")
     fault_block = builder.add_fault_block()
     builder.set_fault_block_name(fault_block, "FB")
+    builder.set_fault_name(fault=model.fault(fault), name="F")
     if (
         model.horizon(horizon).name() != "H"
         or model.horizon(horizon).contact_type()
