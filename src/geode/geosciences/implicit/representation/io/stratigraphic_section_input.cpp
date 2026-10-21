@@ -81,7 +81,8 @@ namespace geode
             print_available_extensions< SectionInputFactory >( "Section" );
             throw OpenGeodeGeosciencesImplicitException{ nullptr,
                 OpenGeodeException::TYPE::internal,
-                "Cannot load StratigraphicSection from file: ", filename };
+                "Cannot load StratigraphicSection from file: ", filename, ": ",
+                e.what() };
         }
     }
 

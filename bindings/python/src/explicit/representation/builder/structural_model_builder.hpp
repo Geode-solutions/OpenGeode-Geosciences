@@ -47,6 +47,16 @@ namespace geode
             .def( "add_horizon",
                 static_cast< const uuid& (StructuralModelBuilder::*) () >(
                     &StructuralModelBuilder::add_horizon ) )
+            .def( "add_fault",
+                static_cast< const uuid& (
+                    StructuralModelBuilder::*) ( Fault3D::FAULT_TYPE ) >(
+                    &StructuralModelBuilder::add_fault ),
+                pybind11::arg( "type" ) )
+            .def( "add_horizon",
+                static_cast< const uuid& (
+                    StructuralModelBuilder::*) ( Horizon3D::CONTACT_TYPE ) >(
+                    &StructuralModelBuilder::add_horizon ),
+                pybind11::arg( "contact_type" ) )
             .def( "add_fault_block",
                 static_cast< const uuid& (StructuralModelBuilder::*) () >(
                     &StructuralModelBuilder::add_fault_block ) )

@@ -60,7 +60,8 @@ namespace geode
             print_available_extensions< BRepOutputFactory >( "BRep" );
             throw OpenGeodeGeosciencesImplicitException{ nullptr,
                 OpenGeodeException::TYPE::internal,
-                "Cannot save ImplicitStructuralModel in file: ", filename };
+                "Cannot save ImplicitStructuralModel in file: ", filename, ": ",
+                e.what() };
         }
     }
 

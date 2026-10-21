@@ -58,7 +58,8 @@ namespace geode
             print_available_extensions< SectionOutputFactory >( "Section" );
             throw OpenGeodeGeosciencesImplicitException{ nullptr,
                 OpenGeodeException::TYPE::internal,
-                "Cannot save ImplicitCrossSection in file: ", filename };
+                "Cannot save ImplicitCrossSection in file: ", filename, ": ",
+                e.what() };
         }
     }
 

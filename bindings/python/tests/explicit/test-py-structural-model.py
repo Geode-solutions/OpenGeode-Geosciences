@@ -231,6 +231,50 @@ def modify_model(model, builder):
         raise ValueError("[Test] Number of faults in modified model should be 2")
 
 
+def test_typed_creation():
+    model = geosciences.StructuralModel()
+    builder = geosciences.StructuralModelBuilder(model)
+    fault = builder.add_fault(geosciences.Fault3D.FAULT_TYPE.NORMAL)
+    if model.fault(fault).type() != geosciences.Fault3D.FAULT_TYPE.NORMAL:
+        raise ValueError("[Test] Fault should be created with its type")
+    horizon = builder.add_horizon(
+        contact_type=geosciences.Horizon3D.CONTACT_TYPE.EROSION
+    )
+    if (
+        model.horizon(horizon).contact_type()
+        != geosciences.Horizon3D.CONTACT_TYPE.EROSION
+    ):
+        raise ValueError("[Test] Horizon should be created with its contact type")
+
+
+def test_setters_with_uuid():
+    model = geosciences.StructuralModel()
+    builder = geosciences.StructuralModelBuilder(model)
+    horizon = builder.add_horizon()
+    builder.set_horizon_name(horizon, "H")
+    builder.set_horizon_contact_type(
+        horizon, geosciences.Horizon3D.CONTACT_TYPE.EROSION
+    )
+    fault = builder.add_fault()
+    builder.set_fault_name(fault, "F")
+    builder.set_fault_type(fault, geosciences.Fault3D.FAULT_TYPE.REVERSE)
+    unit = builder.add_stratigraphic_unit()
+    builder.set_stratigraphic_unit_name(unit, "U")
+    fault_block = builder.add_fault_block()
+    builder.set_fault_block_name(fault_block, "FB")
+    builder.set_fault_name(fault=model.fault(fault), name="F")
+    if (
+        model.horizon(horizon).name() != "H"
+        or model.horizon(horizon).contact_type()
+        != geosciences.Horizon3D.CONTACT_TYPE.EROSION
+        or model.fault(fault).name() != "F"
+        or model.fault(fault).type() != geosciences.Fault3D.FAULT_TYPE.REVERSE
+        or model.stratigraphic_unit(unit).name() != "U"
+        or model.fault_block(fault_block).name() != "FB"
+    ):
+        raise ValueError("[Test] Setters with uuid should modify the model")
+
+
 if __name__ == "__main__":
     geosciences.OpenGeodeGeosciencesExplicitLibrary.initialize()
     model = geosciences.StructuralModel()
@@ -242,3 +286,5 @@ if __name__ == "__main__":
     test_io(model)
     test_copy(model)
     modify_model(model, builder)
+    test_typed_creation()
+    test_setters_with_uuid()

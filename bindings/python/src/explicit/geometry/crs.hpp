@@ -52,6 +52,8 @@ namespace geode
             .def( "authority_code",
                 &GeographicCoordinateSystemInfo::authority_code )
             .def( "string", &GeographicCoordinateSystemInfo::string )
+            .def( "__str__", &GeographicCoordinateSystemInfo::string )
+            .def( "__repr__", &GeographicCoordinateSystemInfo::string )
             .def_readwrite(
                 "authority", &GeographicCoordinateSystemInfo::authority )
             .def_readwrite( "code", &GeographicCoordinateSystemInfo::code )
