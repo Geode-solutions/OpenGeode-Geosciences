@@ -31,15 +31,8 @@
     pybind11::class_< FaultBlocksBuilder##dimension##D >(                      \
         module, name##dimension.c_str() )                                      \
         .def( "set_fault_block_name",                                          \
-            static_cast< void ( FaultBlocksBuilder##dimension##D::* )(         \
-                const FaultBlock##dimension##D&, std::string_view ) >(         \
-                &FaultBlocksBuilder##dimension##D::set_fault_block_name ),     \
-            pybind11::arg( "fault_block" ), pybind11::arg( "name" ) )          \
-        .def( "set_fault_block_name",                                          \
-            static_cast< void ( FaultBlocksBuilder##dimension##D::* )(         \
-                const uuid&, std::string_view ) >(                             \
-                &FaultBlocksBuilder##dimension##D::set_fault_block_name ),     \
-            pybind11::arg( "fault_block_id" ), pybind11::arg( "name" ) )
+            &FaultBlocksBuilder##dimension##D::set_fault_block_name,           \
+            pybind11::arg( "fault_block" ), pybind11::arg( "name" ) )
 
 namespace geode
 {

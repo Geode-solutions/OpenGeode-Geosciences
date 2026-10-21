@@ -31,18 +31,9 @@
     pybind11::class_< StratigraphicUnitsBuilder##dimension##D >(               \
         module, name##dimension.c_str() )                                      \
         .def( "set_stratigraphic_unit_name",                                   \
-            static_cast< void ( StratigraphicUnitsBuilder##dimension##D::* )(  \
-                const StratigraphicUnit##dimension##D&, std::string_view ) >(  \
-                &StratigraphicUnitsBuilder##dimension##D::                     \
-                    set_stratigraphic_unit_name ),                             \
-            pybind11::arg( "stratigraphic_unit" ), pybind11::arg( "name" ) )   \
-        .def( "set_stratigraphic_unit_name",                                   \
-            static_cast< void ( StratigraphicUnitsBuilder##dimension##D::* )(  \
-                const uuid&, std::string_view ) >(                             \
-                &StratigraphicUnitsBuilder##dimension##D::                     \
-                    set_stratigraphic_unit_name ),                             \
-            pybind11::arg( "stratigraphic_unit_id" ),                          \
-            pybind11::arg( "name" ) )
+            &StratigraphicUnitsBuilder##dimension##D::                         \
+                set_stratigraphic_unit_name,                                   \
+            pybind11::arg( "stratigraphic_unit" ), pybind11::arg( "name" ) )
 
 namespace geode
 {
