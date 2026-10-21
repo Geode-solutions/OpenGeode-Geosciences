@@ -47,11 +47,6 @@ namespace geode
         void set_fault_name(
             const Fault< dimension >& fault, std::string_view name );
 
-        void set_fault_type( const uuid& fault_id,
-            typename Fault< dimension >::FAULT_TYPE type );
-
-        void set_fault_name( const uuid& fault_id, std::string_view name );
-
     protected:
         explicit FaultsBuilder( Faults< dimension >& faults )
             : faults_( faults )

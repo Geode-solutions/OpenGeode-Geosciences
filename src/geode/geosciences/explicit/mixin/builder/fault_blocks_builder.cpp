@@ -70,14 +70,6 @@ namespace geode
                 typename FaultBlock< dimension >::FaultBlocksBuilderKey{} );
     }
 
-    template < index_t dimension >
-    void FaultBlocksBuilder< dimension >::set_fault_block_name(
-        const uuid& fault_block_id, std::string_view name )
-    {
-        set_fault_block_name(
-            fault_blocks_.fault_block( fault_block_id ), name );
-    }
-
     template class opengeode_geosciences_explicit_api FaultBlocksBuilder< 2 >;
     template class opengeode_geosciences_explicit_api FaultBlocksBuilder< 3 >;
 } // namespace geode

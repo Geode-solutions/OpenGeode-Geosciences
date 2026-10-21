@@ -95,20 +95,6 @@ namespace geode
                 name, typename Fault< dimension >::FaultsBuilderKey{} );
     }
 
-    template < index_t dimension >
-    void FaultsBuilder< dimension >::set_fault_type(
-        const uuid& fault_id, typename Fault< dimension >::FAULT_TYPE type )
-    {
-        set_fault_type( faults_.fault( fault_id ), type );
-    }
-
-    template < index_t dimension >
-    void FaultsBuilder< dimension >::set_fault_name(
-        const uuid& fault_id, std::string_view name )
-    {
-        set_fault_name( faults_.fault( fault_id ), name );
-    }
-
     template class opengeode_geosciences_explicit_api FaultsBuilder< 2 >;
     template class opengeode_geosciences_explicit_api FaultsBuilder< 3 >;
 } // namespace geode
