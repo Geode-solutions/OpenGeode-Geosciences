@@ -37,6 +37,7 @@ namespace geode
         : Relationships::ItemRangeIterator( cross_section, horizon.id() ),
           cross_section_( cross_section )
     {
+        detail::skip_other_type_items( *this, Line2D::component_type_static() );
     }
     CrossSection::HorizonItemRange::HorizonItemRange(
         const HorizonItemRange& range )
@@ -64,6 +65,12 @@ namespace geode
             Relationships::ItemRangeIterator::operator*().id );
     }
 
+    void CrossSection::HorizonItemRange::operator++()
+    {
+        Relationships::ItemRangeIterator::operator++();
+        detail::skip_other_type_items( *this, Line2D::component_type_static() );
+    }
+
     CrossSection::HorizonItemRange CrossSection::horizon_items(
         const Horizon2D& horizon ) const
     {
@@ -75,6 +82,7 @@ namespace geode
         : Relationships::ItemRangeIterator( cross_section, fault.id() ),
           cross_section_( cross_section )
     {
+        detail::skip_other_type_items( *this, Line2D::component_type_static() );
     }
 
     CrossSection::FaultItemRange::FaultItemRange( const FaultItemRange& range )
@@ -101,6 +109,12 @@ namespace geode
             Relationships::ItemRangeIterator::operator*().id );
     }
 
+    void CrossSection::FaultItemRange::operator++()
+    {
+        Relationships::ItemRangeIterator::operator++();
+        detail::skip_other_type_items( *this, Line2D::component_type_static() );
+    }
+
     CrossSection::FaultItemRange CrossSection::fault_items(
         const Fault2D& fault ) const
     {
@@ -112,6 +126,8 @@ namespace geode
         : Relationships::ItemRangeIterator( cross_section, fault_block.id() ),
           cross_section_( cross_section )
     {
+        detail::skip_other_type_items(
+            *this, Surface2D::component_type_static() );
     }
 
     CrossSection::FaultBlockItemRange::FaultBlockItemRange(
@@ -141,6 +157,13 @@ namespace geode
             Relationships::ItemRangeIterator::operator*().id );
     }
 
+    void CrossSection::FaultBlockItemRange::operator++()
+    {
+        Relationships::ItemRangeIterator::operator++();
+        detail::skip_other_type_items(
+            *this, Surface2D::component_type_static() );
+    }
+
     CrossSection::FaultBlockItemRange CrossSection::fault_block_items(
         const FaultBlock2D& fault_block ) const
     {
@@ -154,6 +177,8 @@ namespace geode
               cross_section, stratigraphic_unit.id() ),
           cross_section_( cross_section )
     {
+        detail::skip_other_type_items(
+            *this, Surface2D::component_type_static() );
     }
 
     CrossSection::StratigraphicUnitItemRange::StratigraphicUnitItemRange(
@@ -182,6 +207,13 @@ namespace geode
     {
         return cross_section_.surface(
             Relationships::ItemRangeIterator::operator*().id );
+    }
+
+    void CrossSection::StratigraphicUnitItemRange::operator++()
+    {
+        Relationships::ItemRangeIterator::operator++();
+        detail::skip_other_type_items(
+            *this, Surface2D::component_type_static() );
     }
 
     CrossSection::StratigraphicUnitItemRange

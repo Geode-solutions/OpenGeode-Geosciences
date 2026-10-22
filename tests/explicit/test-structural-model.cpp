@@ -389,6 +389,56 @@ void test_transfer_with_stale_mapping( const geode::StructuralModel& model )
         "Transfer with a stale mapping should throw a catchable exception" );
 }
 
+void test_item_ranges_with_mistyped_items()
+{
+    geode::StructuralModel model;
+    geode::StructuralModelBuilder builder{ model };
+    const auto& surface = model.surface( builder.add_surface() );
+    const auto& block = model.block( builder.add_block() );
+    const auto& line = model.line( builder.add_line() );
+    const auto& horizon = model.horizon( builder.add_horizon() );
+    const auto& fault = model.fault( builder.add_fault() );
+    const auto& fault_block = model.fault_block( builder.add_fault_block() );
+    const auto& unit =
+        model.stratigraphic_unit( builder.add_stratigraphic_unit() );
+    builder.add_item_in_collection(
+        line.component_id(), horizon.component_id() );
+    builder.add_surface_in_horizon( surface, horizon );
+    builder.add_item_in_collection( line.component_id(), fault.component_id() );
+    builder.add_surface_in_fault( surface, fault );
+    builder.add_item_in_collection(
+        surface.component_id(), fault_block.component_id() );
+    builder.add_block_in_fault_block( block, fault_block );
+    builder.add_item_in_collection( line.component_id(), unit.component_id() );
+    builder.add_block_in_stratigraphic_unit( block, unit );
+    builder.add_item_in_collection(
+        surface.component_id(), unit.component_id() );
+
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        count_items( model.horizon_items( horizon ) ) == 1,
+        "Horizon item range should skip items which are not Surfaces" );
+    for( const auto& item : model.horizon_items( horizon ) )
+    {
+        geode::OpenGeodeGeosciencesExplicitException::test(
+            item.id() == surface.id(), "Wrong Horizon item" );
+    }
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        count_items( model.fault_items( fault ) ) == 1,
+        "Fault item range should skip items which are not Surfaces" );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        count_items( model.fault_block_items( fault_block ) ) == 1,
+        "FaultBlock item range should skip items which are not Blocks" );
+    for( const auto& item : model.fault_block_items( fault_block ) )
+    {
+        geode::OpenGeodeGeosciencesExplicitException::test(
+            item.id() == block.id(), "Wrong FaultBlock item" );
+    }
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        count_items( model.stratigraphic_unit_items( unit ) ) == 1,
+        "StratigraphicUnit item range should skip items which are not "
+        "Blocks" );
+}
+
 void modify_model(
     geode::StructuralModel& model, geode::StructuralModelBuilder& builder )
 {
@@ -467,6 +517,7 @@ int main()
         test_io( model );
         test_copy( model );
         test_transfer_with_stale_mapping( model );
+        test_item_ranges_with_mistyped_items();
         modify_model( model, builder );
 
         geode::Logger::info( "TEST SUCCESS" );

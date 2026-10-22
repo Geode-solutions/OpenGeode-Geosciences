@@ -449,6 +449,54 @@ void test_transfer_with_stale_mapping( const geode::CrossSection& model )
         "Transfer with a stale mapping should throw a catchable exception" );
 }
 
+void test_item_ranges_with_mistyped_items()
+{
+    geode::CrossSection model;
+    geode::CrossSectionBuilder builder{ model };
+    const auto& surface = model.surface( builder.add_surface() );
+    const auto& line = model.line( builder.add_line() );
+    const auto& horizon = model.horizon( builder.add_horizon() );
+    const auto& fault = model.fault( builder.add_fault() );
+    const auto& fault_block = model.fault_block( builder.add_fault_block() );
+    const auto& unit =
+        model.stratigraphic_unit( builder.add_stratigraphic_unit() );
+    builder.add_item_in_collection(
+        surface.component_id(), horizon.component_id() );
+    builder.add_line_in_horizon( line, horizon );
+    builder.add_item_in_collection(
+        surface.component_id(), fault.component_id() );
+    builder.add_line_in_fault( line, fault );
+    builder.add_item_in_collection(
+        line.component_id(), fault_block.component_id() );
+    builder.add_surface_in_fault_block( surface, fault_block );
+    builder.add_item_in_collection( line.component_id(), unit.component_id() );
+    builder.add_surface_in_stratigraphic_unit( surface, unit );
+
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        count_items( model.horizon_items( horizon ) ) == 1,
+        "Horizon item range should skip items which are not Lines" );
+    for( const auto& item : model.horizon_items( horizon ) )
+    {
+        geode::OpenGeodeGeosciencesExplicitException::test(
+            item.id() == line.id(), "Wrong Horizon item" );
+    }
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        count_items( model.fault_items( fault ) ) == 1,
+        "Fault item range should skip items which are not Lines" );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        count_items( model.fault_block_items( fault_block ) ) == 1,
+        "FaultBlock item range should skip items which are not Surfaces" );
+    for( const auto& item : model.fault_block_items( fault_block ) )
+    {
+        geode::OpenGeodeGeosciencesExplicitException::test(
+            item.id() == surface.id(), "Wrong FaultBlock item" );
+    }
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        count_items( model.stratigraphic_unit_items( unit ) ) == 1,
+        "StratigraphicUnit item range should skip items which are not "
+        "Surfaces" );
+}
+
 void modify_model(
     geode::CrossSection& model, geode::CrossSectionBuilder& builder )
 {
@@ -514,6 +562,7 @@ int main()
         test_io( model );
         test_copy( model );
         test_transfer_with_stale_mapping( model );
+        test_item_ranges_with_mistyped_items();
         modify_model( model, builder );
 
         geode::Logger::info( "TEST SUCCESS" );
