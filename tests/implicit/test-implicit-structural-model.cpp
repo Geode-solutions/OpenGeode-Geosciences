@@ -43,6 +43,8 @@
 #include <geode/geosciences/implicit/representation/core/horizons_stack.hpp>
 #include <geode/geosciences/implicit/representation/core/implicit_structural_model.hpp>
 #include <geode/geosciences/implicit/representation/core/stratigraphic_model.hpp>
+#include <geode/geosciences/implicit/representation/io/implicit_structural_model_input.hpp>
+#include <geode/geosciences/implicit/representation/io/implicit_structural_model_output.hpp>
 
 namespace
 {
@@ -548,6 +550,54 @@ void test_import_old_attribute( std::string_view old_name )
         "attribute" );
 }
 
+void test_load_duplicated_implicit_attribute()
+{
+    geode::Logger::info( "Testing load with duplicated implicit attribute" );
+    const auto model = create_model();
+    for( const auto& block : model.blocks() )
+    {
+        geode::AttributeValues< double > values;
+        values.default_value = 42;
+        values.no_value = 42;
+        geode::AttributeProperties properties;
+        properties.interpolable = true;
+        properties.transferable = true;
+        const auto duplicated_id =
+            block.mesh()
+                .vertex_attribute_manager()
+                .create_attribute< geode::VariableAttribute, double >(
+                    geode::ImplicitStructuralModel::IMPLICIT_ATTRIBUTE_NAME,
+                    values, properties );
+        geode::OpenGeodeGeosciencesImplicitException::test(
+            duplicated_id != model.implicit_attribute_id(),
+            "[duplicated load] Wrong duplicated attribute" );
+    }
+    const auto filename = "test_duplicated_implicit_attribute.og_istrm";
+    geode::save_implicit_structural_model( model, filename );
+    for( const auto& block : model.blocks() )
+    {
+        geode::OpenGeodeGeosciencesImplicitException::test(
+            nb_implicit_attributes( block.mesh().vertex_attribute_manager() )
+                == 2,
+            "[duplicated load] Saved model should not be modified" );
+    }
+    const auto reloaded = geode::load_implicit_structural_model( filename );
+    for( const auto& block : reloaded.blocks() )
+    {
+        geode::OpenGeodeGeosciencesImplicitException::test(
+            nb_implicit_attributes( block.mesh().vertex_attribute_manager() )
+                == 1,
+            "[duplicated load] There should be only one implicit attribute" );
+        for( const auto vertex : geode::Range{ block.mesh().nb_vertices() } )
+        {
+            geode::OpenGeodeGeosciencesImplicitException::test(
+                reloaded.implicit_value( block, vertex )
+                    == block.mesh().point( vertex ).value( 2 ),
+                "[duplicated load] Wrong implicit value" );
+        }
+    }
+}
+
 int main()
 {
     try
@@ -568,6 +618,7 @@ int main()
         test_import_old_attribute( "old_implicit" );
         test_import_old_attribute(
             geode::ImplicitStructuralModel::IMPLICIT_ATTRIBUTE_NAME );
+        test_load_duplicated_implicit_attribute();
 
         geode::Logger::info( "TEST SUCCESS" );
         return 0;

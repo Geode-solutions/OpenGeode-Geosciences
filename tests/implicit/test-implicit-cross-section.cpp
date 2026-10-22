@@ -43,6 +43,7 @@
 #include <geode/geosciences/implicit/representation/core/horizons_stack.hpp>
 #include <geode/geosciences/implicit/representation/core/implicit_cross_section.hpp>
 #include <geode/geosciences/implicit/representation/core/stratigraphic_section.hpp>
+#include <geode/geosciences/implicit/representation/io/implicit_cross_section_input.hpp>
 
 namespace
 {
@@ -548,6 +549,20 @@ void test_import_old_attribute( std::string_view old_name )
         "attribute" );
 }
 
+void test_legacy_load()
+{
+    geode::Logger::info( "Testing legacy file load" );
+    const auto model = geode::load_implicit_cross_section( absl::StrCat(
+        geode::DATA_PATH, "test_old_implicit_crossection.og_ixsctn" ) );
+    for( const auto& surface : model.surfaces() )
+    {
+        geode::OpenGeodeGeosciencesImplicitException::test(
+            nb_implicit_attributes( surface.mesh().vertex_attribute_manager() )
+                == 1,
+            "[legacy load] There should be only one implicit attribute" );
+    }
+}
+
 int main()
 {
     try
@@ -568,6 +583,7 @@ int main()
         test_import_old_attribute( "old_implicit" );
         test_import_old_attribute(
             geode::ImplicitCrossSection::IMPLICIT_ATTRIBUTE_NAME );
+        test_legacy_load();
 
         geode::Logger::info( "TEST SUCCESS" );
         return 0;

@@ -293,6 +293,34 @@ namespace geode
             horizon_isovalues_[horizon.id()] = isovalue;
         }
 
+        void remove_duplicated_implicit_attributes(
+            const ImplicitCrossSection& model )
+        {
+            for( const auto& surface : model.surfaces() )
+            {
+                auto& manager = surface.mesh().vertex_attribute_manager();
+                const auto attribute_ids = manager.attribute_ids_matching_name(
+                    IMPLICIT_ATTRIBUTE_NAME );
+                if( !attribute_ids )
+                {
+                    continue;
+                }
+                for( const auto& attribute_id : attribute_ids.value() )
+                {
+                    if( attribute_id == implicit_attribute_id_ )
+                    {
+                        continue;
+                    }
+                    Logger::warning(
+                        "[ImplicitCrossSection] Removing duplicated implicit "
+                        "attribute ",
+                        attribute_id.string(), " on Surface ",
+                        surface.id().string() );
+                    manager.delete_attribute( attribute_id );
+                }
+            }
+        }
+
     private:
         std::optional< bool > increasing_stack_isovalues() const
         {
@@ -531,6 +559,11 @@ namespace geode
                      for( const auto& surface : model.surfaces() )
                      {
                          const auto& surface_mesh = surface.mesh();
+                         if( surface_mesh.type_name()
+                             != TriangulatedSurface2D::type_name_static() )
+                         {
+                             continue;
+                         }
                          AttributeValues< double >
                              implicit_attribute_default_values;
                          implicit_attribute_default_values.default_value = 0;
@@ -567,6 +600,10 @@ namespace geode
                                      vertex_id, old_implicit_attribute->value(
                                                     vertex_id ) );
                              }
+                             surface_mesh.vertex_attribute_manager()
+                                 .delete_attribute(
+                                     old_implicit_attribute_id.value()
+                                         .front() );
                          }
                          else
                          {
@@ -582,7 +619,13 @@ namespace geode
                  },
                     []( Archive& a, ImplicitCrossSection& model ) {
                         a.object( model.impl_ );
-                        model.impl_->initialize_implicit_query_trees( model );
+                        if constexpr( std::is_same_v< Archive, Deserializer > )
+                        {
+                            model.impl_->remove_duplicated_implicit_attributes(
+                                model );
+                            model.impl_->initialize_implicit_query_trees(
+                                model );
+                        }
                     } } } );
     }
 
