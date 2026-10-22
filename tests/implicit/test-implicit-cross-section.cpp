@@ -64,12 +64,13 @@ namespace
         auto mesh_builder =
             builder.surface_mesh_builder< geode::TriangulatedSurface2D >(
                 surface );
-        mesh_builder->create_point( geode::Point2D{ { shift, 0 } } );
+        const auto offset =
+            mesh_builder->create_point( geode::Point2D{ { shift, 0 } } );
         mesh_builder->create_point( geode::Point2D{ { shift + 1, 0 } } );
         mesh_builder->create_point( geode::Point2D{ { shift, 1 } } );
         mesh_builder->create_point( geode::Point2D{ { shift + 1, 1 } } );
-        mesh_builder->create_triangle( { 0, 1, 2 } );
-        mesh_builder->create_triangle( { 1, 3, 2 } );
+        mesh_builder->create_triangle( { offset, offset + 1, offset + 2 } );
+        mesh_builder->create_triangle( { offset + 1, offset + 3, offset + 2 } );
         mesh_builder->compute_polygon_adjacencies();
     }
 
@@ -239,6 +240,24 @@ void test_empty_mesh_query()
         "[empty mesh] No implicit value should be found" );
 }
 
+void test_reinitialize_after_mesh_edition()
+{
+    geode::Logger::info( "Testing query after mesh edition" );
+    auto model = create_model();
+    const auto& surface = *model.surfaces().begin();
+    const geode::Point2D query{ { 0.25, 0.5 } };
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        model.containing_polygon( surface, query ).has_value(),
+        "[mesh edition] Element should be found before edition" );
+    geode::ImplicitCrossSectionBuilder builder{ model };
+    fill_triangulated_surface( builder, surface, 5 );
+    builder.reinitialize_implicit_query_trees();
+    const geode::Point2D new_query{ { 5.25, 0.5 } };
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        model.containing_polygon( surface, new_query ).has_value(),
+        "[mesh edition] Element should be found after edition" );
+}
+
 int main()
 {
     try
@@ -248,6 +267,7 @@ int main()
         test_containing_stratigraphic_unit_after_horizon_removal();
         test_conversion_and_move();
         test_empty_mesh_query();
+        test_reinitialize_after_mesh_edition();
 
         geode::Logger::info( "TEST SUCCESS" );
         return 0;

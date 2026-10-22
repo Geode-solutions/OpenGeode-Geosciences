@@ -62,6 +62,7 @@ namespace geode
             const ImplicitStructuralModel& model )
         {
             instantiate_implicit_attribute_on_blocks( model );
+            block_mesh_aabb_trees_.clear();
             block_mesh_aabb_trees_.reserve( model.nb_blocks() );
             for( const auto& block : model.blocks() )
             {

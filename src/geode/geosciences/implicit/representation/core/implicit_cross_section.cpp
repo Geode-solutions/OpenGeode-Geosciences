@@ -64,6 +64,7 @@ namespace geode
             const ImplicitCrossSection& model )
         {
             instantiate_implicit_attribute_on_surfaces( model );
+            surface_mesh_aabb_trees_.clear();
             surface_mesh_aabb_trees_.reserve( model.nb_surfaces() );
             for( const auto& surface : model.surfaces() )
             {

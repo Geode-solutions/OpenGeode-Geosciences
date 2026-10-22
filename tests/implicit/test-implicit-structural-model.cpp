@@ -63,13 +63,16 @@ namespace
     {
         auto mesh_builder =
             builder.block_mesh_builder< geode::TetrahedralSolid3D >( block );
-        mesh_builder->create_point( geode::Point3D{ { shift, 0, 0 } } );
+        const auto offset =
+            mesh_builder->create_point( geode::Point3D{ { shift, 0, 0 } } );
         mesh_builder->create_point( geode::Point3D{ { shift + 1, 0, 0 } } );
         mesh_builder->create_point( geode::Point3D{ { shift, 1, 0 } } );
         mesh_builder->create_point( geode::Point3D{ { shift, 0, 1 } } );
         mesh_builder->create_point( geode::Point3D{ { shift + 1, 1, 1 } } );
-        mesh_builder->create_tetrahedron( { 0, 1, 2, 3 } );
-        mesh_builder->create_tetrahedron( { 1, 2, 3, 4 } );
+        mesh_builder->create_tetrahedron(
+            { offset, offset + 1, offset + 2, offset + 3 } );
+        mesh_builder->create_tetrahedron(
+            { offset + 1, offset + 2, offset + 3, offset + 4 } );
         mesh_builder->compute_polyhedron_adjacencies();
     }
 
@@ -239,6 +242,24 @@ void test_empty_mesh_query()
         "[empty mesh] No implicit value should be found" );
 }
 
+void test_reinitialize_after_mesh_edition()
+{
+    geode::Logger::info( "Testing query after mesh edition" );
+    auto model = create_model();
+    const auto& block = *model.blocks().begin();
+    const geode::Point3D query{ { 0.1, 0.1, 0.5 } };
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        model.containing_polyhedron( block, query ).has_value(),
+        "[mesh edition] Element should be found before edition" );
+    geode::ImplicitStructuralModelBuilder builder{ model };
+    fill_tetrahedral_block( builder, block, 5 );
+    builder.reinitialize_implicit_query_trees();
+    const geode::Point3D new_query{ { 5.1, 0.1, 0.5 } };
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        model.containing_polyhedron( block, new_query ).has_value(),
+        "[mesh edition] Element should be found after edition" );
+}
+
 int main()
 {
     try
@@ -248,6 +269,7 @@ int main()
         test_containing_stratigraphic_unit_after_horizon_removal();
         test_conversion_and_move();
         test_empty_mesh_query();
+        test_reinitialize_after_mesh_edition();
 
         geode::Logger::info( "TEST SUCCESS" );
         return 0;
