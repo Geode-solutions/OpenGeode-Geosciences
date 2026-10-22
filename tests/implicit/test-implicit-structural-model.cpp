@@ -428,6 +428,33 @@ void test_copy_horizons_isovalues()
             .in2out( ids.units[1] ) );
 }
 
+void test_copy_single_implicit_attribute()
+{
+    geode::Logger::info( "Testing copy keeps a single implicit attribute" );
+    const auto model = create_model();
+    geode::ImplicitStructuralModel copy;
+    geode::ImplicitStructuralModelBuilder copy_builder{ copy };
+    const auto mappings = copy_builder.copy( model );
+    for( const auto& block : model.blocks() )
+    {
+        const auto& copy_block =
+            copy.block( mappings.at( geode::Block3D::component_type_static() )
+                    .in2out( block.id() ) );
+        geode::OpenGeodeGeosciencesImplicitException::test(
+            nb_implicit_attributes(
+                copy_block.mesh().vertex_attribute_manager() )
+                == 1,
+            "[copy] There should be only one implicit attribute" );
+        for( const auto vertex : geode::Range{ block.mesh().nb_vertices() } )
+        {
+            geode::OpenGeodeGeosciencesImplicitException::test(
+                copy.implicit_value( copy_block, vertex )
+                    == block.mesh().point( vertex ).value( 2 ),
+                "[copy] Wrong implicit value in copy" );
+        }
+    }
+}
+
 int main()
 {
     try
@@ -443,6 +470,7 @@ int main()
         test_rescale_with_unsupported_mesh();
         test_copy_with_unsupported_mesh();
         test_copy_horizons_isovalues();
+        test_copy_single_implicit_attribute();
 
         geode::Logger::info( "TEST SUCCESS" );
         return 0;

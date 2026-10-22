@@ -427,6 +427,33 @@ void test_copy_horizons_isovalues()
             .in2out( ids.units[1] ) );
 }
 
+void test_copy_single_implicit_attribute()
+{
+    geode::Logger::info( "Testing copy keeps a single implicit attribute" );
+    const auto model = create_model();
+    geode::ImplicitCrossSection copy;
+    geode::ImplicitCrossSectionBuilder copy_builder{ copy };
+    const auto mappings = copy_builder.copy( model );
+    for( const auto& surface : model.surfaces() )
+    {
+        const auto& copy_surface = copy.surface(
+            mappings.at( geode::Surface2D::component_type_static() )
+                .in2out( surface.id() ) );
+        geode::OpenGeodeGeosciencesImplicitException::test(
+            nb_implicit_attributes(
+                copy_surface.mesh().vertex_attribute_manager() )
+                == 1,
+            "[copy] There should be only one implicit attribute" );
+        for( const auto vertex : geode::Range{ surface.mesh().nb_vertices() } )
+        {
+            geode::OpenGeodeGeosciencesImplicitException::test(
+                copy.implicit_value( copy_surface, vertex )
+                    == surface.mesh().point( vertex ).value( 1 ),
+                "[copy] Wrong implicit value in copy" );
+        }
+    }
+}
+
 int main()
 {
     try
@@ -442,6 +469,7 @@ int main()
         test_rescale_with_unsupported_mesh();
         test_copy_with_unsupported_mesh();
         test_copy_horizons_isovalues();
+        test_copy_single_implicit_attribute();
 
         geode::Logger::info( "TEST SUCCESS" );
         return 0;

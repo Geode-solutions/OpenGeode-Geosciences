@@ -165,6 +165,14 @@ namespace geode
                 new_attribute->set_value(
                     vertex, old_attribute->value( vertex ) );
             }
+            if( other_model.implicit_attribute_id()
+                    != implicit_section_.implicit_attribute_id()
+                && new_surface_vertex_attribute_manager.attribute_exists(
+                    other_model.implicit_attribute_id() ) )
+            {
+                new_surface_vertex_attribute_manager.delete_attribute(
+                    other_model.implicit_attribute_id() );
+            }
         }
     }
 
