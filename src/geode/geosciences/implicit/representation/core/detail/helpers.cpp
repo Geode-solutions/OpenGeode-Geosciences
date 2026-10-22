@@ -365,6 +365,10 @@ namespace geode
             HorizonsStackBuilder< dimension > builder{ stack };
             if( nb_horizons == 0 )
             {
+                if( nb_units == 0 )
+                {
+                    return stack;
+                }
                 const auto& only_su = builder.add_stratigraphic_unit();
                 builder.set_stratigraphic_unit_name(
                     stack.stratigraphic_unit( only_su ), units_names[0] );
@@ -422,6 +426,10 @@ namespace geode
             HorizonsStackBuilder< dimension > builder{ stack };
             if( nb_horizons == 0 )
             {
+                if( nb_units == 0 )
+                {
+                    return stack;
+                }
                 const auto& only_su = builder.add_stratigraphic_unit();
                 builder.set_stratigraphic_unit_name(
                     stack.stratigraphic_unit( only_su ), units_names[0] );

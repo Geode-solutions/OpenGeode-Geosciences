@@ -465,6 +465,22 @@ void test_incomplete_stack()
         counter == 1, "Should stop unit iteration at the gap" );
 }
 
+void test_create_empty_horizons_stack()
+{
+    const auto bottom_to_top =
+        geode::detail::horizons_stack_from_bottom_to_top_names< 3 >( {}, {} );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        bottom_to_top.nb_horizons() == 0
+            && bottom_to_top.nb_stratigraphic_units() == 0,
+        "Stack created from empty bottom to top lists should be empty" );
+    const auto top_to_bottom =
+        geode::detail::horizons_stack_from_top_to_bottom_names< 3 >( {}, {} );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        top_to_bottom.nb_horizons() == 0
+            && top_to_bottom.nb_stratigraphic_units() == 0,
+        "Stack created from empty top to bottom lists should be empty" );
+}
+
 int main()
 {
     try
@@ -480,6 +496,7 @@ int main()
         test_replace_relation();
         test_update_top_and_bottom_horizons();
         test_incomplete_stack();
+        test_create_empty_horizons_stack();
 
         geode::Logger::info( "TEST SUCCESS" );
         return 0;
