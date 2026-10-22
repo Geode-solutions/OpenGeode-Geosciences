@@ -287,16 +287,14 @@ namespace
             const geode::uuid& conformal_horizon_id,
             const geode::uuid& erosion_id )
         {
+            // Block between the conformal horizon (bottom) and the erosion
             if( horizons_stack_.is_above( erosion_id, conformal_horizon_id ) )
             {
                 return add_block_in_stratigraphic_unit(
                     block, horizons_stack_.above( conformal_horizon_id ) );
             }
-            const auto above_conformal =
-                horizons_stack_.above( conformal_horizon_id );
-            if( above_conformal
-                && horizons_stack_.is_directly_above(
-                    above_conformal.value(), erosion_id ) )
+            // Block between the erosion (bottom) and the conformal horizon
+            if( horizons_stack_.is_above( conformal_horizon_id, erosion_id ) )
             {
                 return add_block_in_stratigraphic_unit(
                     block, horizons_stack_.under( conformal_horizon_id ) );
@@ -309,15 +307,14 @@ namespace
             const geode::uuid& conformal_horizon_id,
             const geode::uuid& baselap_id )
         {
+            // Block between the baselap (bottom) and the conformal horizon
             if( horizons_stack_.is_above( conformal_horizon_id, baselap_id ) )
             {
                 return add_block_in_stratigraphic_unit(
                     block, horizons_stack_.under( conformal_horizon_id ) );
             }
-            const auto above_baselap = horizons_stack_.above( baselap_id );
-            if( above_baselap
-                && horizons_stack_.is_directly_above(
-                    above_baselap.value(), conformal_horizon_id ) )
+            // Block between the conformal horizon (bottom) and the baselap
+            if( horizons_stack_.is_above( baselap_id, conformal_horizon_id ) )
             {
                 return add_block_in_stratigraphic_unit(
                     block, horizons_stack_.above( conformal_horizon_id ) );

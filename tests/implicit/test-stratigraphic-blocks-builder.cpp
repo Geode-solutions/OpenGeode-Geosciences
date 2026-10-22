@@ -207,6 +207,33 @@ namespace
             !model.has_stratigraphic_unit( stack.units[1] ),
             "Empty created stratigraphic unit should be removed" );
     }
+
+    void test_conformal_and_unconformity( CONTACT unconformity )
+    {
+        geode::Logger::info(
+            "Testing blocks between conformal horizon and unconformity" );
+        geode::ImplicitStructuralModel model;
+        // top to bottom: H0, U0, H1 (unconformity), U1, H2 (conformal), U2,
+        // H3 (unconformity), U3, H4
+        const auto stack = create_stack(
+            model, { CONTACT::conformal, unconformity, CONTACT::conformal,
+                       unconformity, CONTACT::conformal } );
+        const auto above_conformal = add_block( model );
+        add_boundary( model, { above_conformal }, stack.horizons[1] );
+        add_boundary( model, { above_conformal }, stack.horizons[2] );
+        const auto under_conformal = add_block( model );
+        add_boundary( model, { under_conformal }, stack.horizons[2] );
+        add_boundary( model, { under_conformal }, stack.horizons[3] );
+        const auto result =
+            geode::complete_stratigraphic_unit_block_relationships( model );
+        check_unit( model, above_conformal, stack.units[1],
+            "block between conformal horizon and unconformity above" );
+        check_unit( model, under_conformal, stack.units[2],
+            "block between unconformity and conformal horizon above" );
+        geode::OpenGeodeGeosciencesImplicitException::test(
+            result.assigned_blocks.size() == 2,
+            "Two blocks should be assigned" );
+    }
 } // namespace
 
 int main()
@@ -218,6 +245,8 @@ int main()
         test_top_horizon_without_unit_above();
         test_horizon_not_in_stack();
         test_empty_stratigraphic_units_cleanup();
+        test_conformal_and_unconformity( CONTACT::erosion );
+        test_conformal_and_unconformity( CONTACT::baselap );
         geode::Logger::info( "TEST SUCCESS" );
         return 0;
     }
