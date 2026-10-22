@@ -22,28 +22,28 @@
  */
 #include <geode/geosciences/explicit/representation/builder/helpers/structural_model_fault_blocks_builder.hpp>
 
+#include <queue>
+
+#include <absl/container/flat_hash_set.h>
+
 #include <geode/geosciences/explicit/representation/builder/structural_model_builder.hpp>
 #include <geode/geosciences/explicit/representation/core/structural_model.hpp>
-#include <queue>
 
 namespace
 {
-    std::optional< geode::uuid > is_fault(
-        const geode::StructuralModel& structural_model,
-        const geode::Surface3D& surface )
+    absl::flat_hash_set< geode::uuid > fault_surfaces(
+        const geode::StructuralModel& structural_model )
     {
+        absl::flat_hash_set< geode::uuid > result;
         for( const auto& fault : structural_model.faults() )
         {
             for( const auto& fault_surface :
                 structural_model.fault_items( fault ) )
             {
-                if( fault_surface.id() == surface.id() )
-                {
-                    return fault.id();
-                }
+                result.insert( fault_surface.id() );
             }
         }
-        return std::nullopt;
+        return result;
     }
 
     void add_all_blocks_to_single_fault_block(
@@ -62,15 +62,14 @@ namespace
         const geode::StructuralModel& structural_model,
         const geode::Surface3D& boundary,
         std::queue< geode::uuid >& block_queue,
-        std::vector< geode::uuid >& visited )
+        absl::flat_hash_set< geode::uuid >& visited )
     {
         for( const auto& incident_block :
             structural_model.incidences( boundary ) )
         {
-            if( !absl::c_contains( visited, incident_block.id() ) )
+            if( visited.insert( incident_block.id() ).second )
             {
                 block_queue.push( incident_block.id() );
-                visited.push_back( incident_block.id() );
             }
         }
     }
@@ -78,33 +77,30 @@ namespace
     void build_fault_blocks( const geode::StructuralModel& structural_model,
         geode::StructuralModelBuilder& builder )
     {
-        std::vector< geode::uuid > visited;
-        std::vector< geode::uuid > treated_faults;
+        const auto faults = fault_surfaces( structural_model );
+        absl::flat_hash_set< geode::uuid > visited;
         for( const auto& block : structural_model.blocks() )
         {
-            std::queue< geode::uuid > block_queue;
-            const auto block_id = block.id();
-            if( absl::c_contains( visited, block_id ) )
+            const auto& block_id = block.id();
+            if( !visited.insert( block_id ).second )
             {
                 continue;
             }
+            std::queue< geode::uuid > block_queue;
             block_queue.push( block_id );
-            visited.push_back( block_id );
             const auto& fault_block =
                 structural_model.fault_block( builder.add_fault_block() );
             while( !block_queue.empty() )
             {
                 const auto current_block_id = block_queue.front();
                 block_queue.pop();
-                const auto& curent_block =
+                const auto& current_block =
                     structural_model.block( current_block_id );
-                builder.add_block_in_fault_block( curent_block, fault_block );
+                builder.add_block_in_fault_block( current_block, fault_block );
                 for( const auto& boundary :
-                    structural_model.boundaries( curent_block ) )
+                    structural_model.boundaries( current_block ) )
                 {
-                    const auto fault_id =
-                        is_fault( structural_model, boundary );
-                    if( !fault_id )
+                    if( !faults.contains( boundary.id() ) )
                     {
                         add_incident_blocks_to_queue(
                             structural_model, boundary, block_queue, visited );
