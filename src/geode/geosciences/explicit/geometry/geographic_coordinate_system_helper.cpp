@@ -62,21 +62,34 @@ namespace
             nullptr, geode::OpenGeodeException::TYPE::data,
             "[convert_components_coordinate_reference_system] New CRS name "
             "already exists" );
-        auto crs_builder =
-            builder.main_coordinate_reference_system_manager_builder();
-        auto crs =
-            std::make_shared< GeoCRS >( mesh.vertex_attribute_manager(), info );
+        const GeoCRS* active_crs{ nullptr };
         if( mesh.nb_vertices() != 0 )
         {
+            active_crs = dynamic_cast< const GeoCRS* >(
+                &crs_manager.active_coordinate_reference_system() );
             geode::OpenGeodeGeosciencesExplicitException::check_exception(
-                crs_manager.active_coordinate_reference_system().type_name()
-                    == GeoCRS::type_name_static(),
-                nullptr, geode::OpenGeodeException::TYPE::data,
+                active_crs != nullptr, nullptr,
+                geode::OpenGeodeException::TYPE::data,
                 "[convert_components_coordinate_reference_system] Only "
                 "GeographicCoordinateSystem conversion is supported" );
-            crs->import_coordinates( dynamic_cast< const GeoCRS& >(
-                crs_manager.active_coordinate_reference_system() ) );
         }
+        auto& attribute_manager = mesh.vertex_attribute_manager();
+        auto crs =
+            std::make_shared< GeoCRS >( attribute_manager, std::move( info ) );
+        if( active_crs != nullptr )
+        {
+            try
+            {
+                crs->import_coordinates( *active_crs );
+            }
+            catch( ... )
+            {
+                attribute_manager.delete_attribute( crs->attribute_id() );
+                throw;
+            }
+        }
+        auto crs_builder =
+            builder.main_coordinate_reference_system_manager_builder();
         crs_builder.register_coordinate_reference_system(
             crs_name, std::move( crs ) );
         crs_builder.set_active_coordinate_reference_system( crs_name );

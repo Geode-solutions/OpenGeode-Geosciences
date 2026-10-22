@@ -110,6 +110,59 @@ void test_corrupted_info_size()
         "[Test] Corrupted CRS info should not be loaded" };
 }
 
+template < typename Function >
+void check_throws( const Function& function, std::string_view message )
+{
+    try
+    {
+        function();
+    }
+    catch( const geode::OpenGeodeException& exception )
+    {
+        geode::Logger::info(
+            message, " throws as expected: ", exception.what() );
+        return;
+    }
+    throw geode::OpenGeodeGeosciencesExplicitException{ nullptr,
+        geode::OpenGeodeException::TYPE::internal, "[Test] ", message,
+        " should throw" };
+}
+
+void test_failed_mesh_conversion_leaves_no_attribute()
+{
+    auto surf = geode::load_triangulated_surface< 2 >(
+        absl::StrCat( geode::DATA_PATH, "3patches.og_tsf2d" ) );
+    auto builder = geode::TriangulatedSurfaceBuilder2D::create( *surf );
+    const auto nb_attributes =
+        surf->vertex_attribute_manager().attribute_ids().size();
+    check_throws(
+        [&] {
+            geode::convert_surface_mesh_coordinate_reference_system(
+                *surf, *builder, "geo", { "EPSG", "2008", "geo" } );
+        },
+        "Conversion from a non geographic CRS" );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        surf->vertex_attribute_manager().attribute_ids().size()
+            == nb_attributes,
+        "Failed conversion from a non geographic CRS created an attribute" );
+
+    geode::assign_surface_mesh_geographic_coordinate_system_info(
+        *surf, *builder, "unknown", { "EPSG", "99999", "unknown" } );
+    check_throws(
+        [&] {
+            geode::convert_surface_mesh_coordinate_reference_system(
+                *surf, *builder, "geo", { "EPSG", "2008", "geo" } );
+        },
+        "Conversion from an unknown CRS" );
+    const auto& crs_manager = surf->main_coordinate_reference_system_manager();
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        surf->vertex_attribute_manager().attribute_ids().size() == nb_attributes
+            && !crs_manager.coordinate_reference_system_exists( "geo" )
+            && crs_manager.active_coordinate_reference_system_name()
+                   == "unknown",
+        "Failed conversion from an unknown CRS modified the mesh" );
+}
+
 void test_crs()
 {
     const auto infos =
@@ -245,6 +298,7 @@ int main()
         test_axis_order();
         test_invalid_codes();
         test_failed_point_conversion();
+        test_failed_mesh_conversion_leaves_no_attribute();
 
         geode::Logger::info( "TEST SUCCESS" );
         return 0;
