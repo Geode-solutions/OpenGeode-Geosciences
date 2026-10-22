@@ -28,6 +28,7 @@
 #include <geode/basic/attribute_manager.hpp>
 #include <geode/basic/bitsery_archive.hpp>
 #include <geode/basic/pimpl_impl.hpp>
+#include <geode/basic/range.hpp>
 #include <geode/basic/sparse_attribute.hpp>
 #include <geode/basic/uuid.hpp>
 
@@ -59,8 +60,14 @@ namespace geode
         bool is_above( const uuid& above_id, const uuid& under_id ) const
         {
             auto current = under_id;
-            while( const auto directly_above = this->above( current ) )
+            for( [[maybe_unused]] const auto step :
+                Range{ this->graph().nb_vertices() } )
             {
+                const auto directly_above = this->above( current );
+                if( !directly_above )
+                {
+                    return false;
+                }
                 if( directly_above.value() == above_id )
                 {
                     return true;
@@ -140,6 +147,12 @@ namespace geode
                 above_relations_->set_value( id.value(), true );
                 return id.value();
             }
+            OpenGeodeGeosciencesImplicitException::check_exception(
+                !would_create_cycle( above.id, under.id ), nullptr,
+                OpenGeodeException::TYPE::data,
+                "[StratigraphicRelationships::add_above_relation] Cannot set ",
+                above.string(), " above ", under.string(),
+                ": it would create a cycle in the above/under relations" );
             const auto index = add_relation_edge( above, under );
             above_relations_->set_value( index, true );
             return index;
@@ -228,6 +241,53 @@ namespace geode
             above_relations_ = relation_attribute_manager()
                                    .find_attribute< SparseAttribute, bool >(
                                        above_relations_id );
+        }
+
+        /*!
+         * Returns true if adding a relation "above is above under" would
+         * create a cycle, i.e. if above is already (indirectly) under under.
+         */
+        bool would_create_cycle( const uuid& above, const uuid& under ) const
+        {
+            if( above == under )
+            {
+                return true;
+            }
+            const auto above_vertex = vertex_id( above );
+            const auto under_vertex = vertex_id( under );
+            if( !above_vertex || !under_vertex )
+            {
+                return false;
+            }
+            std::vector< bool > visited( this->graph().nb_vertices(), false );
+            std::vector< index_t > to_visit{ above_vertex.value() };
+            visited[above_vertex.value()] = true;
+            while( !to_visit.empty() )
+            {
+                const auto vertex = to_visit.back();
+                to_visit.pop_back();
+                for( const auto& edge_vertex :
+                    this->graph().edges_around_vertex( vertex ) )
+                {
+                    if( edge_vertex.vertex_id != UNDER_EDGE_VERTEX
+                        || !above_relations_->value( edge_vertex.edge_id ) )
+                    {
+                        continue;
+                    }
+                    const auto vertex_above =
+                        this->graph().edge_vertex( edge_vertex.opposite() );
+                    if( vertex_above == under_vertex.value() )
+                    {
+                        return true;
+                    }
+                    if( !visited[vertex_above] )
+                    {
+                        visited[vertex_above] = true;
+                        to_visit.push_back( vertex_above );
+                    }
+                }
+            }
+            return false;
         }
 
         std::optional< index_t > relation_edge(

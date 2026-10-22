@@ -486,7 +486,8 @@ namespace geode
             index_t horizon_counter{ 1 };
             auto su_above = horizon_stack.above( bottom_horizon );
             std::optional< uuid > current_horizon = bottom_horizon;
-            while( su_above )
+            // Bounded by the number of horizons in case of cyclic relations
+            while( su_above && horizon_counter <= nb_horizons )
             {
                 current_horizon = horizon_stack.above( su_above.value() );
                 if( !current_horizon )

@@ -238,6 +238,43 @@ void test_create_horizons_stack_bottom_to_top()
     test_horizons_stack( horizons_stack );
 }
 
+void test_cycle_rejection()
+{
+    geode::HorizonsStack3D stack;
+    geode::HorizonsStackBuilder3D builder{ stack };
+    const auto& h0 = builder.add_horizon();
+    const auto& h1 = builder.add_horizon();
+    const auto& u0 = builder.add_stratigraphic_unit();
+    const auto& u1 = builder.add_stratigraphic_unit();
+    builder.set_horizon_above(
+        stack.horizon( h0 ), stack.stratigraphic_unit( u0 ) );
+    builder.set_horizon_under(
+        stack.horizon( h1 ), stack.stratigraphic_unit( u0 ) );
+    builder.set_horizon_above(
+        stack.horizon( h1 ), stack.stratigraphic_unit( u1 ) );
+    bool cycle_rejected{ false };
+    try
+    {
+        builder.set_horizon_under(
+            stack.horizon( h0 ), stack.stratigraphic_unit( u1 ) );
+    }
+    catch( const geode::OpenGeodeException& /*unused*/ )
+    {
+        cycle_rejected = true;
+    }
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        cycle_rejected, "Closing a cycle of above relations should throw" );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        !stack.above( h0 ).has_value(),
+        "Rejected relation should not have been added" );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        !stack.is_above( h0, h0 ), "Horizon should not be above itself" );
+    builder.compute_top_and_bottom_horizons();
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        stack.top_horizon() == h0 && stack.bottom_horizon() == h1,
+        "Wrong top and bottom horizons after cycle rejection" );
+}
+
 int main()
 {
     try
@@ -247,6 +284,7 @@ int main()
         test_horizons_stack();
         test_create_horizons_stack_bottom_to_top();
         test_create_horizons_stack_top_to_bottom();
+        test_cycle_rejection();
 
         geode::Logger::info( "TEST SUCCESS" );
         return 0;

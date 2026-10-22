@@ -25,6 +25,7 @@
 
 #include <geode/basic/logger.hpp>
 #include <geode/basic/pimpl_impl.hpp>
+#include <geode/basic/range.hpp>
 
 #include <geode/model/representation/core/detail/model_component.hpp>
 
@@ -316,9 +317,16 @@ namespace geode
                 "will be set to std::nullopt." );
             return;
         }
+        // Walks are bounded by the number of horizons to stay safe on
+        // inconsistent (cyclic) relations
         auto current_horizon_id = ( *this->horizons().begin() ).id();
-        while( const auto su_above = this->above( current_horizon_id ) )
+        for( [[maybe_unused]] const auto step : Range{ this->nb_horizons() } )
         {
+            const auto su_above = this->above( current_horizon_id );
+            if( !su_above )
+            {
+                break;
+            }
             const auto horizon_above = this->above( su_above.value() );
             if( !horizon_above )
             {
@@ -327,8 +335,13 @@ namespace geode
             current_horizon_id = horizon_above.value();
         }
         impl_->set_top_horizon( current_horizon_id );
-        while( const auto su_under = this->under( current_horizon_id ) )
+        for( [[maybe_unused]] const auto step : Range{ this->nb_horizons() } )
         {
+            const auto su_under = this->under( current_horizon_id );
+            if( !su_under )
+            {
+                break;
+            }
             const auto horizon_under = this->under( su_under.value() );
             if( !horizon_under )
             {
@@ -382,6 +395,11 @@ namespace geode
 
         void operator++()
         {
+            if( ++nb_steps_ >= stack_.nb_horizons() )
+            {
+                iter_ = uuid{};
+                return;
+            }
             if( range_order_ == RANGEORDER::bottom_to_top )
             {
                 if( iter_ != stack_.top_horizon().value() )
@@ -412,6 +430,7 @@ namespace geode
         const HorizonsStack< dimension >& stack_;
         RANGEORDER range_order_;
         uuid iter_{};
+        index_t nb_steps_{ 0 };
     };
 
     template < index_t dimension >
@@ -485,6 +504,11 @@ namespace geode
 
         void operator++()
         {
+            if( ++nb_steps_ >= stack_.nb_stratigraphic_units() )
+            {
+                iter_ = uuid{};
+                return;
+            }
             if( range_order_ == RANGEORDER::bottom_to_top )
             {
                 if( iter_
@@ -517,6 +541,7 @@ namespace geode
         const HorizonsStack< dimension >& stack_;
         RANGEORDER range_order_;
         uuid iter_{};
+        index_t nb_steps_{ 0 };
     };
 
     template < index_t dimension >
