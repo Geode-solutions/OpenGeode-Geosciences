@@ -120,30 +120,52 @@ namespace geode
     {
         const auto& block_mapping =
             mapping.at( Block3D::component_type_static() );
+        const auto& old_attribute_id =
+            other_model.stratigraphic_location_attribute_id();
+        const auto& new_attribute_id =
+            stratigraphic_model_.stratigraphic_location_attribute_id();
         for( const auto& old_block : other_model.blocks() )
         {
-            auto& old_block_vertex_attribute_manager =
+            if( !block_mapping.has_mapping_input( old_block.id() ) )
+            {
+                continue;
+            }
+            const auto& old_block_vertex_attribute_manager =
                 old_block.mesh().vertex_attribute_manager();
-            const auto old_attribute =
-                old_block_vertex_attribute_manager
-                    .find_read_only_attribute< Point2D >(
-                        other_model.stratigraphic_location_attribute_id() );
-            auto& new_block = stratigraphic_model_.block(
+            if( !old_block_vertex_attribute_manager.attribute_exists(
+                    old_attribute_id ) )
+            {
+                continue;
+            }
+            const auto& new_block = stratigraphic_model_.block(
                 block_mapping.in2out( old_block.id() ) );
             auto& new_block_vertex_attribute_manager =
                 new_block.mesh().vertex_attribute_manager();
+            if( !new_block_vertex_attribute_manager.attribute_exists(
+                    new_attribute_id ) )
+            {
+                continue;
+            }
+            const auto old_attribute =
+                old_block_vertex_attribute_manager
+                    .find_read_only_attribute< Point2D >( old_attribute_id );
             auto new_attribute =
                 new_block_vertex_attribute_manager
                     .find_attribute< VariableAttribute, Point2D >(
-                        stratigraphic_model_
-                            .stratigraphic_location_attribute_id() );
+                        new_attribute_id );
             for( const auto vertex :
                 geode::Range{ new_block.mesh().nb_vertices() } )
             {
                 new_attribute->set_value(
                     vertex, old_attribute->value( vertex ) );
             }
+            if( old_attribute_id != new_attribute_id
+                && new_block_vertex_attribute_manager.attribute_exists(
+                    old_attribute_id ) )
+            {
+                new_block_vertex_attribute_manager.delete_attribute(
+                    old_attribute_id );
+            }
         }
     }
-
 } // namespace geode

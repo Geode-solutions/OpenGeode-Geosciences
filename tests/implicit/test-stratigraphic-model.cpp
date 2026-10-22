@@ -197,6 +197,13 @@ void test_copy(
         mappings.at( geode::Block3D::component_type_static() )
             .in2out( block1_id );
     test_model( copy, new_block_id );
+    for( const auto& block : copy.blocks() )
+    {
+        geode::OpenGeodeGeosciencesImplicitException::test(
+            !block.mesh().vertex_attribute_manager().attribute_exists(
+                model.stratigraphic_location_attribute_id() ),
+            "Copied stratigraphic attribute should have been removed." );
+    }
     const auto& horizon_mapping =
         mappings.at( geode::Horizon3D::component_type_static() );
     for( const auto& horizon : model.horizons() )
@@ -348,6 +355,55 @@ void test_move( geode::StratigraphicModel& implicit_model )
         "Stratigraphic location attribute id not moved." );
 }
 
+void test_copy_stratigraphic_values_with_non_tetrahedral_block(
+    const geode::StratigraphicModel& model,
+    const geode::uuid& polyhedral_block_id )
+{
+    auto other_structural_model = geode::load_structural_model(
+        absl::StrCat( geode::DATA_PATH, "vri2.og_strm" ) );
+    geode::StructuralModelBuilder other_structural_builder{
+        other_structural_model
+    };
+    const auto other_polyhedral_block_id = other_structural_builder.add_block(
+        geode::OpenGeodePolyhedralSolid3D::impl_name_static() );
+    geode::StratigraphicModel other{ std::move( other_structural_model ) };
+    geode::StratigraphicModelBuilder other_builder{ other };
+    geode::ModelCopyMapping mappings;
+    auto& block_mapping = mappings[geode::Block3D::component_type_static()];
+    for( const auto& block : model.blocks() )
+    {
+        if( block.id() == polyhedral_block_id )
+        {
+            block_mapping.map( block.id(), other_polyhedral_block_id );
+            continue;
+        }
+        block_mapping.map( block.id(), block.id() );
+        for( const auto v : geode::Range{ block.mesh().nb_vertices() } )
+        {
+            geode::Point2D location{ { 1. * v, 2. } };
+            other_builder.set_stratigraphic_location(
+                other.block( block.id() ), v, location );
+        }
+    }
+    other_builder.copy_stratigraphic_attribute_values( mappings, model );
+    for( const auto& block : model.blocks() )
+    {
+        if( block.id() == polyhedral_block_id )
+        {
+            continue;
+        }
+        for( const auto v : geode::Range{ block.mesh().nb_vertices() } )
+        {
+            geode::OpenGeodeGeosciencesImplicitException::test(
+                other.stratigraphic_coordinates( other.block( block.id() ), v )
+                        .stratigraphic_location()
+                    == model.stratigraphic_coordinates( block, v )
+                        .stratigraphic_location(),
+                "Wrong copied stratigraphic location." );
+        }
+    }
+}
+
 void test_non_tetrahedral_block()
 {
     geode::Logger::info( "Testing non tetrahedral block" );
@@ -374,6 +430,8 @@ void test_non_tetrahedral_block()
                 model.stratigraphic_location_attribute_id() ),
             "Tetrahedral block should have stratigraphic location." );
     }
+    test_copy_stratigraphic_values_with_non_tetrahedral_block(
+        model, polyhedral_block_id );
     geode::StratigraphicModel moved_model{ std::move( model ) };
     geode::StratigraphicModelBuilder builder{ moved_model };
     builder.reinitialize_stratigraphic_query_trees();
