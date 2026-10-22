@@ -286,6 +286,43 @@ namespace geode
             return stratigraphic_location_attribute_id_;
         }
 
+        /*!
+         * Transfer the stratigraphic locations stored in the attribute with
+         * the given id (e.g. copied with the meshes from another model) to
+         * the model attribute, then remove the old attribute.
+         */
+        void import_stratigraphic_locations(
+            const StratigraphicSection& model, const uuid& old_attribute_id )
+        {
+            if( old_attribute_id == stratigraphic_location_attribute_id_ )
+            {
+                return;
+            }
+            for( const auto& surface : model.surfaces() )
+            {
+                auto& manager = surface.mesh().vertex_attribute_manager();
+                if( !manager.attribute_exists( old_attribute_id )
+                    || !manager.attribute_exists(
+                        stratigraphic_location_attribute_id_ ) )
+                {
+                    continue;
+                }
+                const auto old_attribute =
+                    manager.find_read_only_attribute< Point1D >(
+                        old_attribute_id );
+                auto new_attribute =
+                    manager.find_attribute< VariableAttribute, Point1D >(
+                        stratigraphic_location_attribute_id_ );
+                for( const auto vertex : Range{ surface.mesh().nb_vertices() } )
+                {
+                    new_attribute->set_value(
+                        vertex, old_attribute->value( vertex ) );
+                }
+                manager.delete_attribute( old_attribute_id );
+            }
+            initialize_stratigraphic_query_trees( model );
+        }
+
     private:
         static bool is_triangulated( const Surface2D& surface )
         {
@@ -583,7 +620,10 @@ namespace geode
 
     StratigraphicSection StratigraphicSection::clone() const
     {
-        return StratigraphicSection{ ImplicitCrossSection::clone() };
+        StratigraphicSection model_clone{ ImplicitCrossSection::clone() };
+        model_clone.impl_->import_stratigraphic_locations(
+            model_clone, impl_->stratigraphic_location_attribute_id() );
+        return model_clone;
     }
 
     const Component2D& StratigraphicSection::component( const uuid& id ) const

@@ -262,6 +262,33 @@ void test_io( const geode::StratigraphicSection& implicit_model )
     test_section( model_reload );
 }
 
+void test_clone( const geode::StratigraphicSection& section )
+{
+    geode::Logger::info( "Testing clone" );
+    const auto clone = section.clone();
+    for( const auto& surface : section.surfaces() )
+    {
+        const auto& clone_surface = clone.surface( surface.id() );
+        const auto ids =
+            clone_surface.mesh()
+                .vertex_attribute_manager()
+                .attribute_ids_matching_name( geode::StratigraphicSection::
+                        STRATIGRAPHIC_LOCATION_ATTRIBUTE_NAME );
+        geode::OpenGeodeGeosciencesImplicitException::test(
+            ids && ids->size() == 1,
+            "Clone should have one stratigraphic location attribute." );
+        for( const auto v : geode::Range{ surface.mesh().nb_vertices() } )
+        {
+            geode::OpenGeodeGeosciencesImplicitException::test(
+                clone.stratigraphic_coordinates( clone_surface, v )
+                        .stratigraphic_location()
+                    == section.stratigraphic_coordinates( surface, v )
+                        .stratigraphic_location(),
+                "Wrong cloned stratigraphic location." );
+        }
+    }
+}
+
 void test_move( geode::StratigraphicSection& implicit_model )
 {
     const auto old_implicit_id = implicit_model.implicit_attribute_id();
@@ -359,6 +386,7 @@ int main()
         // test_save_stratigraphic_lines( model );
         test_stratigraphic_lines_values( model );
         test_copy( model );
+        test_clone( model );
         test_io( model );
         test_move( model );
         test_empty_surface();

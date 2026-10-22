@@ -341,6 +341,33 @@ void test_io(
     test_model( model_reload, block1_id );
 }
 
+void test_clone( const geode::StratigraphicModel& model )
+{
+    geode::Logger::info( "Testing clone" );
+    const auto clone = model.clone();
+    for( const auto& block : model.blocks() )
+    {
+        const auto& clone_block = clone.block( block.id() );
+        const auto ids =
+            clone_block.mesh()
+                .vertex_attribute_manager()
+                .attribute_ids_matching_name( geode::StratigraphicModel::
+                        STRATIGRAPHIC_LOCATION_ATTRIBUTE_NAME );
+        geode::OpenGeodeGeosciencesImplicitException::test(
+            ids && ids->size() == 1,
+            "Clone should have one stratigraphic location attribute." );
+        for( const auto v : geode::Range{ block.mesh().nb_vertices() } )
+        {
+            geode::OpenGeodeGeosciencesImplicitException::test(
+                clone.stratigraphic_coordinates( clone_block, v )
+                        .stratigraphic_location()
+                    == model.stratigraphic_coordinates( block, v )
+                        .stratigraphic_location(),
+                "Wrong cloned stratigraphic location." );
+        }
+    }
+}
+
 void test_move( geode::StratigraphicModel& implicit_model )
 {
     const auto old_implicit_id = implicit_model.implicit_attribute_id();
@@ -600,8 +627,9 @@ void test_invalid_stratigraphic_tetrahedra( geode::StratigraphicModel& model )
         "Wrong invalid stratigraphic tetrahedra: ", invalid.size(),
         " found instead of ", expected.size() );
     geode::StructuralModelBuilder structural_builder{ model };
-    structural_builder.add_block(
+    const auto polyhedral_block_id = structural_builder.add_block(
         geode::OpenGeodePolyhedralSolid3D::impl_name_static() );
+    geode_unused( polyhedral_block_id );
     geode::OpenGeodeGeosciencesImplicitException::test(
         geode::detail::invalid_stratigraphic_tetrahedra( model ) == expected,
         "Non tetrahedral blocks should be ignored." );
@@ -631,6 +659,7 @@ int main()
         test_stratigraphic_surfaces_values( model );
         DEBUG( "Testing IO" );
         test_io( model, block1_id );
+        test_clone( model );
         test_invalid_stratigraphic_tetrahedra( model );
         test_move( model );
         test_non_tetrahedral_block();
