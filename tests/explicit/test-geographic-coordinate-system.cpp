@@ -21,6 +21,9 @@
  *
  */
 
+#include <fstream>
+#include <iterator>
+
 #include <geode/basic/assert.hpp>
 #include <geode/basic/attribute_manager.hpp>
 #include <geode/basic/logger.hpp>
@@ -29,6 +32,7 @@
 #include <geode/geometry/point.hpp>
 
 #include <geode/mesh/builder/triangulated_surface_builder.hpp>
+#include <geode/mesh/core/coordinate_reference_system_manager.hpp>
 #include <geode/mesh/core/triangulated_surface.hpp>
 #include <geode/mesh/io/triangulated_surface_input.hpp>
 #include <geode/mesh/io/triangulated_surface_output.hpp>
@@ -48,6 +52,62 @@ void test_bitsery()
     geode::convert_surface_mesh_coordinate_reference_system(
         *surf, *builder, "test2", { "EPSG", "2008", "test2" } );
     geode::save_triangulated_surface( *surf, "crs.og_tsf2d" );
+
+    const auto reloaded =
+        geode::load_triangulated_surface< 2 >( "crs.og_tsf2d" );
+    const auto& crs_manager =
+        reloaded->main_coordinate_reference_system_manager();
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        crs_manager.active_coordinate_reference_system_name() == "test2",
+        "Wrong reloaded active CRS name" );
+    const auto& crs =
+        dynamic_cast< const geode::GeographicCoordinateSystem2D& >(
+            crs_manager.active_coordinate_reference_system() );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        crs.info().authority == "EPSG" && crs.info().code == "2008"
+            && crs.info().name == "test2",
+        "Wrong reloaded CRS info" );
+    for( const auto v : geode::Range{ surf->nb_vertices() } )
+    {
+        geode::OpenGeodeGeosciencesExplicitException::test(
+            reloaded->point( v ) == surf->point( v ),
+            "Wrong reloaded CRS coordinates" );
+    }
+}
+
+void test_corrupted_info_size()
+{
+    std::string content;
+    {
+        std::ifstream file{ "crs.og_tsf2d", std::ifstream::binary };
+        content.assign( std::istreambuf_iterator< char >{ file },
+            std::istreambuf_iterator< char >{} );
+    }
+    const std::string code{ "\x04"
+                            "2008" };
+    const auto position = content.find( code );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        position != std::string::npos, "[Test] CRS code not found" );
+    // Largest size bitsery can encode: 0x3FFFFFFF
+    content.replace( position, 1, "\xFF\xFF\xFF\xFF" );
+    {
+        std::ofstream file{ "corrupted_crs.og_tsf2d", std::ofstream::binary };
+        file << content;
+    }
+    try
+    {
+        const auto mesh =
+            geode::load_triangulated_surface< 2 >( "corrupted_crs.og_tsf2d" );
+    }
+    catch( const geode::OpenGeodeException& exception )
+    {
+        geode::Logger::info(
+            "Corrupted CRS info throws as expected: ", exception.what() );
+        return;
+    }
+    throw geode::OpenGeodeGeosciencesExplicitException{ nullptr,
+        geode::OpenGeodeException::TYPE::internal,
+        "[Test] Corrupted CRS info should not be loaded" };
 }
 
 void test_crs()
@@ -91,6 +151,7 @@ int main()
     {
         geode::OpenGeodeGeosciencesExplicitLibrary::initialize();
         test_bitsery();
+        test_corrupted_info_size();
         test_crs();
 
         geode::Logger::info( "TEST SUCCESS" );

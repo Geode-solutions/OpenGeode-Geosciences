@@ -60,9 +60,9 @@ namespace geode
             archive.ext( *this,
                 Growable< Archive, GeographicCoordinateSystemInfo >{
                     { []( Archive& a, GeographicCoordinateSystemInfo& info ) {
-                        a.text1b( info.authority, info.authority.max_size() );
-                        a.text1b( info.code, info.code.max_size() );
-                        a.text1b( info.name, info.name.max_size() );
+                        a.text1b( info.authority, MAX_SERIALIZED_NAME_SIZE );
+                        a.text1b( info.code, MAX_SERIALIZED_NAME_SIZE );
+                        a.text1b( info.name, MAX_SERIALIZED_NAME_SIZE );
                     } } } );
         }
 
