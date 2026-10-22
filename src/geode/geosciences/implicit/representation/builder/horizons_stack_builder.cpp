@@ -284,34 +284,26 @@ namespace geode
         const ComponentID& above, const ComponentID& under )
     {
         // In a stack, each component has at most one component directly
-        // above and one directly under: previous links are replaced
-        auto old_under = horizons_stack_.under( above.id );
-        if( old_under == under.id )
+        // above and one directly under: the first relation set is kept
+        // (e.g. an erosion horizon topping several units is kept above the
+        // first given unit, the youngest one in usual descriptions)
+        const auto existing_under = horizons_stack_.under( above.id );
+        if( existing_under && existing_under.value() != under.id )
         {
-            old_under.reset();
+            Logger::warning( "[HorizonsStackBuilder] ", above.string(),
+                " is already directly above ", existing_under->string(),
+                ", relation with ", under.string(), " is ignored" );
+            return;
         }
-        auto old_above = horizons_stack_.above( under.id );
-        if( old_above == above.id )
+        const auto existing_above = horizons_stack_.above( under.id );
+        if( existing_above && existing_above.value() != above.id )
         {
-            old_above.reset();
+            Logger::warning( "[HorizonsStackBuilder] ", under.string(),
+                " is already directly under ", existing_above->string(),
+                ", relation with ", above.string(), " is ignored" );
+            return;
         }
         StratigraphicRelationshipsBuilder::add_above_relation( above, under );
-        if( old_under )
-        {
-            Logger::warning(
-                "[HorizonsStackBuilder] Replacing component under ",
-                above.string(), ": ", old_under->string(), " by ",
-                under.string() );
-            this->remove_above_relation( above.id, old_under.value() );
-        }
-        if( old_above )
-        {
-            Logger::warning(
-                "[HorizonsStackBuilder] Replacing component above ",
-                under.string(), ": ", old_above->string(), " by ",
-                above.string() );
-            this->remove_above_relation( old_above.value(), under.id );
-        }
     }
 
     template < index_t dimension >

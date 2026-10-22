@@ -334,7 +334,7 @@ void test_reverse_relation()
         "Relation direction should have been reversed" );
 }
 
-void test_replace_relation()
+void test_keep_first_relation()
 {
     geode::HorizonsStack3D stack;
     geode::HorizonsStackBuilder3D builder{ stack };
@@ -345,17 +345,25 @@ void test_replace_relation()
     builder.set_horizon_above(
         stack.horizon( h0 ), stack.stratigraphic_unit( u0 ) );
     builder.set_horizon_above(
+        stack.horizon( h0 ), stack.stratigraphic_unit( u0 ) );
+    builder.set_horizon_above(
+        stack.horizon( h0 ), stack.stratigraphic_unit( u1 ) );
+    builder.set_horizon_above(
         stack.horizon( h1 ), stack.stratigraphic_unit( u0 ) );
     geode::OpenGeodeGeosciencesImplicitException::test(
-        stack.above( u0 ) == h1 && !stack.under( h0 ),
-        "Horizon above unit should have been replaced" );
+        stack.under( h0 ) == u0 && stack.above( u0 ) == h0 && !stack.above( u1 )
+            && !stack.under( h1 ),
+        "First relation under horizon should have been kept" );
     builder.set_horizon_under(
-        stack.horizon( h0 ), stack.stratigraphic_unit( u0 ) );
+        stack.horizon( h1 ), stack.stratigraphic_unit( u1 ) );
+    builder.set_horizon_under(
+        stack.horizon( h1 ), stack.stratigraphic_unit( u0 ) );
     builder.set_horizon_under(
         stack.horizon( h0 ), stack.stratigraphic_unit( u1 ) );
     geode::OpenGeodeGeosciencesImplicitException::test(
-        stack.above( h0 ) == u1 && !stack.under( u0 ),
-        "Unit above horizon should have been replaced" );
+        stack.above( h1 ) == u1 && stack.under( u1 ) == h1 && !stack.under( u0 )
+            && !stack.above( h0 ),
+        "First relation above horizon should have been kept" );
 
     geode::HorizonsStack3D other_stack;
     geode::HorizonsStackBuilder3D other_builder{ other_stack };
@@ -557,6 +565,52 @@ void test_large_stack_relations()
         "Wrong indirect relations after removal in large stack" );
 }
 
+void test_skua_like_stack()
+{
+    // Units given from youngest to oldest with their top and base horizons,
+    // an erosion horizon tops several units
+    geode::HorizonsStack2D stack;
+    geode::HorizonsStackBuilder2D builder{ stack };
+    const auto& top = builder.add_horizon();
+    const auto& erosion = builder.add_horizon();
+    const auto& h2 = builder.add_horizon();
+    const auto& h3 = builder.add_horizon();
+    const auto& u1 = builder.add_stratigraphic_unit();
+    const auto& u2 = builder.add_stratigraphic_unit();
+    const auto& u3 = builder.add_stratigraphic_unit();
+    const auto& u4 = builder.add_stratigraphic_unit();
+    const auto set_unit = [&]( const geode::uuid& unit,
+                              absl::Span< const geode::uuid > tops,
+                              absl::Span< const geode::uuid > bases ) {
+        for( const auto& horizon : tops )
+        {
+            builder.set_horizon_above(
+                stack.horizon( horizon ), stack.stratigraphic_unit( unit ) );
+        }
+        for( const auto& horizon : bases )
+        {
+            builder.set_horizon_under(
+                stack.horizon( horizon ), stack.stratigraphic_unit( unit ) );
+        }
+    };
+    set_unit( u1, { top }, { erosion } );
+    set_unit( u2, { erosion }, { h2 } );
+    set_unit( u3, { erosion, h2 }, { h3 } );
+    set_unit( u4, { erosion, h3 }, {} );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        stack.above( erosion ) == u1 && stack.under( erosion ) == u2
+            && stack.above( h2 ) == u2 && stack.under( h2 ) == u3
+            && stack.above( h3 ) == u3 && stack.under( h3 ) == u4,
+        "Wrong relations in skua-like stack" );
+    builder.compute_top_and_bottom_horizons();
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        stack.top_horizon() == top && stack.bottom_horizon() == h3,
+        "Wrong top and bottom horizons in skua-like stack" );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        count_horizons( stack ) == 4 && count_units( stack ) == 4,
+        "Wrong iteration in skua-like stack" );
+}
+
 int main()
 {
     try
@@ -569,7 +623,8 @@ int main()
         test_cycle_rejection();
         test_load_cyclic_stack();
         test_reverse_relation();
-        test_replace_relation();
+        test_keep_first_relation();
+        test_skua_like_stack();
         test_update_top_and_bottom_horizons();
         test_incomplete_stack();
         test_create_empty_horizons_stack();
