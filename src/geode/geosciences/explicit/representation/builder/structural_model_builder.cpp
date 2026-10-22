@@ -48,6 +48,24 @@ namespace geode
     ModelCopyMapping StructuralModelBuilder::copy(
         const StructuralModel& structural_model )
     {
+        const auto nb_components =
+            structural_model_.nb_corners() + structural_model_.nb_lines()
+            + structural_model_.nb_surfaces() + structural_model_.nb_blocks()
+            + structural_model_.nb_model_boundaries()
+            + structural_model_.nb_corner_collections()
+            + structural_model_.nb_line_collections()
+            + structural_model_.nb_surface_collections()
+            + structural_model_.nb_block_collections()
+            + structural_model_.nb_faults() + structural_model_.nb_horizons()
+            + structural_model_.nb_fault_blocks()
+            + structural_model_.nb_stratigraphic_units()
+            + structural_model_.nb_unique_vertices()
+            + structural_model_.nb_components_with_relations();
+        OpenGeodeGeosciencesExplicitException::check_exception(
+            nb_components == 0, nullptr, OpenGeodeException::TYPE::data,
+            "[StructuralModelBuilder::copy] StructuralModel should be empty "
+            "before copy. To add components in a StructuralModel which is not "
+            "empty, use ModelConcatener." );
         if( const auto name = structural_model.name() )
         {
             set_name( name.value() );

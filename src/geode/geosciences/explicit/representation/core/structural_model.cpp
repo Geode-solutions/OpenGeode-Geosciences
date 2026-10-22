@@ -37,6 +37,8 @@ namespace geode
         : Relationships::ItemRangeIterator( structural_model, horizon.id() ),
           structural_model_( structural_model )
     {
+        detail::skip_other_type_items(
+            *this, Surface3D::component_type_static() );
     }
 
     StructuralModel::HorizonItemRange::HorizonItemRange(
@@ -66,6 +68,13 @@ namespace geode
             Relationships::ItemRangeIterator::operator*().id );
     }
 
+    void StructuralModel::HorizonItemRange::operator++()
+    {
+        Relationships::ItemRangeIterator::operator++();
+        detail::skip_other_type_items(
+            *this, Surface3D::component_type_static() );
+    }
+
     StructuralModel::HorizonItemRange StructuralModel::horizon_items(
         const Horizon3D& horizon ) const
     {
@@ -77,6 +86,8 @@ namespace geode
         : Relationships::ItemRangeIterator( structural_model, fault.id() ),
           structural_model_( structural_model )
     {
+        detail::skip_other_type_items(
+            *this, Surface3D::component_type_static() );
     }
 
     StructuralModel::FaultItemRange::FaultItemRange(
@@ -104,6 +115,13 @@ namespace geode
             Relationships::ItemRangeIterator::operator*().id );
     }
 
+    void StructuralModel::FaultItemRange::operator++()
+    {
+        Relationships::ItemRangeIterator::operator++();
+        detail::skip_other_type_items(
+            *this, Surface3D::component_type_static() );
+    }
+
     StructuralModel::FaultItemRange StructuralModel::fault_items(
         const Fault3D& fault ) const
     {
@@ -117,6 +135,8 @@ namespace geode
               structural_model, fault_block.id() ),
           structural_model_( structural_model )
     {
+        detail::skip_other_type_items(
+            *this, Block3D::component_type_static() );
     }
 
     StructuralModel::FaultBlockItemRange::FaultBlockItemRange(
@@ -146,6 +166,13 @@ namespace geode
             Relationships::ItemRangeIterator::operator*().id );
     }
 
+    void StructuralModel::FaultBlockItemRange::operator++()
+    {
+        Relationships::ItemRangeIterator::operator++();
+        detail::skip_other_type_items(
+            *this, Block3D::component_type_static() );
+    }
+
     StructuralModel::FaultBlockItemRange StructuralModel::fault_block_items(
         const FaultBlock3D& fault_block ) const
     {
@@ -159,6 +186,8 @@ namespace geode
               structural_model, stratigraphic_unit.id() ),
           structural_model_( structural_model )
     {
+        detail::skip_other_type_items(
+            *this, Block3D::component_type_static() );
     }
 
     StructuralModel::StratigraphicUnitItemRange::StratigraphicUnitItemRange(
@@ -190,6 +219,13 @@ namespace geode
             Relationships::ItemRangeIterator::operator*().id );
     }
 
+    void StructuralModel::StratigraphicUnitItemRange::operator++()
+    {
+        Relationships::ItemRangeIterator::operator++();
+        detail::skip_other_type_items(
+            *this, Block3D::component_type_static() );
+    }
+
     StructuralModel::StratigraphicUnitItemRange
         StructuralModel::stratigraphic_unit_items(
             const StratigraphicUnit3D& stratigraphic_unit ) const
@@ -206,7 +242,7 @@ namespace geode
 
     StructuralModel::StructuralModel( const StructuralModel& initial_model,
         BRep&& brep,
-        const ModelGenericMapping& initial_to_brep_mappings ) noexcept
+        const ModelGenericMapping& initial_to_brep_mappings )
         : BRep{ std::move( brep ) }
     {
         StructuralModelBuilder builder{ *this };

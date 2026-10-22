@@ -69,6 +69,19 @@ def test_horizons_stack():
     if horizons_stack.above(horizons_stack.above(unit0)).string() != unit1.string():
         raise ValueError("[TEST] Horizon 1 should be found from horizon 0.")
 
+    stack_builder.compute_top_and_bottom_horizons()
+    if horizons_stack.top_horizon().string() != hor2.string():
+        raise ValueError("[TEST] Horizon 2 should be the top horizon.")
+    info = stack_builder.add_horizon_in_stratigraphic_unit(
+        horizons_stack.stratigraphic_unit(unit0)
+    )
+    if horizons_stack.above(info.new_horizon_id).string() != (
+        info.strati_unit_above_id.string()
+    ):
+        raise ValueError("[TEST] New unit should be above the inserted horizon.")
+    if horizons_stack.nb_horizons() != 4:
+        raise ValueError("[TEST] Stack should have 4 horizons after insertion.")
+
     stack_path = "test_HorizonStack." + horizons_stack.native_extension()
     geode_imp.save_horizons_stack3D(horizons_stack, stack_path)
     reloaded_stack = geode_imp.load_horizons_stack3D(stack_path)

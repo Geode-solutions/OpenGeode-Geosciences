@@ -45,6 +45,10 @@ namespace geode
             const StratigraphicUnit< dimension >& stratigraphic_unit,
             std::string_view name );
 
+        void set_stratigraphic_unit_active(
+            const StratigraphicUnit< dimension >& stratigraphic_unit,
+            bool active );
+
     protected:
         explicit StratigraphicUnitsBuilder(
             StratigraphicUnits< dimension >& stratigraphic_units )

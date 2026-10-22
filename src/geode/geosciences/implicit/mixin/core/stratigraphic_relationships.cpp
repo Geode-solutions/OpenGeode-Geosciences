@@ -27,7 +27,9 @@
 
 #include <geode/basic/attribute_manager.hpp>
 #include <geode/basic/bitsery_archive.hpp>
+#include <geode/basic/logger.hpp>
 #include <geode/basic/pimpl_impl.hpp>
+#include <geode/basic/range.hpp>
 #include <geode/basic/sparse_attribute.hpp>
 #include <geode/basic/uuid.hpp>
 
@@ -59,8 +61,14 @@ namespace geode
         bool is_above( const uuid& above_id, const uuid& under_id ) const
         {
             auto current = under_id;
-            while( const auto directly_above = this->above( current ) )
+            for( [[maybe_unused]] const auto step :
+                Range{ this->graph().nb_vertices() } )
             {
+                const auto directly_above = this->above( current );
+                if( !directly_above )
+                {
+                    return false;
+                }
                 if( directly_above.value() == above_id )
                 {
                     return true;
@@ -72,7 +80,7 @@ namespace geode
 
         bool is_directly_above( const uuid& above, const uuid& under ) const
         {
-            const auto edge_id = relation_edge( above, under );
+            const auto edge_id = relation_edge_index( above, under );
             if( !edge_id )
             {
                 return false;
@@ -135,10 +143,30 @@ namespace geode
         index_t add_above_relation(
             const ComponentID& above, const ComponentID& under )
         {
-            if( const auto id = relation_edge( above.id, under.id ) )
+            const auto existing_edge =
+                relation_edge_index( above.id, under.id );
+            if( existing_edge
+                && graph_component_id(
+                       { existing_edge.value(), ABOVE_EDGE_VERTEX } )
+                           .id
+                       == above.id )
             {
-                above_relations_->set_value( id.value(), true );
-                return id.value();
+                above_relations_->set_value( existing_edge.value(), true );
+                return existing_edge.value();
+            }
+            OpenGeodeGeosciencesImplicitException::check_exception(
+                !would_create_cycle( above.id, under.id, existing_edge ),
+                nullptr, OpenGeodeException::TYPE::data,
+                "[StratigraphicRelationships::add_above_relation] Cannot set ",
+                above.string(), " above ", under.string(),
+                ": it would create a cycle in the above/under relations" );
+            if( existing_edge )
+            {
+                Logger::warning(
+                    "[StratigraphicRelationships::add_above_relation] "
+                    "Reversing existing relation: ",
+                    above.string(), " is now above ", under.string() );
+                remove_relation_edge( existing_edge.value() );
             }
             const auto index = add_relation_edge( above, under );
             above_relations_->set_value( index, true );
@@ -147,16 +175,10 @@ namespace geode
 
         void remove_above_relation( const uuid& id1, const uuid& id2 )
         {
-            auto id = relation_edge( id1, id2 );
-            if( !id )
+            if( const auto id = relation_edge_index( id1, id2 ) )
             {
-                id = relation_edge( id2, id1 );
-                if( !id )
-                {
-                    return;
-                }
+                this->remove_relation_edge( id.value() );
             }
-            this->remove_relation_edge( id.value() );
         }
 
         void copy( const Impl& impl, const ModelCopyMapping& mapping )
@@ -199,6 +221,7 @@ namespace geode
                     && std::get< 1 >( context ).isValid(),
                 nullptr, OpenGeodeException::TYPE::internal,
                 "[Relationships::load] Error while reading file: ", filename );
+            remove_cycles();
         }
 
     private:
@@ -230,30 +253,132 @@ namespace geode
                                        above_relations_id );
         }
 
-        std::optional< index_t > relation_edge(
-            const uuid& from, const uuid& to ) const
+        /*!
+         * Removes the above relations closing a cycle (corrupted data).
+         * Iterative depth-first search following the above relations upward:
+         * any relation leading to a vertex in the current path closes a cycle.
+         */
+        void remove_cycles()
         {
-            const auto index_from = vertex_id( from );
-            if( !index_from )
+            const auto& graph = this->graph();
+            const auto nb_vertices = graph.nb_vertices();
+            constexpr local_index_t NOT_VISITED{ 0 };
+            constexpr local_index_t IN_PATH{ 1 };
+            constexpr local_index_t DONE{ 2 };
+            std::vector< local_index_t > status( nb_vertices, NOT_VISITED );
+            std::vector< bool > to_delete( graph.nb_edges(), false );
+            bool has_cycle{ false };
+            // Stack of (vertex, next edge around vertex to process)
+            std::vector< std::pair< index_t, index_t > > path;
+            for( const auto start : Range{ nb_vertices } )
             {
-                return std::nullopt;
-            }
-            const auto index_to = vertex_id( to );
-            if( !index_to )
-            {
-                return std::nullopt;
-            }
-            for( const auto& edge_vertex :
-                this->graph().edges_around_vertex( index_from.value() ) )
-            {
-                const auto& other =
-                    this->graph_component_id( edge_vertex.opposite() );
-                if( to == other.id )
+                if( status[start] != NOT_VISITED )
                 {
-                    return edge_vertex.edge_id;
+                    continue;
+                }
+                status[start] = IN_PATH;
+                path.emplace_back( start, 0 );
+                while( !path.empty() )
+                {
+                    auto& [vertex, next_edge] = path.back();
+                    const auto& edges = graph.edges_around_vertex( vertex );
+                    if( next_edge >= edges.size() )
+                    {
+                        status[vertex] = DONE;
+                        path.pop_back();
+                        continue;
+                    }
+                    const auto& edge_vertex = edges[next_edge++];
+                    if( edge_vertex.vertex_id != UNDER_EDGE_VERTEX
+                        || !above_relations_->value( edge_vertex.edge_id ) )
+                    {
+                        continue;
+                    }
+                    const auto vertex_above =
+                        graph.edge_vertex( edge_vertex.opposite() );
+                    if( status[vertex_above] == IN_PATH )
+                    {
+                        to_delete[edge_vertex.edge_id] = true;
+                        has_cycle = true;
+                        Logger::warning( "[StratigraphicRelationships::load] "
+                                         "Removing relation ",
+                            graph_component_id( vertex_above ).string(),
+                            " above ", graph_component_id( vertex ).string(),
+                            " which closes a cycle in above relations" );
+                    }
+                    else if( status[vertex_above] == NOT_VISITED )
+                    {
+                        status[vertex_above] = IN_PATH;
+                        path.emplace_back( vertex_above, 0 );
+                    }
                 }
             }
-            return std::nullopt;
+            if( has_cycle )
+            {
+                GraphBuilder::create( *graph_ )->delete_edges( to_delete );
+            }
+        }
+
+        /*!
+         * Returns true if adding a relation "above is above under" would
+         * create a cycle, i.e. if above is already (indirectly) under under.
+         * The ignored edge (if any) is not considered.
+         */
+        bool would_create_cycle( const uuid& above,
+            const uuid& under,
+            std::optional< index_t > ignored_edge ) const
+        {
+            if( above == under )
+            {
+                return true;
+            }
+            const auto above_vertex = vertex_id( above );
+            const auto under_vertex = vertex_id( under );
+            if( !above_vertex || !under_vertex )
+            {
+                return false;
+            }
+            std::vector< bool > visited( this->graph().nb_vertices(), false );
+            std::vector< index_t > to_visit{ above_vertex.value() };
+            visited[above_vertex.value()] = true;
+            while( !to_visit.empty() )
+            {
+                const auto vertex = to_visit.back();
+                to_visit.pop_back();
+                for( const auto& edge_vertex :
+                    this->graph().edges_around_vertex( vertex ) )
+                {
+                    if( edge_vertex.vertex_id != UNDER_EDGE_VERTEX
+                        || !above_relations_->value( edge_vertex.edge_id )
+                        || edge_vertex.edge_id == ignored_edge )
+                    {
+                        continue;
+                    }
+                    const auto vertex_above =
+                        this->graph().edge_vertex( edge_vertex.opposite() );
+                    if( vertex_above == under_vertex.value() )
+                    {
+                        return true;
+                    }
+                    if( !visited[vertex_above] )
+                    {
+                        visited[vertex_above] = true;
+                        to_visit.push_back( vertex_above );
+                    }
+                }
+            }
+            return false;
+        }
+
+        void ensure_relation_attributes()
+        {
+            if( above_relations_ )
+            {
+                return;
+            }
+            Logger::warning( "[StratigraphicRelationships::load] Missing above "
+                             "relations attribute, initializing it" );
+            initialize_relation_attributes();
         }
 
         void remove_relation_edge( index_t relation_edge_id )
@@ -279,6 +404,7 @@ namespace geode
                              v0_unconformity_relations;
                          archive2.ext( v0_unconformity_relations,
                              bitsery::ext::StdSmartPtr{} );
+                         impl.ensure_relation_attributes();
                          std::vector< bool > to_delete(
                              impl.graph_->nb_edges(), false );
                          for( const auto edge_id :
@@ -298,6 +424,7 @@ namespace geode
                                           detail::RelationshipsImpl >{} );
                             archive2.ext( impl.above_relations_,
                                 bitsery::ext::StdSmartPtr{} );
+                            impl.ensure_relation_attributes();
                         } } } );
         }
 

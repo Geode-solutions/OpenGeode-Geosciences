@@ -76,6 +76,8 @@ namespace geode
 
             [[nodiscard]] const HorizonItemRange& end() const;
 
+            void operator++();
+
             [[nodiscard]] const Surface3D& operator*() const;
 
         private:
@@ -94,6 +96,8 @@ namespace geode
             [[nodiscard]] const FaultItemRange& begin() const;
 
             [[nodiscard]] const FaultItemRange& end() const;
+
+            void operator++();
 
             [[nodiscard]] const Surface3D& operator*() const;
 
@@ -114,6 +118,8 @@ namespace geode
 
             [[nodiscard]] const FaultBlockItemRange& end() const;
 
+            void operator++();
+
             [[nodiscard]] const Block3D& operator*() const;
 
         private:
@@ -133,6 +139,8 @@ namespace geode
             [[nodiscard]] const StratigraphicUnitItemRange& begin() const;
 
             [[nodiscard]] const StratigraphicUnitItemRange& end() const;
+
+            void operator++();
 
             [[nodiscard]] const Block3D& operator*() const;
 
@@ -156,7 +164,7 @@ namespace geode
         explicit StructuralModel( BRep&& brep ) noexcept;
         StructuralModel( const StructuralModel& initial_model,
             BRep&& brep,
-            const ModelGenericMapping& initial_to_brep_mappings ) noexcept;
+            const ModelGenericMapping& initial_to_brep_mappings );
 
         [[nodiscard]] StructuralModel clone() const;
 

@@ -78,6 +78,19 @@ namespace geode
                           dimension >::StratigraphicUnitsBuilderKey{} );
     }
 
+    template < index_t dimension >
+    void StratigraphicUnitsBuilder< dimension >::set_stratigraphic_unit_active(
+        const StratigraphicUnit< dimension >& stratigraphic_unit, bool active )
+    {
+        stratigraphic_units_
+            .modifiable_stratigraphic_unit( stratigraphic_unit.id(),
+                typename StratigraphicUnit<
+                    dimension >::StratigraphicUnitsBuilderKey{} )
+            .set_stratigraphic_unit_active(
+                active, typename StratigraphicUnit<
+                            dimension >::StratigraphicUnitsBuilderKey{} );
+    }
+
     template class opengeode_geosciences_explicit_api
         StratigraphicUnitsBuilder< 2 >;
     template class opengeode_geosciences_explicit_api

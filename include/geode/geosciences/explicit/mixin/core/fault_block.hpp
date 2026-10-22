@@ -72,6 +72,11 @@ namespace geode
             this->set_name( name );
         }
 
+        void set_fault_block_active( bool active, FaultBlocksBuilderKey )
+        {
+            this->set_active( active );
+        }
+
     private:
         FaultBlock();
 

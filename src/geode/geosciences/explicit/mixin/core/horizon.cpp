@@ -24,6 +24,7 @@
 #include <geode/geosciences/explicit/mixin/core/horizon.hpp>
 
 #include <geode/basic/bitsery_archive.hpp>
+#include <geode/basic/logger.hpp>
 #include <geode/basic/pimpl_impl.hpp>
 
 namespace
@@ -84,10 +85,32 @@ namespace geode
                          {
                              impl.contact_type_ = CONTACT_TYPE::intrusion;
                          }
+                         else
+                         {
+                             Logger::warning(
+                                 "[Horizon] Unknown legacy contact type ",
+                                 static_cast< int >( previous_type ),
+                                 ", set to conformal" );
+                             impl.contact_type_ = CONTACT_TYPE::conformal;
+                         }
                      },
                         []( Archive& archive2, Impl& impl ) {
                             archive2.value4b( impl.contact_type_ );
+                            impl.repair_contact_type();
                         } } } );
+        }
+
+    private:
+        void repair_contact_type()
+        {
+            const auto type = static_cast< int >( contact_type_ );
+            if( type < static_cast< int >( CONTACT_TYPE::conformal )
+                || type > static_cast< int >( CONTACT_TYPE::intrusion ) )
+            {
+                Logger::warning( "[Horizon] Unknown contact type ", type,
+                    ", set to conformal" );
+                contact_type_ = CONTACT_TYPE::conformal;
+            }
         }
 
     private:

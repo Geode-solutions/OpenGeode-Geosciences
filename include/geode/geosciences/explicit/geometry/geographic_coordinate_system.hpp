@@ -23,6 +23,8 @@
 
 #pragma once
 
+#include <vector>
+
 #include <geode/basic/pimpl.hpp>
 
 #include <geode/mesh/core/attribute_coordinate_reference_system.hpp>
@@ -60,9 +62,9 @@ namespace geode
             archive.ext( *this,
                 Growable< Archive, GeographicCoordinateSystemInfo >{
                     { []( Archive& a, GeographicCoordinateSystemInfo& info ) {
-                        a.text1b( info.authority, info.authority.max_size() );
-                        a.text1b( info.code, info.code.max_size() );
-                        a.text1b( info.name, info.name.max_size() );
+                        a.text1b( info.authority, MAX_SERIALIZED_NAME_SIZE );
+                        a.text1b( info.code, MAX_SERIALIZED_NAME_SIZE );
+                        a.text1b( info.name, MAX_SERIALIZED_NAME_SIZE );
                     } } } );
         }
 
@@ -86,12 +88,6 @@ namespace geode
             GeographicCoordinateSystemInfo info );
 
         ~GeographicCoordinateSystem();
-
-        [[nodiscard]] static GeographicCoordinateSystem< dimension >
-            create_from_attribute(
-                const AttributeCoordinateReferenceSystem< dimension >& crs,
-                AttributeManager& manager,
-                GeographicCoordinateSystemInfo info );
 
         [[nodiscard]] static CRSType type_name_static()
         {
@@ -121,4 +117,36 @@ namespace geode
         IMPLEMENTATION_MEMBER( impl_ );
     };
     ALIAS_2D_AND_3D( GeographicCoordinateSystem );
+
+    namespace internal
+    {
+        /*!
+         * Coordinate transformation between two geographic coordinate
+         * systems. Construction throws if the transformation cannot be
+         * created (e.g. unknown authority code).
+         */
+        class
+            opengeode_geosciences_explicit_api GeographicCoordinateTransformation
+        {
+        public:
+            GeographicCoordinateTransformation(
+                const GeographicCoordinateSystemInfo& from,
+                const GeographicCoordinateSystemInfo& to );
+            GeographicCoordinateTransformation(
+                GeographicCoordinateTransformation&& other ) noexcept;
+            ~GeographicCoordinateTransformation();
+
+            /*!
+             * Return the transformed coordinates of all the points of the
+             * given coordinate system.
+             * @exception OpenGeodeException if a point cannot be transformed.
+             */
+            template < index_t dimension >
+            [[nodiscard]] std::vector< Point< dimension > > transform(
+                const GeographicCoordinateSystem< dimension >& from ) const;
+
+        private:
+            IMPLEMENTATION_MEMBER( impl_ );
+        };
+    } // namespace internal
 } // namespace geode

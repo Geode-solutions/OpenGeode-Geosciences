@@ -90,6 +90,11 @@ namespace geode
             this->set_name( name );
         }
 
+        void set_horizon_active( bool active, HorizonsBuilderKey )
+        {
+            this->set_active( active );
+        }
+
     private:
         Horizon();
         explicit Horizon( CONTACT_TYPE type );

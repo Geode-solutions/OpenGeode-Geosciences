@@ -132,6 +132,18 @@ void test_horizons_stack()
     auto reloaded_stack = geode::load_horizons_stack< 3 >( stack_path );
     auto reloaded_stack_v0 = geode::load_horizons_stack< 3 >(
         absl::StrCat( geode::DATA_PATH, "test_HorizonStack_v0.og_hst3d" ) );
+    geode::index_t nb_v0_horizons{ 0 };
+    for( const auto& horizon : reloaded_stack_v0.bottom_to_top_horizons() )
+    {
+        geode::OpenGeodeGeosciencesImplicitException::test(
+            reloaded_stack_v0.above( horizon.id() ).has_value()
+                && reloaded_stack_v0.under( horizon.id() ).has_value(),
+            "Legacy stack horizon should have units above and under" );
+        nb_v0_horizons++;
+    }
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        nb_v0_horizons == reloaded_stack_v0.nb_horizons(),
+        "Should iterate on all horizons of the legacy stack" );
 }
 
 void test_horizons_stack( const geode::HorizonsStack2D& horizons_stack )
@@ -238,6 +250,367 @@ void test_create_horizons_stack_bottom_to_top()
     test_horizons_stack( horizons_stack );
 }
 
+void test_cycle_rejection()
+{
+    geode::HorizonsStack3D stack;
+    geode::HorizonsStackBuilder3D builder{ stack };
+    const auto& h0 = builder.add_horizon();
+    const auto& h1 = builder.add_horizon();
+    const auto& u0 = builder.add_stratigraphic_unit();
+    const auto& u1 = builder.add_stratigraphic_unit();
+    builder.set_horizon_above(
+        stack.horizon( h0 ), stack.stratigraphic_unit( u0 ) );
+    builder.set_horizon_under(
+        stack.horizon( h1 ), stack.stratigraphic_unit( u0 ) );
+    builder.set_horizon_above(
+        stack.horizon( h1 ), stack.stratigraphic_unit( u1 ) );
+    bool cycle_rejected{ false };
+    try
+    {
+        builder.set_horizon_under(
+            stack.horizon( h0 ), stack.stratigraphic_unit( u1 ) );
+    }
+    catch( const geode::OpenGeodeException& /*unused*/ )
+    {
+        cycle_rejected = true;
+    }
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        cycle_rejected, "Closing a cycle of above relations should throw" );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        !stack.above( h0 ).has_value(),
+        "Rejected relation should not have been added" );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        !stack.is_above( h0, h0 ), "Horizon should not be above itself" );
+    builder.compute_top_and_bottom_horizons();
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        stack.top_horizon() == h0 && stack.bottom_horizon() == h1,
+        "Wrong top and bottom horizons after cycle rejection" );
+}
+
+void test_load_cyclic_stack()
+{
+    // File saved with a cycle h0 > u0 > h1 > u1 > h0 in above relations
+    const auto stack = geode::load_horizons_stack< 3 >(
+        absl::StrCat( geode::DATA_PATH, "test_HorizonStack_cycle.og_hst3d" ) );
+    for( const auto& horizon : stack.horizons() )
+    {
+        geode::OpenGeodeGeosciencesImplicitException::test(
+            !stack.is_above( horizon.id(), horizon.id() ),
+            "Cycle should have been removed on load" );
+    }
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        stack.top_horizon().has_value() && stack.bottom_horizon().has_value()
+            && stack.top_horizon() != stack.bottom_horizon(),
+        "Top and bottom horizons should be computed after cycle removal" );
+    geode::index_t counter{ 0 };
+    for( const auto& horizon : stack.top_to_bottom_horizons() )
+    {
+        geode::Logger::debug( "Found horizon ", horizon.id().string() );
+        counter++;
+    }
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        counter == 2, "Should iterate on 2 horizons after cycle removal" );
+}
+
+void test_reverse_relation()
+{
+    geode::HorizonsStack3D stack;
+    geode::HorizonsStackBuilder3D builder{ stack };
+    const auto& horizon = builder.add_horizon();
+    const auto& unit = builder.add_stratigraphic_unit();
+    builder.set_horizon_above(
+        stack.horizon( horizon ), stack.stratigraphic_unit( unit ) );
+    builder.set_horizon_under(
+        stack.horizon( horizon ), stack.stratigraphic_unit( unit ) );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        stack.above( horizon ) == unit && !stack.under( horizon ),
+        "Unit should now be above the horizon" );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        stack.under( unit ) == horizon && !stack.above( unit ),
+        "Horizon should now be under the unit" );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        stack.is_directly_above( unit, horizon )
+            && !stack.is_directly_above( horizon, unit ),
+        "Relation direction should have been reversed" );
+}
+
+void test_keep_first_relation()
+{
+    geode::HorizonsStack3D stack;
+    geode::HorizonsStackBuilder3D builder{ stack };
+    const auto& h0 = builder.add_horizon();
+    const auto& h1 = builder.add_horizon();
+    const auto& u0 = builder.add_stratigraphic_unit();
+    const auto& u1 = builder.add_stratigraphic_unit();
+    builder.set_horizon_above(
+        stack.horizon( h0 ), stack.stratigraphic_unit( u0 ) );
+    builder.set_horizon_above(
+        stack.horizon( h0 ), stack.stratigraphic_unit( u0 ) );
+    builder.set_horizon_above(
+        stack.horizon( h0 ), stack.stratigraphic_unit( u1 ) );
+    builder.set_horizon_above(
+        stack.horizon( h1 ), stack.stratigraphic_unit( u0 ) );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        stack.under( h0 ) == u0 && stack.above( u0 ) == h0 && !stack.above( u1 )
+            && !stack.under( h1 ),
+        "First relation under horizon should have been kept" );
+    builder.set_horizon_under(
+        stack.horizon( h1 ), stack.stratigraphic_unit( u1 ) );
+    builder.set_horizon_under(
+        stack.horizon( h1 ), stack.stratigraphic_unit( u0 ) );
+    builder.set_horizon_under(
+        stack.horizon( h0 ), stack.stratigraphic_unit( u1 ) );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        stack.above( h1 ) == u1 && stack.under( u1 ) == h1 && !stack.under( u0 )
+            && !stack.above( h0 ),
+        "First relation above horizon should have been kept" );
+
+    geode::HorizonsStack3D other_stack;
+    geode::HorizonsStackBuilder3D other_builder{ other_stack };
+    const auto& other_horizon = other_builder.add_horizon();
+    bool throws{ false };
+    try
+    {
+        builder.set_horizon_above( other_stack.horizon( other_horizon ),
+            stack.stratigraphic_unit( u1 ) );
+    }
+    catch( const geode::OpenGeodeException& /*unused*/ )
+    {
+        throws = true;
+    }
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        throws, "Should not relate a horizon from another stack" );
+}
+
+geode::index_t count_horizons( const geode::HorizonsStack2D& stack )
+{
+    geode::index_t counter{ 0 };
+    for( const auto& horizon : stack.bottom_to_top_horizons() )
+    {
+        geode::Logger::debug( "Found horizon ", horizon.id().string() );
+        counter++;
+    }
+    return counter;
+}
+
+geode::index_t count_units( const geode::HorizonsStack2D& stack )
+{
+    geode::index_t counter{ 0 };
+    for( const auto& unit : stack.top_to_bottom_units() )
+    {
+        geode::Logger::debug( "Found unit ", unit.id().string() );
+        counter++;
+    }
+    return counter;
+}
+
+void test_update_top_and_bottom_horizons()
+{
+    std::array< std::string, 3 > horizons_list{ "h1", "h2", "h3" };
+    std::array< std::string, 2 > units_list{ "su1", "su2" };
+    auto stack = geode::detail::horizons_stack_from_bottom_to_top_names< 2 >(
+        horizons_list, units_list );
+    geode::HorizonsStackBuilder2D builder{ stack };
+    const auto top_unit = stack.above( stack.top_horizon().value() ).value();
+    const auto info = builder.add_horizon_in_stratigraphic_unit(
+        stack.stratigraphic_unit( top_unit ) );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        stack.top_horizon() == info.new_horizon_id,
+        "Inserted horizon should be the new top horizon" );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        count_horizons( stack ) == 4, "Should iterate on 4 horizons" );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        count_units( stack ) == 5, "Should iterate on 5 units" );
+
+    const auto bottom_horizon = stack.bottom_horizon().value();
+    const auto new_bottom =
+        stack.above( stack.above( bottom_horizon ).value() );
+    builder.remove_horizon( stack.horizon( bottom_horizon ) );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        stack.bottom_horizon() == new_bottom,
+        "Bottom horizon should have been updated after removal" );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        count_horizons( stack ) == 3, "Should iterate on 3 horizons" );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        count_units( stack ) == 4, "Should iterate on 4 units" );
+
+    const auto top_horizon = stack.top_horizon().value();
+    const auto new_top = stack.under( stack.under( top_horizon ).value() );
+    builder.remove_horizon( stack.horizon( top_horizon ) );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        stack.top_horizon() == new_top,
+        "Top horizon should have been updated after removal" );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        count_horizons( stack ) == 2, "Should iterate on 2 horizons" );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        count_units( stack ) == 3, "Should iterate on 3 units" );
+}
+
+void test_incomplete_stack()
+{
+    geode::HorizonsStack2D stack;
+    geode::HorizonsStackBuilder2D builder{ stack };
+    const auto& horizon = builder.add_horizon();
+    const auto& unit = builder.add_stratigraphic_unit();
+    builder.set_horizon_above(
+        stack.horizon( horizon ), stack.stratigraphic_unit( unit ) );
+    builder.compute_top_and_bottom_horizons();
+    geode::Logger::info( stack.string() );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        count_horizons( stack ) == 1, "Should iterate on 1 horizon" );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        count_units( stack ) == 1, "Should iterate on 1 unit" );
+
+    std::array< std::string, 3 > horizons_list{ "h1", "h2", "h3" };
+    std::array< std::string, 2 > units_list{ "su1", "su2" };
+    auto named_stack =
+        geode::detail::horizons_stack_from_bottom_to_top_names< 2 >(
+            horizons_list, units_list );
+    geode::HorizonsStackBuilder2D named_builder{ named_stack };
+    const auto bottom = named_stack.bottom_horizon().value();
+    const auto unit_above_bottom = named_stack.above( bottom ).value();
+    // Creates a gap in the stack without updating top and bottom horizons
+    named_builder.remove_above_relation( unit_above_bottom, bottom );
+    geode::Logger::info( named_stack.string() );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        count_horizons( named_stack ) == 1,
+        "Should stop horizon iteration at the gap" );
+    geode::index_t counter{ 0 };
+    for( const auto& unit_in_stack : named_stack.bottom_to_top_units() )
+    {
+        geode::Logger::debug( "Found unit ", unit_in_stack.id().string() );
+        counter++;
+    }
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        counter == 1, "Should stop unit iteration at the gap" );
+}
+
+void test_create_empty_horizons_stack()
+{
+    const auto bottom_to_top =
+        geode::detail::horizons_stack_from_bottom_to_top_names< 3 >( {}, {} );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        bottom_to_top.nb_horizons() == 0
+            && bottom_to_top.nb_stratigraphic_units() == 0,
+        "Stack created from empty bottom to top lists should be empty" );
+    const auto top_to_bottom =
+        geode::detail::horizons_stack_from_top_to_bottom_names< 3 >( {}, {} );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        top_to_bottom.nb_horizons() == 0
+            && top_to_bottom.nb_stratigraphic_units() == 0,
+        "Stack created from empty top to bottom lists should be empty" );
+}
+
+void test_repair_stack_without_horizon()
+{
+    geode::HorizonsStack3D stack;
+    geode::HorizonsStackBuilder3D builder{ stack };
+    geode::detail::repair_horizon_stack_if_possible( stack, builder );
+    builder.add_stratigraphic_unit();
+    geode::detail::repair_horizon_stack_if_possible( stack, builder );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        stack.nb_horizons() == 0 && stack.nb_stratigraphic_units() == 1,
+        "Repair of a stack without horizon should not change it" );
+}
+
+void test_large_stack_relations()
+{
+    constexpr geode::index_t nb_horizons{ 200 };
+    std::vector< std::string > horizons_names;
+    std::vector< std::string > units_names;
+    for( const auto index : geode::Range{ nb_horizons } )
+    {
+        horizons_names.push_back( absl::StrCat( "h", index ) );
+        units_names.push_back( absl::StrCat( "su", index ) );
+    }
+    units_names.pop_back();
+    auto stack = geode::detail::horizons_stack_from_bottom_to_top_names< 3 >(
+        horizons_names, units_names );
+    std::vector< geode::uuid > horizons;
+    for( const auto& horizon : stack.bottom_to_top_horizons() )
+    {
+        horizons.push_back( horizon.id() );
+    }
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        horizons.size() == nb_horizons, "Wrong number of horizons" );
+    for( const auto index : geode::Range{ 1, nb_horizons } )
+    {
+        const auto unit = stack.above( horizons[index - 1] ).value();
+        geode::OpenGeodeGeosciencesImplicitException::test(
+            stack.is_directly_above( unit, horizons[index - 1] )
+                && stack.is_directly_above( horizons[index], unit )
+                && !stack.is_directly_above( unit, horizons[index] )
+                && !stack.is_directly_above(
+                    horizons[index], horizons[index - 1] ),
+            "Wrong direct relations in large stack" );
+    }
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        stack.is_above( horizons.back(), horizons.front() )
+            && !stack.is_above( horizons.front(), horizons.back() ),
+        "Wrong indirect relations in large stack" );
+    geode::HorizonsStackBuilder3D builder{ stack };
+    const auto middle = nb_horizons / 2;
+    const auto unit_above = stack.above( horizons[middle] ).value();
+    const auto unit_under = stack.under( horizons[middle] ).value();
+    // Removal works whatever the order of the given components
+    builder.remove_above_relation( unit_above, horizons[middle] );
+    builder.remove_above_relation( unit_under, horizons[middle] );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        !stack.above( horizons[middle] ) && !stack.under( horizons[middle] )
+            && !stack.under( unit_above ) && !stack.above( unit_under ),
+        "Relations should have been removed in large stack" );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        stack.is_above( horizons.back(), horizons[middle + 1] )
+            && !stack.is_above( horizons.back(), horizons.front() ),
+        "Wrong indirect relations after removal in large stack" );
+}
+
+void test_skua_like_stack()
+{
+    // Units given from youngest to oldest with their top and base horizons,
+    // an erosion horizon tops several units
+    geode::HorizonsStack2D stack;
+    geode::HorizonsStackBuilder2D builder{ stack };
+    const auto& top = builder.add_horizon();
+    const auto& erosion = builder.add_horizon();
+    const auto& h2 = builder.add_horizon();
+    const auto& h3 = builder.add_horizon();
+    const auto& u1 = builder.add_stratigraphic_unit();
+    const auto& u2 = builder.add_stratigraphic_unit();
+    const auto& u3 = builder.add_stratigraphic_unit();
+    const auto& u4 = builder.add_stratigraphic_unit();
+    const auto set_unit = [&]( const geode::uuid& unit,
+                              absl::Span< const geode::uuid > tops,
+                              absl::Span< const geode::uuid > bases ) {
+        for( const auto& horizon : tops )
+        {
+            builder.set_horizon_above(
+                stack.horizon( horizon ), stack.stratigraphic_unit( unit ) );
+        }
+        for( const auto& horizon : bases )
+        {
+            builder.set_horizon_under(
+                stack.horizon( horizon ), stack.stratigraphic_unit( unit ) );
+        }
+    };
+    set_unit( u1, { top }, { erosion } );
+    set_unit( u2, { erosion }, { h2 } );
+    set_unit( u3, { erosion, h2 }, { h3 } );
+    set_unit( u4, { erosion, h3 }, {} );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        stack.above( erosion ) == u1 && stack.under( erosion ) == u2
+            && stack.above( h2 ) == u2 && stack.under( h2 ) == u3
+            && stack.above( h3 ) == u3 && stack.under( h3 ) == u4,
+        "Wrong relations in skua-like stack" );
+    builder.compute_top_and_bottom_horizons();
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        stack.top_horizon() == top && stack.bottom_horizon() == h3,
+        "Wrong top and bottom horizons in skua-like stack" );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        count_horizons( stack ) == 4 && count_units( stack ) == 4,
+        "Wrong iteration in skua-like stack" );
+}
+
 int main()
 {
     try
@@ -247,6 +620,16 @@ int main()
         test_horizons_stack();
         test_create_horizons_stack_bottom_to_top();
         test_create_horizons_stack_top_to_bottom();
+        test_cycle_rejection();
+        test_load_cyclic_stack();
+        test_reverse_relation();
+        test_keep_first_relation();
+        test_skua_like_stack();
+        test_update_top_and_bottom_horizons();
+        test_incomplete_stack();
+        test_create_empty_horizons_stack();
+        test_repair_stack_without_horizon();
+        test_large_stack_relations();
 
         geode::Logger::info( "TEST SUCCESS" );
         return 0;

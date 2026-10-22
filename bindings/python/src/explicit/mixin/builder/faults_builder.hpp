@@ -33,7 +33,10 @@
         .def( "set_fault_type", &FaultsBuilder##dimension##D::set_fault_type,  \
             pybind11::arg( "fault" ), pybind11::arg( "type" ) )                \
         .def( "set_fault_name", &FaultsBuilder##dimension##D::set_fault_name,  \
-            pybind11::arg( "fault" ), pybind11::arg( "name" ) )
+            pybind11::arg( "fault" ), pybind11::arg( "name" ) )                \
+        .def( "set_fault_active",                                              \
+            &FaultsBuilder##dimension##D::set_fault_active,                    \
+            pybind11::arg( "fault" ), pybind11::arg( "active" ) )
 
 namespace geode
 {

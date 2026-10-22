@@ -31,14 +31,18 @@
 #include <geode/geometry/point.hpp>
 
 #include <geode/mesh/core/edged_curve.hpp>
+#include <geode/mesh/core/geode/geode_triangulated_surface.hpp>
 #include <geode/mesh/core/triangulated_surface.hpp>
 #include <geode/mesh/io/edged_curve_output.hpp>
 
+#include <geode/model/mixin/core/corner.hpp>
 #include <geode/model/mixin/core/line.hpp>
 #include <geode/model/mixin/core/surface.hpp>
 #include <geode/model/representation/builder/section_builder.hpp>
 #include <geode/model/representation/core/section.hpp>
 
+#include <geode/geosciences/explicit/representation/builder/cross_section_builder.hpp>
+#include <geode/geosciences/explicit/representation/core/cross_section.hpp>
 #include <geode/geosciences/explicit/representation/io/cross_section_input.hpp>
 #include <geode/geosciences/implicit/geometry/stratigraphic_point.hpp>
 #include <geode/geosciences/implicit/representation/builder/stratigraphic_section_builder.hpp>
@@ -153,6 +157,88 @@ void test_save_stratigraphic_lines(
     }
 }
 
+bool is_surface_vertex_stratigraphic_point(
+    const geode::StratigraphicSection& section,
+    const geode::Surface2D& surface,
+    const geode::ComponentMeshVertex& line_vertex,
+    const geode::Point2D& stratigraphic_point )
+{
+    const auto unique_vertex = section.unique_vertex( line_vertex );
+    for( const auto& surface_vertex :
+        section.component_mesh_vertices( unique_vertex ) )
+    {
+        if( surface_vertex.component_id.id != surface.id() )
+        {
+            continue;
+        }
+        if( section.stratigraphic_coordinates( surface, surface_vertex.vertex )
+                .stratigraphic_coordinates()
+                .inexact_equal( stratigraphic_point ) )
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+void test_stratigraphic_lines_values(
+    const geode::StratigraphicSection& section )
+{
+    geode::index_t nb_checks{ 0 };
+    for( const auto& surface : section.surfaces() )
+    {
+        for( const auto& line : section.boundaries( surface ) )
+        {
+            const auto strati_lines =
+                section.stratigraphic_line( surface, line );
+            for( const auto v : geode::Range{ line.mesh().nb_vertices() } )
+            {
+                for( const auto& strati_line : strati_lines )
+                {
+                    geode::OpenGeodeGeosciencesImplicitException::test(
+                        is_surface_vertex_stratigraphic_point( section, surface,
+                            { line.component_id(), v },
+                            strati_line->point( v ) ),
+                        "Wrong stratigraphic line point ", v, " of line ",
+                        line.id().string() );
+                    nb_checks++;
+                }
+            }
+        }
+    }
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        nb_checks > 0, "No stratigraphic line point checked." );
+}
+
+void test_copy( const geode::StratigraphicSection& section )
+{
+    geode::Logger::info( "Testing copy" );
+    geode::StratigraphicSection copy;
+    geode::StratigraphicSectionBuilder builder{ copy };
+    const auto mappings = builder.copy( section );
+    const auto& surface_mapping =
+        mappings.at( geode::Surface2D::component_type_static() );
+    for( const auto& surface : section.surfaces() )
+    {
+        const auto& new_surface =
+            copy.surface( surface_mapping.in2out( surface.id() ) );
+        geode::OpenGeodeGeosciencesImplicitException::test(
+            !new_surface.mesh().vertex_attribute_manager().attribute_exists(
+                section.stratigraphic_location_attribute_id() ),
+            "Copied stratigraphic attribute should have been removed." );
+        for( const auto v : geode::Range{ surface.mesh().nb_vertices() } )
+        {
+            geode::OpenGeodeGeosciencesImplicitException::test(
+                copy.stratigraphic_coordinates( new_surface, v )
+                    .stratigraphic_coordinates()
+                    .inexact_equal(
+                        section.stratigraphic_coordinates( surface, v )
+                            .stratigraphic_coordinates() ),
+                "Wrong copied stratigraphic coordinates for vertex ", v );
+        }
+    }
+}
+
 void test_backward_io( std::string filename )
 {
     const auto implicit_cross_section =
@@ -177,6 +263,73 @@ void test_io( const geode::StratigraphicSection& implicit_model )
     test_section( model_reload );
 }
 
+void test_clone( const geode::StratigraphicSection& section )
+{
+    geode::Logger::info( "Testing clone" );
+    const auto clone = section.clone();
+    for( const auto& surface : section.surfaces() )
+    {
+        const auto& clone_surface = clone.surface( surface.id() );
+        const auto ids =
+            clone_surface.mesh()
+                .vertex_attribute_manager()
+                .attribute_ids_matching_name( geode::StratigraphicSection::
+                        STRATIGRAPHIC_LOCATION_ATTRIBUTE_NAME );
+        geode::OpenGeodeGeosciencesImplicitException::test(
+            ids && ids->size() == 1,
+            "Clone should have one stratigraphic location attribute." );
+        for( const auto v : geode::Range{ surface.mesh().nb_vertices() } )
+        {
+            geode::OpenGeodeGeosciencesImplicitException::test(
+                clone.stratigraphic_coordinates( clone_surface, v )
+                        .stratigraphic_location()
+                    == section.stratigraphic_coordinates( surface, v )
+                        .stratigraphic_location(),
+                "Wrong cloned stratigraphic location." );
+        }
+    }
+}
+
+void test_construction_from_section(
+    const geode::StratigraphicSection& section )
+{
+    geode::Logger::info( "Testing construction from Section" );
+    geode::ModelGenericMapping mappings;
+    const auto add_identity = [&mappings]( const auto& range ) {
+        for( const auto& component : range )
+        {
+            mappings[component.component_type()].map(
+                component.id(), component.id() );
+        }
+    };
+    add_identity( section.corners() );
+    add_identity( section.lines() );
+    add_identity( section.surfaces() );
+    const geode::StratigraphicSection new_section{ section,
+        section.Section::clone(), mappings };
+    for( const auto& surface : section.surfaces() )
+    {
+        const auto& new_surface = new_section.surface( surface.id() );
+        const auto ids =
+            new_surface.mesh()
+                .vertex_attribute_manager()
+                .attribute_ids_matching_name( geode::StratigraphicSection::
+                        STRATIGRAPHIC_LOCATION_ATTRIBUTE_NAME );
+        geode::OpenGeodeGeosciencesImplicitException::test(
+            ids && ids->size() == 1,
+            "New section should have one stratigraphic location attribute." );
+        for( const auto v : geode::Range{ surface.mesh().nb_vertices() } )
+        {
+            geode::OpenGeodeGeosciencesImplicitException::test(
+                new_section.stratigraphic_coordinates( new_surface, v )
+                        .stratigraphic_location()
+                    == section.stratigraphic_coordinates( surface, v )
+                        .stratigraphic_location(),
+                "Wrong transferred stratigraphic location." );
+        }
+    }
+}
+
 void test_move( geode::StratigraphicSection& implicit_model )
 {
     const auto old_implicit_id = implicit_model.implicit_attribute_id();
@@ -191,6 +344,77 @@ void test_move( geode::StratigraphicSection& implicit_model )
         "Stratigraphic location attribute id not moved." );
 }
 
+void test_empty_surface()
+{
+    geode::Logger::info( "Testing empty surface" );
+    geode::CrossSection cross_section{ geode::load_section(
+        absl::StrCat( geode::DATA_PATH, "test_section.og_sctn" ) ) };
+    geode::CrossSectionBuilder cross_section_builder{ cross_section };
+    const auto empty_surface_id = cross_section_builder.add_surface(
+        geode::OpenGeodeTriangulatedSurface2D::impl_name_static() );
+    geode::StratigraphicSection section{ std::move( cross_section ) };
+    geode::StratigraphicSectionBuilder builder{ section };
+    builder.import_old_stratigraphic_attribute_values_from_attribute_name(
+        geode::StratigraphicSection::STRATIGRAPHIC_LOCATION_ATTRIBUTE_NAME );
+    builder.import_old_stratigraphic_attribute_values_from_attribute_name(
+        "unknown_attribute" );
+    builder.import_old_stratigraphic_attribute_values_from_attribute_id(
+        section.stratigraphic_location_attribute_id() );
+    for( const auto& surface : section.surfaces() )
+    {
+        geode::OpenGeodeGeosciencesImplicitException::test(
+            surface.mesh().vertex_attribute_manager().attribute_exists(
+                section.stratigraphic_location_attribute_id() ),
+            "Stratigraphic attribute should not have been removed." );
+    }
+    const auto& empty_surface = section.surface( empty_surface_id );
+    const geode::StratigraphicPoint2D query{ geode::Point1D{ { 0 } }, 0 };
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        !section.stratigraphic_containing_polygon( empty_surface, query ),
+        "No polygon should contain a point in an empty surface." );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        !section.geometric_coordinates( empty_surface, query ),
+        "No geometric coordinates should be found in an empty surface." );
+    const auto box = section.stratigraphic_bounding_box();
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        box.min().value( 0 ) <= box.max().value( 0 ),
+        "Stratigraphic bounding box should ignore empty components." );
+}
+
+void test_reinitialize_after_modification()
+{
+    geode::Logger::info( "Testing reinitialization after modification" );
+    auto section = import_section_with_stratigraphy();
+    const geode::uuid surface0_id{ "00000000-2d28-4eeb-8000-000027dab659" };
+    const auto expected = section.stratigraphic_coordinates(
+        section.surface( surface0_id ), 1773 );
+    geode::StratigraphicSectionBuilder builder{ section };
+    std::vector< geode::uuid > to_remove;
+    for( const auto& surface : section.surfaces() )
+    {
+        if( surface.id() != surface0_id )
+        {
+            to_remove.push_back( surface.id() );
+        }
+    }
+    for( const auto& surface_id : to_remove )
+    {
+        builder.remove_surface( section.surface( surface_id ) );
+    }
+    const auto& surface0 = section.surface( surface0_id );
+    builder.reinitialize_stratigraphic_query_trees();
+    const auto strati_pt = section.stratigraphic_coordinates( surface0, 1773 );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        strati_pt.stratigraphic_coordinates().inexact_equal(
+            expected.stratigraphic_coordinates() ),
+        "Wrong stratigraphic coordinates after reinitialization: ",
+        strati_pt.string() );
+    const auto box = section.stratigraphic_bounding_box();
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        box.min().value( 1 ) <= box.max().value( 1 ),
+        "Stratigraphic bounding box should be valid after surface removal." );
+}
+
 int main()
 {
     try
@@ -201,8 +425,14 @@ int main()
         auto model = import_section_with_stratigraphy();
         test_section( model );
         // test_save_stratigraphic_lines( model );
+        test_stratigraphic_lines_values( model );
+        test_copy( model );
+        test_clone( model );
+        test_construction_from_section( model );
         test_io( model );
         test_move( model );
+        test_empty_surface();
+        test_reinitialize_after_modification();
         test_backward_io( absl::StrCat(
             geode::DATA_PATH, "test_old_implicit_crossection.og_ixsctn" ) );
         geode::Logger::info( "TEST SUCCESS" );

@@ -117,6 +117,18 @@ namespace geode
         void compute_top_and_bottom_horizons();
 
     private:
+        void check_stack_components( const Horizon< dimension >& horizon,
+            const StratigraphicUnit< dimension >& strati_unit ) const;
+
+        void set_above_relation(
+            const ComponentID& above, const ComponentID& under );
+
+        /*!
+         * Recomputes top and bottom horizons if they were already computed
+         */
+        void update_top_and_bottom_horizons();
+
+    private:
         HorizonsStack< dimension >& horizons_stack_;
     };
     ALIAS_2D_AND_3D( HorizonsStackBuilder );

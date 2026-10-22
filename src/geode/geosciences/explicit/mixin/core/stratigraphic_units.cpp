@@ -103,7 +103,7 @@ namespace geode
         std::string_view directory, StratigraphicUnitsBuilderKey /*unused*/ )
     {
         impl_->load_components(
-            absl::StrCat( directory, "/stratigraphic_units" ) );
+            absl::StrCat( directory, "/stratigraphic_units" ), false );
     }
 
     template < index_t dimension >

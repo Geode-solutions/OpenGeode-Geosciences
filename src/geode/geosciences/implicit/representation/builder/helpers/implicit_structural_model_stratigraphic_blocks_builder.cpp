@@ -22,6 +22,9 @@
  */
 #include <geode/geosciences/implicit/representation/builder/helpers/implicit_structural_model_stratigraphic_blocks_builder.hpp>
 
+#include <absl/container/flat_hash_map.h>
+#include <absl/container/flat_hash_set.h>
+
 #include <geode/basic/small_set.hpp>
 
 #include <geode/geosciences/implicit/representation/builder/implicit_structural_model_builder.hpp>
@@ -54,6 +57,8 @@ namespace
                     continue;
                 }
                 builder_.add_stratigraphic_unit( stratigraphic_unit.id() );
+                created_stratigraphic_units_.push_back(
+                    stratigraphic_unit.id() );
                 if( const auto name = stratigraphic_unit.name() )
                 {
                     builder_.set_stratigraphic_unit_name(
@@ -62,45 +67,50 @@ namespace
             }
         }
 
-        ~BlockToStratigraphicUnitBuilder()
+        /*!
+         * Remove the stratigraphic units created by this builder which have
+         * not been assigned any block.
+         */
+        void remove_empty_created_stratigraphic_units()
         {
-            std::vector< geode::uuid > to_remove;
-            for( const auto& stratigraphic_unit : model_.stratigraphic_units() )
+            for( const auto& stratigraphic_unit_id :
+                created_stratigraphic_units_ )
             {
-                if( model_.nb_items( stratigraphic_unit.id() ) == 0 )
+                if( model_.has_stratigraphic_unit( stratigraphic_unit_id )
+                    && model_.nb_items( stratigraphic_unit_id ) == 0 )
                 {
-                    to_remove.push_back( stratigraphic_unit.id() );
+                    builder_.remove_stratigraphic_unit(
+                        model_.stratigraphic_unit( stratigraphic_unit_id ) );
                 }
             }
-            for( const auto& stratigraphic_unit_id : to_remove )
-            {
-                builder_.remove_stratigraphic_unit(
-                    model_.stratigraphic_unit( stratigraphic_unit_id ) );
-            }
+            created_stratigraphic_units_.clear();
         }
 
         geode::StratigraphicUnitToBlockResult
             assign_blocks_to_stratigraphic_units()
         {
-            bool run{ false };
             for( const auto& block : model_.blocks() )
             {
                 if( is_in_stratigraphic_unit( block ) )
                 {
                     result_.already_assigned_blocks.push_back( block.id() );
-                }
-                else
-                {
-                    run = true;
+                    assigned_blocks_.insert( block.id() );
                 }
             }
-            while( run )
+            std::vector< const geode::Block3D* > to_process;
+            for( const auto& block : model_.blocks() )
             {
-                run = one_step_assign_blocks_to_stratigraphic_units();
+                try_assign_block( block, to_process );
+            }
+            while( !to_process.empty() )
+            {
+                const auto& block = *to_process.back();
+                to_process.pop_back();
+                try_assign_block( block, to_process );
             }
             for( const auto& block : model_.blocks() )
             {
-                if( !is_in_stratigraphic_unit( block ) )
+                if( !assigned_blocks_.contains( block.id() ) )
                 {
                     result_.unassigned_blocks.push_back( block.id() );
                 }
@@ -109,22 +119,68 @@ namespace
         }
 
     private:
-        bool one_step_assign_blocks_to_stratigraphic_units()
+        struct HorizonBoundary
         {
-            bool block_assigned_in_step{ false };
-            for( const auto& block : model_.blocks() )
+            const geode::Surface3D& surface;
+            const geode::Horizon3D& horizon;
+        };
+
+        /*!
+         * Try to assign the block and, if successful, add its unassigned
+         * neighbors through horizons to the blocks to process, since they may
+         * now be assigned from this block.
+         */
+        void try_assign_block( const geode::Block3D& block,
+            std::vector< const geode::Block3D* >& to_process )
+        {
+            if( assigned_blocks_.contains( block.id() ) )
             {
-                if( is_in_stratigraphic_unit( block ) )
+                return;
+            }
+            if( !process_block( block ) )
+            {
+                return;
+            }
+            result_.assigned_blocks.push_back( block.id() );
+            assigned_blocks_.insert( block.id() );
+            for( const auto& boundary : horizon_boundaries( block ) )
+            {
+                const auto neighbor = neighbor_block( block, boundary.surface );
+                if( neighbor && !assigned_blocks_.contains( neighbor.value() ) )
                 {
-                    continue;
-                }
-                if( process_block( block ) )
-                {
-                    result_.assigned_blocks.push_back( block.id() );
-                    block_assigned_in_step = true;
+                    to_process.push_back( &model_.block( neighbor.value() ) );
                 }
             }
-            return block_assigned_in_step;
+        }
+
+        const std::vector< HorizonBoundary >& horizon_boundaries(
+            const geode::Block3D& block )
+        {
+            const auto [it, inserted] =
+                block_horizon_boundaries_.try_emplace( block.id() );
+            if( !inserted )
+            {
+                return it->second;
+            }
+            for( const auto& boundary : model_.boundaries( block ) )
+            {
+                for( const auto& collection :
+                    model_.collections( boundary.id() ) )
+                {
+                    if( collection.type
+                        != geode::Horizon3D::component_type_static() )
+                    {
+                        continue;
+                    }
+                    if( !horizons_stack_.has_horizon( collection.id ) )
+                    {
+                        continue;
+                    }
+                    it->second.push_back(
+                        { boundary, model_.horizon( collection.id ) } );
+                }
+            }
+            return it->second;
         }
 
         bool process_block( const geode::Block3D& block )
@@ -142,7 +198,7 @@ namespace
             return false;
         }
 
-        bool is_in_stratigraphic_unit( const geode::Block3D& block )
+        bool is_in_stratigraphic_unit( const geode::Block3D& block ) const
         {
             for( const auto& block_collection :
                 model_.collections( block.id() ) )
@@ -170,6 +226,18 @@ namespace
             return std::nullopt;
         }
 
+        bool add_block_in_stratigraphic_unit( const geode::Block3D& block,
+            const std::optional< geode::uuid >& stratigraphic_unit_id )
+        {
+            if( !stratigraphic_unit_id )
+            {
+                return false;
+            }
+            builder_.add_block_in_stratigraphic_unit( block,
+                model_.stratigraphic_unit( stratigraphic_unit_id.value() ) );
+            return true;
+        }
+
         bool assign_through_conformal_horizon( const geode::Block3D& block,
             const geode::Surface3D& block_boundary,
             const geode::Horizon3D& conformal_horizon )
@@ -180,20 +248,22 @@ namespace
                 return false;
             }
             const auto above_stratigraphic_unit =
-                horizons_stack_.above( conformal_horizon.id() ).value();
+                horizons_stack_.above( conformal_horizon.id() );
             const auto under_stratigraphic_unit =
-                horizons_stack_.under( conformal_horizon.id() ).value();
-            if( model_.is_item( neighbor.value(), above_stratigraphic_unit ) )
+                horizons_stack_.under( conformal_horizon.id() );
+            if( above_stratigraphic_unit && under_stratigraphic_unit
+                && model_.is_item(
+                    neighbor.value(), above_stratigraphic_unit.value() ) )
             {
-                builder_.add_block_in_stratigraphic_unit( block,
-                    model_.stratigraphic_unit( under_stratigraphic_unit ) );
-                return true;
+                return add_block_in_stratigraphic_unit(
+                    block, under_stratigraphic_unit );
             }
-            if( model_.is_item( neighbor.value(), under_stratigraphic_unit ) )
+            if( above_stratigraphic_unit && under_stratigraphic_unit
+                && model_.is_item(
+                    neighbor.value(), under_stratigraphic_unit.value() ) )
             {
-                builder_.add_block_in_stratigraphic_unit( block,
-                    model_.stratigraphic_unit( above_stratigraphic_unit ) );
-                return true;
+                return add_block_in_stratigraphic_unit(
+                    block, above_stratigraphic_unit );
             }
             return false;
         }
@@ -208,14 +278,13 @@ namespace
                 return false;
             }
             const auto under_stratigraphic_unit =
-                horizons_stack_.under( erosion.id() ).value();
-            if( model_.is_item( neighbor.value(), under_stratigraphic_unit ) )
+                horizons_stack_.under( erosion.id() );
+            if( under_stratigraphic_unit
+                && model_.is_item(
+                    neighbor.value(), under_stratigraphic_unit.value() ) )
             {
-                const auto above_stratigraphic_unit =
-                    horizons_stack_.above( erosion.id() ).value();
-                builder_.add_block_in_stratigraphic_unit( block,
-                    model_.stratigraphic_unit( above_stratigraphic_unit ) );
-                return true;
+                return add_block_in_stratigraphic_unit(
+                    block, horizons_stack_.above( erosion.id() ) );
             }
             return false;
         }
@@ -230,14 +299,13 @@ namespace
                 return false;
             }
             const auto above_stratigraphic_unit =
-                horizons_stack_.above( erosion.id() ).value();
-            if( model_.is_item( neighbor.value(), above_stratigraphic_unit ) )
+                horizons_stack_.above( erosion.id() );
+            if( above_stratigraphic_unit
+                && model_.is_item(
+                    neighbor.value(), above_stratigraphic_unit.value() ) )
             {
-                const auto under_stratigraphic_unit =
-                    horizons_stack_.under( erosion.id() ).value();
-                builder_.add_block_in_stratigraphic_unit( block,
-                    model_.stratigraphic_unit( under_stratigraphic_unit ) );
-                return true;
+                return add_block_in_stratigraphic_unit(
+                    block, horizons_stack_.under( erosion.id() ) );
             }
             return false;
         }
@@ -246,22 +314,22 @@ namespace
             const geode::SmallSet< geode::uuid >& conformal_horizons )
         {
             const auto above_stratigraphic_unit =
-                horizons_stack_.above( conformal_horizons.at( 0 ) ).value();
+                horizons_stack_.above( conformal_horizons.at( 0 ) );
             if( above_stratigraphic_unit
-                == horizons_stack_.under( conformal_horizons.at( 1 ) ).value() )
+                && above_stratigraphic_unit
+                       == horizons_stack_.under( conformal_horizons.at( 1 ) ) )
             {
-                builder_.add_block_in_stratigraphic_unit( block,
-                    model_.stratigraphic_unit( above_stratigraphic_unit ) );
-                return true;
+                return add_block_in_stratigraphic_unit(
+                    block, above_stratigraphic_unit );
             }
             const auto under_stratigraphic_unit =
-                horizons_stack_.under( conformal_horizons.at( 0 ) ).value();
+                horizons_stack_.under( conformal_horizons.at( 0 ) );
             if( under_stratigraphic_unit
-                == horizons_stack_.above( conformal_horizons.at( 1 ) ).value() )
+                && under_stratigraphic_unit
+                       == horizons_stack_.above( conformal_horizons.at( 1 ) ) )
             {
-                builder_.add_block_in_stratigraphic_unit( block,
-                    model_.stratigraphic_unit( under_stratigraphic_unit ) );
-                return true;
+                return add_block_in_stratigraphic_unit(
+                    block, under_stratigraphic_unit );
             }
             return false;
         }
@@ -271,23 +339,17 @@ namespace
             const geode::uuid& conformal_horizon_id,
             const geode::uuid& erosion_id )
         {
+            // Block between the conformal horizon (bottom) and the erosion
             if( horizons_stack_.is_above( erosion_id, conformal_horizon_id ) )
             {
-                builder_.add_block_in_stratigraphic_unit(
-                    block, model_.stratigraphic_unit(
-                               horizons_stack_.above( conformal_horizon_id )
-                                   .value() ) );
-                return true;
+                return add_block_in_stratigraphic_unit(
+                    block, horizons_stack_.above( conformal_horizon_id ) );
             }
-            if( horizons_stack_.is_directly_above(
-                    horizons_stack_.above( conformal_horizon_id ).value(),
-                    erosion_id ) )
+            // Block between the erosion (bottom) and the conformal horizon
+            if( horizons_stack_.is_above( conformal_horizon_id, erosion_id ) )
             {
-                builder_.add_block_in_stratigraphic_unit(
-                    block, model_.stratigraphic_unit(
-                               horizons_stack_.under( conformal_horizon_id )
-                                   .value() ) );
-                return true;
+                return add_block_in_stratigraphic_unit(
+                    block, horizons_stack_.under( conformal_horizon_id ) );
             }
             return false;
         }
@@ -297,23 +359,17 @@ namespace
             const geode::uuid& conformal_horizon_id,
             const geode::uuid& baselap_id )
         {
+            // Block between the baselap (bottom) and the conformal horizon
             if( horizons_stack_.is_above( conformal_horizon_id, baselap_id ) )
             {
-                builder_.add_block_in_stratigraphic_unit(
-                    block, model_.stratigraphic_unit(
-                               horizons_stack_.under( conformal_horizon_id )
-                                   .value() ) );
-                return true;
+                return add_block_in_stratigraphic_unit(
+                    block, horizons_stack_.under( conformal_horizon_id ) );
             }
-            if( horizons_stack_.is_directly_above(
-                    horizons_stack_.above( baselap_id ).value(),
-                    conformal_horizon_id ) )
+            // Block between the conformal horizon (bottom) and the baselap
+            if( horizons_stack_.is_above( baselap_id, conformal_horizon_id ) )
             {
-                builder_.add_block_in_stratigraphic_unit(
-                    block, model_.stratigraphic_unit(
-                               horizons_stack_.above( conformal_horizon_id )
-                                   .value() ) );
-                return true;
+                return add_block_in_stratigraphic_unit(
+                    block, horizons_stack_.above( conformal_horizon_id ) );
             }
             return false;
         }
@@ -322,49 +378,39 @@ namespace
             const geode::Block3D& block )
         {
             std::optional< HorizonsData > horizons_data{ std::in_place };
-            for( const auto& boundary : model_.boundaries( block ) )
+            for( const auto& [boundary, horizon] : horizon_boundaries( block ) )
             {
-                for( const auto& collection :
-                    model_.collections( boundary.id() ) )
+                if( horizon.contact_type()
+                    == geode::Horizon3D::CONTACT_TYPE::conformal )
                 {
-                    if( collection.type
-                        != geode::Horizon3D::component_type_static() )
+                    if( assign_through_conformal_horizon(
+                            block, boundary, horizon ) )
                     {
-                        continue;
+                        return std::nullopt;
                     }
-                    const auto& horizon = model_.horizon( collection.id );
-                    if( horizon.contact_type()
-                        == geode::Horizon3D::CONTACT_TYPE::conformal )
+                    horizons_data->conformal.insert( horizon.id() );
+                }
+                else if( horizon.contact_type()
+                         == geode::Horizon3D::CONTACT_TYPE::erosion )
+                {
+                    if( assign_through_erosion( block, boundary, horizon ) )
                     {
-                        if( assign_through_conformal_horizon(
-                                block, boundary, horizon ) )
-                        {
-                            return std::nullopt;
-                        }
-                        horizons_data->conformal.insert( horizon.id() );
+                        return std::nullopt;
                     }
-                    else if( horizon.contact_type()
-                             == geode::Horizon3D::CONTACT_TYPE::erosion )
+                    horizons_data->erosion.insert( horizon.id() );
+                }
+                else if( horizon.contact_type()
+                         == geode::Horizon3D::CONTACT_TYPE::baselap )
+                {
+                    if( assign_through_baselap( block, boundary, horizon ) )
                     {
-                        if( assign_through_erosion( block, boundary, horizon ) )
-                        {
-                            return std::nullopt;
-                        }
-                        horizons_data->erosion.insert( horizon.id() );
+                        return std::nullopt;
                     }
-                    else if( horizon.contact_type()
-                             == geode::Horizon3D::CONTACT_TYPE::baselap )
-                    {
-                        if( assign_through_baselap( block, boundary, horizon ) )
-                        {
-                            return std::nullopt;
-                        }
-                        horizons_data->baselap.insert( horizon.id() );
-                    }
-                    else
-                    {
-                        horizons_data->other.insert( horizon.id() );
-                    }
+                    horizons_data->baselap.insert( horizon.id() );
+                }
+                else
+                {
+                    horizons_data->other.insert( horizon.id() );
                 }
             }
             return horizons_data;
@@ -381,6 +427,11 @@ namespace
             {
                 return assign_between_two_conformal_horizons(
                     block, horizons_data.conformal );
+            }
+            if( horizons_data.conformal.size() > 2 )
+            {
+                // Ambiguous configuration: let the neighbors decide
+                return false;
             }
             // only one conformal horizon
             if( !horizons_data.erosion.empty() )
@@ -403,6 +454,10 @@ namespace
         const geode::HorizonsStack3D& horizons_stack_;
         geode::ImplicitStructuralModelBuilder builder_;
         geode::StratigraphicUnitToBlockResult result_;
+        std::vector< geode::uuid > created_stratigraphic_units_;
+        absl::flat_hash_set< geode::uuid > assigned_blocks_;
+        absl::flat_hash_map< geode::uuid, std::vector< HorizonBoundary > >
+            block_horizon_boundaries_;
     };
 } // namespace
 namespace geode
@@ -438,6 +493,16 @@ namespace geode
             "[complete_stratigraphic_unit_block_relationships_from_available_"
             "data] Implicit structural model has no horizons." );
         BlockToStratigraphicUnitBuilder builder{ implicit_model };
-        return builder.assign_blocks_to_stratigraphic_units();
+        try
+        {
+            auto result = builder.assign_blocks_to_stratigraphic_units();
+            builder.remove_empty_created_stratigraphic_units();
+            return result;
+        }
+        catch( ... )
+        {
+            builder.remove_empty_created_stratigraphic_units();
+            throw;
+        }
     }
 } // namespace geode

@@ -25,6 +25,8 @@
 
 #include <async++.h>
 
+#include <cmath>
+
 #include <bitsery/ext/std_map.h>
 
 #include <geode/basic/attribute_manager.hpp>
@@ -62,6 +64,7 @@ namespace geode
             const ImplicitCrossSection& model )
         {
             instantiate_implicit_attribute_on_surfaces( model );
+            surface_mesh_aabb_trees_.clear();
             surface_mesh_aabb_trees_.reserve( model.nb_surfaces() );
             for( const auto& surface : model.surfaces() )
             {
@@ -106,15 +109,15 @@ namespace geode
             DistanceToTriangle2D distance_action{
                 surface.mesh< TriangulatedSurface2D >()
             };
-            const auto closest_triangle =
-                std::get< 0 >( surface_mesh_aabb_trees_
-                        .at( surface.id() )( create_aabb_tree, surface.mesh() )
-                        .closest_element_box( point, distance_action ) );
-            if( distance_action( point, closest_triangle ) < GLOBAL_EPSILON )
+            const auto [closest_triangle, distance] =
+                surface_mesh_aabb_trees_
+                    .at( surface.id() )( create_aabb_tree, surface.mesh() )
+                    .closest_element_box( point, distance_action );
+            if( closest_triangle == NO_ID || distance >= GLOBAL_EPSILON )
             {
-                return closest_triangle;
+                return std::nullopt;
             }
-            return std::nullopt;
+            return closest_triangle;
         }
 
         absl::flat_hash_map< uuid, TriangulatedSurfaceScalarFunction2D >&
@@ -173,7 +176,7 @@ namespace geode
         std::optional< uuid > containing_stratigraphic_unit(
             double implicit_function_value ) const
         {
-            if( horizon_isovalues_.empty() )
+            if( std::isnan( implicit_function_value ) )
             {
                 return std::nullopt;
             }
@@ -182,46 +185,48 @@ namespace geode
             {
                 return std::nullopt;
             }
-            auto horizon_id = horizon_isovalues_.begin()->first;
-            while( true )
+            /* Find the highest horizon the value is above (see
+             * implicit_value_is_above_horizon) and the lowest horizon of
+             * the stack. Horizons without isovalue are ignored. */
+            const auto is_lower = [&increasing]( double lhs, double rhs ) {
+                return increasing.value() ? lhs < rhs : lhs > rhs;
+            };
+            const uuid* horizon_under_value{ nullptr };
+            double horizon_under_value_isovalue{ 0 };
+            const uuid* lowest{ nullptr };
+            double lowest_value{ 0 };
+            for( const auto& [horizon_id, isovalue] : horizon_isovalues_ )
             {
-                if( increasing.value()
-                    == ( implicit_function_value
-                         >= horizon_isovalues_.at( horizon_id ) ) )
+                if( !horizons_stack_.has_horizon( horizon_id ) )
                 {
-                    const auto unit_above = horizons_stack_.above( horizon_id );
-                    if( !unit_above )
-                    {
-                        return std::nullopt;
-                    }
-                    const auto horizon_above =
-                        horizons_stack_.above( unit_above.value() );
-                    if( !horizon_above
-                        || increasing.value()
-                               == ( implicit_function_value
-                                    < horizon_isovalues_.at( horizon_id ) ) )
-                    {
-                        return unit_above.value();
-                    }
-                    horizon_id = horizon_above.value();
                     continue;
                 }
-                const auto unit_under = horizons_stack_.under( horizon_id );
-                if( !unit_under )
+                if( !lowest || is_lower( isovalue, lowest_value ) )
                 {
-                    return std::nullopt;
+                    lowest = &horizon_id;
+                    lowest_value = isovalue;
                 }
-                const auto horizon_under =
-                    horizons_stack_.under( unit_under.value() );
-                if( !horizon_under
-                    || increasing.value()
-                           == ( implicit_function_value
-                                > horizon_isovalues_.at( horizon_id ) ) )
+                const auto value_is_above =
+                    increasing.value()
+                    == ( implicit_function_value >= isovalue );
+                if( value_is_above
+                    && ( !horizon_under_value
+                         || is_lower(
+                             horizon_under_value_isovalue, isovalue ) ) )
                 {
-                    return unit_under.value();
+                    horizon_under_value = &horizon_id;
+                    horizon_under_value_isovalue = isovalue;
                 }
-                horizon_id = horizon_under.value();
             }
+            if( horizon_under_value )
+            {
+                return horizons_stack_.above( *horizon_under_value );
+            }
+            if( lowest )
+            {
+                return horizons_stack_.under( *lowest );
+            }
+            return std::nullopt;
         }
 
         void instantiate_implicit_attribute_on_surfaces(
@@ -231,15 +236,11 @@ namespace geode
             implicit_attributes_.reserve( model.nb_surfaces() );
             for( const auto& surface : model.surfaces() )
             {
-                OpenGeodeGeosciencesImplicitException::check_exception(
-                    ( surface.mesh().type_name()
-                        == TriangulatedSurface2D::type_name_static() ),
-                    nullptr, OpenGeodeException::TYPE::data,
-                    "[ImplicitCrossSection::instantiate_implicit_"
-                    "attribute_on_surfaces] Surfaces must be meshed as "
-                    "TriangulatedSurface2D, which is not the case for surface "
-                    "with uuid '",
-                    surface.id().string(), "'." );
+                if( surface.mesh().type_name()
+                    != TriangulatedSurface2D::type_name_static() )
+                {
+                    continue;
+                }
                 if( surface.mesh().vertex_attribute_manager().attribute_exists(
                         implicit_attribute_id_ ) )
                 {
@@ -292,6 +293,75 @@ namespace geode
             horizon_isovalues_[horizon.id()] = isovalue;
         }
 
+        void adopt_implicit_attribute_id_if_present(
+            const ImplicitCrossSection& model, const uuid& attribute_id )
+        {
+            for( const auto& surface : model.surfaces() )
+            {
+                if( surface.mesh().vertex_attribute_manager().attribute_exists(
+                        attribute_id ) )
+                {
+                    implicit_attribute_id_ = attribute_id;
+                    return;
+                }
+            }
+        }
+
+        void check_horizons_consistency( const ImplicitCrossSection& model )
+        {
+            for( auto it = horizon_isovalues_.begin();
+                it != horizon_isovalues_.end(); )
+            {
+                if( horizons_stack_.has_horizon( it->first ) )
+                {
+                    ++it;
+                    continue;
+                }
+                Logger::warning(
+                    "[ImplicitCrossSection] Removing isovalue of Horizon ",
+                    it->first.string(),
+                    " which is not defined in the HorizonsStack." );
+                horizon_isovalues_.erase( it++ );
+            }
+            for( const auto& horizon : model.horizons() )
+            {
+                if( !horizons_stack_.has_horizon( horizon.id() ) )
+                {
+                    Logger::warning( "[ImplicitCrossSection] Horizon ",
+                        horizon.name().value_or( horizon.id().string() ),
+                        " is not defined in the HorizonsStack." );
+                }
+            }
+        }
+
+        void remove_duplicated_implicit_attributes(
+            const ImplicitCrossSection& model )
+        {
+            for( const auto& surface : model.surfaces() )
+            {
+                auto& manager = surface.mesh().vertex_attribute_manager();
+                const auto attribute_ids = manager.attribute_ids_matching_name(
+                    IMPLICIT_ATTRIBUTE_NAME );
+                if( !attribute_ids )
+                {
+                    continue;
+                }
+                for( const auto& attribute_id : attribute_ids.value() )
+                {
+                    if( attribute_id == implicit_attribute_id_ )
+                    {
+                        continue;
+                    }
+                    Logger::warning(
+                        "[ImplicitCrossSection] Removing duplicated implicit "
+                        "attribute ",
+                        attribute_id.string(), " on Surface ",
+                        surface.id().string() );
+                    manager.delete_attribute( attribute_id );
+                }
+            }
+        }
+
     private:
         std::optional< bool > increasing_stack_isovalues() const
         {
@@ -304,9 +374,10 @@ namespace geode
                     const auto it0 = horizon_isovalues_.find( above.value() );
                     const auto it1 = horizon_isovalues_.find( under.value() );
                     if( it0 == horizon_isovalues_.end()
-                        || it1 == horizon_isovalues_.end() )
+                        || it1 == horizon_isovalues_.end()
+                        || it0->second == it1->second )
                     {
-                        return std::nullopt;
+                        continue;
                     }
                     return it0->second > it1->second;
                 }
@@ -367,11 +438,9 @@ namespace geode
         ImplicitCrossSection&& other ) noexcept
         : CrossSection{ std::move( other ) }, impl_{ std::move( other.impl_ ) }
     {
-        impl_->initialize_implicit_query_trees( *this );
     }
 
-    ImplicitCrossSection::ImplicitCrossSection(
-        CrossSection&& cross_section ) noexcept
+    ImplicitCrossSection::ImplicitCrossSection( CrossSection&& cross_section )
         : CrossSection{ std::move( cross_section ) }
     {
         impl_->initialize_implicit_query_trees( *this );
@@ -380,10 +449,12 @@ namespace geode
     ImplicitCrossSection::ImplicitCrossSection(
         const ImplicitCrossSection& initial_model,
         Section&& section,
-        const ModelGenericMapping& initial_to_section_mappings ) noexcept
+        const ModelGenericMapping& initial_to_section_mappings )
         : CrossSection{ initial_model, std::move( section ),
               initial_to_section_mappings }
     {
+        impl_->adopt_implicit_attribute_id_if_present(
+            *this, initial_model.implicit_attribute_id() );
         impl_->initialize_implicit_query_trees( *this );
         ModelCopyMapping mappings;
         detail::add_geology_clone_mapping< CrossSection >(
@@ -401,7 +472,18 @@ namespace geode
         ModelCopyMapping clone_mappings;
         detail::add_geology_clone_mapping< CrossSection >(
             clone_mappings, *this );
+        detail::add_horizons_clone_mapping( this->horizons_stack(),
+            clone_mappings[Horizon2D::component_type_static()] );
+        detail::add_stratigraphic_units_clone_mapping( this->horizons_stack(),
+            clone_mappings[StratigraphicUnit2D::component_type_static()] );
         clone_builder.copy_implicit_information( clone_mappings, *this );
+        auto& surfaces_mapping =
+            clone_mappings[Surface2D::component_type_static()];
+        for( const auto& surface : this->surfaces() )
+        {
+            surfaces_mapping.map( surface.id(), surface.id() );
+        }
+        clone_builder.copy_implicit_attribute_values( clone_mappings, *this );
         return model_clone;
     }
 
@@ -517,9 +599,15 @@ namespace geode
             Growable< Archive, ImplicitCrossSection >{
                 { []( Archive& a, ImplicitCrossSection& model ) {
                      a.object( model.impl_ );
+                     model.impl_->check_horizons_consistency( model );
                      for( const auto& surface : model.surfaces() )
                      {
                          const auto& surface_mesh = surface.mesh();
+                         if( surface_mesh.type_name()
+                             != TriangulatedSurface2D::type_name_static() )
+                         {
+                             continue;
+                         }
                          AttributeValues< double >
                              implicit_attribute_default_values;
                          implicit_attribute_default_values.default_value = 0;
@@ -556,6 +644,10 @@ namespace geode
                                      vertex_id, old_implicit_attribute->value(
                                                     vertex_id ) );
                              }
+                             surface_mesh.vertex_attribute_manager()
+                                 .delete_attribute(
+                                     old_implicit_attribute_id.value()
+                                         .front() );
                          }
                          else
                          {
@@ -571,7 +663,14 @@ namespace geode
                  },
                     []( Archive& a, ImplicitCrossSection& model ) {
                         a.object( model.impl_ );
-                        model.impl_->initialize_implicit_query_trees( model );
+                        if constexpr( std::is_same_v< Archive, Deserializer > )
+                        {
+                            model.impl_->check_horizons_consistency( model );
+                            model.impl_->remove_duplicated_implicit_attributes(
+                                model );
+                            model.impl_->initialize_implicit_query_trees(
+                                model );
+                        }
                     } } } );
     }
 

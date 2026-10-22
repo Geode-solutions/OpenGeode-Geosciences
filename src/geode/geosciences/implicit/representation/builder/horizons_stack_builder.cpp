@@ -23,6 +23,8 @@
 
 #include <geode/geosciences/implicit/representation/builder/horizons_stack_builder.hpp>
 
+#include <geode/basic/logger.hpp>
+
 #include <geode/geosciences/explicit/mixin/core/horizon.hpp>
 #include <geode/geosciences/explicit/mixin/core/stratigraphic_unit.hpp>
 #include <geode/geosciences/explicit/representation/builder/detail/copy.hpp>
@@ -207,6 +209,7 @@ namespace geode
                 { Horizon< dimension >::component_type_static(),
                     under.value() } );
         }
+        // Also updates top and bottom horizons
         this->remove_stratigraphic_unit( strati_unit );
         return info;
     }
@@ -215,9 +218,9 @@ namespace geode
     void HorizonsStackBuilder< dimension >::remove_horizon(
         const Horizon< dimension >& horizon )
     {
-        /// Change top/bottom horizon or recompute ?
         unregister_component( horizon.id() );
         this->delete_horizon( horizon );
+        update_top_and_bottom_horizons();
     }
 
     template < index_t dimension >
@@ -226,6 +229,16 @@ namespace geode
     {
         unregister_component( stratigraphic_unit.id() );
         this->delete_stratigraphic_unit( stratigraphic_unit );
+        update_top_and_bottom_horizons();
+    }
+
+    template < index_t dimension >
+    void HorizonsStackBuilder< dimension >::update_top_and_bottom_horizons()
+    {
+        if( horizons_stack_.top_horizon() || horizons_stack_.bottom_horizon() )
+        {
+            compute_top_and_bottom_horizons();
+        }
     }
 
     template < index_t dimension >
@@ -233,7 +246,8 @@ namespace geode
         const Horizon< dimension >& horizon_above,
         const StratigraphicUnit< dimension >& strati_unit_under )
     {
-        StratigraphicRelationshipsBuilder::add_above_relation(
+        check_stack_components( horizon_above, strati_unit_under );
+        set_above_relation(
             horizon_above.component_id(), strati_unit_under.component_id() );
     }
 
@@ -242,8 +256,54 @@ namespace geode
         const Horizon< dimension >& horizon_under,
         const StratigraphicUnit< dimension >& strati_unit_above )
     {
-        StratigraphicRelationshipsBuilder::add_above_relation(
+        check_stack_components( horizon_under, strati_unit_above );
+        set_above_relation(
             strati_unit_above.component_id(), horizon_under.component_id() );
+    }
+
+    template < index_t dimension >
+    void HorizonsStackBuilder< dimension >::check_stack_components(
+        const Horizon< dimension >& horizon,
+        const StratigraphicUnit< dimension >& strati_unit ) const
+    {
+        OpenGeodeGeosciencesImplicitException::check_exception(
+            horizons_stack_.has_horizon( horizon.id() ), nullptr,
+            OpenGeodeException::TYPE::data, "[HorizonsStackBuilder] Horizon ",
+            horizon.component_id().string(),
+            " does not exist in the HorizonsStack" );
+        OpenGeodeGeosciencesImplicitException::check_exception(
+            horizons_stack_.has_stratigraphic_unit( strati_unit.id() ), nullptr,
+            OpenGeodeException::TYPE::data,
+            "[HorizonsStackBuilder] Stratigraphic unit ",
+            strati_unit.component_id().string(),
+            " does not exist in the HorizonsStack" );
+    }
+
+    template < index_t dimension >
+    void HorizonsStackBuilder< dimension >::set_above_relation(
+        const ComponentID& above, const ComponentID& under )
+    {
+        // In a stack, each component has at most one component directly
+        // above and one directly under: the first relation set is kept
+        // (e.g. an erosion horizon topping several units is kept above the
+        // first given unit, the youngest one in usual descriptions)
+        const auto existing_under = horizons_stack_.under( above.id );
+        if( existing_under && existing_under.value() != under.id )
+        {
+            Logger::warning( "[HorizonsStackBuilder] ", above.string(),
+                " is already directly above ", existing_under->string(),
+                ", relation with ", under.string(), " is ignored" );
+            return;
+        }
+        const auto existing_above = horizons_stack_.above( under.id );
+        if( existing_above && existing_above.value() != above.id )
+        {
+            Logger::warning( "[HorizonsStackBuilder] ", under.string(),
+                " is already directly under ", existing_above->string(),
+                ", relation with ", above.string(), " is ignored" );
+            return;
+        }
+        StratigraphicRelationshipsBuilder::add_above_relation( above, under );
     }
 
     template < index_t dimension >

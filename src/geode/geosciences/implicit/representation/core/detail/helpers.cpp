@@ -23,7 +23,10 @@
 
 #include <geode/geosciences/implicit/representation/core/detail/helpers.hpp>
 
+#include <cmath>
+
 #include <geode/basic/attribute_manager.hpp>
+#include <geode/basic/logger.hpp>
 #include <geode/basic/variable_attribute.hpp>
 
 #include <geode/geometry/basic_objects/tetrahedron.hpp>
@@ -85,6 +88,11 @@ namespace geode
             ImplicitCrossSectionBuilder builder{ section };
             for( const auto& surface : section.surfaces() )
             {
+                if( !surface.mesh().vertex_attribute_manager().attribute_exists(
+                        section.implicit_attribute_id() ) )
+                {
+                    continue;
+                }
                 for( const auto vertex_id :
                     Range{ surface.mesh().nb_vertices() } )
                 {
@@ -106,6 +114,15 @@ namespace geode
             double scaling_factor =
                 strati_lengths.value( 0 ) * section_lengths.value( 1 )
                 / ( section_lengths.value( 0 ) * strati_lengths.value( 1 ) );
+            if( !std::isfinite( scaling_factor ) || scaling_factor == 0 )
+            {
+                Logger::warning(
+                    "[rescale_implicit_value_to_bbox_scale] "
+                    "Degenerate StratigraphicSection bounding box or "
+                    "stratigraphic bounding box: implicit values "
+                    "are not rescaled." );
+                return;
+            }
             rescale_implicit_value( section, scaling_factor );
         }
 
@@ -115,6 +132,11 @@ namespace geode
             ImplicitStructuralModelBuilder builder{ model };
             for( const auto& block : model.blocks() )
             {
+                if( !block.mesh().vertex_attribute_manager().attribute_exists(
+                        model.implicit_attribute_id() ) )
+                {
+                    continue;
+                }
                 for( const auto vertex_id :
                     Range{ block.mesh().nb_vertices() } )
                 {
@@ -134,6 +156,15 @@ namespace geode
             auto scaling_factor =
                 strati_lengths.value( 0 ) * model_lengths.value( 2 )
                 / ( model_lengths.value( 0 ) * strati_lengths.value( 2 ) );
+            if( !std::isfinite( scaling_factor ) || scaling_factor == 0 )
+            {
+                Logger::warning(
+                    "[rescale_implicit_value_to_bbox_scale] "
+                    "Degenerate StratigraphicModel bounding box or "
+                    "stratigraphic bounding box: implicit values "
+                    "are not rescaled." );
+                return;
+            }
             rescale_implicit_value( model, scaling_factor );
         }
 
@@ -224,84 +255,57 @@ namespace geode
         ImplicitCrossSection implicit_section_from_cross_section_scalar_field(
             CrossSection&& section, const uuid& scalar_atribute_id )
         {
-            for( const auto& surface : section.surfaces() )
+            ImplicitCrossSection implicit_section{ std::move( section ) };
+            ImplicitCrossSectionBuilder builder{ implicit_section };
+            for( const auto& surface : implicit_section.surfaces() )
             {
                 const auto& surface_mesh = surface.mesh();
-                auto scalar_attribute =
+                if( !surface_mesh.vertex_attribute_manager().attribute_exists(
+                        implicit_section.implicit_attribute_id() ) )
+                {
+                    continue;
+                }
+                const auto scalar_attribute =
                     surface_mesh.vertex_attribute_manager()
                         .find_read_only_attribute<
                             ImplicitCrossSection::implicit_attribute_type >(
                             scalar_atribute_id );
-                AttributeValues< ImplicitCrossSection::implicit_attribute_type >
-                    implicit_attribute_default_values;
-                implicit_attribute_default_values.default_value = 0;
-                implicit_attribute_default_values.no_value = 0;
-                AttributeProperties implicit_attribute_properties;
-                implicit_attribute_properties.assignable = false;
-                implicit_attribute_properties.interpolable = true;
-                implicit_attribute_properties.transferable = true;
-                auto implicit_attribute_id =
-                    surface_mesh.vertex_attribute_manager()
-                        .create_attribute< VariableAttribute,
-                            ImplicitCrossSection::implicit_attribute_type >(
-                            ImplicitCrossSection::IMPLICIT_ATTRIBUTE_NAME,
-                            implicit_attribute_default_values,
-                            implicit_attribute_properties );
-                auto implicit_attribute =
-                    surface_mesh.vertex_attribute_manager()
-                        .find_attribute< VariableAttribute,
-                            ImplicitCrossSection::implicit_attribute_type >(
-                            implicit_attribute_id );
                 for( const auto vertex_id :
                     Range{ surface_mesh.nb_vertices() } )
                 {
-                    implicit_attribute->set_value(
-                        vertex_id, scalar_attribute->value( vertex_id ) );
+                    builder.set_implicit_value( surface, vertex_id,
+                        scalar_attribute->value( vertex_id ) );
                 }
             }
-            return ImplicitCrossSection{ std::move( section ) };
+            return implicit_section;
         }
 
         ImplicitStructuralModel
             implicit_model_from_structural_model_scalar_field(
                 StructuralModel&& model, const uuid& scalar_atribute_id )
         {
-            for( const auto& block : model.blocks() )
+            ImplicitStructuralModel implicit_model{ std::move( model ) };
+            ImplicitStructuralModelBuilder builder{ implicit_model };
+            for( const auto& block : implicit_model.blocks() )
             {
                 const auto& block_mesh = block.mesh();
-                auto scalar_attribute =
+                if( !block_mesh.vertex_attribute_manager().attribute_exists(
+                        implicit_model.implicit_attribute_id() ) )
+                {
+                    continue;
+                }
+                const auto scalar_attribute =
                     block_mesh.vertex_attribute_manager()
                         .find_read_only_attribute<
                             ImplicitStructuralModel::implicit_attribute_type >(
                             scalar_atribute_id );
-                AttributeValues<
-                    ImplicitStructuralModel::implicit_attribute_type >
-                    implicit_attribute_default_values;
-                implicit_attribute_default_values.default_value = 0;
-                implicit_attribute_default_values.no_value = 0;
-                AttributeProperties implicit_attribute_properties;
-                implicit_attribute_properties.assignable = false;
-                implicit_attribute_properties.interpolable = true;
-                implicit_attribute_properties.transferable = true;
-                auto implicit_attribute_id =
-                    block_mesh.vertex_attribute_manager()
-                        .create_attribute< VariableAttribute,
-                            ImplicitStructuralModel::implicit_attribute_type >(
-                            ImplicitStructuralModel::IMPLICIT_ATTRIBUTE_NAME,
-                            implicit_attribute_default_values,
-                            implicit_attribute_properties );
-                auto implicit_attribute =
-                    block_mesh.vertex_attribute_manager()
-                        .find_attribute< VariableAttribute,
-                            ImplicitStructuralModel::implicit_attribute_type >(
-                            implicit_attribute_id );
                 for( const auto vertex_id : Range{ block_mesh.nb_vertices() } )
                 {
-                    implicit_attribute->set_value(
-                        vertex_id, scalar_attribute->value( vertex_id ) );
+                    builder.set_implicit_value( block, vertex_id,
+                        scalar_attribute->value( vertex_id ) );
                 }
             }
-            return ImplicitStructuralModel{ std::move( model ) };
+            return implicit_model;
         }
 
         StratigraphicModel stratigraphic_model_from_implicit_model_and_coords(
@@ -315,41 +319,25 @@ namespace geode
 
             const local_index_t first_axis = implicit_axis == 0 ? 1 : 0;
             const local_index_t second_axis = implicit_axis == 1 ? 2 : 1;
-            for( const auto& block : implicit_model.blocks() )
+            StratigraphicModel model{ std::move( implicit_model ) };
+            StratigraphicModelBuilder builder{ model };
+            for( const auto& block : model.blocks() )
             {
                 const auto& block_mesh = block.mesh();
-                AttributeValues<
-                    StratigraphicModel::stratigraphic_location_type >
-                    strati_location_attribute_default_values;
-                strati_location_attribute_default_values.default_value =
-                    Point2D{};
-                strati_location_attribute_default_values.no_value = Point2D{};
-                AttributeProperties strati_location_attribute_properties;
-                strati_location_attribute_properties.assignable = false;
-                strati_location_attribute_properties.interpolable = true;
-                strati_location_attribute_properties.transferable = true;
-                auto strati_location_attribute_id =
-                    block_mesh.vertex_attribute_manager()
-                        .create_attribute< VariableAttribute,
-                            StratigraphicModel::stratigraphic_location_type >(
-                            StratigraphicModel::
-                                STRATIGRAPHIC_LOCATION_ATTRIBUTE_NAME,
-                            strati_location_attribute_default_values,
-                            strati_location_attribute_properties );
-                auto strati_location_attribute =
-                    block_mesh.vertex_attribute_manager()
-                        .find_attribute< VariableAttribute,
-                            StratigraphicModel::stratigraphic_location_type >(
-                            strati_location_attribute_id );
+                if( !block_mesh.vertex_attribute_manager().attribute_exists(
+                        model.stratigraphic_location_attribute_id() ) )
+                {
+                    continue;
+                }
                 for( const auto vertex_id : Range{ block_mesh.nb_vertices() } )
                 {
                     const auto& vertex_point = block_mesh.point( vertex_id );
-                    strati_location_attribute->set_value(
-                        vertex_id, Point2D{ { vertex_point.value( first_axis ),
-                                       vertex_point.value( second_axis ) } } );
+                    builder.set_stratigraphic_location( block, vertex_id,
+                        Point2D{ { vertex_point.value( first_axis ),
+                            vertex_point.value( second_axis ) } } );
                 }
             }
-            return StratigraphicModel{ std::move( implicit_model ) };
+            return model;
         }
 
         template < index_t dimension >
@@ -365,6 +353,10 @@ namespace geode
             HorizonsStackBuilder< dimension > builder{ stack };
             if( nb_horizons == 0 )
             {
+                if( nb_units == 0 )
+                {
+                    return stack;
+                }
                 const auto& only_su = builder.add_stratigraphic_unit();
                 builder.set_stratigraphic_unit_name(
                     stack.stratigraphic_unit( only_su ), units_names[0] );
@@ -422,6 +414,10 @@ namespace geode
             HorizonsStackBuilder< dimension > builder{ stack };
             if( nb_horizons == 0 )
             {
+                if( nb_units == 0 )
+                {
+                    return stack;
+                }
                 const auto& only_su = builder.add_stratigraphic_unit();
                 builder.set_stratigraphic_unit_name(
                     stack.stratigraphic_unit( only_su ), units_names[0] );
@@ -474,6 +470,10 @@ namespace geode
             const auto nb_horizons = horizon_stack.nb_horizons();
             check_number_of_horizons_and_stratigraphic_units(
                 nb_horizons, horizon_stack.nb_stratigraphic_units() );
+            if( nb_horizons == 0 )
+            {
+                return;
+            }
             builder.compute_top_and_bottom_horizons();
             const auto bottom_horizon = horizon_stack.bottom_horizon().value();
             if( !horizon_stack.under( bottom_horizon ) )
@@ -486,7 +486,8 @@ namespace geode
             index_t horizon_counter{ 1 };
             auto su_above = horizon_stack.above( bottom_horizon );
             std::optional< uuid > current_horizon = bottom_horizon;
-            while( su_above )
+            // Bounded by the number of horizons in case of cyclic relations
+            while( su_above && horizon_counter <= nb_horizons )
             {
                 current_horizon = horizon_stack.above( su_above.value() );
                 if( !current_horizon )
@@ -547,39 +548,43 @@ namespace geode
             std::vector< MeshElement > invalid_tetrahedra;
             for( const auto& block : implicit_model.blocks() )
             {
+                if( block.mesh().type_name()
+                    != TetrahedralSolid3D::type_name_static() )
+                {
+                    continue;
+                }
                 const auto& block_mesh = block.mesh< TetrahedralSolid3D >();
+                std::vector< Point3D > stratigraphic_points;
+                stratigraphic_points.reserve( block_mesh.nb_vertices() );
+                for( const auto vertex_id : Range{ block_mesh.nb_vertices() } )
+                {
+                    stratigraphic_points.emplace_back( implicit_model
+                            .stratigraphic_coordinates( block, vertex_id )
+                            .stratigraphic_coordinates() );
+                }
                 for( const auto tetra_id : Range{ block_mesh.nb_polyhedra() } )
                 {
                     const auto tetra_vertices =
                         block_mesh.polyhedron_vertices( tetra_id );
-                    const OwnerTetrahedron strati_tetra{
-                        implicit_model
-                            .stratigraphic_coordinates(
-                                block, tetra_vertices[0] )
-                            .stratigraphic_coordinates(),
-                        implicit_model
-                            .stratigraphic_coordinates(
-                                block, tetra_vertices[1] )
-                            .stratigraphic_coordinates(),
-                        implicit_model
-                            .stratigraphic_coordinates(
-                                block, tetra_vertices[2] )
-                            .stratigraphic_coordinates(),
-                        implicit_model
-                            .stratigraphic_coordinates(
-                                block, tetra_vertices[3] )
-                            .stratigraphic_coordinates()
+                    const Tetrahedron strati_tetra{
+                        stratigraphic_points[tetra_vertices[0]],
+                        stratigraphic_points[tetra_vertices[1]],
+                        stratigraphic_points[tetra_vertices[2]],
+                        stratigraphic_points[tetra_vertices[3]]
                     };
                     if( tetrahedron_volume_sign( strati_tetra )
                         == SIGN::negative )
                     {
                         invalid_tetrahedra.emplace_back( block.id(), tetra_id );
-                        Logger::info(
-                            "[invalid_stratigraphic_tetrahedra] Tetrahedra ",
-                            tetra_id, " of block ", block.id().string(),
-                            " is invalid (negative stratigraphic volume)." );
                     }
                 }
+            }
+            if( !invalid_tetrahedra.empty() )
+            {
+                Logger::info( "[invalid_stratigraphic_tetrahedra] ",
+                    invalid_tetrahedra.size(),
+                    " tetrahedra are invalid (negative stratigraphic "
+                    "volume)." );
             }
             return invalid_tetrahedra;
         }

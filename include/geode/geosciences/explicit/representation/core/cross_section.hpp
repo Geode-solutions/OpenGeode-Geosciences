@@ -73,6 +73,8 @@ namespace geode
 
             [[nodiscard]] const HorizonItemRange& end() const;
 
+            void operator++();
+
             [[nodiscard]] const Line2D& operator*() const;
 
         private:
@@ -91,6 +93,8 @@ namespace geode
             [[nodiscard]] const FaultItemRange& begin() const;
 
             [[nodiscard]] const FaultItemRange& end() const;
+
+            void operator++();
 
             [[nodiscard]] const Line2D& operator*() const;
 
@@ -111,6 +115,8 @@ namespace geode
 
             [[nodiscard]] const FaultBlockItemRange& end() const;
 
+            void operator++();
+
             [[nodiscard]] const Surface2D& operator*() const;
 
         private:
@@ -130,6 +136,8 @@ namespace geode
             [[nodiscard]] const StratigraphicUnitItemRange& begin() const;
 
             [[nodiscard]] const StratigraphicUnitItemRange& end() const;
+
+            void operator++();
 
             [[nodiscard]] const Surface2D& operator*() const;
 
@@ -153,7 +161,7 @@ namespace geode
         explicit CrossSection( Section&& section ) noexcept;
         CrossSection( const CrossSection& initial_model,
             Section&& section,
-            const ModelGenericMapping& initial_to_section_mappings ) noexcept;
+            const ModelGenericMapping& initial_to_section_mappings );
 
         [[nodiscard]] CrossSection clone() const;
 

@@ -23,11 +23,17 @@
 
 #include <geode/geosciences/explicit/geometry/geographic_coordinate_system.hpp>
 
+#include <memory>
+
+#include <absl/algorithm/container.h>
+
 #include <ogr_spatialref.h>
 #include <ogr_srs_api.h>
 
 #include <geode/basic/logger.hpp>
 #include <geode/basic/pimpl_impl.hpp>
+
+#include <geode/geometry/point.hpp>
 
 #include <geode/mesh/core/internal/points_impl.hpp>
 
@@ -61,39 +67,6 @@ namespace geode
         const GeographicCoordinateSystemInfo& info() const
         {
             return info_;
-        }
-
-        void import_coordinates(
-            const GeographicCoordinateSystem< dimension >& from,
-            GeographicCoordinateSystem< dimension >& to )
-        {
-            OGRSpatialReference destination;
-            destination.SetFromUserInput( info_.authority_code().c_str() );
-            OGRSpatialReference origin;
-            origin.SetFromUserInput( from.info().authority_code().c_str() );
-            auto* transformer =
-                OGRCreateCoordinateTransformation( &origin, &destination );
-            for( const auto p : Range{ from.nb_points() } )
-            {
-                auto point = from.point( p );
-                std::array< double, 3 > values{ 0, 0, 0 };
-                for( const auto d : LRange{ dimension } )
-                {
-                    values[d] = point.value( d );
-                }
-                const auto status = transformer->Transform(
-                    1, &values[0], &values[1], &values[2] );
-                OpenGeodeGeosciencesExplicitException::check_exception( status,
-                    nullptr, OpenGeodeException::TYPE::internal,
-                    "[GeographicCoordinateSystem::convert_geographic_"
-                    "coordinate_system] Failed to convert coordinates" );
-                for( const auto d : LRange{ dimension } )
-                {
-                    point.set_value( d, values[d] );
-                }
-                to.set_point( p, std::move( point ) );
-            }
-            OGRCoordinateTransformation::DestroyCT( transformer );
         }
 
     private:
@@ -179,8 +152,130 @@ namespace geode
     void GeographicCoordinateSystem< dimension >::import_coordinates(
         const GeographicCoordinateSystem< dimension >& crs )
     {
-        impl_->import_coordinates( crs, *this );
+        const internal::GeographicCoordinateTransformation transformation{
+            crs.info(), info()
+        };
+        auto points = transformation.transform( crs );
+        for( const auto p : Indices{ points } )
+        {
+            this->set_point( p, std::move( points[p] ) );
+        }
     }
+
+    class internal::GeographicCoordinateTransformation::Impl
+    {
+    public:
+        Impl( const GeographicCoordinateSystemInfo& from,
+            const GeographicCoordinateSystemInfo& to )
+        {
+            OGRSpatialReference origin;
+            set_spatial_reference( origin, from );
+            OGRSpatialReference destination;
+            set_spatial_reference( destination, to );
+            transformer_.reset(
+                OGRCreateCoordinateTransformation( &origin, &destination ) );
+            OpenGeodeGeosciencesExplicitException::check_exception(
+                transformer_ != nullptr, nullptr,
+                OpenGeodeException::TYPE::data,
+                "[GeographicCoordinateTransformation] Cannot create "
+                "coordinate transformation from ",
+                from.authority_code(), " to ", to.authority_code() );
+        }
+
+        template < index_t dimension >
+        std::vector< Point< dimension > > transform(
+            const GeographicCoordinateSystem< dimension >& from ) const
+        {
+            const auto nb_points = from.nb_points();
+            std::array< std::vector< double >, 3 > values{
+                std::vector< double >( nb_points, 0 ),
+                std::vector< double >( nb_points, 0 ),
+                std::vector< double >( nb_points, 0 )
+            };
+            for( const auto p : Range{ nb_points } )
+            {
+                const auto& point = from.point( p );
+                for( const auto d : LRange{ dimension } )
+                {
+                    values[d][p] = point.value( d );
+                }
+            }
+            if( nb_points != 0 )
+            {
+                std::vector< int > success( nb_points, FALSE );
+                const auto status =
+                    transformer_->Transform( nb_points, values[0].data(),
+                        values[1].data(), values[2].data(), success.data() );
+                const auto nb_failures =
+                    static_cast< index_t >( absl::c_count( success, FALSE ) );
+                OpenGeodeGeosciencesExplicitException::check_exception(
+                    status && nb_failures == 0, nullptr,
+                    OpenGeodeException::TYPE::data,
+                    "[GeographicCoordinateTransformation] Failed to convert "
+                    "coordinates of ",
+                    nb_failures, " points" );
+            }
+            std::vector< Point< dimension > > points( nb_points );
+            for( const auto p : Range{ nb_points } )
+            {
+                for( const auto d : LRange{ dimension } )
+                {
+                    points[p].set_value( d, values[d][p] );
+                }
+            }
+            return points;
+        }
+
+    private:
+        static void set_spatial_reference( OGRSpatialReference& reference,
+            const GeographicCoordinateSystemInfo& info )
+        {
+            const auto authority_code = info.authority_code();
+            OpenGeodeGeosciencesExplicitException::check_exception(
+                reference.SetFromUserInput( authority_code.c_str() )
+                    == OGRERR_NONE,
+                nullptr, OpenGeodeException::TYPE::data,
+                "[GeographicCoordinateTransformation] Unknown coordinate "
+                "system ",
+                authority_code );
+            reference.SetAxisMappingStrategy( OAMS_TRADITIONAL_GIS_ORDER );
+        }
+
+    private:
+        std::unique_ptr< OGRCoordinateTransformation,
+            decltype( &OGRCoordinateTransformation::DestroyCT ) >
+            transformer_{ nullptr, &OGRCoordinateTransformation::DestroyCT };
+    };
+
+    internal::GeographicCoordinateTransformation::
+        GeographicCoordinateTransformation(
+            const GeographicCoordinateSystemInfo& from,
+            const GeographicCoordinateSystemInfo& to )
+        : impl_{ from, to }
+    {
+    }
+
+    internal::GeographicCoordinateTransformation::
+        GeographicCoordinateTransformation(
+            GeographicCoordinateTransformation&& ) noexcept = default;
+
+    internal::GeographicCoordinateTransformation::
+        ~GeographicCoordinateTransformation() = default;
+
+    template < index_t dimension >
+    std::vector< Point< dimension > >
+        internal::GeographicCoordinateTransformation::transform(
+            const GeographicCoordinateSystem< dimension >& from ) const
+    {
+        return impl_->transform( from );
+    }
+
+    template std::vector< Point< 2 > > opengeode_geosciences_explicit_api
+        internal::GeographicCoordinateTransformation::transform(
+            const GeographicCoordinateSystem< 2 >& ) const;
+    template std::vector< Point< 3 > > opengeode_geosciences_explicit_api
+        internal::GeographicCoordinateTransformation::transform(
+            const GeographicCoordinateSystem< 3 >& ) const;
 
     template class opengeode_geosciences_explicit_api
         GeographicCoordinateSystem< 2 >;

@@ -23,6 +23,8 @@
 
 #include <geode/geosciences/explicit/representation/core/detail/helpers.hpp>
 
+#include <absl/container/flat_hash_set.h>
+
 #include <geode/geosciences/explicit/mixin/core/fault.hpp>
 #include <geode/geosciences/explicit/mixin/core/fault_block.hpp>
 #include <geode/geosciences/explicit/mixin/core/horizon.hpp>
@@ -44,6 +46,7 @@ namespace
         {
             const auto& horizon = modified_model.horizon(
                 horizon_mapping.in2out( initial_horizon.id() ) );
+            absl::flat_hash_set< geode::uuid > added_items;
             for( const auto& initial_line_in_horizon :
                 initial_model.horizon_items( initial_horizon ) )
             {
@@ -55,6 +58,10 @@ namespace
                 for( const auto& line_id :
                     lines_mapping.in2out( initial_line_in_horizon.id() ) )
                 {
+                    if( !added_items.emplace( line_id ).second )
+                    {
+                        continue;
+                    }
                     builder.add_line_in_horizon(
                         modified_model.line( line_id ), horizon );
                 }
@@ -72,6 +79,7 @@ namespace
         {
             const auto& horizon = modified_model.horizon(
                 horizon_mapping.in2out( initial_horizon.id() ) );
+            absl::flat_hash_set< geode::uuid > added_items;
             for( const auto& initial_surface_in_horizon :
                 initial_model.horizon_items( initial_horizon ) )
             {
@@ -83,6 +91,10 @@ namespace
                 for( const auto& surface_id :
                     surfaces_mapping.in2out( initial_surface_in_horizon.id() ) )
                 {
+                    if( !added_items.emplace( surface_id ).second )
+                    {
+                        continue;
+                    }
                     builder.add_surface_in_horizon(
                         modified_model.surface( surface_id ), horizon );
                 }
@@ -100,6 +112,7 @@ namespace
         {
             const auto& fault = modified_model.fault(
                 fault_mapping.in2out( initial_fault.id() ) );
+            absl::flat_hash_set< geode::uuid > added_items;
             for( const auto& initial_line_in_fault :
                 initial_model.fault_items( initial_fault ) )
             {
@@ -111,6 +124,10 @@ namespace
                 for( const auto& line_id :
                     lines_mapping.in2out( initial_line_in_fault.id() ) )
                 {
+                    if( !added_items.emplace( line_id ).second )
+                    {
+                        continue;
+                    }
                     builder.add_line_in_fault(
                         modified_model.line( line_id ), fault );
                 }
@@ -128,6 +145,7 @@ namespace
         {
             const auto& fault = modified_model.fault(
                 fault_mapping.in2out( initial_fault.id() ) );
+            absl::flat_hash_set< geode::uuid > added_items;
             for( const auto& initial_surface_in_fault :
                 initial_model.fault_items( initial_fault ) )
             {
@@ -139,6 +157,10 @@ namespace
                 for( const auto& surface_id :
                     surfaces_mapping.in2out( initial_surface_in_fault.id() ) )
                 {
+                    if( !added_items.emplace( surface_id ).second )
+                    {
+                        continue;
+                    }
                     builder.add_surface_in_fault(
                         modified_model.surface( surface_id ), fault );
                 }
@@ -160,6 +182,7 @@ namespace
             const auto& stratigraphic_unit = modified_model.stratigraphic_unit(
                 stratigraphic_unit_mapping.in2out(
                     initial_stratigraphic_unit.id() ) );
+            absl::flat_hash_set< geode::uuid > added_items;
             for( const auto& initial_surface_in_stratigraphic_unit :
                 initial_model.stratigraphic_unit_items(
                     initial_stratigraphic_unit ) )
@@ -172,6 +195,10 @@ namespace
                 for( const auto& surface_id : surfaces_mapping.in2out(
                          initial_surface_in_stratigraphic_unit.id() ) )
                 {
+                    if( !added_items.emplace( surface_id ).second )
+                    {
+                        continue;
+                    }
                     builder.add_surface_in_stratigraphic_unit(
                         modified_model.surface( surface_id ),
                         stratigraphic_unit );
@@ -194,6 +221,7 @@ namespace
             const auto& stratigraphic_unit = modified_model.stratigraphic_unit(
                 stratigraphic_unit_mapping.in2out(
                     initial_stratigraphic_unit.id() ) );
+            absl::flat_hash_set< geode::uuid > added_items;
             for( const auto& initial_block_in_stratigraphic_unit :
                 initial_model.stratigraphic_unit_items(
                     initial_stratigraphic_unit ) )
@@ -206,6 +234,10 @@ namespace
                 for( const auto& block_id : blocks_mapping.in2out(
                          initial_block_in_stratigraphic_unit.id() ) )
                 {
+                    if( !added_items.emplace( block_id ).second )
+                    {
+                        continue;
+                    }
                     builder.add_block_in_stratigraphic_unit(
                         modified_model.block( block_id ), stratigraphic_unit );
                 }
@@ -224,6 +256,7 @@ namespace
         {
             const auto& fault_block = modified_model.fault_block(
                 fault_block_mapping.in2out( initial_fault_block.id() ) );
+            absl::flat_hash_set< geode::uuid > added_items;
             for( const auto& initial_surface_in_fault_block :
                 initial_model.fault_block_items( initial_fault_block ) )
             {
@@ -235,6 +268,10 @@ namespace
                 for( const auto& surface_id : surfaces_mapping.in2out(
                          initial_surface_in_fault_block.id() ) )
                 {
+                    if( !added_items.emplace( surface_id ).second )
+                    {
+                        continue;
+                    }
                     builder.add_surface_in_fault_block(
                         modified_model.surface( surface_id ), fault_block );
                 }
@@ -253,6 +290,7 @@ namespace
         {
             const auto& fault_block = modified_model.fault_block(
                 fault_block_mapping.in2out( initial_fault_block.id() ) );
+            absl::flat_hash_set< geode::uuid > added_items;
             for( const auto& initial_block_in_fault_block :
                 initial_model.fault_block_items( initial_fault_block ) )
             {
@@ -264,6 +302,10 @@ namespace
                 for( const auto& block_id :
                     blocks_mapping.in2out( initial_block_in_fault_block.id() ) )
                 {
+                    if( !added_items.emplace( block_id ).second )
+                    {
+                        continue;
+                    }
                     builder.add_block_in_fault_block(
                         modified_model.block( block_id ), fault_block );
                 }
@@ -361,12 +403,15 @@ namespace
         geode::ModelGenericMapping& component_mappings,
         const geode::ComponentType& type )
     {
-        geode::GenericMapping< geode::uuid > component_mapping;
+        if( !geological_mappings.has_mapping_type( type ) )
+        {
+            return;
+        }
+        auto& component_mapping = component_mappings[type];
         for( const auto& in2out : geological_mappings.at( type ).in2out_map() )
         {
             component_mapping.map( in2out.first, in2out.second );
         }
-        component_mappings.emplace( type, std::move( component_mapping ) );
     }
 } // namespace
 

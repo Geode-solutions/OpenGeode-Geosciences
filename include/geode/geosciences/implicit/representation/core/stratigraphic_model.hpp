@@ -62,12 +62,11 @@ namespace geode
         StratigraphicModel( BITSERY );
         StratigraphicModel( StratigraphicModel&& implicit_model ) noexcept;
         explicit StratigraphicModel(
-            ImplicitStructuralModel&& structural_model ) noexcept;
-        explicit StratigraphicModel(
-            StructuralModel&& structural_model ) noexcept;
+            ImplicitStructuralModel&& structural_model );
+        explicit StratigraphicModel( StructuralModel&& structural_model );
         StratigraphicModel( const StratigraphicModel& initial_model,
             BRep&& brep,
-            const ModelGenericMapping& initial_to_brep_mappings ) noexcept;
+            const ModelGenericMapping& initial_to_brep_mappings );
         ~StratigraphicModel();
 
         [[nodiscard]] StratigraphicModel clone() const;

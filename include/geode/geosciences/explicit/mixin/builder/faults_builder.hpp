@@ -47,6 +47,8 @@ namespace geode
         void set_fault_name(
             const Fault< dimension >& fault, std::string_view name );
 
+        void set_fault_active( const Fault< dimension >& fault, bool active );
+
     protected:
         explicit FaultsBuilder( Faults< dimension >& faults )
             : faults_( faults )

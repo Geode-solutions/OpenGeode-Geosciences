@@ -72,6 +72,12 @@ namespace geode
             this->set_name( name );
         }
 
+        void set_stratigraphic_unit_active(
+            bool active, StratigraphicUnitsBuilderKey )
+        {
+            this->set_active( active );
+        }
+
     private:
         StratigraphicUnit();
 

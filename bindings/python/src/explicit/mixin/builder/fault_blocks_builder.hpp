@@ -32,7 +32,10 @@
         module, name##dimension.c_str() )                                      \
         .def( "set_fault_block_name",                                          \
             &FaultBlocksBuilder##dimension##D::set_fault_block_name,           \
-            pybind11::arg( "fault_block" ), pybind11::arg( "name" ) )
+            pybind11::arg( "fault_block" ), pybind11::arg( "name" ) )          \
+        .def( "set_fault_block_active",                                        \
+            &FaultBlocksBuilder##dimension##D::set_fault_block_active,         \
+            pybind11::arg( "fault_block" ), pybind11::arg( "active" ) )
 
 namespace geode
 {

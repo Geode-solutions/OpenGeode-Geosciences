@@ -66,11 +66,11 @@ namespace geode
         StratigraphicSection(
             StratigraphicSection&& stratigraphic_section ) noexcept;
         explicit StratigraphicSection(
-            ImplicitCrossSection&& implicit_section ) noexcept;
-        explicit StratigraphicSection( CrossSection&& cross_section ) noexcept;
+            ImplicitCrossSection&& implicit_section );
+        explicit StratigraphicSection( CrossSection&& cross_section );
         StratigraphicSection( const StratigraphicSection& initial_model,
             Section&& section,
-            const ModelGenericMapping& initial_to_section_mappings ) noexcept;
+            const ModelGenericMapping& initial_to_section_mappings );
         ~StratigraphicSection();
 
         [[nodiscard]] StratigraphicSection clone() const;

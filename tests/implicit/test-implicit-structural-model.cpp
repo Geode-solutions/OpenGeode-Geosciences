@@ -1,0 +1,686 @@
+/*
+ * Copyright (c) 2019 - 2026 Geode-solutions
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ */
+
+#include <geode/tests_config.hpp>
+
+#include <geode/basic/assert.hpp>
+#include <geode/basic/attribute_manager.hpp>
+#include <geode/basic/logger.hpp>
+
+#include <geode/geometry/point.hpp>
+
+#include <geode/basic/variable_attribute.hpp>
+#include <geode/mesh/builder/tetrahedral_solid_builder.hpp>
+#include <geode/mesh/core/mesh_factory.hpp>
+#include <geode/mesh/core/tetrahedral_solid.hpp>
+
+#include <geode/model/mixin/core/block.hpp>
+
+#include <geode/geosciences/explicit/representation/builder/structural_model_builder.hpp>
+#include <geode/geosciences/implicit/representation/builder/horizons_stack_builder.hpp>
+#include <geode/geosciences/implicit/representation/builder/implicit_structural_model_builder.hpp>
+#include <geode/geosciences/implicit/representation/core/detail/helpers.hpp>
+#include <geode/geosciences/implicit/representation/core/horizons_stack.hpp>
+#include <geode/geosciences/implicit/representation/core/implicit_structural_model.hpp>
+#include <geode/geosciences/implicit/representation/core/stratigraphic_model.hpp>
+#include <geode/geosciences/implicit/representation/io/implicit_structural_model_input.hpp>
+#include <geode/geosciences/implicit/representation/io/implicit_structural_model_output.hpp>
+
+namespace
+{
+    struct StackIds
+    {
+        std::array< geode::uuid, 3 > horizons;
+        std::array< geode::uuid, 4 > units;
+    };
+
+    geode::uuid add_tetrahedral_block( geode::StructuralModelBuilder& builder )
+    {
+        const auto& block_id =
+            builder.add_block( geode::MeshFactory::default_impl(
+                geode::TetrahedralSolid3D::type_name_static() ) );
+        return block_id;
+    }
+
+    void fill_tetrahedral_block( geode::StructuralModelBuilder& builder,
+        const geode::Block3D& block,
+        double shift )
+    {
+        auto mesh_builder =
+            builder.block_mesh_builder< geode::TetrahedralSolid3D >( block );
+        const auto offset =
+            mesh_builder->create_point( geode::Point3D{ { shift, 0, 0 } } );
+        mesh_builder->create_point( geode::Point3D{ { shift + 1, 0, 0 } } );
+        mesh_builder->create_point( geode::Point3D{ { shift, 1, 0 } } );
+        mesh_builder->create_point( geode::Point3D{ { shift, 0, 1 } } );
+        mesh_builder->create_point( geode::Point3D{ { shift + 1, 1, 1 } } );
+        mesh_builder->create_tetrahedron(
+            { offset, offset + 1, offset + 2, offset + 3 } );
+        mesh_builder->create_tetrahedron(
+            { offset + 1, offset + 2, offset + 3, offset + 4 } );
+        mesh_builder->compute_polyhedron_adjacencies();
+    }
+
+    /*!
+     * Model with one tetrahedral block: implicit value is z.
+     */
+    geode::ImplicitStructuralModel create_model()
+    {
+        geode::StructuralModel structural_model;
+        geode::StructuralModelBuilder builder{ structural_model };
+        const auto block_id = add_tetrahedral_block( builder );
+        fill_tetrahedral_block(
+            builder, structural_model.block( block_id ), 0 );
+        geode::ImplicitStructuralModel model{ std::move( structural_model ) };
+        geode::ImplicitStructuralModelBuilder implicit_builder{ model };
+        for( const auto& block : model.blocks() )
+        {
+            for( const auto vertex :
+                geode::Range{ block.mesh().nb_vertices() } )
+            {
+                implicit_builder.set_implicit_value(
+                    block, vertex, block.mesh().point( vertex ).value( 2 ) );
+            }
+        }
+        return model;
+    }
+
+    /*!
+     * Stack from bottom to top: u0, h0, u1, h1, u2, h2, u3
+     */
+    StackIds add_horizons_stack( geode::ImplicitStructuralModel& model,
+        const std::array< double, 3 >& isovalues )
+    {
+        geode::ImplicitStructuralModelBuilder builder{ model };
+        auto stack_builder = builder.horizons_stack_builder();
+        const auto& stack = model.horizons_stack();
+        StackIds ids;
+        for( auto& horizon : ids.horizons )
+        {
+            horizon = stack_builder.add_horizon();
+        }
+        for( auto& unit : ids.units )
+        {
+            unit = stack_builder.add_stratigraphic_unit();
+        }
+        for( const auto h : geode::LRange{ 3 } )
+        {
+            const auto& horizon = stack.horizon( ids.horizons[h] );
+            stack_builder.set_horizon_above(
+                horizon, stack.stratigraphic_unit( ids.units[h] ) );
+            stack_builder.set_horizon_under(
+                horizon, stack.stratigraphic_unit( ids.units[h + 1] ) );
+            builder.set_horizon_implicit_value( horizon, isovalues[h] );
+        }
+        stack_builder.compute_top_and_bottom_horizons();
+        return ids;
+    }
+
+    geode::index_t nb_implicit_attributes(
+        const geode::AttributeManager& manager )
+    {
+        const auto ids = manager.attribute_ids_matching_name(
+            geode::ImplicitStructuralModel::IMPLICIT_ATTRIBUTE_NAME );
+        return ids ? static_cast< geode::index_t >( ids->size() ) : 0;
+    }
+
+    void check_unit( const geode::ImplicitStructuralModel& model,
+        double value,
+        const geode::uuid& expected )
+    {
+        const auto unit = model.containing_stratigraphic_unit( value );
+        geode::OpenGeodeGeosciencesImplicitException::test( unit.has_value(),
+            "[containing_stratigraphic_unit] No unit found for value ", value );
+        geode::OpenGeodeGeosciencesImplicitException::test(
+            unit.value() == expected,
+            "[containing_stratigraphic_unit] Wrong unit for value ", value );
+    }
+} // namespace
+
+void test_containing_stratigraphic_unit()
+{
+    geode::Logger::info( "Testing containing stratigraphic unit" );
+    {
+        auto model = create_model();
+        const auto ids = add_horizons_stack( model, { 0., 1., 2. } );
+        check_unit( model, -1., ids.units[0] );
+        check_unit( model, 0., ids.units[1] );
+        check_unit( model, 0.5, ids.units[1] );
+        check_unit( model, 1., ids.units[2] );
+        check_unit( model, 1.5, ids.units[2] );
+        check_unit( model, 2., ids.units[3] );
+        check_unit( model, 3., ids.units[3] );
+        geode::OpenGeodeGeosciencesImplicitException::test(
+            model.implicit_value_is_above_horizon(
+                1.5, model.horizons_stack().horizon( ids.horizons[1] ) ),
+            "[implicit_value_is_above_horizon] 1.5 should be above "
+            "horizon 1" );
+    }
+    {
+        auto model = create_model();
+        const auto ids = add_horizons_stack( model, { 2., 1., 0. } );
+        check_unit( model, 3., ids.units[0] );
+        check_unit( model, 2., ids.units[0] );
+        check_unit( model, 1.5, ids.units[1] );
+        check_unit( model, 1., ids.units[1] );
+        check_unit( model, 0.5, ids.units[2] );
+        check_unit( model, 0., ids.units[2] );
+        check_unit( model, -1., ids.units[3] );
+        geode::OpenGeodeGeosciencesImplicitException::test(
+            !model.implicit_value_is_above_horizon(
+                1.5, model.horizons_stack().horizon( ids.horizons[1] ) ),
+            "[implicit_value_is_above_horizon] 1.5 should be under "
+            "horizon 1" );
+    }
+}
+
+void test_containing_stratigraphic_unit_after_horizon_removal()
+{
+    geode::Logger::info(
+        "Testing containing stratigraphic unit after horizon removal" );
+    auto model = create_model();
+    const auto ids = add_horizons_stack( model, { 0., 1., 2. } );
+    geode::ImplicitStructuralModelBuilder builder{ model };
+    builder.horizons_stack_builder().remove_horizon(
+        model.horizons_stack().horizon( ids.horizons[2] ) );
+    check_unit( model, -1., ids.units[0] );
+    check_unit( model, 0.5, ids.units[1] );
+    check_unit( model, 1.5, ids.units[2] );
+    check_unit( model, 3., ids.units[2] );
+}
+
+void test_conversion_and_move()
+{
+    geode::Logger::info( "Testing conversion with non-tetrahedral block "
+                         "and move" );
+    geode::StructuralModel structural_model;
+    geode::StructuralModelBuilder builder{ structural_model };
+    const auto polyhedral_id = builder.add_block();
+    const auto tetrahedral_id = add_tetrahedral_block( builder );
+    fill_tetrahedral_block(
+        builder, structural_model.block( tetrahedral_id ), 0 );
+    geode::ImplicitStructuralModel model{ std::move( structural_model ) };
+    geode::ImplicitStructuralModelBuilder implicit_builder{ model };
+    const auto& block = model.block( tetrahedral_id );
+    for( const auto vertex : geode::Range{ block.mesh().nb_vertices() } )
+    {
+        implicit_builder.set_implicit_value(
+            block, vertex, block.mesh().point( vertex ).value( 2 ) );
+    }
+    geode::ImplicitStructuralModel moved{ std::move( model ) };
+    const geode::Point3D query{ { 0.1, 0.1, 0.5 } };
+    const auto value =
+        moved.implicit_value( moved.block( tetrahedral_id ), query );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        value.has_value() && std::fabs( value.value() - 0.5 ) < 1e-10,
+        "[conversion] Wrong implicit value after move" );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        moved.block( polyhedral_id ).mesh().nb_vertices() == 0,
+        "[conversion] Polyhedral block should be kept" );
+}
+
+void test_empty_mesh_query()
+{
+    geode::Logger::info( "Testing query on empty mesh" );
+    geode::StructuralModel base_model;
+    geode::StructuralModelBuilder builder{ base_model };
+    const auto block_id = add_tetrahedral_block( builder );
+    geode::ImplicitStructuralModel model{ std::move( base_model ) };
+    const geode::Point3D query{ { 0.1, 0.1, 0.5 } };
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        !model.containing_polyhedron( model.block( block_id ), query ),
+        "[empty mesh] No element should contain the query" );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        !model.implicit_value( model.block( block_id ), query ),
+        "[empty mesh] No implicit value should be found" );
+}
+
+void test_reinitialize_after_mesh_edition()
+{
+    geode::Logger::info( "Testing query after mesh edition" );
+    auto model = create_model();
+    const auto& block = *model.blocks().begin();
+    const geode::Point3D query{ { 0.1, 0.1, 0.5 } };
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        model.containing_polyhedron( block, query ).has_value(),
+        "[mesh edition] Element should be found before edition" );
+    geode::ImplicitStructuralModelBuilder builder{ model };
+    fill_tetrahedral_block( builder, block, 5 );
+    builder.reinitialize_implicit_query_trees();
+    const geode::Point3D new_query{ { 5.1, 0.1, 0.5 } };
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        model.containing_polyhedron( block, new_query ).has_value(),
+        "[mesh edition] Element should be found after edition" );
+}
+
+void test_from_scalar_field()
+{
+    geode::Logger::info( "Testing creation from scalar field" );
+    geode::StructuralModel base_model;
+    geode::StructuralModelBuilder builder{ base_model };
+    const auto block_id = add_tetrahedral_block( builder );
+    fill_tetrahedral_block( builder, base_model.block( block_id ), 0 );
+    const auto& mesh = base_model.block( block_id ).mesh();
+    geode::AttributeValues< double > values;
+    values.default_value = 0;
+    values.no_value = 0;
+    const auto attribute_id =
+        mesh.vertex_attribute_manager()
+            .create_attribute< geode::VariableAttribute, double >(
+                "scalar", values, geode::AttributeProperties{} );
+    auto attribute =
+        mesh.vertex_attribute_manager()
+            .find_attribute< geode::VariableAttribute, double >( attribute_id );
+    for( const auto vertex : geode::Range{ mesh.nb_vertices() } )
+    {
+        attribute->set_value( vertex, mesh.point( vertex ).value( 2 ) + 1 );
+    }
+    const auto model =
+        geode::detail::implicit_model_from_structural_model_scalar_field(
+            std::move( base_model ), attribute_id );
+    const auto& block = model.block( block_id );
+    for( const auto vertex : geode::Range{ block.mesh().nb_vertices() } )
+    {
+        geode::OpenGeodeGeosciencesImplicitException::test(
+            model.implicit_value( block, vertex )
+                == block.mesh().point( vertex ).value( 2 ) + 1,
+            "[scalar field] Wrong implicit value" );
+    }
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        nb_implicit_attributes( block.mesh().vertex_attribute_manager() ) == 1,
+        "[scalar field] There should be only one implicit attribute" );
+}
+
+void test_rescale_constant_field()
+{
+    geode::Logger::info( "Testing rescale of a constant implicit field" );
+    auto model = create_model();
+    {
+        geode::ImplicitStructuralModelBuilder builder{ model };
+        for( const auto& block : model.blocks() )
+        {
+            for( const auto vertex :
+                geode::Range{ block.mesh().nb_vertices() } )
+            {
+                builder.set_implicit_value( block, vertex, 1 );
+            }
+        }
+    }
+    geode::StratigraphicModel stratigraphic{ std::move( model ) };
+    geode::detail::rescale_implicit_value_to_bbox_scale( stratigraphic );
+    for( const auto& block : stratigraphic.blocks() )
+    {
+        for( const auto vertex : geode::Range{ block.mesh().nb_vertices() } )
+        {
+            geode::OpenGeodeGeosciencesImplicitException::test(
+                stratigraphic.implicit_value( block, vertex ) == 1,
+                "[rescale] Constant implicit field should not be rescaled" );
+        }
+    }
+}
+
+void test_rescale_with_unsupported_mesh()
+{
+    geode::Logger::info( "Testing rescale with unsupported mesh type" );
+    geode::StructuralModel base_model;
+    geode::StructuralModelBuilder builder{ base_model };
+    const auto unsupported_id = builder.add_block();
+    builder.block_mesh_builder( base_model.block( unsupported_id ) )
+        ->create_point( geode::Point3D{ { 0, 0, 0 } } );
+    const auto block_id = add_tetrahedral_block( builder );
+    fill_tetrahedral_block( builder, base_model.block( block_id ), 0 );
+    geode::ImplicitStructuralModel model{ std::move( base_model ) };
+    geode::ImplicitStructuralModelBuilder implicit_builder{ model };
+    const auto& block = model.block( block_id );
+    for( const auto vertex : geode::Range{ block.mesh().nb_vertices() } )
+    {
+        implicit_builder.set_implicit_value( block, vertex, 1 );
+    }
+    geode::detail::rescale_implicit_value( model, 2 );
+    for( const auto vertex : geode::Range{ block.mesh().nb_vertices() } )
+    {
+        geode::OpenGeodeGeosciencesImplicitException::test(
+            model.implicit_value( block, vertex ) == 2,
+            "[rescale] Implicit values should be rescaled" );
+    }
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        model.block( unsupported_id ).mesh().nb_vertices() == 1,
+        "[rescale] Unsupported mesh should be kept" );
+}
+
+void test_copy_with_unsupported_mesh()
+{
+    geode::Logger::info( "Testing copy with unsupported mesh type" );
+    geode::StructuralModel base_model;
+    geode::StructuralModelBuilder builder{ base_model };
+    const auto unsupported_id = builder.add_block();
+    builder.block_mesh_builder( base_model.block( unsupported_id ) )
+        ->create_point( geode::Point3D{ { 0, 0, 0 } } );
+    const auto block_id = add_tetrahedral_block( builder );
+    fill_tetrahedral_block( builder, base_model.block( block_id ), 0 );
+    geode::ImplicitStructuralModel model{ std::move( base_model ) };
+    geode::ImplicitStructuralModelBuilder implicit_builder{ model };
+    const auto& block = model.block( block_id );
+    for( const auto vertex : geode::Range{ block.mesh().nb_vertices() } )
+    {
+        implicit_builder.set_implicit_value( block, vertex, vertex + 1 );
+    }
+    geode::ImplicitStructuralModel copy;
+    geode::ImplicitStructuralModelBuilder copy_builder{ copy };
+    const auto mappings = copy_builder.copy( model );
+    const auto& copy_block =
+        copy.block( mappings.at( geode::Block3D::component_type_static() )
+                .in2out( block_id ) );
+    for( const auto vertex : geode::Range{ copy_block.mesh().nb_vertices() } )
+    {
+        geode::OpenGeodeGeosciencesImplicitException::test(
+            copy.implicit_value( copy_block, vertex ) == vertex + 1,
+            "[copy] Wrong implicit value in copy" );
+    }
+}
+
+void test_copy_horizons_isovalues()
+{
+    geode::Logger::info( "Testing copy of horizons isovalues" );
+    auto model = create_model();
+    const auto ids = add_horizons_stack( model, { 0., 1., 2. } );
+    {
+        geode::ImplicitStructuralModelBuilder builder{ model };
+        const auto model_only_horizon = builder.add_horizon();
+        geode::OpenGeodeGeosciencesImplicitException::test(
+            !model.horizons_stack().has_horizon( model_only_horizon ),
+            "[copy isovalues] Horizon should not be in the stack" );
+    }
+    geode::ImplicitStructuralModel copy;
+    geode::ImplicitStructuralModelBuilder copy_builder{ copy };
+    const auto mappings = copy_builder.copy( model );
+    const auto& horizon_mapping =
+        mappings.at( geode::Horizon3D::component_type_static() );
+    for( const auto h : geode::LRange{ 3 } )
+    {
+        const auto& copy_horizon = copy.horizons_stack().horizon(
+            horizon_mapping.in2out( ids.horizons[h] ) );
+        const auto isovalue = copy.horizon_implicit_value( copy_horizon );
+        geode::OpenGeodeGeosciencesImplicitException::test(
+            isovalue.has_value() && isovalue.value() == h,
+            "[copy isovalues] Wrong horizon isovalue in copy" );
+    }
+    check_unit( copy, 0.5,
+        mappings.at( geode::StratigraphicUnit3D::component_type_static() )
+            .in2out( ids.units[1] ) );
+}
+
+void test_copy_single_implicit_attribute()
+{
+    geode::Logger::info( "Testing copy keeps a single implicit attribute" );
+    const auto model = create_model();
+    geode::ImplicitStructuralModel copy;
+    geode::ImplicitStructuralModelBuilder copy_builder{ copy };
+    const auto mappings = copy_builder.copy( model );
+    for( const auto& block : model.blocks() )
+    {
+        const auto& copy_block =
+            copy.block( mappings.at( geode::Block3D::component_type_static() )
+                    .in2out( block.id() ) );
+        geode::OpenGeodeGeosciencesImplicitException::test(
+            nb_implicit_attributes(
+                copy_block.mesh().vertex_attribute_manager() )
+                == 1,
+            "[copy] There should be only one implicit attribute" );
+        for( const auto vertex : geode::Range{ block.mesh().nb_vertices() } )
+        {
+            geode::OpenGeodeGeosciencesImplicitException::test(
+                copy.implicit_value( copy_block, vertex )
+                    == block.mesh().point( vertex ).value( 2 ),
+                "[copy] Wrong implicit value in copy" );
+        }
+    }
+}
+
+void test_clone()
+{
+    geode::Logger::info( "Testing clone" );
+    auto model = create_model();
+    const auto ids = add_horizons_stack( model, { 0., 1., 2. } );
+    const auto clone = model.clone();
+    for( const auto h : geode::LRange{ 3 } )
+    {
+        geode::OpenGeodeGeosciencesImplicitException::test(
+            clone.horizons_stack().has_horizon( ids.horizons[h] ),
+            "[clone] Horizon should keep its uuid in the clone" );
+        const auto isovalue = clone.horizon_implicit_value(
+            clone.horizons_stack().horizon( ids.horizons[h] ) );
+        geode::OpenGeodeGeosciencesImplicitException::test(
+            isovalue.has_value() && isovalue.value() == h,
+            "[clone] Wrong horizon isovalue in clone" );
+    }
+    for( const auto& unit : ids.units )
+    {
+        geode::OpenGeodeGeosciencesImplicitException::test(
+            clone.horizons_stack().has_stratigraphic_unit( unit ),
+            "[clone] Stratigraphic unit should keep its uuid in the clone" );
+    }
+    check_unit( clone, 0.5, ids.units[1] );
+    for( const auto& block : model.blocks() )
+    {
+        const auto& clone_block = clone.block( block.id() );
+        for( const auto vertex : geode::Range{ block.mesh().nb_vertices() } )
+        {
+            geode::OpenGeodeGeosciencesImplicitException::test(
+                clone.implicit_value( clone_block, vertex )
+                    == block.mesh().point( vertex ).value( 2 ),
+                "[clone] Wrong implicit value in clone" );
+        }
+    }
+}
+
+void test_import_old_attribute( std::string_view old_name )
+{
+    geode::Logger::info( "Testing import of old attribute ", old_name );
+    geode::StructuralModel base_model;
+    geode::StructuralModelBuilder builder{ base_model };
+    const auto unsupported_id = builder.add_block();
+    builder.block_mesh_builder( base_model.block( unsupported_id ) )
+        ->create_point( geode::Point3D{ { 0, 0, 0 } } );
+    const auto empty_id = add_tetrahedral_block( builder );
+    const auto block_id = add_tetrahedral_block( builder );
+    fill_tetrahedral_block( builder, base_model.block( block_id ), 0 );
+    const auto& mesh = base_model.block( block_id ).mesh();
+    geode::AttributeValues< double > values;
+    values.default_value = 0;
+    values.no_value = 0;
+    geode::AttributeProperties properties;
+    properties.interpolable = true;
+    properties.transferable = true;
+    const auto old_id =
+        mesh.vertex_attribute_manager()
+            .create_attribute< geode::VariableAttribute, double >(
+                old_name, values, properties );
+    auto old_attribute =
+        mesh.vertex_attribute_manager()
+            .find_attribute< geode::VariableAttribute, double >( old_id );
+    for( const auto vertex : geode::Range{ mesh.nb_vertices() } )
+    {
+        old_attribute->set_value( vertex, vertex + 1 );
+    }
+    old_attribute.reset();
+    geode::ImplicitStructuralModel model{ std::move( base_model ) };
+    geode::ImplicitStructuralModelBuilder implicit_builder{ model };
+    implicit_builder.import_old_implicit_attribute_values_from_attribute_name(
+        old_name );
+    const auto& block = model.block( block_id );
+    for( const auto vertex : geode::Range{ block.mesh().nb_vertices() } )
+    {
+        geode::OpenGeodeGeosciencesImplicitException::test(
+            model.implicit_value( block, vertex ) == vertex + 1,
+            "[import] Wrong imported implicit value" );
+    }
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        !block.mesh().vertex_attribute_manager().attribute_exists( old_id ),
+        "[import] Old attribute should be deleted" );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        nb_implicit_attributes( block.mesh().vertex_attribute_manager() ) == 1,
+        "[import] There should be only one implicit attribute" );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        model.block( empty_id )
+            .mesh()
+            .vertex_attribute_manager()
+            .attribute_exists( model.implicit_attribute_id() ),
+        "[import] Implicit attribute should be kept on block without old "
+        "attribute" );
+}
+
+void test_load_duplicated_implicit_attribute()
+{
+    geode::Logger::info( "Testing load with duplicated implicit attribute" );
+    const auto model = create_model();
+    for( const auto& block : model.blocks() )
+    {
+        geode::AttributeValues< double > values;
+        values.default_value = 42;
+        values.no_value = 42;
+        geode::AttributeProperties properties;
+        properties.interpolable = true;
+        properties.transferable = true;
+        const auto duplicated_id =
+            block.mesh()
+                .vertex_attribute_manager()
+                .create_attribute< geode::VariableAttribute, double >(
+                    geode::ImplicitStructuralModel::IMPLICIT_ATTRIBUTE_NAME,
+                    values, properties );
+        geode::OpenGeodeGeosciencesImplicitException::test(
+            duplicated_id != model.implicit_attribute_id(),
+            "[duplicated load] Wrong duplicated attribute" );
+    }
+    const auto filename = "test_duplicated_implicit_attribute.og_istrm";
+    geode::save_implicit_structural_model( model, filename );
+    for( const auto& block : model.blocks() )
+    {
+        geode::OpenGeodeGeosciencesImplicitException::test(
+            nb_implicit_attributes( block.mesh().vertex_attribute_manager() )
+                == 2,
+            "[duplicated load] Saved model should not be modified" );
+    }
+    const auto reloaded = geode::load_implicit_structural_model( filename );
+    for( const auto& block : reloaded.blocks() )
+    {
+        geode::OpenGeodeGeosciencesImplicitException::test(
+            nb_implicit_attributes( block.mesh().vertex_attribute_manager() )
+                == 1,
+            "[duplicated load] There should be only one implicit attribute" );
+        for( const auto vertex : geode::Range{ block.mesh().nb_vertices() } )
+        {
+            geode::OpenGeodeGeosciencesImplicitException::test(
+                reloaded.implicit_value( block, vertex )
+                    == block.mesh().point( vertex ).value( 2 ),
+                "[duplicated load] Wrong implicit value" );
+        }
+    }
+}
+
+void test_load_stale_horizon_isovalue()
+{
+    geode::Logger::info( "Testing load with stale horizon isovalue" );
+    auto model = create_model();
+    const auto ids = add_horizons_stack( model, { 0., 1., 2. } );
+    {
+        geode::ImplicitStructuralModelBuilder builder{ model };
+        builder.horizons_stack_builder().remove_horizon(
+            model.horizons_stack().horizon( ids.horizons[2] ) );
+    }
+    const auto filename = "test_stale_horizon_isovalue.og_istrm";
+    geode::save_implicit_structural_model( model, filename );
+    auto reloaded = geode::load_implicit_structural_model( filename );
+    check_unit( reloaded, 3., ids.units[2] );
+    geode::ImplicitStructuralModelBuilder builder{ reloaded };
+    builder.horizons_stack_builder().add_horizon( ids.horizons[2] );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        !reloaded
+            .horizon_implicit_value(
+                reloaded.horizons_stack().horizon( ids.horizons[2] ) )
+            .has_value(),
+        "[stale isovalue] Isovalue of removed horizon should be dropped" );
+}
+
+void test_construction_from_remeshed_model()
+{
+    geode::Logger::info( "Testing construction from initial model and "
+                         "BRep" );
+    const auto initial = create_model();
+    auto brep = static_cast< const geode::BRep& >( initial ).clone();
+    geode::ModelGenericMapping mappings;
+    auto& block_mapping = mappings[geode::Block3D::component_type_static()];
+    for( const auto& block : initial.blocks() )
+    {
+        block_mapping.map( block.id(), block.id() );
+    }
+    const geode::ImplicitStructuralModel model{ initial, std::move( brep ),
+        mappings };
+    for( const auto& block : model.blocks() )
+    {
+        geode::OpenGeodeGeosciencesImplicitException::test(
+            nb_implicit_attributes( block.mesh().vertex_attribute_manager() )
+                == 1,
+            "[remeshed model] There should be only one implicit attribute" );
+        for( const auto vertex : geode::Range{ block.mesh().nb_vertices() } )
+        {
+            geode::OpenGeodeGeosciencesImplicitException::test(
+                model.implicit_value( block, vertex )
+                    == block.mesh().point( vertex ).value( 2 ),
+                "[remeshed model] Wrong implicit value" );
+        }
+    }
+}
+
+int main()
+{
+    try
+    {
+        geode::OpenGeodeGeosciencesImplicitLibrary::initialize();
+        test_containing_stratigraphic_unit();
+        test_containing_stratigraphic_unit_after_horizon_removal();
+        test_conversion_and_move();
+        test_empty_mesh_query();
+        test_reinitialize_after_mesh_edition();
+        test_from_scalar_field();
+        test_rescale_constant_field();
+        test_rescale_with_unsupported_mesh();
+        test_copy_with_unsupported_mesh();
+        test_copy_horizons_isovalues();
+        test_copy_single_implicit_attribute();
+        test_clone();
+        test_load_stale_horizon_isovalue();
+        test_construction_from_remeshed_model();
+        test_import_old_attribute( "old_implicit" );
+        test_import_old_attribute(
+            geode::ImplicitStructuralModel::IMPLICIT_ATTRIBUTE_NAME );
+        test_load_duplicated_implicit_attribute();
+
+        geode::Logger::info( "TEST SUCCESS" );
+        return 0;
+    }
+    catch( ... )
+    {
+        return geode::geode_lippincott();
+    }
+}

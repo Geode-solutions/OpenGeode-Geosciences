@@ -60,11 +60,15 @@ namespace geode
         void initialize_stratigraphic_query_trees(
             const StratigraphicSection& model )
         {
-            stratigraphic_location_attributes_.reserve( model.nb_surfaces() );
             instantiate_stratigraphic_location_on_surfaces( model );
+            surface_stratigraphic_aabb_trees_.clear();
             surface_stratigraphic_aabb_trees_.reserve( model.nb_surfaces() );
             for( const auto& surface : model.surfaces() )
             {
+                if( !is_triangulated( surface ) )
+                {
+                    continue;
+                }
                 surface_stratigraphic_aabb_trees_.try_emplace( surface.id() );
             }
         }
@@ -124,7 +128,9 @@ namespace geode
             const StratigraphicPoint2D& stratigraphic_point,
             index_t triangle_id ) const
         {
-            PositiveStratigraphicTriangle pos_area_strati_triangle{ model,
+            const SurfaceStratigraphicCoordinates coordinates{ *this, model,
+                surface };
+            PositiveStratigraphicTriangle pos_area_strati_triangle{ coordinates,
                 surface, triangle_id };
             const auto barycentric_coords =
                 triangle_barycentric_coordinates< 2 >(
@@ -146,21 +152,22 @@ namespace geode
             const Surface2D& surface,
             const StratigraphicPoint2D& stratigraphic_point ) const
         {
-            StratigraphicDistanceToTriangle distance_to_triangles{ model,
+            const SurfaceStratigraphicCoordinates coordinates{ *this, model,
                 surface };
-            const auto closest_triangle =
-                std::get< 0 >( surface_stratigraphic_aabb_trees_
-                        .at( surface.id() )(
-                            create_stratigraphic_aabb_tree, model, surface )
-                        .closest_element_box(
-                            stratigraphic_point.stratigraphic_coordinates(),
-                            distance_to_triangles ) );
-            if( distance_to_triangles( stratigraphic_point, closest_triangle )
-                < GLOBAL_EPSILON )
+            StratigraphicDistanceToTriangle distance_to_triangles{ coordinates,
+                surface };
+            const auto [closest_triangle, distance] =
+                surface_stratigraphic_aabb_trees_
+                    .at( surface.id() )(
+                        create_stratigraphic_aabb_tree, *this, model, surface )
+                    .closest_element_box(
+                        stratigraphic_point.stratigraphic_coordinates(),
+                        distance_to_triangles );
+            if( closest_triangle == NO_ID || distance >= GLOBAL_EPSILON )
             {
-                return closest_triangle;
+                return std::nullopt;
             }
-            return std::nullopt;
+            return closest_triangle;
         }
 
         absl::InlinedVector< std::unique_ptr< EdgedCurve2D >, 2 >
@@ -190,13 +197,33 @@ namespace geode
             const StratigraphicSection& model ) const
         {
             BoundingBox2D box;
-            for( const auto& stratigraphic_tree :
-                surface_stratigraphic_aabb_trees_ )
+            for( const auto& surface : model.surfaces() )
             {
-                box.add_box( stratigraphic_tree
-                        .second( create_stratigraphic_aabb_tree, model,
-                            model.surface( stratigraphic_tree.first ) )
-                        .bounding_box() );
+                if( !stratigraphic_location_attributes_.contains(
+                        surface.id() ) )
+                {
+                    continue;
+                }
+                const SurfaceStratigraphicCoordinates coordinates{ *this, model,
+                    surface };
+                const auto& surface_mesh = surface.mesh();
+                std::vector< bool > visited(
+                    surface_mesh.nb_vertices(), false );
+                for( const auto p : Range{ surface_mesh.nb_polygons() } )
+                {
+                    for( const auto v :
+                        LRange{ surface_mesh.nb_polygon_vertices( p ) } )
+                    {
+                        const auto vertex =
+                            surface_mesh.polygon_vertex( { p, v } );
+                        if( visited[vertex] )
+                        {
+                            continue;
+                        }
+                        visited[vertex] = true;
+                        box.add_point( coordinates( vertex ) );
+                    }
+                }
             }
             return box;
         }
@@ -204,17 +231,14 @@ namespace geode
         void instantiate_stratigraphic_location_on_surfaces(
             const StratigraphicSection& model )
         {
+            stratigraphic_location_attributes_.clear();
+            stratigraphic_location_attributes_.reserve( model.nb_surfaces() );
             for( const auto& surface : model.surfaces() )
             {
-                OpenGeodeGeosciencesImplicitException::check_exception(
-                    ( surface.mesh().type_name()
-                        == TriangulatedSurface2D::type_name_static() ),
-                    nullptr, OpenGeodeException::TYPE::data,
-                    "[StratigraphicSection::instantiate_stratigraphic_"
-                    "attribute_on_surfaces] Surfaces must be meshed as "
-                    "TriangulatedSurface2D, which is not the case for surface "
-                    "with uuid '",
-                    surface.id().string(), "'." );
+                if( !is_triangulated( surface ) )
+                {
+                    continue;
+                }
                 if( surface.mesh().vertex_attribute_manager().attribute_exists(
                         stratigraphic_location_attribute_id_ ) )
                 {
@@ -262,22 +286,93 @@ namespace geode
             return stratigraphic_location_attribute_id_;
         }
 
+        /*!
+         * Transfer the stratigraphic locations stored in the attribute with
+         * the given id (e.g. copied with the meshes from another model) to
+         * the model attribute, then remove the old attribute.
+         */
+        void import_stratigraphic_locations(
+            const StratigraphicSection& model, const uuid& old_attribute_id )
+        {
+            if( old_attribute_id == stratigraphic_location_attribute_id_ )
+            {
+                return;
+            }
+            for( const auto& surface : model.surfaces() )
+            {
+                auto& manager = surface.mesh().vertex_attribute_manager();
+                if( !manager.attribute_exists( old_attribute_id )
+                    || !manager.attribute_exists(
+                        stratigraphic_location_attribute_id_ ) )
+                {
+                    continue;
+                }
+                const auto old_attribute =
+                    manager.find_read_only_attribute< Point1D >(
+                        old_attribute_id );
+                auto new_attribute =
+                    manager.find_attribute< VariableAttribute, Point1D >(
+                        stratigraphic_location_attribute_id_ );
+                for( const auto vertex : Range{ surface.mesh().nb_vertices() } )
+                {
+                    new_attribute->set_value(
+                        vertex, old_attribute->value( vertex ) );
+                }
+                manager.delete_attribute( old_attribute_id );
+            }
+            initialize_stratigraphic_query_trees( model );
+        }
+
     private:
+        static bool is_triangulated( const Surface2D& surface )
+        {
+            return surface.mesh().type_name()
+                   == TriangulatedSurface2D::type_name_static();
+        }
+
+        /*!
+         * Resolves once the stratigraphic location and implicit attributes of
+         * a surface to avoid per vertex lookups in hot loops.
+         */
+        class SurfaceStratigraphicCoordinates
+        {
+        public:
+            SurfaceStratigraphicCoordinates( const Impl& impl,
+                const StratigraphicSection& model,
+                const Surface2D& surface )
+                : location_( impl.stratigraphic_location_attributes_.at(
+                      surface.id() ) ),
+                  implicit_attribute_( surface.mesh()
+                          .vertex_attribute_manager()
+                          .find_read_only_attribute<
+                              ImplicitCrossSection::implicit_attribute_type >(
+                              model.implicit_attribute_id() ) )
+            {
+            }
+
+            Point2D operator()( index_t vertex_id ) const
+            {
+                return Point2D{ { location_.value( vertex_id ).value( 0 ),
+                    implicit_attribute_->value( vertex_id ) } };
+            }
+
+        private:
+            const TriangulatedSurfacePointFunction< 2, 1 >& location_;
+            std::shared_ptr< ReadOnlyAttribute<
+                ImplicitCrossSection::implicit_attribute_type > >
+                implicit_attribute_;
+        };
+
         struct PositiveStratigraphicTriangle
         {
             PositiveStratigraphicTriangle() = delete;
-            PositiveStratigraphicTriangle( const StratigraphicSection& model,
+            PositiveStratigraphicTriangle(
+                const SurfaceStratigraphicCoordinates& coordinates,
                 const Surface2D& surface,
                 index_t triangle_id )
                 : indices_{ surface.mesh().polygon_vertices( triangle_id ) },
-                  positive_triangle_{
-                      model.stratigraphic_coordinates( surface, indices_[0] )
-                          .stratigraphic_coordinates(),
-                      model.stratigraphic_coordinates( surface, indices_[1] )
-                          .stratigraphic_coordinates(),
-                      model.stratigraphic_coordinates( surface, indices_[2] )
-                          .stratigraphic_coordinates()
-                  }
+                  positive_triangle_{ coordinates( indices_[0] ),
+                      coordinates( indices_[1] ), coordinates( indices_[2] ) }
             {
                 if( triangle_signed_area( positive_triangle_ ) < 0 )
                 {
@@ -297,8 +392,9 @@ namespace geode
         {
         public:
             StratigraphicDistanceToTriangle(
-                const StratigraphicSection& model, const Surface2D& surface )
-                : model_( model ), surface_( surface )
+                const SurfaceStratigraphicCoordinates& coordinates,
+                const Surface2D& surface )
+                : coordinates_( coordinates ), surface_( surface )
             {
             }
 
@@ -307,32 +403,34 @@ namespace geode
             {
                 return std::get< 0 >( point_triangle_distance< 2 >(
                     query.stratigraphic_coordinates(),
-                    PositiveStratigraphicTriangle{ model_, surface_, cur_box }
+                    PositiveStratigraphicTriangle{
+                        coordinates_, surface_, cur_box }
                         .positive_triangle_ ) );
             }
 
         private:
-            const StratigraphicSection& model_;
+            const SurfaceStratigraphicCoordinates& coordinates_;
             const Surface2D& surface_;
         };
 
-        static AABBTree2D create_stratigraphic_aabb_tree(
-            const StratigraphicSection& model, const Surface2D& surface )
+        static AABBTree2D create_stratigraphic_aabb_tree( const Impl& impl,
+            const StratigraphicSection& model,
+            const Surface2D& surface )
         {
+            const SurfaceStratigraphicCoordinates coordinates{ impl, model,
+                surface };
             const auto& surface_mesh = surface.mesh();
             absl::FixedArray< BoundingBox2D > box_vector(
                 surface_mesh.nb_polygons() );
             async::parallel_for(
                 async::irange( index_t{ 0 }, surface_mesh.nb_polygons() ),
-                [&box_vector, &surface, &surface_mesh, &model]( index_t p ) {
+                [&box_vector, &surface_mesh, &coordinates]( index_t p ) {
                     BoundingBox2D bbox;
                     for( const auto v :
                         LRange{ surface_mesh.nb_polygon_vertices( p ) } )
                     {
-                        bbox.add_point( model
-                                .stratigraphic_coordinates( surface,
-                                    surface_mesh.polygon_vertex( { p, v } ) )
-                                .stratigraphic_coordinates() );
+                        bbox.add_point( coordinates(
+                            surface_mesh.polygon_vertex( { p, v } ) ) );
                     }
                     box_vector[p] = std::move( bbox );
                 } );
@@ -365,6 +463,8 @@ namespace geode
                     .find_attribute< VariableAttribute, PolygonEdge >(
                         associated_polygon_edge_attribute_id );
             const auto& line_mesh = line.mesh();
+            const SurfaceStratigraphicCoordinates coordinates{ *this, model,
+                surface };
             std::vector< bool > vertices_checked(
                 line_mesh.nb_vertices(), false );
             for( const auto edge_id : Range{ line_mesh.nb_edges() } )
@@ -389,10 +489,8 @@ namespace geode
                     }
                     vertices_checked[vertex_id] = true;
                     strati_line_builder->set_point(
-                        vertex_id, stratigraphic_coordinates( model, surface,
-                                       edge_surface_vertices.front()
-                                           .vertices[edge_vertex_id] )
-                                       .stratigraphic_coordinates() );
+                        vertex_id, coordinates( edge_surface_vertices.front()
+                                           .vertices[edge_vertex_id] ) );
                 }
                 associated_polygon_edge_attribute->set_value(
                     edge_id, edge_surface_vertices.front().edge );
@@ -429,6 +527,8 @@ namespace geode
                         .find_attribute< VariableAttribute, PolygonEdge >(
                             associated_polygon_edge_attribute_id );
             }
+            const SurfaceStratigraphicCoordinates coordinates{ *this, model,
+                surface };
             std::vector< bool > vertices_checked(
                 line_mesh.nb_vertices(), false );
             for( const auto edge_id : Range{ line_mesh.nb_edges() } )
@@ -454,15 +554,11 @@ namespace geode
                     }
                     vertices_checked[vertex_id] = true;
                     strati_line_builders[0]->set_point( vertex_id,
-                        stratigraphic_coordinates( model, surface,
-                            edge_surface_vertices.oriented_edge.value()
-                                .vertices[edge_vertex_id] )
-                            .stratigraphic_coordinates() );
+                        coordinates( edge_surface_vertices.oriented_edge.value()
+                                .vertices[edge_vertex_id] ) );
                     strati_line_builders[1]->set_point( vertex_id,
-                        stratigraphic_coordinates( model, surface,
-                            edge_surface_vertices.opposite_edge.value()
-                                .vertices[edge_vertex_id] )
-                            .stratigraphic_coordinates() );
+                        coordinates( edge_surface_vertices.opposite_edge.value()
+                                .vertices[edge_vertex_id] ) );
                 }
                 associated_polygon_edge_attributes[0]->set_value(
                     edge_id, edge_surface_vertices.oriented_edge.value().edge );
@@ -495,19 +591,16 @@ namespace geode
         : ImplicitCrossSection{ std::move( other ) },
           impl_{ std::move( other.impl_ ) }
     {
-        DEBUG( "StratigraphicSection move constructor" );
-        impl_->initialize_stratigraphic_query_trees( *this );
     }
 
     StratigraphicSection::StratigraphicSection(
-        ImplicitCrossSection&& implicit_section ) noexcept
+        ImplicitCrossSection&& implicit_section )
         : ImplicitCrossSection{ std::move( implicit_section ) }
     {
         impl_->initialize_stratigraphic_query_trees( *this );
     }
 
-    StratigraphicSection::StratigraphicSection(
-        CrossSection&& cross_section ) noexcept
+    StratigraphicSection::StratigraphicSection( CrossSection&& cross_section )
         : ImplicitCrossSection{ std::move( cross_section ) }
     {
         impl_->initialize_stratigraphic_query_trees( *this );
@@ -516,18 +609,23 @@ namespace geode
     StratigraphicSection::StratigraphicSection(
         const StratigraphicSection& initial_model,
         Section&& section,
-        const ModelGenericMapping& initial_to_section_mappings ) noexcept
+        const ModelGenericMapping& initial_to_section_mappings )
         : ImplicitCrossSection{ initial_model, std::move( section ),
               initial_to_section_mappings }
     {
         impl_->initialize_stratigraphic_query_trees( *this );
+        impl_->import_stratigraphic_locations(
+            *this, initial_model.stratigraphic_location_attribute_id() );
     }
 
     StratigraphicSection::~StratigraphicSection() = default;
 
     StratigraphicSection StratigraphicSection::clone() const
     {
-        return StratigraphicSection{ ImplicitCrossSection::clone() };
+        StratigraphicSection model_clone{ ImplicitCrossSection::clone() };
+        model_clone.impl_->import_stratigraphic_locations(
+            model_clone, impl_->stratigraphic_location_attribute_id() );
+        return model_clone;
     }
 
     const Component2D& StratigraphicSection::component( const uuid& id ) const

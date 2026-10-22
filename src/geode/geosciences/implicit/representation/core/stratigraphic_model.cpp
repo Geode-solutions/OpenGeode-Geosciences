@@ -61,9 +61,14 @@ namespace geode
             const StratigraphicModel& model )
         {
             instantiate_stratigraphic_location_on_blocks( model );
+            block_stratigraphic_aabb_trees_.clear();
             block_stratigraphic_aabb_trees_.reserve( model.nb_blocks() );
             for( const auto& block : model.blocks() )
             {
+                if( !is_tetrahedral( block ) )
+                {
+                    continue;
+                }
                 block_stratigraphic_aabb_trees_.try_emplace( block.id() );
             }
         }
@@ -124,8 +129,10 @@ namespace geode
             const StratigraphicPoint3D& stratigraphic_point,
             index_t tetrahedron_id ) const
         {
+            const BlockStratigraphicCoordinates coordinates{ *this, model,
+                block };
             PositiveStratigraphicTetrahedron pos_volume_strati_tetrahedron{
-                model, block, tetrahedron_id
+                coordinates, block, tetrahedron_id
             };
             const auto barycentric_coords = tetrahedron_barycentric_coordinates(
                 stratigraphic_point.stratigraphic_coordinates(),
@@ -148,20 +155,21 @@ namespace geode
         {
             const auto& block_stratigraphic_aabb =
                 block_stratigraphic_aabb_trees_.at( block.id() )(
-                    create_stratigraphic_aabb_tree, model, block );
+                    create_stratigraphic_aabb_tree, *this, model, block );
             const auto& starti_point =
                 stratigraphic_point.stratigraphic_coordinates();
-            StratigraphicDistanceToTetrahedron distance_to_tetra{ model,
+            const BlockStratigraphicCoordinates coordinates{ *this, model,
                 block };
-            auto closest_tetrahedron =
-                std::get< 0 >( block_stratigraphic_aabb.closest_element_box(
-                    starti_point, distance_to_tetra ) );
-            if( distance_to_tetra( stratigraphic_point, closest_tetrahedron )
-                < GLOBAL_EPSILON )
+            StratigraphicDistanceToTetrahedron distance_to_tetra{ coordinates,
+                block };
+            const auto [closest_tetrahedron, distance] =
+                block_stratigraphic_aabb.closest_element_box(
+                    starti_point, distance_to_tetra );
+            if( closest_tetrahedron == NO_ID || distance >= GLOBAL_EPSILON )
             {
-                return closest_tetrahedron;
+                return std::nullopt;
             }
-            return std::nullopt;
+            return closest_tetrahedron;
         }
 
         absl::InlinedVector< std::unique_ptr< TriangulatedSurface3D >, 2 >
@@ -191,17 +199,14 @@ namespace geode
         void instantiate_stratigraphic_location_on_blocks(
             const StratigraphicModel& model )
         {
+            stratigraphic_location_attributes_.clear();
+            stratigraphic_location_attributes_.reserve( model.nb_blocks() );
             for( const auto& block : model.blocks() )
             {
-                OpenGeodeGeosciencesImplicitException::check_exception(
-                    ( block.mesh().type_name()
-                        == TetrahedralSolid3D::type_name_static() ),
-                    nullptr, OpenGeodeException::TYPE::data,
-                    "[StratigraphicModel::instantiate_stratigraphic_"
-                    "attribute_on_blocks] Blocks must be meshed as "
-                    "TetrahedralSolids, which is not the case for block "
-                    "with uuid '",
-                    block.id().string(), "'." );
+                if( !is_tetrahedral( block ) )
+                {
+                    continue;
+                }
                 if( block.mesh().vertex_attribute_manager().attribute_exists(
                         stratigraphic_location_attribute_id_ ) )
                 {
@@ -226,13 +231,31 @@ namespace geode
             const StratigraphicModel& model ) const
         {
             BoundingBox3D box;
-            for( const auto& stratigraphic_tree :
-                block_stratigraphic_aabb_trees_ )
+            for( const auto& block : model.blocks() )
             {
-                box.add_box( stratigraphic_tree
-                        .second( create_stratigraphic_aabb_tree, model,
-                            model.block( stratigraphic_tree.first ) )
-                        .bounding_box() );
+                if( !stratigraphic_location_attributes_.contains( block.id() ) )
+                {
+                    continue;
+                }
+                const BlockStratigraphicCoordinates coordinates{ *this, model,
+                    block };
+                const auto& block_mesh = block.mesh();
+                std::vector< bool > visited( block_mesh.nb_vertices(), false );
+                for( const auto p : Range{ block_mesh.nb_polyhedra() } )
+                {
+                    for( const auto v :
+                        LRange{ block_mesh.nb_polyhedron_vertices( p ) } )
+                    {
+                        const auto vertex =
+                            block_mesh.polyhedron_vertex( { p, v } );
+                        if( visited[vertex] )
+                        {
+                            continue;
+                        }
+                        visited[vertex] = true;
+                        box.add_point( coordinates( vertex ) );
+                    }
+                }
             }
             return box;
         }
@@ -262,25 +285,96 @@ namespace geode
             return stratigraphic_location_attribute_id_;
         }
 
+        /*!
+         * Transfer the stratigraphic locations stored in the attribute with
+         * the given id (e.g. copied with the meshes from another model) to
+         * the model attribute, then remove the old attribute.
+         */
+        void import_stratigraphic_locations(
+            const StratigraphicModel& model, const uuid& old_attribute_id )
+        {
+            if( old_attribute_id == stratigraphic_location_attribute_id_ )
+            {
+                return;
+            }
+            for( const auto& block : model.blocks() )
+            {
+                auto& manager = block.mesh().vertex_attribute_manager();
+                if( !manager.attribute_exists( old_attribute_id )
+                    || !manager.attribute_exists(
+                        stratigraphic_location_attribute_id_ ) )
+                {
+                    continue;
+                }
+                const auto old_attribute =
+                    manager.find_read_only_attribute< Point2D >(
+                        old_attribute_id );
+                auto new_attribute =
+                    manager.find_attribute< VariableAttribute, Point2D >(
+                        stratigraphic_location_attribute_id_ );
+                for( const auto vertex : Range{ block.mesh().nb_vertices() } )
+                {
+                    new_attribute->set_value(
+                        vertex, old_attribute->value( vertex ) );
+                }
+                manager.delete_attribute( old_attribute_id );
+            }
+            initialize_stratigraphic_query_trees( model );
+        }
+
     private:
+        static bool is_tetrahedral( const Block3D& block )
+        {
+            return block.mesh().type_name()
+                   == TetrahedralSolid3D::type_name_static();
+        }
+
+        /*!
+         * Resolves once the stratigraphic location and implicit attributes of
+         * a block to avoid per vertex lookups in hot loops.
+         */
+        class BlockStratigraphicCoordinates
+        {
+        public:
+            BlockStratigraphicCoordinates( const Impl& impl,
+                const StratigraphicModel& model,
+                const Block3D& block )
+                : location_( impl.stratigraphic_location_attributes_.at(
+                      block.id() ) ),
+                  implicit_attribute_( block.mesh()
+                          .vertex_attribute_manager()
+                          .find_read_only_attribute< ImplicitStructuralModel::
+                                  implicit_attribute_type >(
+                              model.implicit_attribute_id() ) )
+            {
+            }
+
+            Point3D operator()( index_t vertex_id ) const
+            {
+                const auto& location = location_.value( vertex_id );
+                return Point3D{ { location.value( 0 ), location.value( 1 ),
+                    implicit_attribute_->value( vertex_id ) } };
+            }
+
+        private:
+            const TetrahedralSolidPointFunction< 3, 2 >& location_;
+            std::shared_ptr< ReadOnlyAttribute<
+                ImplicitStructuralModel::implicit_attribute_type > >
+                implicit_attribute_;
+        };
+
         struct PositiveStratigraphicTetrahedron
         {
             PositiveStratigraphicTetrahedron() = delete;
-            PositiveStratigraphicTetrahedron( const StratigraphicModel& model,
+            PositiveStratigraphicTetrahedron(
+                const BlockStratigraphicCoordinates& coordinates,
                 const Block3D& block,
                 index_t tetrahedron_id )
                 : indices_{ block.mesh().polyhedron_vertices(
                       tetrahedron_id ) },
-                  positive_tetra_{
-                      model.stratigraphic_coordinates( block, indices_[0] )
-                          .stratigraphic_coordinates(),
-                      model.stratigraphic_coordinates( block, indices_[1] )
-                          .stratigraphic_coordinates(),
-                      model.stratigraphic_coordinates( block, indices_[2] )
-                          .stratigraphic_coordinates(),
-                      model.stratigraphic_coordinates( block, indices_[3] )
-                          .stratigraphic_coordinates()
-                  }
+                  positive_tetra_{ coordinates( indices_[0] ),
+                      coordinates( indices_[1] ), coordinates( indices_[2] ),
+                      coordinates( indices_[3] ) }
             {
                 if( tetrahedron_signed_volume( positive_tetra_ ) < 0 )
                 {
@@ -300,8 +394,9 @@ namespace geode
         {
         public:
             StratigraphicDistanceToTetrahedron(
-                const StratigraphicModel& model, const Block3D& block )
-                : model_( model ), block_( block )
+                const BlockStratigraphicCoordinates& coordinates,
+                const Block3D& block )
+                : coordinates_( coordinates ), block_( block )
             {
             }
 
@@ -309,7 +404,8 @@ namespace geode
                 const StratigraphicPoint3D& query, index_t cur_box ) const
             {
                 auto positive_tetra =
-                    PositiveStratigraphicTetrahedron{ model_, block_, cur_box };
+                    PositiveStratigraphicTetrahedron{ coordinates_, block_,
+                        cur_box };
                 auto output = point_tetrahedron_distance(
                     query.stratigraphic_coordinates(),
                     positive_tetra.positive_tetra_ );
@@ -317,27 +413,28 @@ namespace geode
             }
 
         private:
-            const StratigraphicModel& model_;
+            const BlockStratigraphicCoordinates& coordinates_;
             const Block3D& block_;
         };
 
-        static AABBTree3D create_stratigraphic_aabb_tree(
-            const StratigraphicModel& model, const Block3D& block )
+        static AABBTree3D create_stratigraphic_aabb_tree( const Impl& impl,
+            const StratigraphicModel& model,
+            const Block3D& block )
         {
+            const BlockStratigraphicCoordinates coordinates{ impl, model,
+                block };
             const auto& block_mesh = block.mesh();
             absl::FixedArray< BoundingBox3D > box_vector(
                 block_mesh.nb_polyhedra() );
             async::parallel_for(
                 async::irange( index_t{ 0 }, block_mesh.nb_polyhedra() ),
-                [&box_vector, &block, &block_mesh, &model]( index_t p ) {
+                [&box_vector, &block_mesh, &coordinates]( index_t p ) {
                     BoundingBox3D bbox;
                     for( const auto v :
                         LRange{ block_mesh.nb_polyhedron_vertices( p ) } )
                     {
-                        bbox.add_point( model
-                                .stratigraphic_coordinates( block,
-                                    block_mesh.polyhedron_vertex( { p, v } ) )
-                                .stratigraphic_coordinates() );
+                        bbox.add_point( coordinates(
+                            block_mesh.polyhedron_vertex( { p, v } ) ) );
                     }
                     box_vector[p] = std::move( bbox );
                 } );
@@ -371,6 +468,8 @@ namespace geode
                     .find_attribute< VariableAttribute, PolyhedronFacet >(
                         associated_polyhedron_facet_attribute_id );
             const auto& surface_mesh = surface.mesh< TriangulatedSurface3D >();
+            const BlockStratigraphicCoordinates coordinates{ *this, model,
+                block };
             std::vector< bool > vertices_checked(
                 surface_mesh.nb_vertices(), false );
             for( const auto polygon_id : Range{ surface_mesh.nb_polygons() } )
@@ -396,10 +495,8 @@ namespace geode
                     }
                     vertices_checked[vertex_id] = true;
                     strati_surface_builder->set_point(
-                        vertex_id, stratigraphic_coordinates( model, block,
-                                       polygon_block_vertices.front()
-                                           .vertices[polygon_vertex_id] )
-                                       .stratigraphic_coordinates() );
+                        vertex_id, coordinates( polygon_block_vertices.front()
+                                           .vertices[polygon_vertex_id] ) );
                 }
                 associated_polyhedron_facet_attribute->set_value(
                     polygon_id, polygon_block_vertices.front().facet );
@@ -445,6 +542,8 @@ namespace geode
                         .find_attribute< VariableAttribute, PolyhedronFacet >(
                             associated_polyhedron_facet_attribute_id );
             }
+            const BlockStratigraphicCoordinates coordinates{ *this, model,
+                block };
             std::vector< bool > vertices_checked(
                 surface_mesh.nb_vertices(), false );
             for( const auto polygon_id : Range{ surface_mesh.nb_polygons() } )
@@ -470,17 +569,15 @@ namespace geode
                     }
                     vertices_checked[vertex_id] = true;
                     strati_surface_builders[0]->set_point( vertex_id,
-                        stratigraphic_coordinates( model, block,
+                        coordinates(
                             polygon_block_vertices.oriented_polyhedron_facet
                                 .value()
-                                .vertices[polygon_vertex_id] )
-                            .stratigraphic_coordinates() );
+                                .vertices[polygon_vertex_id] ) );
                     strati_surface_builders[1]->set_point( vertex_id,
-                        stratigraphic_coordinates( model, block,
+                        coordinates(
                             polygon_block_vertices.opposite_polyhedron_facet
                                 .value()
-                                .vertices[polygon_vertex_id] )
-                            .stratigraphic_coordinates() );
+                                .vertices[polygon_vertex_id] ) );
                 }
                 associated_polyhedron_facet_attributes[0]->set_value(
                     polygon_id,
@@ -517,18 +614,16 @@ namespace geode
         : ImplicitStructuralModel{ std::move( other ) },
           impl_{ std::move( other.impl_ ) }
     {
-        impl_->initialize_stratigraphic_query_trees( *this );
     }
 
     StratigraphicModel::StratigraphicModel(
-        ImplicitStructuralModel&& implicit_model ) noexcept
+        ImplicitStructuralModel&& implicit_model )
         : ImplicitStructuralModel{ std::move( implicit_model ) }
     {
         impl_->initialize_stratigraphic_query_trees( *this );
     }
 
-    StratigraphicModel::StratigraphicModel(
-        StructuralModel&& structural_model ) noexcept
+    StratigraphicModel::StratigraphicModel( StructuralModel&& structural_model )
         : ImplicitStructuralModel{ std::move( structural_model ) }
     {
         impl_->initialize_stratigraphic_query_trees( *this );
@@ -537,18 +632,23 @@ namespace geode
     StratigraphicModel::StratigraphicModel(
         const StratigraphicModel& initial_model,
         BRep&& brep,
-        const ModelGenericMapping& initial_to_brep_mappings ) noexcept
+        const ModelGenericMapping& initial_to_brep_mappings )
         : ImplicitStructuralModel{ initial_model, std::move( brep ),
               initial_to_brep_mappings }
     {
         impl_->initialize_stratigraphic_query_trees( *this );
+        impl_->import_stratigraphic_locations(
+            *this, initial_model.stratigraphic_location_attribute_id() );
     }
 
     StratigraphicModel::~StratigraphicModel() = default;
 
     StratigraphicModel StratigraphicModel::clone() const
     {
-        return StratigraphicModel{ ImplicitStructuralModel::clone() };
+        StratigraphicModel model_clone{ ImplicitStructuralModel::clone() };
+        model_clone.impl_->import_stratigraphic_locations(
+            model_clone, impl_->stratigraphic_location_attribute_id() );
+        return model_clone;
     }
 
     const Component3D& StratigraphicModel::component( const uuid& id ) const

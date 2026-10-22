@@ -92,6 +92,11 @@ namespace geode
             this->set_name( name );
         }
 
+        void set_fault_active( bool active, FaultsBuilderKey )
+        {
+            this->set_active( active );
+        }
+
     private:
         Fault();
 

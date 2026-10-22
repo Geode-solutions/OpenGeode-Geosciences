@@ -33,27 +33,29 @@
 namespace
 {
     template < typename Model >
-    geode::BijectiveMapping< geode::uuid > clone_fault_mapping(
-        const Model& model )
+    void add_faults_clone_mapping(
+        const Model& model, geode::BijectiveMapping< geode::uuid >& mapping )
     {
-        geode::BijectiveMapping< geode::uuid > fault_clone_mapping;
         for( const auto& fault : model.faults() )
         {
-            fault_clone_mapping.map( fault.id(), fault.id() );
+            if( !mapping.has_mapping_input( fault.id() ) )
+            {
+                mapping.map( fault.id(), fault.id() );
+            }
         }
-        return fault_clone_mapping;
     }
 
     template < typename Model >
-    geode::BijectiveMapping< geode::uuid > clone_fault_block_mapping(
-        const Model& model )
+    void add_fault_blocks_clone_mapping(
+        const Model& model, geode::BijectiveMapping< geode::uuid >& mapping )
     {
-        geode::BijectiveMapping< geode::uuid > fault_block_clone_mapping;
         for( const auto& fault_block : model.fault_blocks() )
         {
-            fault_block_clone_mapping.map( fault_block.id(), fault_block.id() );
+            if( !mapping.has_mapping_input( fault_block.id() ) )
+            {
+                mapping.map( fault_block.id(), fault_block.id() );
+            }
         }
-        return fault_block_clone_mapping;
     }
 
     template < typename Model >
@@ -72,12 +74,12 @@ namespace
     void add_faults_geology_clone_mapping(
         geode::ModelCopyMapping& clone_mapping, const Model& model )
     {
-        clone_mapping.emplace(
-            geode::Fault< Model::dim >::component_type_static(),
-            clone_fault_mapping( model ) );
-        clone_mapping.emplace(
-            geode::FaultBlock< Model::dim >::component_type_static(),
-            clone_fault_block_mapping( model ) );
+        add_faults_clone_mapping( model,
+            clone_mapping
+                [geode::Fault< Model::dim >::component_type_static()] );
+        add_fault_blocks_clone_mapping( model,
+            clone_mapping
+                [geode::FaultBlock< Model::dim >::component_type_static()] );
     }
 } // namespace
 

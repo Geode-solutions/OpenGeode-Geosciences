@@ -96,6 +96,17 @@ namespace geode
                 name, typename Horizon< dimension >::HorizonsBuilderKey{} );
     }
 
+    template < index_t dimension >
+    void HorizonsBuilder< dimension >::set_horizon_active(
+        const Horizon< dimension >& horizon, bool active )
+    {
+        horizons_
+            .modifiable_horizon( horizon.id(),
+                typename Horizon< dimension >::HorizonsBuilderKey{} )
+            .set_horizon_active(
+                active, typename Horizon< dimension >::HorizonsBuilderKey{} );
+    }
+
     template class opengeode_geosciences_explicit_api HorizonsBuilder< 2 >;
     template class opengeode_geosciences_explicit_api HorizonsBuilder< 3 >;
 } // namespace geode

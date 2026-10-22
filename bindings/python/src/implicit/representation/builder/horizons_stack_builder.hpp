@@ -28,6 +28,20 @@
 #include <geode/geosciences/implicit/representation/core/horizons_stack.hpp>
 
 #define PYTHON_HORIZONS_STACK_BUILDER( dimension )                             \
+    const auto info_name##dimension =                                          \
+        "InsertedHorizonInfo" + std::to_string( dimension ) + "D";             \
+    pybind11::class_<                                                          \
+        HorizonsStackBuilder##dimension##D::InsertedHorizonInfo >(             \
+        module, info_name##dimension.c_str() )                                 \
+        .def_readwrite(                                                        \
+            "new_horizon_id", &HorizonsStackBuilder##dimension##D::            \
+                                  InsertedHorizonInfo::new_horizon_id )        \
+        .def_readwrite( "strati_unit_above_id",                                \
+            &HorizonsStackBuilder##dimension##D::InsertedHorizonInfo::         \
+                strati_unit_above_id )                                         \
+        .def_readwrite( "strati_unit_under_id",                                \
+            &HorizonsStackBuilder##dimension##D::InsertedHorizonInfo::         \
+                strati_unit_under_id );                                        \
     const auto name##dimension =                                               \
         "HorizonsStackBuilder" + std::to_string( dimension ) + "D";            \
     pybind11::class_< HorizonsStackBuilder##dimension##D,                      \
@@ -61,7 +75,13 @@
         .def( "remove_horizon",                                                \
             &HorizonsStackBuilder##dimension##D::remove_horizon )              \
         .def( "remove_stratigraphic_unit",                                     \
-            &HorizonsStackBuilder##dimension##D::remove_stratigraphic_unit )
+            &HorizonsStackBuilder##dimension##D::remove_stratigraphic_unit )   \
+        .def( "add_horizon_in_stratigraphic_unit",                             \
+            &HorizonsStackBuilder##dimension##D::                              \
+                add_horizon_in_stratigraphic_unit )                            \
+        .def( "compute_top_and_bottom_horizons",                               \
+            &HorizonsStackBuilder##dimension##D::                              \
+                compute_top_and_bottom_horizons )
 
 namespace geode
 {

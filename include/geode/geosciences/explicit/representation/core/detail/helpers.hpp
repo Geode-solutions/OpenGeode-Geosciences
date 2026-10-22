@@ -23,6 +23,7 @@
 
 #pragma once
 
+#include <geode/model/mixin/core/relationships.hpp>
 #include <geode/model/representation/core/mapping.hpp>
 
 #include <geode/geosciences/explicit/common.hpp>
@@ -37,6 +38,21 @@ namespace geode
 {
     namespace detail
     {
+        /*!
+         * Advance the iterator until it points to an item of the given type
+         * (or reaches the end). Used by geological item ranges to ignore
+         * items which do not have the expected component type.
+         */
+        inline void skip_other_type_items(
+            Relationships::ItemRangeIterator& iterator,
+            const ComponentType& item_type )
+        {
+            while( iterator != iterator && ( *iterator ).type != item_type )
+            {
+                ++iterator;
+            }
+        }
+
         template < typename Model >
         ModelCopyMapping transfer_geological_information(
             const Model& initial_model,

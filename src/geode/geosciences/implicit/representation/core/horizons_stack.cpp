@@ -25,6 +25,7 @@
 
 #include <geode/basic/logger.hpp>
 #include <geode/basic/pimpl_impl.hpp>
+#include <geode/basic/range.hpp>
 
 #include <geode/model/representation/core/detail/model_component.hpp>
 
@@ -55,6 +56,12 @@ namespace geode
         void set_bottom_horizon( uuid horizon_id )
         {
             bottom_horizon_ = horizon_id;
+        }
+
+        void reset_top_and_bottom_horizons()
+        {
+            top_horizon_.reset();
+            bottom_horizon_.reset();
         }
 
     private:
@@ -252,12 +259,22 @@ namespace geode
         auto result = absl::StrCat( "HorizonsStack ",
             this->name().value_or( this->id().string() ),
             " from top to bottom:" );
-        const auto& top_unit = this->stratigraphic_unit(
-            this->above( this->top_horizon().value() ).value() );
-        absl::StrAppend( &result, "\n", top_unit.component_id().string() );
-        if( const auto name = top_unit.name() )
+        const auto append_unit = [this, &result](
+                                     const std::optional< uuid >& unit_id ) {
+            if( !unit_id || !this->has_stratigraphic_unit( unit_id.value() ) )
+            {
+                return;
+            }
+            const auto& unit = this->stratigraphic_unit( unit_id.value() );
+            absl::StrAppend( &result, "\n", unit.component_id().string() );
+            if( const auto name = unit.name() )
+            {
+                absl::StrAppend( &result, ", named ", name.value() );
+            }
+        };
+        if( const auto top_horizon = this->top_horizon() )
         {
-            absl::StrAppend( &result, ", named ", name.value() );
+            append_unit( this->above( top_horizon.value() ) );
         }
         for( const auto& horizon : this->top_to_bottom_horizons() )
         {
@@ -292,14 +309,7 @@ namespace geode
             {
                 absl::StrAppend( &result, "\n -- Intrusion --" );
             }
-            const auto& under_unit =
-                this->stratigraphic_unit( this->under( horizon.id() ).value() );
-            absl::StrAppend(
-                &result, "\n", under_unit.component_id().string() );
-            if( const auto name = under_unit.name() )
-            {
-                absl::StrAppend( &result, ", named ", name.value() );
-            }
+            append_unit( this->under( horizon.id() ) );
         }
         return result;
     }
@@ -314,11 +324,19 @@ namespace geode
                 "[HorizonsStack::compute_top_and_bottom_horizons] No horizons "
                 "were provided in the HorizonsStack, top and bottom horizons "
                 "will be set to std::nullopt." );
+            impl_->reset_top_and_bottom_horizons();
             return;
         }
+        // Walks are bounded by the number of horizons to stay safe on
+        // inconsistent (cyclic) relations
         auto current_horizon_id = ( *this->horizons().begin() ).id();
-        while( const auto su_above = this->above( current_horizon_id ) )
+        for( [[maybe_unused]] const auto step : Range{ this->nb_horizons() } )
         {
+            const auto su_above = this->above( current_horizon_id );
+            if( !su_above )
+            {
+                break;
+            }
             const auto horizon_above = this->above( su_above.value() );
             if( !horizon_above )
             {
@@ -327,8 +345,13 @@ namespace geode
             current_horizon_id = horizon_above.value();
         }
         impl_->set_top_horizon( current_horizon_id );
-        while( const auto su_under = this->under( current_horizon_id ) )
+        for( [[maybe_unused]] const auto step : Range{ this->nb_horizons() } )
         {
+            const auto su_under = this->under( current_horizon_id );
+            if( !su_under )
+            {
+                break;
+            }
             const auto horizon_under = this->under( su_under.value() );
             if( !horizon_under )
             {
@@ -382,21 +405,11 @@ namespace geode
 
         void operator++()
         {
-            if( range_order_ == RANGEORDER::bottom_to_top )
+            if( ++nb_steps_ < stack_.nb_horizons() )
             {
-                if( iter_ != stack_.top_horizon().value() )
+                if( const auto next = next_horizon() )
                 {
-                    iter_ =
-                        stack_.above( stack_.above( iter_ ).value() ).value();
-                    return;
-                }
-            }
-            else if( range_order_ == RANGEORDER::top_to_bottom )
-            {
-                if( iter_ != stack_.bottom_horizon().value() )
-                {
-                    iter_ =
-                        stack_.under( stack_.under( iter_ ).value() ).value();
+                    iter_ = next.value();
                     return;
                 }
             }
@@ -409,9 +422,38 @@ namespace geode
         }
 
     private:
+        std::optional< uuid > next_horizon() const
+        {
+            if( range_order_ == RANGEORDER::bottom_to_top )
+            {
+                if( stack_.top_horizon() == iter_ )
+                {
+                    return std::nullopt;
+                }
+                const auto unit_above = stack_.above( iter_ );
+                if( !unit_above )
+                {
+                    return std::nullopt;
+                }
+                return stack_.above( unit_above.value() );
+            }
+            if( stack_.bottom_horizon() == iter_ )
+            {
+                return std::nullopt;
+            }
+            const auto unit_under = stack_.under( iter_ );
+            if( !unit_under )
+            {
+                return std::nullopt;
+            }
+            return stack_.under( unit_under.value() );
+        }
+
+    private:
         const HorizonsStack< dimension >& stack_;
         RANGEORDER range_order_;
         uuid iter_{};
+        index_t nb_steps_{ 0 };
     };
 
     template < index_t dimension >
@@ -465,16 +507,30 @@ namespace geode
         {
             auto bot_horizon = stack.bottom_horizon();
             auto top_horizon = stack.top_horizon();
-            if( bot_horizon && top_horizon )
+            if( !bot_horizon || !top_horizon )
             {
-                if( range_order_ == RANGEORDER::bottom_to_top )
+                return;
+            }
+            std::optional< uuid > first_unit;
+            if( range_order_ == RANGEORDER::bottom_to_top )
+            {
+                first_unit = stack.under( bot_horizon.value() );
+                if( !first_unit )
                 {
-                    iter_ = stack.under( bot_horizon.value() ).value();
+                    first_unit = stack.above( bot_horizon.value() );
                 }
-                else if( range_order_ == RANGEORDER::top_to_bottom )
+            }
+            else if( range_order_ == RANGEORDER::top_to_bottom )
+            {
+                first_unit = stack.above( top_horizon.value() );
+                if( !first_unit )
                 {
-                    iter_ = stack.above( top_horizon.value() ).value();
+                    first_unit = stack.under( top_horizon.value() );
                 }
+            }
+            if( first_unit )
+            {
+                iter_ = first_unit.value();
             }
         }
 
@@ -485,23 +541,11 @@ namespace geode
 
         void operator++()
         {
-            if( range_order_ == RANGEORDER::bottom_to_top )
+            if( ++nb_steps_ < stack_.nb_stratigraphic_units() )
             {
-                if( iter_
-                    != stack_.above( stack_.top_horizon().value() ).value() )
+                if( const auto next = next_unit() )
                 {
-                    iter_ =
-                        stack_.above( stack_.above( iter_ ).value() ).value();
-                    return;
-                }
-            }
-            else if( range_order_ == RANGEORDER::top_to_bottom )
-            {
-                if( iter_
-                    != stack_.under( stack_.bottom_horizon().value() ).value() )
-                {
-                    iter_ =
-                        stack_.under( stack_.under( iter_ ).value() ).value();
+                    iter_ = next.value();
                     return;
                 }
             }
@@ -514,9 +558,42 @@ namespace geode
         }
 
     private:
+        std::optional< uuid > next_unit() const
+        {
+            if( range_order_ == RANGEORDER::bottom_to_top )
+            {
+                const auto top_horizon = stack_.top_horizon();
+                if( top_horizon
+                    && stack_.above( top_horizon.value() ) == iter_ )
+                {
+                    return std::nullopt;
+                }
+                const auto horizon_above = stack_.above( iter_ );
+                if( !horizon_above )
+                {
+                    return std::nullopt;
+                }
+                return stack_.above( horizon_above.value() );
+            }
+            const auto bottom_horizon = stack_.bottom_horizon();
+            if( bottom_horizon
+                && stack_.under( bottom_horizon.value() ) == iter_ )
+            {
+                return std::nullopt;
+            }
+            const auto horizon_under = stack_.under( iter_ );
+            if( !horizon_under )
+            {
+                return std::nullopt;
+            }
+            return stack_.under( horizon_under.value() );
+        }
+
+    private:
         const HorizonsStack< dimension >& stack_;
         RANGEORDER range_order_;
         uuid iter_{};
+        index_t nb_steps_{ 0 };
     };
 
     template < index_t dimension >
