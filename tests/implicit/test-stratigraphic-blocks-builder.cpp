@@ -234,6 +234,27 @@ namespace
             result.assigned_blocks.size() == 2,
             "Two blocks should be assigned" );
     }
+
+    void test_more_than_two_conformal_horizons()
+    {
+        geode::Logger::info( "Testing more than two conformal horizons" );
+        geode::ImplicitStructuralModel model;
+        const auto stack = create_stack(
+            model, { CONTACT::conformal, CONTACT::erosion, CONTACT::conformal,
+                       CONTACT::conformal, CONTACT::conformal } );
+        const auto block = add_block( model );
+        add_boundary( model, { block }, stack.horizons[4] );
+        add_boundary( model, { block }, stack.horizons[3] );
+        add_boundary( model, { block }, stack.horizons[2] );
+        add_boundary( model, { block }, stack.horizons[1] );
+        const auto result =
+            geode::complete_stratigraphic_unit_block_relationships( model );
+        check_unit( model, block, std::nullopt,
+            "block bounded by three conformal horizons" );
+        geode::OpenGeodeGeosciencesImplicitException::test(
+            result.unassigned_blocks.size() == 1,
+            "One block should be unassigned" );
+    }
 } // namespace
 
 int main()
@@ -247,6 +268,7 @@ int main()
         test_empty_stratigraphic_units_cleanup();
         test_conformal_and_unconformity( CONTACT::erosion );
         test_conformal_and_unconformity( CONTACT::baselap );
+        test_more_than_two_conformal_horizons();
         geode::Logger::info( "TEST SUCCESS" );
         return 0;
     }

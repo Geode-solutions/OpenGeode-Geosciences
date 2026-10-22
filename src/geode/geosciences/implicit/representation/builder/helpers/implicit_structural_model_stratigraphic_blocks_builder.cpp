@@ -390,6 +390,11 @@ namespace
                 return assign_between_two_conformal_horizons(
                     block, horizons_data.conformal );
             }
+            if( horizons_data.conformal.size() > 2 )
+            {
+                // Ambiguous configuration: let the neighbors decide
+                return false;
+            }
             // only one conformal horizon
             if( !horizons_data.erosion.empty() )
             {
