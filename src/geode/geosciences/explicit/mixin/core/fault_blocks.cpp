@@ -96,7 +96,8 @@ namespace geode
     void FaultBlocks< dimension >::load_fault_blocks(
         std::string_view directory, FaultBlocksBuilderKey /*unused*/ )
     {
-        impl_->load_components( absl::StrCat( directory, "/fault_blocks" ) );
+        impl_->load_components(
+            absl::StrCat( directory, "/fault_blocks" ), false );
     }
 
     template < index_t dimension >

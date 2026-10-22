@@ -49,6 +49,8 @@
 #include <geode/geosciences/explicit/representation/io/structural_model_input.hpp>
 #include <geode/geosciences/explicit/representation/io/structural_model_output.hpp>
 
+#include <geode/tests_config.hpp>
+
 namespace
 {
     geode::index_t nb_warnings{ 0 };
@@ -766,6 +768,21 @@ void test_copy_in_non_empty_model( const geode::StructuralModel& model )
         "Non-empty StructuralModel should not be modified" );
 }
 
+void test_load_without_fault_blocks_and_stratigraphic_units()
+{
+    nb_warnings = 0;
+    const auto model = geode::load_structural_model( absl::StrCat(
+        geode::DATA_PATH,
+        "structural_model_without_fault_blocks_and_units.og_strm" ) );
+    geode::OpenGeodeGeosciencesExplicitException::test( nb_warnings == 0,
+        "Loading a StructuralModel saved before FaultBlocks and "
+        "StratigraphicUnits existed should not warn" );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        model.nb_blocks() != 0 && model.nb_fault_blocks() == 0
+            && model.nb_stratigraphic_units() == 0,
+        "Loaded legacy StructuralModel has wrong geological components" );
+}
+
 void modify_model(
     geode::StructuralModel& model, geode::StructuralModelBuilder& builder )
 {
@@ -853,6 +870,7 @@ int main()
         test_geology_clone_mapping_with_existing_mappings( model );
         test_geological_components_mappings_with_existing_mappings( model );
         test_geological_components_activity();
+        test_load_without_fault_blocks_and_stratigraphic_units();
         modify_model( model, builder );
 
         geode::Logger::info( "TEST SUCCESS" );
