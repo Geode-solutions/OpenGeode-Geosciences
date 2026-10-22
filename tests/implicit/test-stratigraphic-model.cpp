@@ -243,6 +243,77 @@ void test_save_stratigraphic_surfaces( const geode::StratigraphicModel& model )
     }
 }
 
+bool is_block_vertex_stratigraphic_point(
+    const geode::StratigraphicModel& model,
+    const geode::Block3D& block,
+    const geode::ComponentMeshVertex& surface_vertex,
+    const geode::Point3D& stratigraphic_point )
+{
+    const auto unique_vertex = model.unique_vertex( surface_vertex );
+    for( const auto& block_vertex :
+        model.component_mesh_vertices( unique_vertex ) )
+    {
+        if( block_vertex.component_id.id != block.id() )
+        {
+            continue;
+        }
+        if( model.stratigraphic_coordinates( block, block_vertex.vertex )
+                .stratigraphic_coordinates()
+                .inexact_equal( stratigraphic_point ) )
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+void test_stratigraphic_surfaces_values(
+    const geode::StratigraphicModel& model )
+{
+    geode::index_t nb_checks{ 0 };
+    for( const auto& block : model.blocks() )
+    {
+        for( const auto& surface : model.boundaries( block ) )
+        {
+            const auto strati_surfaces =
+                model.stratigraphic_surface( block, surface );
+            for( const auto v : geode::Range{ surface.mesh().nb_vertices() } )
+            {
+                for( const auto& strati_surface : strati_surfaces )
+                {
+                    geode::OpenGeodeGeosciencesImplicitException::test(
+                        is_block_vertex_stratigraphic_point( model, block,
+                            { surface.component_id(), v },
+                            strati_surface->point( v ) ),
+                        "Wrong stratigraphic surface point ", v, " of surface ",
+                        surface.id().string() );
+                    nb_checks++;
+                }
+            }
+        }
+        for( const auto& surface : model.internal_surfaces( block ) )
+        {
+            const auto strati_surfaces =
+                model.stratigraphic_surface( block, surface );
+            for( const auto v : geode::Range{ surface.mesh().nb_vertices() } )
+            {
+                for( const auto& strati_surface : strati_surfaces )
+                {
+                    geode::OpenGeodeGeosciencesImplicitException::test(
+                        is_block_vertex_stratigraphic_point( model, block,
+                            { surface.component_id(), v },
+                            strati_surface->point( v ) ),
+                        "Wrong internal stratigraphic surface point ", v,
+                        " of surface ", surface.id().string() );
+                    nb_checks++;
+                }
+            }
+        }
+    }
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        nb_checks > 0, "No stratigraphic surface point checked." );
+}
+
 void test_io(
     const geode::StratigraphicModel& model, const geode::uuid& block1_id )
 {
@@ -384,6 +455,7 @@ int main()
         test_copy( model, block1_id );
         DEBUG( "Testing save stratigraphic surfaces" );
         test_save_stratigraphic_surfaces( model );
+        test_stratigraphic_surfaces_values( model );
         DEBUG( "Testing IO" );
         test_io( model, block1_id );
         test_move( model );

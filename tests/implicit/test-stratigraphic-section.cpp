@@ -156,6 +156,59 @@ void test_save_stratigraphic_lines(
     }
 }
 
+bool is_surface_vertex_stratigraphic_point(
+    const geode::StratigraphicSection& section,
+    const geode::Surface2D& surface,
+    const geode::ComponentMeshVertex& line_vertex,
+    const geode::Point2D& stratigraphic_point )
+{
+    const auto unique_vertex = section.unique_vertex( line_vertex );
+    for( const auto& surface_vertex :
+        section.component_mesh_vertices( unique_vertex ) )
+    {
+        if( surface_vertex.component_id.id != surface.id() )
+        {
+            continue;
+        }
+        if( section.stratigraphic_coordinates( surface, surface_vertex.vertex )
+                .stratigraphic_coordinates()
+                .inexact_equal( stratigraphic_point ) )
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+void test_stratigraphic_lines_values(
+    const geode::StratigraphicSection& section )
+{
+    geode::index_t nb_checks{ 0 };
+    for( const auto& surface : section.surfaces() )
+    {
+        for( const auto& line : section.boundaries( surface ) )
+        {
+            const auto strati_lines =
+                section.stratigraphic_line( surface, line );
+            for( const auto v : geode::Range{ line.mesh().nb_vertices() } )
+            {
+                for( const auto& strati_line : strati_lines )
+                {
+                    geode::OpenGeodeGeosciencesImplicitException::test(
+                        is_surface_vertex_stratigraphic_point( section, surface,
+                            { line.component_id(), v },
+                            strati_line->point( v ) ),
+                        "Wrong stratigraphic line point ", v, " of line ",
+                        line.id().string() );
+                    nb_checks++;
+                }
+            }
+        }
+    }
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        nb_checks > 0, "No stratigraphic line point checked." );
+}
+
 void test_backward_io( std::string filename )
 {
     const auto implicit_cross_section =
@@ -257,6 +310,7 @@ int main()
         auto model = import_section_with_stratigraphy();
         test_section( model );
         // test_save_stratigraphic_lines( model );
+        test_stratigraphic_lines_values( model );
         test_io( model );
         test_move( model );
         test_empty_surface();
