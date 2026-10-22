@@ -337,6 +337,35 @@ void test_rescale_constant_field()
     }
 }
 
+void test_rescale_with_unsupported_mesh()
+{
+    geode::Logger::info( "Testing rescale with unsupported mesh type" );
+    geode::StructuralModel base_model;
+    geode::StructuralModelBuilder builder{ base_model };
+    const auto unsupported_id = builder.add_block();
+    builder.block_mesh_builder( base_model.block( unsupported_id ) )
+        ->create_point( geode::Point3D{ { 0, 0, 0 } } );
+    const auto block_id = add_tetrahedral_block( builder );
+    fill_tetrahedral_block( builder, base_model.block( block_id ), 0 );
+    geode::ImplicitStructuralModel model{ std::move( base_model ) };
+    geode::ImplicitStructuralModelBuilder implicit_builder{ model };
+    const auto& block = model.block( block_id );
+    for( const auto vertex : geode::Range{ block.mesh().nb_vertices() } )
+    {
+        implicit_builder.set_implicit_value( block, vertex, 1 );
+    }
+    geode::detail::rescale_implicit_value( model, 2 );
+    for( const auto vertex : geode::Range{ block.mesh().nb_vertices() } )
+    {
+        geode::OpenGeodeGeosciencesImplicitException::test(
+            model.implicit_value( block, vertex ) == 2,
+            "[rescale] Implicit values should be rescaled" );
+    }
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        model.block( unsupported_id ).mesh().nb_vertices() == 1,
+        "[rescale] Unsupported mesh should be kept" );
+}
+
 int main()
 {
     try
@@ -349,6 +378,7 @@ int main()
         test_reinitialize_after_mesh_edition();
         test_from_scalar_field();
         test_rescale_constant_field();
+        test_rescale_with_unsupported_mesh();
 
         geode::Logger::info( "TEST SUCCESS" );
         return 0;

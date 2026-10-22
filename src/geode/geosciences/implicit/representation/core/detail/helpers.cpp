@@ -88,6 +88,11 @@ namespace geode
             ImplicitCrossSectionBuilder builder{ section };
             for( const auto& surface : section.surfaces() )
             {
+                if( !surface.mesh().vertex_attribute_manager().attribute_exists(
+                        section.implicit_attribute_id() ) )
+                {
+                    continue;
+                }
                 for( const auto vertex_id :
                     Range{ surface.mesh().nb_vertices() } )
                 {
@@ -127,6 +132,11 @@ namespace geode
             ImplicitStructuralModelBuilder builder{ model };
             for( const auto& block : model.blocks() )
             {
+                if( !block.mesh().vertex_attribute_manager().attribute_exists(
+                        model.implicit_attribute_id() ) )
+                {
+                    continue;
+                }
                 for( const auto vertex_id :
                     Range{ block.mesh().nb_vertices() } )
                 {

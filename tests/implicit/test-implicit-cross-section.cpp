@@ -336,6 +336,35 @@ void test_rescale_constant_field()
     }
 }
 
+void test_rescale_with_unsupported_mesh()
+{
+    geode::Logger::info( "Testing rescale with unsupported mesh type" );
+    geode::CrossSection base_model;
+    geode::CrossSectionBuilder builder{ base_model };
+    const auto unsupported_id = builder.add_surface();
+    builder.surface_mesh_builder( base_model.surface( unsupported_id ) )
+        ->create_point( geode::Point2D{ { 0, 0 } } );
+    const auto surface_id = add_triangulated_surface( builder );
+    fill_triangulated_surface( builder, base_model.surface( surface_id ), 0 );
+    geode::ImplicitCrossSection model{ std::move( base_model ) };
+    geode::ImplicitCrossSectionBuilder implicit_builder{ model };
+    const auto& surface = model.surface( surface_id );
+    for( const auto vertex : geode::Range{ surface.mesh().nb_vertices() } )
+    {
+        implicit_builder.set_implicit_value( surface, vertex, 1 );
+    }
+    geode::detail::rescale_implicit_value( model, 2 );
+    for( const auto vertex : geode::Range{ surface.mesh().nb_vertices() } )
+    {
+        geode::OpenGeodeGeosciencesImplicitException::test(
+            model.implicit_value( surface, vertex ) == 2,
+            "[rescale] Implicit values should be rescaled" );
+    }
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        model.surface( unsupported_id ).mesh().nb_vertices() == 1,
+        "[rescale] Unsupported mesh should be kept" );
+}
+
 int main()
 {
     try
@@ -348,6 +377,7 @@ int main()
         test_reinitialize_after_mesh_edition();
         test_from_scalar_field();
         test_rescale_constant_field();
+        test_rescale_with_unsupported_mesh();
 
         geode::Logger::info( "TEST SUCCESS" );
         return 0;
