@@ -605,8 +605,9 @@ void test_stratigraphic_model_from_coords()
         for( const auto v : geode::Range{ block.mesh().nb_vertices() } )
         {
             const auto& point = block.mesh().point( v );
-            const auto& location = model.stratigraphic_coordinates( block, v )
-                                       .stratigraphic_location();
+            const auto strati_point =
+                model.stratigraphic_coordinates( block, v );
+            const auto& location = strati_point.stratigraphic_location();
             geode::OpenGeodeGeosciencesImplicitException::test(
                 location.value( 0 ) == point.value( 0 )
                     && location.value( 1 ) == point.value( 1 ),
