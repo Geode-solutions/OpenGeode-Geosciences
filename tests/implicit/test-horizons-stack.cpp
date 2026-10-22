@@ -132,6 +132,18 @@ void test_horizons_stack()
     auto reloaded_stack = geode::load_horizons_stack< 3 >( stack_path );
     auto reloaded_stack_v0 = geode::load_horizons_stack< 3 >(
         absl::StrCat( geode::DATA_PATH, "test_HorizonStack_v0.og_hst3d" ) );
+    geode::index_t nb_v0_horizons{ 0 };
+    for( const auto& horizon : reloaded_stack_v0.bottom_to_top_horizons() )
+    {
+        geode::OpenGeodeGeosciencesImplicitException::test(
+            reloaded_stack_v0.above( horizon.id() ).has_value()
+                && reloaded_stack_v0.under( horizon.id() ).has_value(),
+            "Legacy stack horizon should have units above and under" );
+        nb_v0_horizons++;
+    }
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        nb_v0_horizons == reloaded_stack_v0.nb_horizons(),
+        "Should iterate on all horizons of the legacy stack" );
 }
 
 void test_horizons_stack( const geode::HorizonsStack2D& horizons_stack )

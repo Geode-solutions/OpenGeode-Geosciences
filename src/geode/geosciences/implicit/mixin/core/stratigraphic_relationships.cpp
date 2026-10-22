@@ -370,6 +370,17 @@ namespace geode
             return false;
         }
 
+        void ensure_relation_attributes()
+        {
+            if( above_relations_ )
+            {
+                return;
+            }
+            Logger::warning( "[StratigraphicRelationships::load] Missing above "
+                             "relations attribute, initializing it" );
+            initialize_relation_attributes();
+        }
+
         void remove_relation_edge( index_t relation_edge_id )
         {
             std::vector< bool > to_delete( graph_->nb_edges(), false );
@@ -393,6 +404,7 @@ namespace geode
                              v0_unconformity_relations;
                          archive2.ext( v0_unconformity_relations,
                              bitsery::ext::StdSmartPtr{} );
+                         impl.ensure_relation_attributes();
                          std::vector< bool > to_delete(
                              impl.graph_->nb_edges(), false );
                          for( const auto edge_id :
@@ -412,6 +424,7 @@ namespace geode
                                           detail::RelationshipsImpl >{} );
                             archive2.ext( impl.above_relations_,
                                 bitsery::ext::StdSmartPtr{} );
+                            impl.ensure_relation_attributes();
                         } } } );
         }
 
