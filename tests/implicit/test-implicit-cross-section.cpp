@@ -193,6 +193,36 @@ void test_containing_stratigraphic_unit_after_horizon_removal()
     check_unit( model, 3., ids.units[2] );
 }
 
+void test_conversion_and_move()
+{
+    geode::Logger::info( "Testing conversion with non-triangulated surface "
+                         "and move" );
+    geode::CrossSection cross_section;
+    geode::CrossSectionBuilder builder{ cross_section };
+    const auto polygonal_id = builder.add_surface();
+    const auto triangulated_id = add_triangulated_surface( builder );
+    fill_triangulated_surface(
+        builder, cross_section.surface( triangulated_id ), 0 );
+    geode::ImplicitCrossSection model{ std::move( cross_section ) };
+    geode::ImplicitCrossSectionBuilder implicit_builder{ model };
+    const auto& surface = model.surface( triangulated_id );
+    for( const auto vertex : geode::Range{ surface.mesh().nb_vertices() } )
+    {
+        implicit_builder.set_implicit_value(
+            surface, vertex, surface.mesh().point( vertex ).value( 1 ) );
+    }
+    geode::ImplicitCrossSection moved{ std::move( model ) };
+    const geode::Point2D query{ { 0.25, 0.5 } };
+    const auto value =
+        moved.implicit_value( moved.surface( triangulated_id ), query );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        value.has_value() && std::fabs( value.value() - 0.5 ) < 1e-10,
+        "[conversion] Wrong implicit value after move" );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        moved.surface( polygonal_id ).mesh().nb_vertices() == 0,
+        "[conversion] Polygonal surface should be kept" );
+}
+
 int main()
 {
     try
@@ -200,6 +230,7 @@ int main()
         geode::OpenGeodeGeosciencesImplicitLibrary::initialize();
         test_containing_stratigraphic_unit();
         test_containing_stratigraphic_unit_after_horizon_removal();
+        test_conversion_and_move();
 
         geode::Logger::info( "TEST SUCCESS" );
         return 0;

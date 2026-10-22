@@ -66,11 +66,10 @@ namespace geode
         ImplicitStructuralModel( BITSERY );
         ImplicitStructuralModel(
             ImplicitStructuralModel&& implicit_model ) noexcept;
-        explicit ImplicitStructuralModel(
-            StructuralModel&& structural_model ) noexcept;
+        explicit ImplicitStructuralModel( StructuralModel&& structural_model );
         ImplicitStructuralModel( const ImplicitStructuralModel& initial_model,
             BRep&& brep,
-            const ModelGenericMapping& initial_to_brep_mappings ) noexcept;
+            const ModelGenericMapping& initial_to_brep_mappings );
         virtual ~ImplicitStructuralModel();
 
         [[nodiscard]] ImplicitStructuralModel clone() const;

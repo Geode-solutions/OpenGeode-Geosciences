@@ -193,6 +193,36 @@ void test_containing_stratigraphic_unit_after_horizon_removal()
     check_unit( model, 3., ids.units[2] );
 }
 
+void test_conversion_and_move()
+{
+    geode::Logger::info( "Testing conversion with non-tetrahedral block "
+                         "and move" );
+    geode::StructuralModel structural_model;
+    geode::StructuralModelBuilder builder{ structural_model };
+    const auto polyhedral_id = builder.add_block();
+    const auto tetrahedral_id = add_tetrahedral_block( builder );
+    fill_tetrahedral_block(
+        builder, structural_model.block( tetrahedral_id ), 0 );
+    geode::ImplicitStructuralModel model{ std::move( structural_model ) };
+    geode::ImplicitStructuralModelBuilder implicit_builder{ model };
+    const auto& block = model.block( tetrahedral_id );
+    for( const auto vertex : geode::Range{ block.mesh().nb_vertices() } )
+    {
+        implicit_builder.set_implicit_value(
+            block, vertex, block.mesh().point( vertex ).value( 2 ) );
+    }
+    geode::ImplicitStructuralModel moved{ std::move( model ) };
+    const geode::Point3D query{ { 0.1, 0.1, 0.5 } };
+    const auto value =
+        moved.implicit_value( moved.block( tetrahedral_id ), query );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        value.has_value() && std::fabs( value.value() - 0.5 ) < 1e-10,
+        "[conversion] Wrong implicit value after move" );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        moved.block( polyhedral_id ).mesh().nb_vertices() == 0,
+        "[conversion] Polyhedral block should be kept" );
+}
+
 int main()
 {
     try
@@ -200,6 +230,7 @@ int main()
         geode::OpenGeodeGeosciencesImplicitLibrary::initialize();
         test_containing_stratigraphic_unit();
         test_containing_stratigraphic_unit_after_horizon_removal();
+        test_conversion_and_move();
 
         geode::Logger::info( "TEST SUCCESS" );
         return 0;

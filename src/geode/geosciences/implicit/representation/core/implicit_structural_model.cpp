@@ -368,11 +368,10 @@ namespace geode
         : StructuralModel{ std::move( other ) },
           impl_{ std::move( other.impl_ ) }
     {
-        impl_->initialize_implicit_query_trees( *this );
     }
 
     ImplicitStructuralModel::ImplicitStructuralModel(
-        StructuralModel&& structural_model ) noexcept
+        StructuralModel&& structural_model )
         : StructuralModel{ std::move( structural_model ) }
     {
         impl_->initialize_implicit_query_trees( *this );
@@ -381,7 +380,7 @@ namespace geode
     ImplicitStructuralModel::ImplicitStructuralModel(
         const ImplicitStructuralModel& initial_model,
         BRep&& brep,
-        const ModelGenericMapping& initial_to_brep_mappings ) noexcept
+        const ModelGenericMapping& initial_to_brep_mappings )
         : StructuralModel{ initial_model, std::move( brep ),
               initial_to_brep_mappings }
     {

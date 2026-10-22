@@ -235,15 +235,11 @@ namespace geode
             implicit_attributes_.reserve( model.nb_surfaces() );
             for( const auto& surface : model.surfaces() )
             {
-                OpenGeodeGeosciencesImplicitException::check_exception(
-                    ( surface.mesh().type_name()
-                        == TriangulatedSurface2D::type_name_static() ),
-                    nullptr, OpenGeodeException::TYPE::data,
-                    "[ImplicitCrossSection::instantiate_implicit_"
-                    "attribute_on_surfaces] Surfaces must be meshed as "
-                    "TriangulatedSurface2D, which is not the case for surface "
-                    "with uuid '",
-                    surface.id().string(), "'." );
+                if( surface.mesh().type_name()
+                    != TriangulatedSurface2D::type_name_static() )
+                {
+                    continue;
+                }
                 if( surface.mesh().vertex_attribute_manager().attribute_exists(
                         implicit_attribute_id_ ) )
                 {
@@ -372,11 +368,9 @@ namespace geode
         ImplicitCrossSection&& other ) noexcept
         : CrossSection{ std::move( other ) }, impl_{ std::move( other.impl_ ) }
     {
-        impl_->initialize_implicit_query_trees( *this );
     }
 
-    ImplicitCrossSection::ImplicitCrossSection(
-        CrossSection&& cross_section ) noexcept
+    ImplicitCrossSection::ImplicitCrossSection( CrossSection&& cross_section )
         : CrossSection{ std::move( cross_section ) }
     {
         impl_->initialize_implicit_query_trees( *this );
@@ -385,7 +379,7 @@ namespace geode
     ImplicitCrossSection::ImplicitCrossSection(
         const ImplicitCrossSection& initial_model,
         Section&& section,
-        const ModelGenericMapping& initial_to_section_mappings ) noexcept
+        const ModelGenericMapping& initial_to_section_mappings )
         : CrossSection{ initial_model, std::move( section ),
               initial_to_section_mappings }
     {
