@@ -300,6 +300,28 @@ void test_load_cyclic_stack()
         counter == 2, "Should iterate on 2 horizons after cycle removal" );
 }
 
+void test_reverse_relation()
+{
+    geode::HorizonsStack3D stack;
+    geode::HorizonsStackBuilder3D builder{ stack };
+    const auto& horizon = builder.add_horizon();
+    const auto& unit = builder.add_stratigraphic_unit();
+    builder.set_horizon_above(
+        stack.horizon( horizon ), stack.stratigraphic_unit( unit ) );
+    builder.set_horizon_under(
+        stack.horizon( horizon ), stack.stratigraphic_unit( unit ) );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        stack.above( horizon ) == unit && !stack.under( horizon ),
+        "Unit should now be above the horizon" );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        stack.under( unit ) == horizon && !stack.above( unit ),
+        "Horizon should now be under the unit" );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        stack.is_directly_above( unit, horizon )
+            && !stack.is_directly_above( horizon, unit ),
+        "Relation direction should have been reversed" );
+}
+
 int main()
 {
     try
@@ -311,6 +333,7 @@ int main()
         test_create_horizons_stack_top_to_bottom();
         test_cycle_rejection();
         test_load_cyclic_stack();
+        test_reverse_relation();
 
         geode::Logger::info( "TEST SUCCESS" );
         return 0;

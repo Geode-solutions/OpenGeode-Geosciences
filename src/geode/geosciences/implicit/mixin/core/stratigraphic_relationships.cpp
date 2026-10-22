@@ -143,17 +143,30 @@ namespace geode
         index_t add_above_relation(
             const ComponentID& above, const ComponentID& under )
         {
-            if( const auto id = relation_edge( above.id, under.id ) )
+            const auto existing_edge = relation_edge( above.id, under.id );
+            if( existing_edge
+                && graph_component_id(
+                       { existing_edge.value(), ABOVE_EDGE_VERTEX } )
+                           .id
+                       == above.id )
             {
-                above_relations_->set_value( id.value(), true );
-                return id.value();
+                above_relations_->set_value( existing_edge.value(), true );
+                return existing_edge.value();
             }
             OpenGeodeGeosciencesImplicitException::check_exception(
-                !would_create_cycle( above.id, under.id ), nullptr,
-                OpenGeodeException::TYPE::data,
+                !would_create_cycle( above.id, under.id, existing_edge ),
+                nullptr, OpenGeodeException::TYPE::data,
                 "[StratigraphicRelationships::add_above_relation] Cannot set ",
                 above.string(), " above ", under.string(),
                 ": it would create a cycle in the above/under relations" );
+            if( existing_edge )
+            {
+                Logger::warning(
+                    "[StratigraphicRelationships::add_above_relation] "
+                    "Reversing existing relation: ",
+                    above.string(), " is now above ", under.string() );
+                remove_relation_edge( existing_edge.value() );
+            }
             const auto index = add_relation_edge( above, under );
             above_relations_->set_value( index, true );
             return index;
@@ -314,8 +327,11 @@ namespace geode
         /*!
          * Returns true if adding a relation "above is above under" would
          * create a cycle, i.e. if above is already (indirectly) under under.
+         * The ignored edge (if any) is not considered.
          */
-        bool would_create_cycle( const uuid& above, const uuid& under ) const
+        bool would_create_cycle( const uuid& above,
+            const uuid& under,
+            std::optional< index_t > ignored_edge ) const
         {
             if( above == under )
             {
@@ -338,7 +354,8 @@ namespace geode
                     this->graph().edges_around_vertex( vertex ) )
                 {
                     if( edge_vertex.vertex_id != UNDER_EDGE_VERTEX
-                        || !above_relations_->value( edge_vertex.edge_id ) )
+                        || !above_relations_->value( edge_vertex.edge_id )
+                        || edge_vertex.edge_id == ignored_edge )
                     {
                         continue;
                     }
