@@ -74,3 +74,14 @@ add_geode_test(
         ${PROJECT_NAME}::explicit
         ${PROJECT_NAME}::implicit
 )
+
+add_geode_test(
+    SOURCE "test-stratigraphic-blocks-builder.cpp"
+    DEPENDENCIES
+        OpenGeode::basic
+        OpenGeode::geometry
+        OpenGeode::mesh
+        OpenGeode::model
+        ${PROJECT_NAME}::explicit
+        ${PROJECT_NAME}::implicit
+)
