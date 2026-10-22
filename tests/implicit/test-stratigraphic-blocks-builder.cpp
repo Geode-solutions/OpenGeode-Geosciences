@@ -255,6 +255,42 @@ namespace
             result.unassigned_blocks.size() == 1,
             "One block should be unassigned" );
     }
+
+    void test_propagation_column()
+    {
+        geode::Logger::info( "Testing propagation in a column of blocks" );
+        constexpr geode::index_t NB_BLOCKS{ 200 };
+        geode::ImplicitStructuralModel model;
+        std::vector< CONTACT > contacts( NB_BLOCKS + 1, CONTACT::erosion );
+        contacts.front() = CONTACT::conformal;
+        contacts.back() = CONTACT::conformal;
+        const auto stack = create_stack( model, contacts );
+        std::vector< geode::uuid > blocks;
+        for( const auto b : geode::Range{ NB_BLOCKS } )
+        {
+            geode_unused( b );
+            blocks.push_back( add_block( model ) );
+        }
+        add_boundary( model, { blocks.front() }, stack.horizons.front() );
+        for( const auto b : geode::Range{ 1, NB_BLOCKS } )
+        {
+            add_boundary(
+                model, { blocks[b - 1], blocks[b] }, stack.horizons[b] );
+        }
+        add_boundary( model, { blocks.back() }, stack.horizons.back() );
+        const auto result =
+            geode::complete_stratigraphic_unit_block_relationships( model );
+        for( const auto b : geode::Range{ NB_BLOCKS } )
+        {
+            check_unit( model, blocks[b], stack.units[b],
+                absl::StrCat( "block ", b, " of the column" ) );
+        }
+        geode::OpenGeodeGeosciencesImplicitException::test(
+            result.assigned_blocks.size() == NB_BLOCKS
+                && result.unassigned_blocks.empty()
+                && result.already_assigned_blocks.empty(),
+            "All blocks should be assigned" );
+    }
 } // namespace
 
 int main()
@@ -269,6 +305,7 @@ int main()
         test_conformal_and_unconformity( CONTACT::erosion );
         test_conformal_and_unconformity( CONTACT::baselap );
         test_more_than_two_conformal_horizons();
+        test_propagation_column();
         geode::Logger::info( "TEST SUCCESS" );
         return 0;
     }
