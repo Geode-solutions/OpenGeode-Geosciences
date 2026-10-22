@@ -129,34 +129,35 @@ void test_structural_model_without_faults_fault_blocks_builder()
     check_fault_blocks( model, { 2 } );
 }
 
-void test_fault_blocks_builder_idempotency()
+void test_fault_blocks_rebuild_next_to_existing_ones()
 {
     auto model = geode::load_structural_model(
         absl::StrCat( geode::DATA_PATH, "modelA2.og_strm" ) );
     geode::build_structural_model_fault_blocks( model );
+    std::vector< geode::uuid > old_fault_blocks;
+    for( const auto& fault_block : model.fault_blocks() )
+    {
+        old_fault_blocks.push_back( fault_block.id() );
+    }
+    // Downstream code compares a full new set of FaultBlocks with the existing
+    // ones to detect splits and merges: the existing ones must not be skipped
     geode::build_structural_model_fault_blocks( model );
     geode::OpenGeodeGeosciencesExplicitException::test(
-        model.nb_fault_blocks() == 3,
-        "Building fault blocks twice should not add fault blocks" );
-    check_fault_blocks( model, { 4, 4, 4 } );
-
-    geode::StructuralModelBuilder builder{ model };
-    builder.remove_fault_block( *model.fault_blocks().begin() );
-    geode::build_structural_model_fault_blocks( model );
-    geode::OpenGeodeGeosciencesExplicitException::test(
-        model.nb_fault_blocks() == 3,
-        "Rebuilding a removed fault block should give 3 fault blocks" );
-    check_fault_blocks( model, { 4, 4, 4 } );
-
-    auto model_without_faults = geode::load_structural_model(
-        absl::StrCat( geode::DATA_PATH, "vri2.og_strm" ) );
-    geode::build_structural_model_fault_blocks( model_without_faults );
-    geode::build_structural_model_fault_blocks( model_without_faults );
-    geode::OpenGeodeGeosciencesExplicitException::test(
-        model_without_faults.nb_fault_blocks() == 1,
-        "Building fault blocks twice in a model without faults should not add "
+        model.nb_fault_blocks() == 6,
+        "Rebuilding fault blocks should create a full new set of 3 "
         "fault blocks" );
-    check_fault_blocks( model_without_faults, { 2 } );
+    for( const auto& block : model.blocks() )
+    {
+        geode::OpenGeodeGeosciencesExplicitException::test(
+            block_fault_blocks( model, block ).size() == 2, "Block ",
+            block.id().string(), " should be in an old and a new FaultBlock" );
+    }
+    geode::StructuralModelBuilder builder{ model };
+    for( const auto& fault_block_id : old_fault_blocks )
+    {
+        builder.remove_fault_block( model.fault_block( fault_block_id ) );
+    }
+    check_fault_blocks( model, { 4, 4, 4 } );
 }
 
 int main()
@@ -166,7 +167,7 @@ int main()
         geode::OpenGeodeGeosciencesExplicitLibrary::initialize();
         test_structural_model_fault_blocks_builder();
         test_structural_model_without_faults_fault_blocks_builder();
-        test_fault_blocks_builder_idempotency();
+        test_fault_blocks_rebuild_next_to_existing_ones();
         geode::Logger::info( "TEST SUCCESS" );
         return 0;
     }

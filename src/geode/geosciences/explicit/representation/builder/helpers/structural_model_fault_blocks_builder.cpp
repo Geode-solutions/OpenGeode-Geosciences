@@ -22,12 +22,9 @@
  */
 #include <geode/geosciences/explicit/representation/builder/helpers/structural_model_fault_blocks_builder.hpp>
 
-#include <optional>
 #include <queue>
 
 #include <absl/container/flat_hash_set.h>
-
-#include <geode/basic/logger.hpp>
 
 #include <geode/geosciences/explicit/representation/builder/structural_model_builder.hpp>
 #include <geode/geosciences/explicit/representation/core/structural_model.hpp>
@@ -49,46 +46,15 @@ namespace
         return result;
     }
 
-    absl::flat_hash_set< geode::uuid > blocks_in_fault_blocks(
-        const geode::StructuralModel& structural_model )
-    {
-        absl::flat_hash_set< geode::uuid > result;
-        for( const auto& fault_block : structural_model.fault_blocks() )
-        {
-            for( const auto& block :
-                structural_model.fault_block_items( fault_block ) )
-            {
-                result.insert( block.id() );
-            }
-        }
-        if( !result.empty() )
-        {
-            geode::Logger::warning( "[build_structural_model_fault_blocks] ",
-                result.size(),
-                " Blocks already belong to a FaultBlock: they are kept as is "
-                "and ignored when building the new FaultBlocks" );
-        }
-        return result;
-    }
-
     void add_all_blocks_to_single_fault_block(
         const geode::StructuralModel& structural_model,
-        geode::StructuralModelBuilder& builder,
-        const absl::flat_hash_set< geode::uuid >& blocks_to_ignore )
+        geode::StructuralModelBuilder& builder )
     {
-        std::optional< geode::uuid > fault_block_id;
+        const auto& fault_block =
+            structural_model.fault_block( builder.add_fault_block() );
         for( const auto& block : structural_model.blocks() )
         {
-            if( blocks_to_ignore.contains( block.id() ) )
-            {
-                continue;
-            }
-            if( !fault_block_id )
-            {
-                fault_block_id = builder.add_fault_block();
-            }
-            builder.add_block_in_fault_block(
-                block, structural_model.fault_block( fault_block_id.value() ) );
+            builder.add_block_in_fault_block( block, fault_block );
         }
     }
 
@@ -109,10 +75,10 @@ namespace
     }
 
     void build_fault_blocks( const geode::StructuralModel& structural_model,
-        geode::StructuralModelBuilder& builder,
-        absl::flat_hash_set< geode::uuid > visited )
+        geode::StructuralModelBuilder& builder )
     {
         const auto faults = fault_surfaces( structural_model );
+        absl::flat_hash_set< geode::uuid > visited;
         for( const auto& block : structural_model.blocks() )
         {
             const auto& block_id = block.id();
@@ -151,14 +117,11 @@ namespace geode
         StructuralModel& structural_model )
     {
         StructuralModelBuilder builder( structural_model );
-        auto blocks_to_ignore = blocks_in_fault_blocks( structural_model );
         if( structural_model.nb_faults() == 0 )
         {
-            add_all_blocks_to_single_fault_block(
-                structural_model, builder, blocks_to_ignore );
+            add_all_blocks_to_single_fault_block( structural_model, builder );
             return;
         }
-        build_fault_blocks(
-            structural_model, builder, std::move( blocks_to_ignore ) );
+        build_fault_blocks( structural_model, builder );
     }
 } // namespace geode
