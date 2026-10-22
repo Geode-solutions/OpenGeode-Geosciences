@@ -482,6 +482,10 @@ namespace geode
             const auto nb_horizons = horizon_stack.nb_horizons();
             check_number_of_horizons_and_stratigraphic_units(
                 nb_horizons, horizon_stack.nb_stratigraphic_units() );
+            if( nb_horizons == 0 )
+            {
+                return;
+            }
             builder.compute_top_and_bottom_horizons();
             const auto bottom_horizon = horizon_stack.bottom_horizon().value();
             if( !horizon_stack.under( bottom_horizon ) )

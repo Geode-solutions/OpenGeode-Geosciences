@@ -481,6 +481,18 @@ void test_create_empty_horizons_stack()
         "Stack created from empty top to bottom lists should be empty" );
 }
 
+void test_repair_stack_without_horizon()
+{
+    geode::HorizonsStack3D stack;
+    geode::HorizonsStackBuilder3D builder{ stack };
+    geode::detail::repair_horizon_stack_if_possible( stack, builder );
+    builder.add_stratigraphic_unit();
+    geode::detail::repair_horizon_stack_if_possible( stack, builder );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        stack.nb_horizons() == 0 && stack.nb_stratigraphic_units() == 1,
+        "Repair of a stack without horizon should not change it" );
+}
+
 int main()
 {
     try
@@ -497,6 +509,7 @@ int main()
         test_update_top_and_bottom_horizons();
         test_incomplete_stack();
         test_create_empty_horizons_stack();
+        test_repair_stack_without_horizon();
 
         geode::Logger::info( "TEST SUCCESS" );
         return 0;
