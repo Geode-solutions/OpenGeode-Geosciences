@@ -157,15 +157,14 @@ namespace geode
                 stratigraphic_point.stratigraphic_coordinates();
             StratigraphicDistanceToTetrahedron distance_to_tetra{ model,
                 block };
-            auto closest_tetrahedron =
-                std::get< 0 >( block_stratigraphic_aabb.closest_element_box(
-                    starti_point, distance_to_tetra ) );
-            if( distance_to_tetra( stratigraphic_point, closest_tetrahedron )
-                < GLOBAL_EPSILON )
+            const auto [closest_tetrahedron, distance] =
+                block_stratigraphic_aabb.closest_element_box(
+                    starti_point, distance_to_tetra );
+            if( closest_tetrahedron == NO_ID || distance >= GLOBAL_EPSILON )
             {
-                return closest_tetrahedron;
+                return std::nullopt;
             }
-            return std::nullopt;
+            return closest_tetrahedron;
         }
 
         absl::InlinedVector< std::unique_ptr< TriangulatedSurface3D >, 2 >

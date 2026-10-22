@@ -31,6 +31,7 @@
 #include <geode/geometry/point.hpp>
 
 #include <geode/mesh/core/edged_curve.hpp>
+#include <geode/mesh/core/geode/geode_triangulated_surface.hpp>
 #include <geode/mesh/core/triangulated_surface.hpp>
 #include <geode/mesh/io/edged_curve_output.hpp>
 
@@ -39,6 +40,8 @@
 #include <geode/model/representation/builder/section_builder.hpp>
 #include <geode/model/representation/core/section.hpp>
 
+#include <geode/geosciences/explicit/representation/builder/cross_section_builder.hpp>
+#include <geode/geosciences/explicit/representation/core/cross_section.hpp>
 #include <geode/geosciences/explicit/representation/io/cross_section_input.hpp>
 #include <geode/geosciences/implicit/geometry/stratigraphic_point.hpp>
 #include <geode/geosciences/implicit/representation/builder/stratigraphic_section_builder.hpp>
@@ -191,6 +194,25 @@ void test_move( geode::StratigraphicSection& implicit_model )
         "Stratigraphic location attribute id not moved." );
 }
 
+void test_empty_surface()
+{
+    geode::Logger::info( "Testing empty surface" );
+    geode::CrossSection cross_section{ geode::load_section(
+        absl::StrCat( geode::DATA_PATH, "test_section.og_sctn" ) ) };
+    geode::CrossSectionBuilder cross_section_builder{ cross_section };
+    const auto empty_surface_id = cross_section_builder.add_surface(
+        geode::OpenGeodeTriangulatedSurface2D::impl_name_static() );
+    const geode::StratigraphicSection section{ std::move( cross_section ) };
+    const auto& empty_surface = section.surface( empty_surface_id );
+    const geode::StratigraphicPoint2D query{ geode::Point1D{ { 0 } }, 0 };
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        !section.stratigraphic_containing_polygon( empty_surface, query ),
+        "No polygon should contain a point in an empty surface." );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        !section.geometric_coordinates( empty_surface, query ),
+        "No geometric coordinates should be found in an empty surface." );
+}
+
 int main()
 {
     try
@@ -203,6 +225,7 @@ int main()
         // test_save_stratigraphic_lines( model );
         test_io( model );
         test_move( model );
+        test_empty_surface();
         test_backward_io( absl::StrCat(
             geode::DATA_PATH, "test_old_implicit_crossection.og_ixsctn" ) );
         geode::Logger::info( "TEST SUCCESS" );

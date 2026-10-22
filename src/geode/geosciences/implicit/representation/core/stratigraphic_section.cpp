@@ -152,19 +152,18 @@ namespace geode
         {
             StratigraphicDistanceToTriangle distance_to_triangles{ model,
                 surface };
-            const auto closest_triangle =
-                std::get< 0 >( surface_stratigraphic_aabb_trees_
-                        .at( surface.id() )(
-                            create_stratigraphic_aabb_tree, model, surface )
-                        .closest_element_box(
-                            stratigraphic_point.stratigraphic_coordinates(),
-                            distance_to_triangles ) );
-            if( distance_to_triangles( stratigraphic_point, closest_triangle )
-                < GLOBAL_EPSILON )
+            const auto [closest_triangle, distance] =
+                surface_stratigraphic_aabb_trees_
+                    .at( surface.id() )(
+                        create_stratigraphic_aabb_tree, model, surface )
+                    .closest_element_box(
+                        stratigraphic_point.stratigraphic_coordinates(),
+                        distance_to_triangles );
+            if( closest_triangle == NO_ID || distance >= GLOBAL_EPSILON )
             {
-                return closest_triangle;
+                return std::nullopt;
             }
-            return std::nullopt;
+            return closest_triangle;
         }
 
         absl::InlinedVector< std::unique_ptr< EdgedCurve2D >, 2 >

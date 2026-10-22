@@ -31,6 +31,7 @@
 #include <geode/geometry/point.hpp>
 
 #include <geode/mesh/core/geode/geode_polyhedral_solid.hpp>
+#include <geode/mesh/core/geode/geode_tetrahedral_solid.hpp>
 #include <geode/mesh/core/tetrahedral_solid.hpp>
 #include <geode/mesh/core/triangulated_surface.hpp>
 #include <geode/mesh/io/triangulated_surface_output.hpp>
@@ -307,6 +308,25 @@ void test_non_tetrahedral_block()
         "Stratigraphic bounding box should be valid." );
 }
 
+void test_empty_block()
+{
+    geode::Logger::info( "Testing empty block" );
+    auto structural_model = geode::load_structural_model(
+        absl::StrCat( geode::DATA_PATH, "vri2.og_strm" ) );
+    geode::StructuralModelBuilder structural_builder{ structural_model };
+    const auto empty_block_id = structural_builder.add_block(
+        geode::OpenGeodeTetrahedralSolid3D::impl_name_static() );
+    const geode::StratigraphicModel model{ std::move( structural_model ) };
+    const auto& empty_block = model.block( empty_block_id );
+    const geode::StratigraphicPoint3D query{ geode::Point2D{ { 0, 0 } }, 0 };
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        !model.stratigraphic_containing_polyhedron( empty_block, query ),
+        "No polyhedron should contain a point in an empty block." );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        !model.geometric_coordinates( empty_block, query ),
+        "No geometric coordinates should be found in an empty block." );
+}
+
 int main()
 {
     try
@@ -332,6 +352,7 @@ int main()
         test_io( model, block1_id );
         test_move( model );
         test_non_tetrahedral_block();
+        test_empty_block();
         geode::Logger::info( "TEST SUCCESS" );
         return 0;
     }
