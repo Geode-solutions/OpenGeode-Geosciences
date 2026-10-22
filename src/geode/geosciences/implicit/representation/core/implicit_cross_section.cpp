@@ -401,6 +401,10 @@ namespace geode
         ModelCopyMapping clone_mappings;
         detail::add_geology_clone_mapping< CrossSection >(
             clone_mappings, *this );
+        detail::add_horizons_clone_mapping( this->horizons_stack(),
+            clone_mappings[Horizon2D::component_type_static()] );
+        detail::add_stratigraphic_units_clone_mapping( this->horizons_stack(),
+            clone_mappings[StratigraphicUnit2D::component_type_static()] );
         clone_builder.copy_implicit_information( clone_mappings, *this );
         return model_clone;
     }

@@ -454,6 +454,32 @@ void test_copy_single_implicit_attribute()
     }
 }
 
+void test_clone()
+{
+    geode::Logger::info( "Testing clone" );
+    auto model = create_model();
+    const auto ids = add_horizons_stack( model, { 0., 1., 2. } );
+    const auto clone = model.clone();
+    for( const auto h : geode::LRange{ 3 } )
+    {
+        geode::OpenGeodeGeosciencesImplicitException::test(
+            clone.horizons_stack().has_horizon( ids.horizons[h] ),
+            "[clone] Horizon should keep its uuid in the clone" );
+        const auto isovalue = clone.horizon_implicit_value(
+            clone.horizons_stack().horizon( ids.horizons[h] ) );
+        geode::OpenGeodeGeosciencesImplicitException::test(
+            isovalue.has_value() && isovalue.value() == h,
+            "[clone] Wrong horizon isovalue in clone" );
+    }
+    for( const auto& unit : ids.units )
+    {
+        geode::OpenGeodeGeosciencesImplicitException::test(
+            clone.horizons_stack().has_stratigraphic_unit( unit ),
+            "[clone] Stratigraphic unit should keep its uuid in the clone" );
+    }
+    check_unit( clone, 0.5, ids.units[1] );
+}
+
 int main()
 {
     try
@@ -470,6 +496,7 @@ int main()
         test_copy_with_unsupported_mesh();
         test_copy_horizons_isovalues();
         test_copy_single_implicit_attribute();
+        test_clone();
 
         geode::Logger::info( "TEST SUCCESS" );
         return 0;
