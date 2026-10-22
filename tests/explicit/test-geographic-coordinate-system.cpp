@@ -21,6 +21,7 @@
  *
  */
 
+#include <cmath>
 #include <fstream>
 #include <iterator>
 
@@ -309,6 +310,65 @@ void test_brep_conversion_atomicity()
     test_brep_atomicity( { "EPSG", "27571", "geo" }, true );
 }
 
+void test_brep_conversion()
+{
+    geode::BRep brep;
+    geode::BRepBuilder builder{ brep };
+    constexpr geode::index_t NB_CORNERS{ 4 };
+    for( const auto c : geode::Range{ NB_CORNERS } )
+    {
+        const auto& corner = brep.corner( builder.add_corner() );
+        auto mesh_builder = builder.corner_mesh_builder( corner );
+        const auto value = static_cast< double >( c );
+        mesh_builder->create_point( geode::Point3D{ { value, value, value } } );
+    }
+    const auto& line = brep.line( builder.add_line() );
+    {
+        auto line_builder = builder.line_mesh_builder( line );
+        line_builder->create_point( geode::Point3D{ { 1000, 2000, 3 } } );
+        line_builder->create_point( geode::Point3D{ { 4000, 5000, 6 } } );
+        line_builder->create_edge( 0, 1 );
+    }
+    geode::assign_brep_geographic_coordinate_system_info(
+        brep, builder, "lambert", { "EPSG", "27571", "I" } );
+    {
+        // The line is already in the target CRS
+        auto line_builder = builder.line_mesh_builder( line );
+        geode::assign_edged_curve_geographic_coordinate_system_info(
+            line.mesh(), *line_builder, "lambert", { "EPSG", "27572", "II" } );
+    }
+    geode::convert_brep_coordinate_reference_system(
+        brep, builder, "lambert2", { "EPSG", "27572", "II" } );
+    const std::array< geode::Point3D, NB_CORNERS > answers{
+        geode::Point3D{ { 4273.64251995017, 1302920.55457198, 0 } },
+        geode::Point3D{ { 4274.63159306906, 1302921.55102308, 1 } },
+        geode::Point3D{ { 4275.62066620018, 1302922.54747419, 2 } },
+        geode::Point3D{ { 4276.60973934352, 1302923.5439253, 3 } },
+    };
+    for( const auto& corner : brep.corners() )
+    {
+        const auto& mesh = corner.mesh();
+        geode::OpenGeodeGeosciencesExplicitException::test(
+            mesh.main_coordinate_reference_system_manager()
+                    .active_coordinate_reference_system_name()
+                == "lambert2",
+            "Wrong active CRS after BRep conversion" );
+        const auto& point = mesh.point( 0 );
+        const auto c =
+            static_cast< geode::index_t >( std::round( point.value( 2 ) ) );
+        geode::OpenGeodeGeosciencesExplicitException::test(
+            c < NB_CORNERS && point.inexact_equal( answers[c] ),
+            "Wrong corner coordinates after BRep conversion: ",
+            point.string() );
+    }
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        line.mesh().point( 0 ).inexact_equal(
+            geode::Point3D{ { 1000, 2000, 3 } } )
+            && line.mesh().point( 1 ).inexact_equal(
+                geode::Point3D{ { 4000, 5000, 6 } } ),
+        "Wrong line coordinates after BRep conversion" );
+}
+
 void test_crs()
 {
     const auto infos =
@@ -447,6 +507,7 @@ int main()
         test_failed_mesh_conversion_leaves_no_attribute();
         test_assign_validation();
         test_brep_conversion_atomicity();
+        test_brep_conversion();
 
         geode::Logger::info( "TEST SUCCESS" );
         return 0;

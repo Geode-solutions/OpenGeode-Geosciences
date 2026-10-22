@@ -23,6 +23,8 @@
 
 #include <geode/geosciences/explicit/geometry/geographic_coordinate_system_helper.hpp>
 
+#include <absl/container/flat_hash_map.h>
+
 #include <geode/basic/attribute_manager.hpp>
 
 #include <geode/mesh/builder/coordinate_reference_system_manager_builder.hpp>
@@ -52,13 +54,48 @@ namespace
     using Coordinates = std::vector< geode::Point< dimension > >;
 
     /*
+     * Transformations toward one CRS, created once per source CRS.
+     */
+    class TransformationCache
+    {
+    public:
+        explicit TransformationCache(
+            const geode::GeographicCoordinateSystemInfo& to )
+            : to_( to )
+        {
+        }
+
+        const geode::internal::GeographicCoordinateTransformation&
+            transformation( const geode::GeographicCoordinateSystemInfo& from )
+        {
+            auto authority_code = from.authority_code();
+            const auto it = transformations_.find( authority_code );
+            if( it != transformations_.end() )
+            {
+                return it->second;
+            }
+            return transformations_
+                .emplace( std::move( authority_code ),
+                    geode::internal::GeographicCoordinateTransformation{
+                        from, to_ } )
+                .first->second;
+        }
+
+    private:
+        const geode::GeographicCoordinateSystemInfo& to_;
+        absl::flat_hash_map< std::string,
+            geode::internal::GeographicCoordinateTransformation >
+            transformations_;
+    };
+
+    /*
      * Check that the mesh can be converted and return its coordinates in
      * the new CRS. Does not modify the mesh.
      */
     template < typename Mesh >
     Coordinates< Mesh::dim > converted_coordinates( const Mesh& mesh,
         std::string_view crs_name,
-        const geode::GeographicCoordinateSystemInfo& info )
+        TransformationCache& transformations )
     {
         using GeoCRS = typename geode::GeographicCoordinateSystem< Mesh::dim >;
         const auto& crs_manager =
@@ -79,9 +116,8 @@ namespace
             geode::OpenGeodeException::TYPE::data,
             "[convert_components_coordinate_reference_system] Only "
             "GeographicCoordinateSystem conversion is supported" );
-        const geode::internal::GeographicCoordinateTransformation
-            transformation{ active_crs->info(), info };
-        return transformation.transform( *active_crs );
+        return transformations.transformation( active_crs->info() )
+            .transform( *active_crs );
     }
 
     template < typename Mesh >
@@ -111,7 +147,9 @@ namespace
         std::string_view crs_name,
         geode::GeographicCoordinateSystemInfo info )
     {
-        auto coordinates = converted_coordinates( mesh, crs_name, info );
+        TransformationCache transformations{ info };
+        auto coordinates =
+            converted_coordinates( mesh, crs_name, transformations );
         apply_coordinate_reference_system( mesh, builder, crs_name,
             std::move( info ), std::move( coordinates ) );
     }
@@ -120,13 +158,13 @@ namespace
     std::vector< Coordinates< dimension > > components_converted_coordinates(
         Range range,
         std::string_view crs_name,
-        const geode::GeographicCoordinateSystemInfo& info )
+        TransformationCache& transformations )
     {
         std::vector< Coordinates< dimension > > coordinates;
         for( const auto& component : range )
         {
-            coordinates.emplace_back(
-                converted_coordinates( component.mesh(), crs_name, info ) );
+            coordinates.emplace_back( converted_coordinates(
+                component.mesh(), crs_name, transformations ) );
         }
         return coordinates;
     }
@@ -406,14 +444,15 @@ namespace geode
         std::string_view crs_name,
         const GeographicCoordinateSystemInfo& info )
     {
+        TransformationCache transformations{ info };
         auto corners = components_converted_coordinates< 3 >(
-            brep.corners(), crs_name, info );
+            brep.corners(), crs_name, transformations );
         auto lines = components_converted_coordinates< 3 >(
-            brep.lines(), crs_name, info );
+            brep.lines(), crs_name, transformations );
         auto surfaces = components_converted_coordinates< 3 >(
-            brep.surfaces(), crs_name, info );
+            brep.surfaces(), crs_name, transformations );
         auto blocks = components_converted_coordinates< 3 >(
-            brep.blocks(), crs_name, info );
+            brep.blocks(), crs_name, transformations );
         apply_components_coordinate_reference_system< 3 >(
             info, crs_name, brep.corners(),
             [&builder]( const Corner3D& corner ) {
@@ -445,12 +484,13 @@ namespace geode
         std::string_view crs_name,
         const GeographicCoordinateSystemInfo& info )
     {
+        TransformationCache transformations{ info };
         auto corners = components_converted_coordinates< 2 >(
-            section.corners(), crs_name, info );
+            section.corners(), crs_name, transformations );
         auto lines = components_converted_coordinates< 2 >(
-            section.lines(), crs_name, info );
+            section.lines(), crs_name, transformations );
         auto surfaces = components_converted_coordinates< 2 >(
-            section.surfaces(), crs_name, info );
+            section.surfaces(), crs_name, transformations );
         apply_components_coordinate_reference_system< 2 >(
             info, crs_name, section.corners(),
             [&builder]( const Corner2D& corner ) {
