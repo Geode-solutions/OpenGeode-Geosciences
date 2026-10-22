@@ -145,6 +145,41 @@ void test_crs()
     }
 }
 
+void test_axis_order()
+{
+    constexpr geode::index_t NB_POINTS{ 2 };
+    geode::AttributeManager manager;
+    manager.resize( NB_POINTS );
+    // Longitude first, latitude second
+    geode::GeographicCoordinateSystem2D wgs84{ manager,
+        { "EPSG", "4326", "WGS 84" } };
+    wgs84.set_point( 0, geode::Point2D{ { 2.35, 48.85 } } );
+    wgs84.set_point( 1, geode::Point2D{ { -73.9857, 40.7484 } } );
+    geode::GeographicCoordinateSystem2D mercator{ manager,
+        { "EPSG", "3857", "Mercator" } };
+    mercator.import_coordinates( wgs84 );
+    const std::array< geode::Point2D, NB_POINTS > answers{
+        geode::Point2D{ { 261600.8033641929, 6249447.752791281 } },
+        geode::Point2D{ { -8236050.4499839, 4975301.253789808 } },
+    };
+    for( const auto p : geode::Range{ NB_POINTS } )
+    {
+        geode::OpenGeodeGeosciencesExplicitException::test(
+            mercator.point( p ).inexact_equal( answers[p] ),
+            "Wrong WGS 84 to Mercator conversion: ",
+            mercator.point( p ).string() );
+    }
+    geode::GeographicCoordinateSystem2D back{ manager,
+        { "EPSG", "4326", "back" } };
+    back.import_coordinates( mercator );
+    for( const auto p : geode::Range{ NB_POINTS } )
+    {
+        geode::OpenGeodeGeosciencesExplicitException::test(
+            back.point( p ).inexact_equal( wgs84.point( p ) ),
+            "Wrong Mercator to WGS 84 conversion: ", back.point( p ).string() );
+    }
+}
+
 void test_invalid_code( const geode::GeographicCoordinateSystemInfo& from,
     const geode::GeographicCoordinateSystemInfo& to )
 {
@@ -207,6 +242,7 @@ int main()
         test_bitsery();
         test_corrupted_info_size();
         test_crs();
+        test_axis_order();
         test_invalid_codes();
         test_failed_point_conversion();
 

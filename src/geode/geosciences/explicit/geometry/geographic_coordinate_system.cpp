@@ -117,6 +117,7 @@ namespace geode
                 "[GeographicCoordinateSystem::import_coordinates] Unknown "
                 "coordinate system ",
                 authority_code );
+            reference.SetAxisMappingStrategy( OAMS_TRADITIONAL_GIS_ORDER );
         }
 
         template < typename Archive >
