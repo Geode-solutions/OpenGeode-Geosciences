@@ -44,6 +44,7 @@
 #include <geode/geosciences/explicit/mixin/core/horizon.hpp>
 #include <geode/geosciences/explicit/representation/builder/structural_model_builder.hpp>
 #include <geode/geosciences/explicit/representation/core/detail/clone.hpp>
+#include <geode/geosciences/explicit/representation/core/detail/helpers.hpp>
 #include <geode/geosciences/explicit/representation/core/structural_model.hpp>
 #include <geode/geosciences/explicit/representation/io/structural_model_input.hpp>
 #include <geode/geosciences/explicit/representation/io/structural_model_output.hpp>
@@ -667,6 +668,41 @@ void test_geology_clone_mapping_with_existing_mappings(
     }
 }
 
+void test_geological_components_mappings_with_existing_mappings(
+    const geode::StructuralModel& model )
+{
+    geode::ModelCopyMapping geological_mappings;
+    geode::detail::add_geology_clone_mapping( geological_mappings, model );
+    geode::ModelGenericMapping component_mappings;
+    const auto& first_horizon = *model.horizons().begin();
+    const geode::uuid other_horizon_id;
+    component_mappings[geode::Horizon3D::component_type_static()].map(
+        first_horizon.id(), other_horizon_id );
+    geode::detail::add_geological_components_mappings< 3 >(
+        geological_mappings, component_mappings );
+    const auto& horizons_mapping =
+        component_mappings.at( geode::Horizon3D::component_type_static() );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        horizons_mapping.in2out( first_horizon.id() ).size() == 2,
+        "Existing Horizon component mapping should be merged" );
+    for( const auto& horizon : model.horizons() )
+    {
+        geode::OpenGeodeGeosciencesExplicitException::test(
+            absl::c_contains(
+                horizons_mapping.in2out( horizon.id() ), horizon.id() ),
+            "All Horizons should be in the component mapping" );
+    }
+    for( const auto& fault : model.faults() )
+    {
+        geode::OpenGeodeGeosciencesExplicitException::test(
+            component_mappings.at( geode::Fault3D::component_type_static() )
+                    .in2out( fault.id() )
+                    .size()
+                == 1,
+            "All Faults should be in the component mapping" );
+    }
+}
+
 void modify_model(
     geode::StructuralModel& model, geode::StructuralModelBuilder& builder )
 {
@@ -751,6 +787,7 @@ int main()
         test_item_ranges_with_mistyped_items();
         test_load_invalid_geological_types();
         test_geology_clone_mapping_with_existing_mappings( model );
+        test_geological_components_mappings_with_existing_mappings( model );
         modify_model( model, builder );
 
         geode::Logger::info( "TEST SUCCESS" );

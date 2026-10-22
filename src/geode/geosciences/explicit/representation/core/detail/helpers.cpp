@@ -403,12 +403,15 @@ namespace
         geode::ModelGenericMapping& component_mappings,
         const geode::ComponentType& type )
     {
-        geode::GenericMapping< geode::uuid > component_mapping;
+        if( !geological_mappings.has_mapping_type( type ) )
+        {
+            return;
+        }
+        auto& component_mapping = component_mappings[type];
         for( const auto& in2out : geological_mappings.at( type ).in2out_map() )
         {
             component_mapping.map( in2out.first, in2out.second );
         }
-        component_mappings.emplace( type, std::move( component_mapping ) );
     }
 } // namespace
 
