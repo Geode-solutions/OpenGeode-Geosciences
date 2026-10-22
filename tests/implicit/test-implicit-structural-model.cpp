@@ -479,6 +479,17 @@ void test_clone()
             "[clone] Stratigraphic unit should keep its uuid in the clone" );
     }
     check_unit( clone, 0.5, ids.units[1] );
+    for( const auto& block : model.blocks() )
+    {
+        const auto& clone_block = clone.block( block.id() );
+        for( const auto vertex : geode::Range{ block.mesh().nb_vertices() } )
+        {
+            geode::OpenGeodeGeosciencesImplicitException::test(
+                clone.implicit_value( clone_block, vertex )
+                    == block.mesh().point( vertex ).value( 2 ),
+                "[clone] Wrong implicit value in clone" );
+        }
+    }
 }
 
 int main()

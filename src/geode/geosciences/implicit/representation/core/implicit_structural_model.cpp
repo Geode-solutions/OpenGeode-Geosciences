@@ -408,6 +408,12 @@ namespace geode
         detail::add_stratigraphic_units_clone_mapping( this->horizons_stack(),
             clone_mappings[StratigraphicUnit3D::component_type_static()] );
         clone_builder.copy_implicit_information( clone_mappings, *this );
+        auto& blocks_mapping = clone_mappings[Block3D::component_type_static()];
+        for( const auto& block : this->blocks() )
+        {
+            blocks_mapping.map( block.id(), block.id() );
+        }
+        clone_builder.copy_implicit_attribute_values( clone_mappings, *this );
         return model_clone;
     }
 

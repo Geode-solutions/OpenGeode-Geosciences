@@ -406,6 +406,13 @@ namespace geode
         detail::add_stratigraphic_units_clone_mapping( this->horizons_stack(),
             clone_mappings[StratigraphicUnit2D::component_type_static()] );
         clone_builder.copy_implicit_information( clone_mappings, *this );
+        auto& surfaces_mapping =
+            clone_mappings[Surface2D::component_type_static()];
+        for( const auto& surface : this->surfaces() )
+        {
+            surfaces_mapping.map( surface.id(), surface.id() );
+        }
+        clone_builder.copy_implicit_attribute_values( clone_mappings, *this );
         return model_clone;
     }
 
