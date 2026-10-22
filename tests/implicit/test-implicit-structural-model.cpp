@@ -598,6 +598,30 @@ void test_load_duplicated_implicit_attribute()
     }
 }
 
+void test_load_stale_horizon_isovalue()
+{
+    geode::Logger::info( "Testing load with stale horizon isovalue" );
+    auto model = create_model();
+    const auto ids = add_horizons_stack( model, { 0., 1., 2. } );
+    {
+        geode::ImplicitStructuralModelBuilder builder{ model };
+        builder.horizons_stack_builder().remove_horizon(
+            model.horizons_stack().horizon( ids.horizons[2] ) );
+    }
+    const auto filename = "test_stale_horizon_isovalue.og_istrm";
+    geode::save_implicit_structural_model( model, filename );
+    auto reloaded = geode::load_implicit_structural_model( filename );
+    check_unit( reloaded, 3., ids.units[2] );
+    geode::ImplicitStructuralModelBuilder builder{ reloaded };
+    builder.horizons_stack_builder().add_horizon( ids.horizons[2] );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        !reloaded
+            .horizon_implicit_value(
+                reloaded.horizons_stack().horizon( ids.horizons[2] ) )
+            .has_value(),
+        "[stale isovalue] Isovalue of removed horizon should be dropped" );
+}
+
 int main()
 {
     try
@@ -615,6 +639,7 @@ int main()
         test_copy_horizons_isovalues();
         test_copy_single_implicit_attribute();
         test_clone();
+        test_load_stale_horizon_isovalue();
         test_import_old_attribute( "old_implicit" );
         test_import_old_attribute(
             geode::ImplicitStructuralModel::IMPLICIT_ATTRIBUTE_NAME );

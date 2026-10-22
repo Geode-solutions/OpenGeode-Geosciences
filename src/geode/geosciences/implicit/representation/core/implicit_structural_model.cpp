@@ -288,6 +288,33 @@ namespace geode
             horizon_isovalues_[horizon.id()] = isovalue;
         }
 
+        void check_horizons_consistency( const ImplicitStructuralModel& model )
+        {
+            for( auto it = horizon_isovalues_.begin();
+                it != horizon_isovalues_.end(); )
+            {
+                if( horizons_stack_.has_horizon( it->first ) )
+                {
+                    ++it;
+                    continue;
+                }
+                Logger::warning(
+                    "[ImplicitStructuralModel] Removing isovalue of Horizon ",
+                    it->first.string(),
+                    " which is not defined in the HorizonsStack." );
+                horizon_isovalues_.erase( it++ );
+            }
+            for( const auto& horizon : model.horizons() )
+            {
+                if( !horizons_stack_.has_horizon( horizon.id() ) )
+                {
+                    Logger::warning( "[ImplicitStructuralModel] Horizon ",
+                        horizon.name().value_or( horizon.id().string() ),
+                        " is not defined in the HorizonsStack." );
+                }
+            }
+        }
+
         void remove_duplicated_implicit_attributes(
             const ImplicitStructuralModel& model )
         {
@@ -558,6 +585,7 @@ namespace geode
             Growable< Archive, ImplicitStructuralModel >{
                 { []( Archive& a, ImplicitStructuralModel& model ) {
                      a.object( model.impl_ );
+                     model.impl_->check_horizons_consistency( model );
                      for( const auto& block : model.blocks() )
                      {
                          const auto& block_mesh = block.mesh();
@@ -624,6 +652,7 @@ namespace geode
                         a.object( model.impl_ );
                         if constexpr( std::is_same_v< Archive, Deserializer > )
                         {
+                            model.impl_->check_horizons_consistency( model );
                             model.impl_->remove_duplicated_implicit_attributes(
                                 model );
                             model.impl_->initialize_implicit_query_trees(
