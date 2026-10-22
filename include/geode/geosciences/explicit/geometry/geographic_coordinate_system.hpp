@@ -23,6 +23,8 @@
 
 #pragma once
 
+#include <vector>
+
 #include <geode/basic/pimpl.hpp>
 
 #include <geode/mesh/core/attribute_coordinate_reference_system.hpp>
@@ -115,4 +117,36 @@ namespace geode
         IMPLEMENTATION_MEMBER( impl_ );
     };
     ALIAS_2D_AND_3D( GeographicCoordinateSystem );
+
+    namespace internal
+    {
+        /*!
+         * Coordinate transformation between two geographic coordinate
+         * systems. Construction throws if the transformation cannot be
+         * created (e.g. unknown authority code).
+         */
+        class
+            opengeode_geosciences_explicit_api GeographicCoordinateTransformation
+        {
+        public:
+            GeographicCoordinateTransformation(
+                const GeographicCoordinateSystemInfo& from,
+                const GeographicCoordinateSystemInfo& to );
+            GeographicCoordinateTransformation(
+                GeographicCoordinateTransformation&& other ) noexcept;
+            ~GeographicCoordinateTransformation();
+
+            /*!
+             * Return the transformed coordinates of all the points of the
+             * given coordinate system.
+             * @exception OpenGeodeException if a point cannot be transformed.
+             */
+            template < index_t dimension >
+            [[nodiscard]] std::vector< Point< dimension > > transform(
+                const GeographicCoordinateSystem< dimension >& from ) const;
+
+        private:
+            IMPLEMENTATION_MEMBER( impl_ );
+        };
+    } // namespace internal
 } // namespace geode

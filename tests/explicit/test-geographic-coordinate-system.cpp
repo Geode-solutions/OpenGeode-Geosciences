@@ -31,11 +31,21 @@
 
 #include <geode/geometry/point.hpp>
 
+#include <geode/mesh/builder/coordinate_reference_system_manager_builder.hpp>
+#include <geode/mesh/builder/edged_curve_builder.hpp>
+#include <geode/mesh/builder/point_set_builder.hpp>
 #include <geode/mesh/builder/triangulated_surface_builder.hpp>
 #include <geode/mesh/core/coordinate_reference_system_manager.hpp>
+#include <geode/mesh/core/edged_curve.hpp>
+#include <geode/mesh/core/point_set.hpp>
 #include <geode/mesh/core/triangulated_surface.hpp>
 #include <geode/mesh/io/triangulated_surface_input.hpp>
 #include <geode/mesh/io/triangulated_surface_output.hpp>
+
+#include <geode/model/mixin/core/corner.hpp>
+#include <geode/model/mixin/core/line.hpp>
+#include <geode/model/representation/builder/brep_builder.hpp>
+#include <geode/model/representation/core/brep.hpp>
 
 #include <geode/geosciences/explicit/geometry/geographic_coordinate_system.hpp>
 #include <geode/geosciences/explicit/geometry/geographic_coordinate_system_helper.hpp>
@@ -198,6 +208,107 @@ void test_assign_validation()
         "Wrong assignment to the active CRS name" );
 }
 
+struct BRepState
+{
+    std::vector< std::string > active_names;
+    std::vector< geode::index_t > nb_attributes;
+};
+
+BRepState brep_state( const geode::BRep& brep )
+{
+    BRepState state;
+    const auto add_state = [&state]( const auto& mesh ) {
+        state.active_names.emplace_back(
+            mesh.main_coordinate_reference_system_manager()
+                .active_coordinate_reference_system_name() );
+        state.nb_attributes.push_back(
+            mesh.vertex_attribute_manager().attribute_ids().size() );
+    };
+    for( const auto& corner : brep.corners() )
+    {
+        add_state( corner.mesh() );
+    }
+    for( const auto& line : brep.lines() )
+    {
+        add_state( line.mesh() );
+    }
+    return state;
+}
+
+void check_brep_unchanged( const geode::BRep& brep, const BRepState& state )
+{
+    const auto new_state = brep_state( brep );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        new_state.active_names == state.active_names
+            && new_state.nb_attributes == state.nb_attributes,
+        "Failed BRep operation partially modified the model" );
+}
+
+// Corners are processed before lines: make only the line invalid
+void test_brep_atomicity(
+    const geode::GeographicCoordinateSystemInfo& line_info,
+    bool register_target_on_line )
+{
+    geode::BRep brep;
+    geode::BRepBuilder builder{ brep };
+    for( const auto c : geode::Range{ 3 } )
+    {
+        const auto& corner_id = builder.add_corner();
+        const auto& corner = brep.corner( corner_id );
+        auto mesh_builder = builder.corner_mesh_builder( corner );
+        const auto value = static_cast< double >( c );
+        mesh_builder->create_point( geode::Point3D{ { value, value, 0 } } );
+        geode::assign_point_set_geographic_coordinate_system_info(
+            corner.mesh(), *mesh_builder, "geo", { "EPSG", "27571", "geo" } );
+    }
+    const auto& line_id = builder.add_line();
+    const auto& line = brep.line( line_id );
+    auto line_builder = builder.line_mesh_builder( line );
+    line_builder->create_point( geode::Point3D{ { 0, 0, 0 } } );
+    line_builder->create_point( geode::Point3D{ { 1, 1, 0 } } );
+    line_builder->create_edge( 0, 1 );
+    if( !line_info.authority.empty() )
+    {
+        geode::assign_edged_curve_geographic_coordinate_system_info(
+            line.mesh(), *line_builder, "geo", line_info );
+    }
+    if( register_target_on_line )
+    {
+        line_builder->main_coordinate_reference_system_manager_builder()
+            .register_coordinate_reference_system( "target",
+                std::make_shared< geode::GeographicCoordinateSystem3D >(
+                    line.mesh().vertex_attribute_manager(),
+                    geode::GeographicCoordinateSystemInfo{
+                        "EPSG", "27572", "target" } ) );
+    }
+    line_builder.reset();
+    const auto state = brep_state( brep );
+    check_throws(
+        [&] {
+            geode::convert_brep_coordinate_reference_system(
+                brep, builder, "target", { "EPSG", "27572", "target" } );
+        },
+        "Invalid BRep conversion" );
+    check_brep_unchanged( brep, state );
+    if( register_target_on_line )
+    {
+        check_throws(
+            [&] {
+                geode::assign_brep_geographic_coordinate_system_info(
+                    brep, builder, "target", { "EPSG", "27572", "target" } );
+            },
+            "Invalid BRep assignment" );
+        check_brep_unchanged( brep, state );
+    }
+}
+
+void test_brep_conversion_atomicity()
+{
+    test_brep_atomicity( { "", "", "" }, false );
+    test_brep_atomicity( { "EPSG", "99999", "unknown" }, false );
+    test_brep_atomicity( { "EPSG", "27571", "geo" }, true );
+}
+
 void test_crs()
 {
     const auto infos =
@@ -335,6 +446,7 @@ int main()
         test_failed_point_conversion();
         test_failed_mesh_conversion_leaves_no_attribute();
         test_assign_validation();
+        test_brep_conversion_atomicity();
 
         geode::Logger::info( "TEST SUCCESS" );
         return 0;
