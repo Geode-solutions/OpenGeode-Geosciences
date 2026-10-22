@@ -54,6 +54,8 @@ namespace
                     continue;
                 }
                 builder_.add_stratigraphic_unit( stratigraphic_unit.id() );
+                created_stratigraphic_units_.push_back(
+                    stratigraphic_unit.id() );
                 if( const auto name = stratigraphic_unit.name() )
                 {
                     builder_.set_stratigraphic_unit_name(
@@ -62,21 +64,23 @@ namespace
             }
         }
 
-        ~BlockToStratigraphicUnitBuilder()
+        /*!
+         * Remove the stratigraphic units created by this builder which have
+         * not been assigned any block.
+         */
+        void remove_empty_created_stratigraphic_units()
         {
-            std::vector< geode::uuid > to_remove;
-            for( const auto& stratigraphic_unit : model_.stratigraphic_units() )
+            for( const auto& stratigraphic_unit_id :
+                created_stratigraphic_units_ )
             {
-                if( model_.nb_items( stratigraphic_unit.id() ) == 0 )
+                if( model_.has_stratigraphic_unit( stratigraphic_unit_id )
+                    && model_.nb_items( stratigraphic_unit_id ) == 0 )
                 {
-                    to_remove.push_back( stratigraphic_unit.id() );
+                    builder_.remove_stratigraphic_unit(
+                        model_.stratigraphic_unit( stratigraphic_unit_id ) );
                 }
             }
-            for( const auto& stratigraphic_unit_id : to_remove )
-            {
-                builder_.remove_stratigraphic_unit(
-                    model_.stratigraphic_unit( stratigraphic_unit_id ) );
-            }
+            created_stratigraphic_units_.clear();
         }
 
         geode::StratigraphicUnitToBlockResult
@@ -410,6 +414,7 @@ namespace
         const geode::HorizonsStack3D& horizons_stack_;
         geode::ImplicitStructuralModelBuilder builder_;
         geode::StratigraphicUnitToBlockResult result_;
+        std::vector< geode::uuid > created_stratigraphic_units_;
     };
 } // namespace
 namespace geode
@@ -445,6 +450,16 @@ namespace geode
             "[complete_stratigraphic_unit_block_relationships_from_available_"
             "data] Implicit structural model has no horizons." );
         BlockToStratigraphicUnitBuilder builder{ implicit_model };
-        return builder.assign_blocks_to_stratigraphic_units();
+        try
+        {
+            auto result = builder.assign_blocks_to_stratigraphic_units();
+            builder.remove_empty_created_stratigraphic_units();
+            return result;
+        }
+        catch( ... )
+        {
+            builder.remove_empty_created_stratigraphic_units();
+            throw;
+        }
     }
 } // namespace geode

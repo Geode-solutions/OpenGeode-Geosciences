@@ -181,6 +181,32 @@ namespace
             result.unassigned_blocks.size() == 1,
             "One block should be unassigned" );
     }
+
+    void test_empty_stratigraphic_units_cleanup()
+    {
+        geode::Logger::info( "Testing empty stratigraphic units cleanup" );
+        geode::ImplicitStructuralModel model;
+        const auto stack =
+            create_stack( model, { CONTACT::conformal, CONTACT::conformal,
+                                     CONTACT::conformal, CONTACT::conformal } );
+        geode::ImplicitStructuralModelBuilder builder{ model };
+        const auto user_unit = builder.add_stratigraphic_unit();
+        builder.add_stratigraphic_unit( stack.units[2] );
+        const auto block = add_block( model );
+        add_boundary( model, { block }, stack.horizons[0] );
+        add_boundary( model, { block }, stack.horizons[1] );
+        geode::complete_stratigraphic_unit_block_relationships( model );
+        check_unit( model, block, stack.units[0], "block in first unit" );
+        geode::OpenGeodeGeosciencesImplicitException::test(
+            model.has_stratigraphic_unit( user_unit ),
+            "Empty user stratigraphic unit should be kept" );
+        geode::OpenGeodeGeosciencesImplicitException::test(
+            model.has_stratigraphic_unit( stack.units[2] ),
+            "Empty stratigraphic unit added by the user should be kept" );
+        geode::OpenGeodeGeosciencesImplicitException::test(
+            !model.has_stratigraphic_unit( stack.units[1] ),
+            "Empty created stratigraphic unit should be removed" );
+    }
 } // namespace
 
 int main()
@@ -191,6 +217,7 @@ int main()
         geode::OpenGeodeGeosciencesImplicitLibrary::initialize();
         test_top_horizon_without_unit_above();
         test_horizon_not_in_stack();
+        test_empty_stratigraphic_units_cleanup();
         geode::Logger::info( "TEST SUCCESS" );
         return 0;
     }
