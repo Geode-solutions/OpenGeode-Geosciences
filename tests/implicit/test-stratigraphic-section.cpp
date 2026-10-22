@@ -209,6 +209,35 @@ void test_stratigraphic_lines_values(
         nb_checks > 0, "No stratigraphic line point checked." );
 }
 
+void test_copy( const geode::StratigraphicSection& section )
+{
+    geode::Logger::info( "Testing copy" );
+    geode::StratigraphicSection copy;
+    geode::StratigraphicSectionBuilder builder{ copy };
+    const auto mappings = builder.copy( section );
+    const auto& surface_mapping =
+        mappings.at( geode::Surface2D::component_type_static() );
+    for( const auto& surface : section.surfaces() )
+    {
+        const auto& new_surface =
+            copy.surface( surface_mapping.in2out( surface.id() ) );
+        geode::OpenGeodeGeosciencesImplicitException::test(
+            !new_surface.mesh().vertex_attribute_manager().attribute_exists(
+                section.stratigraphic_location_attribute_id() ),
+            "Copied stratigraphic attribute should have been removed." );
+        for( const auto v : geode::Range{ surface.mesh().nb_vertices() } )
+        {
+            geode::OpenGeodeGeosciencesImplicitException::test(
+                copy.stratigraphic_coordinates( new_surface, v )
+                    .stratigraphic_coordinates()
+                    .inexact_equal(
+                        section.stratigraphic_coordinates( surface, v )
+                            .stratigraphic_coordinates() ),
+                "Wrong copied stratigraphic coordinates for vertex ", v );
+        }
+    }
+}
+
 void test_backward_io( std::string filename )
 {
     const auto implicit_cross_section =
@@ -315,6 +344,7 @@ int main()
         test_section( model );
         // test_save_stratigraphic_lines( model );
         test_stratigraphic_lines_values( model );
+        test_copy( model );
         test_io( model );
         test_move( model );
         test_empty_surface();

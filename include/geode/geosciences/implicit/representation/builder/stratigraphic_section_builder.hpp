@@ -67,6 +67,9 @@ namespace geode
         void import_old_stratigraphic_attribute_values_from_attribute_id(
             const uuid& old_stratigraphic_attribute_id );
 
+        void copy_stratigraphic_attribute_values( ModelCopyMapping& mapping,
+            const StratigraphicSection& other_section );
+
     private:
         StratigraphicSection& stratigraphic_section_;
     };

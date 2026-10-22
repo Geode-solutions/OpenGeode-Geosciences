@@ -50,6 +50,7 @@ namespace geode
             ImplicitCrossSectionBuilder::copy( stratigraphic_section );
         stratigraphic_section_.initialize_stratigraphic_query_trees(
             StratigraphicSection::StratigraphicSectionBuilderKey{} );
+        copy_stratigraphic_attribute_values( mappings, stratigraphic_section );
         return mappings;
     }
 
@@ -143,6 +144,60 @@ namespace geode
             }
             surface_vertex_attribute_manager.delete_attribute(
                 old_attribute_id );
+        }
+    }
+
+    void StratigraphicSectionBuilder::copy_stratigraphic_attribute_values(
+        ModelCopyMapping& mapping, const StratigraphicSection& other_section )
+    {
+        const auto& surface_mapping =
+            mapping.at( Surface2D::component_type_static() );
+        const auto& old_attribute_id =
+            other_section.stratigraphic_location_attribute_id();
+        const auto& new_attribute_id =
+            stratigraphic_section_.stratigraphic_location_attribute_id();
+        for( const auto& old_surface : other_section.surfaces() )
+        {
+            if( !surface_mapping.has_mapping_input( old_surface.id() ) )
+            {
+                continue;
+            }
+            const auto& old_surface_vertex_attribute_manager =
+                old_surface.mesh().vertex_attribute_manager();
+            if( !old_surface_vertex_attribute_manager.attribute_exists(
+                    old_attribute_id ) )
+            {
+                continue;
+            }
+            const auto& new_surface = stratigraphic_section_.surface(
+                surface_mapping.in2out( old_surface.id() ) );
+            auto& new_surface_vertex_attribute_manager =
+                new_surface.mesh().vertex_attribute_manager();
+            if( !new_surface_vertex_attribute_manager.attribute_exists(
+                    new_attribute_id ) )
+            {
+                continue;
+            }
+            const auto old_attribute =
+                old_surface_vertex_attribute_manager
+                    .find_read_only_attribute< Point1D >( old_attribute_id );
+            auto new_attribute =
+                new_surface_vertex_attribute_manager
+                    .find_attribute< VariableAttribute, Point1D >(
+                        new_attribute_id );
+            for( const auto vertex :
+                geode::Range{ new_surface.mesh().nb_vertices() } )
+            {
+                new_attribute->set_value(
+                    vertex, old_attribute->value( vertex ) );
+            }
+            if( old_attribute_id != new_attribute_id
+                && new_surface_vertex_attribute_manager.attribute_exists(
+                    old_attribute_id ) )
+            {
+                new_surface_vertex_attribute_manager.delete_attribute(
+                    old_attribute_id );
+            }
         }
     }
 } // namespace geode
