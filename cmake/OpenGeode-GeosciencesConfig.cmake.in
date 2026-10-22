@@ -26,6 +26,7 @@ find_dependency(OpenGeode CONFIG)
 # Load information for each target
 include(${CMAKE_CURRENT_LIST_DIR}/@PROJECT_NAME@_explicit_target.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/@PROJECT_NAME@_implicit_target.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/@PROJECT_NAME@_simulation_target.cmake)
 
 get_target_property(library_type @PROJECT_NAME@::explicit TYPE)
 if(library_type STREQUAL "STATIC_LIBRARY")
