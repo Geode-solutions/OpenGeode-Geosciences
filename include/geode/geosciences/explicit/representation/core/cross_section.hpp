@@ -153,7 +153,7 @@ namespace geode
         explicit CrossSection( Section&& section ) noexcept;
         CrossSection( const CrossSection& initial_model,
             Section&& section,
-            const ModelGenericMapping& initial_to_section_mappings ) noexcept;
+            const ModelGenericMapping& initial_to_section_mappings );
 
         [[nodiscard]] CrossSection clone() const;
 

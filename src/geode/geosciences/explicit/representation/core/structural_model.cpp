@@ -206,7 +206,7 @@ namespace geode
 
     StructuralModel::StructuralModel( const StructuralModel& initial_model,
         BRep&& brep,
-        const ModelGenericMapping& initial_to_brep_mappings ) noexcept
+        const ModelGenericMapping& initial_to_brep_mappings )
         : BRep{ std::move( brep ) }
     {
         StructuralModelBuilder builder{ *this };

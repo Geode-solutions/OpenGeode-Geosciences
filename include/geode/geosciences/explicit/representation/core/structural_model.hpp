@@ -156,7 +156,7 @@ namespace geode
         explicit StructuralModel( BRep&& brep ) noexcept;
         StructuralModel( const StructuralModel& initial_model,
             BRep&& brep,
-            const ModelGenericMapping& initial_to_brep_mappings ) noexcept;
+            const ModelGenericMapping& initial_to_brep_mappings );
 
         [[nodiscard]] StructuralModel clone() const;
 

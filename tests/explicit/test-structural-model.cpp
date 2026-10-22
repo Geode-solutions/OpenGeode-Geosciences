@@ -367,6 +367,28 @@ void test_copy( const geode::StructuralModel& model )
     }
 }
 
+void test_transfer_with_stale_mapping( const geode::StructuralModel& model )
+{
+    geode::ModelGenericMapping mappings;
+    auto& surfaces_mapping =
+        mappings[geode::Surface3D::component_type_static()];
+    for( const auto& surface : model.surfaces() )
+    {
+        surfaces_mapping.map( surface.id(), geode::uuid{} );
+    }
+    bool thrown{ false };
+    try
+    {
+        geode::StructuralModel transferred{ model, geode::BRep{}, mappings };
+    }
+    catch( const std::exception& /*unused*/ )
+    {
+        thrown = true;
+    }
+    geode::OpenGeodeGeosciencesExplicitException::test( thrown,
+        "Transfer with a stale mapping should throw a catchable exception" );
+}
+
 void modify_model(
     geode::StructuralModel& model, geode::StructuralModelBuilder& builder )
 {
@@ -444,6 +466,7 @@ int main()
 
         test_io( model );
         test_copy( model );
+        test_transfer_with_stale_mapping( model );
         modify_model( model, builder );
 
         geode::Logger::info( "TEST SUCCESS" );

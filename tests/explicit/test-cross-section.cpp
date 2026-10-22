@@ -428,6 +428,27 @@ void test_copy( const geode::CrossSection& model )
         "be 4" );
 }
 
+void test_transfer_with_stale_mapping( const geode::CrossSection& model )
+{
+    geode::ModelGenericMapping mappings;
+    auto& lines_mapping = mappings[geode::Line2D::component_type_static()];
+    for( const auto& line : model.lines() )
+    {
+        lines_mapping.map( line.id(), geode::uuid{} );
+    }
+    bool thrown{ false };
+    try
+    {
+        geode::CrossSection transferred{ model, geode::Section{}, mappings };
+    }
+    catch( const std::exception& /*unused*/ )
+    {
+        thrown = true;
+    }
+    geode::OpenGeodeGeosciencesExplicitException::test( thrown,
+        "Transfer with a stale mapping should throw a catchable exception" );
+}
+
 void modify_model(
     geode::CrossSection& model, geode::CrossSectionBuilder& builder )
 {
@@ -492,6 +513,7 @@ int main()
 
         test_io( model );
         test_copy( model );
+        test_transfer_with_stale_mapping( model );
         modify_model( model, builder );
 
         geode::Logger::info( "TEST SUCCESS" );
