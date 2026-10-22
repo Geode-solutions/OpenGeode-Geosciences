@@ -32,6 +32,14 @@ namespace geode
 
 namespace geode
 {
+    /*!
+     * Group the Blocks of the StructuralModel into FaultBlocks: Blocks
+     * sharing a Surface which is not a Fault are in the same FaultBlock.
+     * If the model has no Fault, all the Blocks are put in a single FaultBlock.
+     * Blocks already belonging to a FaultBlock are left untouched and ignored
+     * (a warning is emitted), so calling this function several times does not
+     * create duplicated FaultBlocks.
+     */
     void opengeode_geosciences_explicit_api build_structural_model_fault_blocks(
         StructuralModel& structural_model );
 } // namespace geode

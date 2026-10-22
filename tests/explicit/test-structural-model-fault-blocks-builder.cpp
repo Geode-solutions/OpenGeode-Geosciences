@@ -35,6 +35,7 @@
 #include <geode/geosciences/explicit/mixin/core/fault.hpp>
 #include <geode/geosciences/explicit/mixin/core/fault_block.hpp>
 #include <geode/geosciences/explicit/representation/builder/helpers/structural_model_fault_blocks_builder.hpp>
+#include <geode/geosciences/explicit/representation/builder/structural_model_builder.hpp>
 #include <geode/geosciences/explicit/representation/core/structural_model.hpp>
 #include <geode/geosciences/explicit/representation/io/structural_model_input.hpp>
 #include <geode/geosciences/explicit/representation/io/structural_model_output.hpp>
@@ -128,6 +129,36 @@ void test_structural_model_without_faults_fault_blocks_builder()
     check_fault_blocks( model, { 2 } );
 }
 
+void test_fault_blocks_builder_idempotency()
+{
+    auto model = geode::load_structural_model(
+        absl::StrCat( geode::DATA_PATH, "modelA2.og_strm" ) );
+    geode::build_structural_model_fault_blocks( model );
+    geode::build_structural_model_fault_blocks( model );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        model.nb_fault_blocks() == 3,
+        "Building fault blocks twice should not add fault blocks" );
+    check_fault_blocks( model, { 4, 4, 4 } );
+
+    geode::StructuralModelBuilder builder{ model };
+    builder.remove_fault_block( *model.fault_blocks().begin() );
+    geode::build_structural_model_fault_blocks( model );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        model.nb_fault_blocks() == 3,
+        "Rebuilding a removed fault block should give 3 fault blocks" );
+    check_fault_blocks( model, { 4, 4, 4 } );
+
+    auto model_without_faults = geode::load_structural_model(
+        absl::StrCat( geode::DATA_PATH, "vri2.og_strm" ) );
+    geode::build_structural_model_fault_blocks( model_without_faults );
+    geode::build_structural_model_fault_blocks( model_without_faults );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        model_without_faults.nb_fault_blocks() == 1,
+        "Building fault blocks twice in a model without faults should not add "
+        "fault blocks" );
+    check_fault_blocks( model_without_faults, { 2 } );
+}
+
 int main()
 {
     try
@@ -135,6 +166,7 @@ int main()
         geode::OpenGeodeGeosciencesExplicitLibrary::initialize();
         test_structural_model_fault_blocks_builder();
         test_structural_model_without_faults_fault_blocks_builder();
+        test_fault_blocks_builder_idempotency();
         geode::Logger::info( "TEST SUCCESS" );
         return 0;
     }
