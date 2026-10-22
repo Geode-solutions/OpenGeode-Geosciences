@@ -108,15 +108,15 @@ namespace geode
             DistanceToTriangle2D distance_action{
                 surface.mesh< TriangulatedSurface2D >()
             };
-            const auto closest_triangle =
-                std::get< 0 >( surface_mesh_aabb_trees_
-                        .at( surface.id() )( create_aabb_tree, surface.mesh() )
-                        .closest_element_box( point, distance_action ) );
-            if( distance_action( point, closest_triangle ) < GLOBAL_EPSILON )
+            const auto [closest_triangle, distance] =
+                surface_mesh_aabb_trees_
+                    .at( surface.id() )( create_aabb_tree, surface.mesh() )
+                    .closest_element_box( point, distance_action );
+            if( closest_triangle == NO_ID || distance >= GLOBAL_EPSILON )
             {
-                return closest_triangle;
+                return std::nullopt;
             }
-            return std::nullopt;
+            return closest_triangle;
         }
 
         absl::flat_hash_map< uuid, TriangulatedSurfaceScalarFunction2D >&

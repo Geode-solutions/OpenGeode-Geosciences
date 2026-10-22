@@ -104,14 +104,15 @@ namespace geode
             DistanceToTetrahedron3D distance_action{
                 block.mesh< TetrahedralSolid3D >()
             };
-            auto closest_tetrahedron = std::get< 0 >( block_mesh_aabb_trees_
+            const auto [closest_tetrahedron, distance] =
+                block_mesh_aabb_trees_
                     .at( block.id() )( create_aabb_tree, block.mesh() )
-                    .closest_element_box( point, distance_action ) );
-            if( distance_action( point, closest_tetrahedron ) < GLOBAL_EPSILON )
+                    .closest_element_box( point, distance_action );
+            if( closest_tetrahedron == NO_ID || distance >= GLOBAL_EPSILON )
             {
-                return closest_tetrahedron;
+                return std::nullopt;
             }
-            return std::nullopt;
+            return closest_tetrahedron;
         }
 
         const HorizonsStack3D& horizons_stack() const

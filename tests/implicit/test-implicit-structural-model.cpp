@@ -223,6 +223,22 @@ void test_conversion_and_move()
         "[conversion] Polyhedral block should be kept" );
 }
 
+void test_empty_mesh_query()
+{
+    geode::Logger::info( "Testing query on empty mesh" );
+    geode::StructuralModel base_model;
+    geode::StructuralModelBuilder builder{ base_model };
+    const auto block_id = add_tetrahedral_block( builder );
+    geode::ImplicitStructuralModel model{ std::move( base_model ) };
+    const geode::Point3D query{ { 0.1, 0.1, 0.5 } };
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        !model.containing_polyhedron( model.block( block_id ), query ),
+        "[empty mesh] No element should contain the query" );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        !model.implicit_value( model.block( block_id ), query ),
+        "[empty mesh] No implicit value should be found" );
+}
+
 int main()
 {
     try
@@ -231,6 +247,7 @@ int main()
         test_containing_stratigraphic_unit();
         test_containing_stratigraphic_unit_after_horizon_removal();
         test_conversion_and_move();
+        test_empty_mesh_query();
 
         geode::Logger::info( "TEST SUCCESS" );
         return 0;
