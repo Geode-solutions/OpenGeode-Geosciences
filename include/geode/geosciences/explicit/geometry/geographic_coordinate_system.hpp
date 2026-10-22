@@ -87,12 +87,6 @@ namespace geode
 
         ~GeographicCoordinateSystem();
 
-        [[nodiscard]] static GeographicCoordinateSystem< dimension >
-            create_from_attribute(
-                const AttributeCoordinateReferenceSystem< dimension >& crs,
-                AttributeManager& manager,
-                GeographicCoordinateSystemInfo info );
-
         [[nodiscard]] static CRSType type_name_static()
         {
             return CRSType{ "GeographicCoordinateSystem" };
