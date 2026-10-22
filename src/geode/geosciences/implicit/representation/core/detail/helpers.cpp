@@ -548,39 +548,43 @@ namespace geode
             std::vector< MeshElement > invalid_tetrahedra;
             for( const auto& block : implicit_model.blocks() )
             {
+                if( block.mesh().type_name()
+                    != TetrahedralSolid3D::type_name_static() )
+                {
+                    continue;
+                }
                 const auto& block_mesh = block.mesh< TetrahedralSolid3D >();
+                std::vector< Point3D > stratigraphic_points;
+                stratigraphic_points.reserve( block_mesh.nb_vertices() );
+                for( const auto vertex_id : Range{ block_mesh.nb_vertices() } )
+                {
+                    stratigraphic_points.emplace_back( implicit_model
+                            .stratigraphic_coordinates( block, vertex_id )
+                            .stratigraphic_coordinates() );
+                }
                 for( const auto tetra_id : Range{ block_mesh.nb_polyhedra() } )
                 {
                     const auto tetra_vertices =
                         block_mesh.polyhedron_vertices( tetra_id );
-                    const OwnerTetrahedron strati_tetra{
-                        implicit_model
-                            .stratigraphic_coordinates(
-                                block, tetra_vertices[0] )
-                            .stratigraphic_coordinates(),
-                        implicit_model
-                            .stratigraphic_coordinates(
-                                block, tetra_vertices[1] )
-                            .stratigraphic_coordinates(),
-                        implicit_model
-                            .stratigraphic_coordinates(
-                                block, tetra_vertices[2] )
-                            .stratigraphic_coordinates(),
-                        implicit_model
-                            .stratigraphic_coordinates(
-                                block, tetra_vertices[3] )
-                            .stratigraphic_coordinates()
+                    const Tetrahedron strati_tetra{
+                        stratigraphic_points[tetra_vertices[0]],
+                        stratigraphic_points[tetra_vertices[1]],
+                        stratigraphic_points[tetra_vertices[2]],
+                        stratigraphic_points[tetra_vertices[3]]
                     };
                     if( tetrahedron_volume_sign( strati_tetra )
                         == SIGN::negative )
                     {
                         invalid_tetrahedra.emplace_back( block.id(), tetra_id );
-                        Logger::info(
-                            "[invalid_stratigraphic_tetrahedra] Tetrahedra ",
-                            tetra_id, " of block ", block.id().string(),
-                            " is invalid (negative stratigraphic volume)." );
                     }
                 }
+            }
+            if( !invalid_tetrahedra.empty() )
+            {
+                Logger::info( "[invalid_stratigraphic_tetrahedra] ",
+                    invalid_tetrahedra.size(),
+                    " tetrahedra are invalid (negative stratigraphic "
+                    "volume)." );
             }
             return invalid_tetrahedra;
         }

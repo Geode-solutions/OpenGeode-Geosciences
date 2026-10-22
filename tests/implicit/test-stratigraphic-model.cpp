@@ -27,8 +27,11 @@
 #include <geode/basic/attribute_manager.hpp>
 #include <geode/basic/logger.hpp>
 
+#include <geode/geometry/basic_objects/tetrahedron.hpp>
 #include <geode/geometry/bounding_box.hpp>
+#include <geode/geometry/information.hpp>
 #include <geode/geometry/point.hpp>
+#include <geode/geometry/sign.hpp>
 
 #include <geode/mesh/core/geode/geode_polyhedral_solid.hpp>
 #include <geode/mesh/core/geode/geode_tetrahedral_solid.hpp>
@@ -467,6 +470,63 @@ void test_stratigraphic_model_from_coords()
         nb_checks > 0, "No stratigraphic location checked." );
 }
 
+void test_invalid_stratigraphic_tetrahedra( geode::StratigraphicModel& model )
+{
+    geode::Logger::info( "Testing invalid stratigraphic tetrahedra" );
+    geode::StratigraphicModelBuilder builder{ model };
+    for( const auto& block : model.blocks() )
+    {
+        for( const auto v : geode::Range{ block.mesh().nb_vertices() } )
+        {
+            if( v % 7 != 0 )
+            {
+                continue;
+            }
+            auto location = model.stratigraphic_coordinates( block, v )
+                                .stratigraphic_location();
+            location.set_value( 0, -location.value( 0 ) );
+            builder.set_stratigraphic_location( block, v, location );
+        }
+    }
+    std::vector< geode::MeshElement > expected;
+    for( const auto& block : model.blocks() )
+    {
+        const auto& mesh = block.mesh();
+        for( const auto t : geode::Range{ mesh.nb_polyhedra() } )
+        {
+            const auto vertices = mesh.polyhedron_vertices( t );
+            const geode::OwnerTetrahedron tetra{
+                model.stratigraphic_coordinates( block, vertices[0] )
+                    .stratigraphic_coordinates(),
+                model.stratigraphic_coordinates( block, vertices[1] )
+                    .stratigraphic_coordinates(),
+                model.stratigraphic_coordinates( block, vertices[2] )
+                    .stratigraphic_coordinates(),
+                model.stratigraphic_coordinates( block, vertices[3] )
+                    .stratigraphic_coordinates()
+            };
+            if( geode::tetrahedron_volume_sign( tetra )
+                == geode::SIGN::negative )
+            {
+                expected.emplace_back( block.id(), t );
+            }
+        }
+    }
+    const auto invalid =
+        geode::detail::invalid_stratigraphic_tetrahedra( model );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        !invalid.empty(), "Some stratigraphic tetrahedra should be invalid." );
+    geode::OpenGeodeGeosciencesImplicitException::test( invalid == expected,
+        "Wrong invalid stratigraphic tetrahedra: ", invalid.size(),
+        " found instead of ", expected.size() );
+    geode::StructuralModelBuilder structural_builder{ model };
+    structural_builder.add_block(
+        geode::OpenGeodePolyhedralSolid3D::impl_name_static() );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        geode::detail::invalid_stratigraphic_tetrahedra( model ) == expected,
+        "Non tetrahedral blocks should be ignored." );
+}
+
 int main()
 {
     try
@@ -491,6 +551,7 @@ int main()
         test_stratigraphic_surfaces_values( model );
         DEBUG( "Testing IO" );
         test_io( model, block1_id );
+        test_invalid_stratigraphic_tetrahedra( model );
         test_move( model );
         test_non_tetrahedral_block();
         test_empty_block();
