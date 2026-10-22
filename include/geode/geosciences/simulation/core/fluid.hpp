@@ -150,10 +150,7 @@ namespace geode
             return "SinglePhaseFluid";
         }
 
-        [[nodiscard]] std::string_view type_name() const final
-        {
-            return type_name_static();
-        }
+        [[nodiscard]] std::string_view type_name() const final;
 
         /// kg/m3
         [[nodiscard]] double reference_density() const
@@ -260,10 +257,7 @@ namespace geode
             return "DeadOilFluid";
         }
 
-        [[nodiscard]] std::string_view type_name() const final
-        {
-            return type_name_static();
-        }
+        [[nodiscard]] std::string_view type_name() const final;
 
         /// kg/m3, one per phase
         [[nodiscard]] absl::Span< const double > surface_densities() const
@@ -338,10 +332,7 @@ namespace geode
             return "Co2BrineFluid";
         }
 
-        [[nodiscard]] std::string_view type_name() const final
-        {
-            return type_name_static();
-        }
+        [[nodiscard]] std::string_view type_name() const final;
 
         [[nodiscard]] CO2_BRINE_CORRELATION correlation() const
         {

@@ -39,6 +39,11 @@ namespace geode
     {
     }
 
+    std::string_view BrooksCoreyRelativePermeability::type_name() const
+    {
+        return type_name_static();
+    }
+
     BrooksCoreyRelativePermeability::BrooksCoreyRelativePermeability() =
         default;
 
@@ -52,6 +57,11 @@ namespace geode
           exponents_( std::move( exponents ) ),
           max_values_( std::move( max_values ) )
     {
+    }
+
+    std::string_view TableRelativePermeability::type_name() const
+    {
+        return type_name_static();
     }
 
     TableRelativePermeability::TableRelativePermeability() = default;
@@ -69,6 +79,11 @@ namespace geode
     {
     }
 
+    std::string_view BrooksCoreyCapillaryPressure::type_name() const
+    {
+        return type_name_static();
+    }
+
     BrooksCoreyCapillaryPressure::BrooksCoreyCapillaryPressure() = default;
 
     BrooksCoreyCapillaryPressure::BrooksCoreyCapillaryPressure(
@@ -82,6 +97,11 @@ namespace geode
           pore_size_distribution_indices_(
               std::move( pore_size_distribution_indices ) )
     {
+    }
+
+    std::string_view TableCapillaryPressure::type_name() const
+    {
+        return type_name_static();
     }
 
     TableCapillaryPressure::TableCapillaryPressure() = default;

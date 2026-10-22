@@ -88,10 +88,7 @@ namespace geode
             return "SinglePhaseFlow";
         }
 
-        [[nodiscard]] std::string_view type_name() const final
-        {
-            return type_name_static();
-        }
+        [[nodiscard]] std::string_view type_name() const final;
 
     private:
         friend class bitsery::Access;
@@ -108,10 +105,7 @@ namespace geode
             return "MultiphaseFlow";
         }
 
-        [[nodiscard]] std::string_view type_name() const final
-        {
-            return type_name_static();
-        }
+        [[nodiscard]] std::string_view type_name() const final;
 
         MultiphaseFlow();
         explicit MultiphaseFlow( COMPOSITION_BASIS basis );

@@ -76,6 +76,16 @@ namespace geode
             } } } );
     }
 
+    std::string_view SinglePhaseFlow::type_name() const
+    {
+        return type_name_static();
+    }
+
+    std::string_view MultiphaseFlow::type_name() const
+    {
+        return type_name_static();
+    }
+
     MultiphaseFlow::MultiphaseFlow() = default;
 
     MultiphaseFlow::MultiphaseFlow( COMPOSITION_BASIS basis ) : basis_( basis )

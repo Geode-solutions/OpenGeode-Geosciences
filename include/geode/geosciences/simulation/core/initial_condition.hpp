@@ -94,10 +94,7 @@ namespace geode
             return "UniformInitialCondition";
         }
 
-        [[nodiscard]] std::string_view type_name() const final
-        {
-            return type_name_static();
-        }
+        [[nodiscard]] std::string_view type_name() const final;
 
         /// Pa
         [[nodiscard]] double pressure() const

@@ -42,6 +42,11 @@ namespace geode
     {
     }
 
+    std::string_view SinglePhaseFluid::type_name() const
+    {
+        return type_name_static();
+    }
+
     SinglePhaseFluid::SinglePhaseFluid() = default;
 
     SinglePhaseFluid::SinglePhaseFluid( std::vector< PHASE > phases,
@@ -62,6 +67,11 @@ namespace geode
     {
     }
 
+    std::string_view DeadOilFluid::type_name() const
+    {
+        return type_name_static();
+    }
+
     DeadOilFluid::DeadOilFluid() = default;
 
     DeadOilFluid::DeadOilFluid( std::vector< PHASE > phases,
@@ -74,6 +84,11 @@ namespace geode
           hydrocarbon_pvt_( std::move( hydrocarbon_pvt ) ),
           water_pvt_( std::move( water_pvt ) )
     {
+    }
+
+    std::string_view Co2BrineFluid::type_name() const
+    {
+        return type_name_static();
     }
 
     Co2BrineFluid::Co2BrineFluid() = default;

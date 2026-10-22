@@ -100,10 +100,7 @@ namespace geode
             return "BrooksCoreyRelativePermeability";
         }
 
-        [[nodiscard]] std::string_view type_name() const final
-        {
-            return type_name_static();
-        }
+        [[nodiscard]] std::string_view type_name() const final;
 
         /// One value per phase
         [[nodiscard]] absl::Span< const double > residual_saturations() const
@@ -163,10 +160,7 @@ namespace geode
             return "TableRelativePermeability";
         }
 
-        [[nodiscard]] std::string_view type_name() const final
-        {
-            return type_name_static();
-        }
+        [[nodiscard]] std::string_view type_name() const final;
 
         /// One table for two phases, two (water-oil and gas-oil) for three
         [[nodiscard]] absl::Span< const TwoPhaseRelativePermeabilityTable >
@@ -237,10 +231,7 @@ namespace geode
             return "BrooksCoreyCapillaryPressure";
         }
 
-        [[nodiscard]] std::string_view type_name() const final
-        {
-            return type_name_static();
-        }
+        [[nodiscard]] std::string_view type_name() const final;
 
         /// One value per phase
         [[nodiscard]] absl::Span< const double > residual_saturations() const
@@ -298,10 +289,7 @@ namespace geode
             return "TableCapillaryPressure";
         }
 
-        [[nodiscard]] std::string_view type_name() const final
-        {
-            return type_name_static();
-        }
+        [[nodiscard]] std::string_view type_name() const final;
 
         [[nodiscard]] absl::Span< const TwoPhaseCapillaryPressureTable >
             tables() const

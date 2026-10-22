@@ -40,6 +40,11 @@ namespace geode
     {
     }
 
+    std::string_view UniformInitialCondition::type_name() const
+    {
+        return type_name_static();
+    }
+
     UniformInitialCondition::UniformInitialCondition() = default;
 
     UniformInitialCondition::UniformInitialCondition(
