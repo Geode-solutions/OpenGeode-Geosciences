@@ -213,6 +213,40 @@ void test_empty_surface()
         "No geometric coordinates should be found in an empty surface." );
 }
 
+void test_reinitialize_after_modification()
+{
+    geode::Logger::info( "Testing reinitialization after modification" );
+    auto section = import_section_with_stratigraphy();
+    const geode::uuid surface0_id{ "00000000-2d28-4eeb-8000-000027dab659" };
+    const auto expected = section.stratigraphic_coordinates(
+        section.surface( surface0_id ), 1773 );
+    geode::StratigraphicSectionBuilder builder{ section };
+    std::vector< geode::uuid > to_remove;
+    for( const auto& surface : section.surfaces() )
+    {
+        if( surface.id() != surface0_id )
+        {
+            to_remove.push_back( surface.id() );
+        }
+    }
+    for( const auto& surface_id : to_remove )
+    {
+        builder.remove_surface( section.surface( surface_id ) );
+    }
+    const auto& surface0 = section.surface( surface0_id );
+    builder.reinitialize_stratigraphic_query_trees();
+    const auto strati_pt = section.stratigraphic_coordinates( surface0, 1773 );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        strati_pt.stratigraphic_coordinates().inexact_equal(
+            expected.stratigraphic_coordinates() ),
+        "Wrong stratigraphic coordinates after reinitialization: ",
+        strati_pt.string() );
+    const auto box = section.stratigraphic_bounding_box();
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        box.min().value( 1 ) <= box.max().value( 1 ),
+        "Stratigraphic bounding box should be valid after surface removal." );
+}
+
 int main()
 {
     try
@@ -226,6 +260,7 @@ int main()
         test_io( model );
         test_move( model );
         test_empty_surface();
+        test_reinitialize_after_modification();
         test_backward_io( absl::StrCat(
             geode::DATA_PATH, "test_old_implicit_crossection.og_ixsctn" ) );
         geode::Logger::info( "TEST SUCCESS" );

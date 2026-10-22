@@ -327,6 +327,42 @@ void test_empty_block()
         "No geometric coordinates should be found in an empty block." );
 }
 
+void test_reinitialize_after_modification( const geode::uuid& block1_id )
+{
+    geode::Logger::info( "Testing reinitialization after modification" );
+    geode::StratigraphicModel model{ geode::load_structural_model(
+        absl::StrCat( geode::DATA_PATH, "vri2.og_strm" ) ) };
+    geode::StratigraphicModelBuilder builder{ model };
+    builder.import_old_implicit_attribute_values_from_attribute_name(
+        geode::ImplicitStructuralModel::IMPLICIT_ATTRIBUTE_NAME );
+    builder.import_old_stratigraphic_attribute_values_from_attribute_name(
+        geode::StratigraphicModel::STRATIGRAPHIC_LOCATION_ATTRIBUTE_NAME );
+    std::vector< geode::uuid > to_remove;
+    for( const auto& block : model.blocks() )
+    {
+        if( block.id() != block1_id )
+        {
+            to_remove.push_back( block.id() );
+        }
+    }
+    for( const auto& block_id : to_remove )
+    {
+        builder.remove_block( model.block( block_id ) );
+    }
+    const auto& block1 = model.block( block1_id );
+    builder.reinitialize_stratigraphic_query_trees();
+    const auto strati_pt = model.stratigraphic_coordinates( block1, 59 );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        strati_pt.stratigraphic_coordinates().inexact_equal(
+            geode::Point3D{ { -0.213112, -0.188148, 0.472047 } } ),
+        "Wrong stratigraphic coordinates after reinitialization: ",
+        strati_pt.string() );
+    const auto box = model.stratigraphic_bounding_box();
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        box.min().value( 2 ) <= box.max().value( 2 ),
+        "Stratigraphic bounding box should be valid after block removal." );
+}
+
 int main()
 {
     try
@@ -353,6 +389,7 @@ int main()
         test_move( model );
         test_non_tetrahedral_block();
         test_empty_block();
+        test_reinitialize_after_modification( block1_id );
         geode::Logger::info( "TEST SUCCESS" );
         return 0;
     }

@@ -60,8 +60,8 @@ namespace geode
         void initialize_stratigraphic_query_trees(
             const StratigraphicSection& model )
         {
-            stratigraphic_location_attributes_.reserve( model.nb_surfaces() );
             instantiate_stratigraphic_location_on_surfaces( model );
+            surface_stratigraphic_aabb_trees_.clear();
             surface_stratigraphic_aabb_trees_.reserve( model.nb_surfaces() );
             for( const auto& surface : model.surfaces() )
             {
@@ -207,6 +207,8 @@ namespace geode
         void instantiate_stratigraphic_location_on_surfaces(
             const StratigraphicSection& model )
         {
+            stratigraphic_location_attributes_.clear();
+            stratigraphic_location_attributes_.reserve( model.nb_surfaces() );
             for( const auto& surface : model.surfaces() )
             {
                 if( !is_triangulated( surface ) )

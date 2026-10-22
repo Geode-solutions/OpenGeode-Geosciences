@@ -61,6 +61,7 @@ namespace geode
             const StratigraphicModel& model )
         {
             instantiate_stratigraphic_location_on_blocks( model );
+            block_stratigraphic_aabb_trees_.clear();
             block_stratigraphic_aabb_trees_.reserve( model.nb_blocks() );
             for( const auto& block : model.blocks() )
             {
@@ -194,6 +195,8 @@ namespace geode
         void instantiate_stratigraphic_location_on_blocks(
             const StratigraphicModel& model )
         {
+            stratigraphic_location_attributes_.clear();
+            stratigraphic_location_attributes_.reserve( model.nb_blocks() );
             for( const auto& block : model.blocks() )
             {
                 if( !is_tetrahedral( block ) )
