@@ -861,9 +861,10 @@ namespace geode
                 model.id().string() ) );
         }
         RegionCoverageChecker material_checker{ model, "material", issues };
-        for( const auto material_id : Indices{ problem.materials() } )
+        const auto materials = problem.materials();
+        for( const auto material_id : Indices{ materials } )
         {
-            const auto& material = problem.materials()[material_id];
+            const auto& material = materials[material_id];
             material_checker.check(
                 material_id, material.name, material.regions );
         }
