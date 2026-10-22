@@ -52,3 +52,25 @@ add_geode_test(
         ${PROJECT_NAME}::implicit
     ESSENTIAL
 )
+
+add_geode_test(
+    SOURCE "test-implicit-structural-model.cpp"
+    DEPENDENCIES
+        OpenGeode::basic
+        OpenGeode::geometry
+        OpenGeode::mesh
+        OpenGeode::model
+        ${PROJECT_NAME}::explicit
+        ${PROJECT_NAME}::implicit
+)
+
+add_geode_test(
+    SOURCE "test-implicit-cross-section.cpp"
+    DEPENDENCIES
+        OpenGeode::basic
+        OpenGeode::geometry
+        OpenGeode::mesh
+        OpenGeode::model
+        ${PROJECT_NAME}::explicit
+        ${PROJECT_NAME}::implicit
+)

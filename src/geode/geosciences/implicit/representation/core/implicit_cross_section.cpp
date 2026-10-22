@@ -25,6 +25,8 @@
 
 #include <async++.h>
 
+#include <cmath>
+
 #include <bitsery/ext/std_map.h>
 
 #include <geode/basic/attribute_manager.hpp>
@@ -173,7 +175,7 @@ namespace geode
         std::optional< uuid > containing_stratigraphic_unit(
             double implicit_function_value ) const
         {
-            if( horizon_isovalues_.empty() )
+            if( std::isnan( implicit_function_value ) )
             {
                 return std::nullopt;
             }
@@ -182,46 +184,48 @@ namespace geode
             {
                 return std::nullopt;
             }
-            auto horizon_id = horizon_isovalues_.begin()->first;
-            while( true )
+            /* Find the highest horizon the value is above (see
+             * implicit_value_is_above_horizon) and the lowest horizon of
+             * the stack. Horizons without isovalue are ignored. */
+            const auto is_lower = [&increasing]( double lhs, double rhs ) {
+                return increasing.value() ? lhs < rhs : lhs > rhs;
+            };
+            const uuid* horizon_under_value{ nullptr };
+            double horizon_under_value_isovalue{ 0 };
+            const uuid* lowest{ nullptr };
+            double lowest_value{ 0 };
+            for( const auto& [horizon_id, isovalue] : horizon_isovalues_ )
             {
-                if( increasing.value()
-                    == ( implicit_function_value
-                         >= horizon_isovalues_.at( horizon_id ) ) )
+                if( !horizons_stack_.has_horizon( horizon_id ) )
                 {
-                    const auto unit_above = horizons_stack_.above( horizon_id );
-                    if( !unit_above )
-                    {
-                        return std::nullopt;
-                    }
-                    const auto horizon_above =
-                        horizons_stack_.above( unit_above.value() );
-                    if( !horizon_above
-                        || increasing.value()
-                               == ( implicit_function_value
-                                    < horizon_isovalues_.at( horizon_id ) ) )
-                    {
-                        return unit_above.value();
-                    }
-                    horizon_id = horizon_above.value();
                     continue;
                 }
-                const auto unit_under = horizons_stack_.under( horizon_id );
-                if( !unit_under )
+                if( !lowest || is_lower( isovalue, lowest_value ) )
                 {
-                    return std::nullopt;
+                    lowest = &horizon_id;
+                    lowest_value = isovalue;
                 }
-                const auto horizon_under =
-                    horizons_stack_.under( unit_under.value() );
-                if( !horizon_under
-                    || increasing.value()
-                           == ( implicit_function_value
-                                > horizon_isovalues_.at( horizon_id ) ) )
+                const auto value_is_above =
+                    increasing.value()
+                    == ( implicit_function_value >= isovalue );
+                if( value_is_above
+                    && ( !horizon_under_value
+                         || is_lower(
+                             horizon_under_value_isovalue, isovalue ) ) )
                 {
-                    return unit_under.value();
+                    horizon_under_value = &horizon_id;
+                    horizon_under_value_isovalue = isovalue;
                 }
-                horizon_id = horizon_under.value();
             }
+            if( horizon_under_value )
+            {
+                return horizons_stack_.above( *horizon_under_value );
+            }
+            if( lowest )
+            {
+                return horizons_stack_.under( *lowest );
+            }
+            return std::nullopt;
         }
 
         void instantiate_implicit_attribute_on_surfaces(
@@ -304,9 +308,10 @@ namespace geode
                     const auto it0 = horizon_isovalues_.find( above.value() );
                     const auto it1 = horizon_isovalues_.find( under.value() );
                     if( it0 == horizon_isovalues_.end()
-                        || it1 == horizon_isovalues_.end() )
+                        || it1 == horizon_isovalues_.end()
+                        || it0->second == it1->second )
                     {
-                        return std::nullopt;
+                        continue;
                     }
                     return it0->second > it1->second;
                 }

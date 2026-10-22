@@ -1,0 +1,211 @@
+/*
+ * Copyright (c) 2019 - 2026 Geode-solutions
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ */
+
+#include <geode/tests_config.hpp>
+
+#include <geode/basic/assert.hpp>
+#include <geode/basic/attribute_manager.hpp>
+#include <geode/basic/logger.hpp>
+
+#include <geode/geometry/point.hpp>
+
+#include <geode/mesh/builder/triangulated_surface_builder.hpp>
+#include <geode/mesh/core/mesh_factory.hpp>
+#include <geode/mesh/core/triangulated_surface.hpp>
+
+#include <geode/model/mixin/core/surface.hpp>
+
+#include <geode/geosciences/explicit/representation/builder/cross_section_builder.hpp>
+#include <geode/geosciences/implicit/representation/builder/horizons_stack_builder.hpp>
+#include <geode/geosciences/implicit/representation/builder/implicit_cross_section_builder.hpp>
+#include <geode/geosciences/implicit/representation/core/horizons_stack.hpp>
+#include <geode/geosciences/implicit/representation/core/implicit_cross_section.hpp>
+
+namespace
+{
+    struct StackIds
+    {
+        std::array< geode::uuid, 3 > horizons;
+        std::array< geode::uuid, 4 > units;
+    };
+
+    geode::uuid add_triangulated_surface( geode::CrossSectionBuilder& builder )
+    {
+        const auto& surface_id =
+            builder.add_surface( geode::MeshFactory::default_impl(
+                geode::TriangulatedSurface2D::type_name_static() ) );
+        return surface_id;
+    }
+
+    void fill_triangulated_surface( geode::CrossSectionBuilder& builder,
+        const geode::Surface2D& surface,
+        double shift )
+    {
+        auto mesh_builder =
+            builder.surface_mesh_builder< geode::TriangulatedSurface2D >(
+                surface );
+        mesh_builder->create_point( geode::Point2D{ { shift, 0 } } );
+        mesh_builder->create_point( geode::Point2D{ { shift + 1, 0 } } );
+        mesh_builder->create_point( geode::Point2D{ { shift, 1 } } );
+        mesh_builder->create_point( geode::Point2D{ { shift + 1, 1 } } );
+        mesh_builder->create_triangle( { 0, 1, 2 } );
+        mesh_builder->create_triangle( { 1, 3, 2 } );
+        mesh_builder->compute_polygon_adjacencies();
+    }
+
+    /*!
+     * Model with one triangulated surface: implicit value is y.
+     */
+    geode::ImplicitCrossSection create_model()
+    {
+        geode::CrossSection cross_section;
+        geode::CrossSectionBuilder builder{ cross_section };
+        const auto surface_id = add_triangulated_surface( builder );
+        fill_triangulated_surface(
+            builder, cross_section.surface( surface_id ), 0 );
+        geode::ImplicitCrossSection model{ std::move( cross_section ) };
+        geode::ImplicitCrossSectionBuilder implicit_builder{ model };
+        for( const auto& surface : model.surfaces() )
+        {
+            for( const auto vertex :
+                geode::Range{ surface.mesh().nb_vertices() } )
+            {
+                implicit_builder.set_implicit_value( surface, vertex,
+                    surface.mesh().point( vertex ).value( 1 ) );
+            }
+        }
+        return model;
+    }
+
+    /*!
+     * Stack from bottom to top: u0, h0, u1, h1, u2, h2, u3
+     */
+    StackIds add_horizons_stack( geode::ImplicitCrossSection& model,
+        const std::array< double, 3 >& isovalues )
+    {
+        geode::ImplicitCrossSectionBuilder builder{ model };
+        auto stack_builder = builder.horizons_stack_builder();
+        const auto& stack = model.horizons_stack();
+        StackIds ids;
+        for( auto& horizon : ids.horizons )
+        {
+            horizon = stack_builder.add_horizon();
+        }
+        for( auto& unit : ids.units )
+        {
+            unit = stack_builder.add_stratigraphic_unit();
+        }
+        for( const auto h : geode::LRange{ 3 } )
+        {
+            const auto& horizon = stack.horizon( ids.horizons[h] );
+            stack_builder.set_horizon_above(
+                horizon, stack.stratigraphic_unit( ids.units[h] ) );
+            stack_builder.set_horizon_under(
+                horizon, stack.stratigraphic_unit( ids.units[h + 1] ) );
+            builder.set_horizon_implicit_value( horizon, isovalues[h] );
+        }
+        stack_builder.compute_top_and_bottom_horizons();
+        return ids;
+    }
+
+    void check_unit( const geode::ImplicitCrossSection& model,
+        double value,
+        const geode::uuid& expected )
+    {
+        const auto unit = model.containing_stratigraphic_unit( value );
+        geode::OpenGeodeGeosciencesImplicitException::test( unit.has_value(),
+            "[containing_stratigraphic_unit] No unit found for value ", value );
+        geode::OpenGeodeGeosciencesImplicitException::test(
+            unit.value() == expected,
+            "[containing_stratigraphic_unit] Wrong unit for value ", value );
+    }
+} // namespace
+
+void test_containing_stratigraphic_unit()
+{
+    geode::Logger::info( "Testing containing stratigraphic unit" );
+    {
+        auto model = create_model();
+        const auto ids = add_horizons_stack( model, { 0., 1., 2. } );
+        check_unit( model, -1., ids.units[0] );
+        check_unit( model, 0., ids.units[1] );
+        check_unit( model, 0.5, ids.units[1] );
+        check_unit( model, 1., ids.units[2] );
+        check_unit( model, 1.5, ids.units[2] );
+        check_unit( model, 2., ids.units[3] );
+        check_unit( model, 3., ids.units[3] );
+        geode::OpenGeodeGeosciencesImplicitException::test(
+            model.implicit_value_is_above_horizon(
+                1.5, model.horizons_stack().horizon( ids.horizons[1] ) ),
+            "[implicit_value_is_above_horizon] 1.5 should be above "
+            "horizon 1" );
+    }
+    {
+        auto model = create_model();
+        const auto ids = add_horizons_stack( model, { 2., 1., 0. } );
+        check_unit( model, 3., ids.units[0] );
+        check_unit( model, 2., ids.units[0] );
+        check_unit( model, 1.5, ids.units[1] );
+        check_unit( model, 1., ids.units[1] );
+        check_unit( model, 0.5, ids.units[2] );
+        check_unit( model, 0., ids.units[2] );
+        check_unit( model, -1., ids.units[3] );
+        geode::OpenGeodeGeosciencesImplicitException::test(
+            !model.implicit_value_is_above_horizon(
+                1.5, model.horizons_stack().horizon( ids.horizons[1] ) ),
+            "[implicit_value_is_above_horizon] 1.5 should be under "
+            "horizon 1" );
+    }
+}
+
+void test_containing_stratigraphic_unit_after_horizon_removal()
+{
+    geode::Logger::info(
+        "Testing containing stratigraphic unit after horizon removal" );
+    auto model = create_model();
+    const auto ids = add_horizons_stack( model, { 0., 1., 2. } );
+    geode::ImplicitCrossSectionBuilder builder{ model };
+    builder.horizons_stack_builder().remove_horizon(
+        model.horizons_stack().horizon( ids.horizons[2] ) );
+    check_unit( model, -1., ids.units[0] );
+    check_unit( model, 0.5, ids.units[1] );
+    check_unit( model, 1.5, ids.units[2] );
+    check_unit( model, 3., ids.units[2] );
+}
+
+int main()
+{
+    try
+    {
+        geode::OpenGeodeGeosciencesImplicitLibrary::initialize();
+        test_containing_stratigraphic_unit();
+        test_containing_stratigraphic_unit_after_horizon_removal();
+
+        geode::Logger::info( "TEST SUCCESS" );
+        return 0;
+    }
+    catch( ... )
+    {
+        return geode::geode_lippincott();
+    }
+}
