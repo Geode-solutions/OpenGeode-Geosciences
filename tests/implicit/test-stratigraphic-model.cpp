@@ -45,6 +45,7 @@
 #include <geode/geosciences/implicit/geometry/stratigraphic_point.hpp>
 #include <geode/geosciences/implicit/representation/builder/horizons_stack_builder.hpp>
 #include <geode/geosciences/implicit/representation/builder/stratigraphic_model_builder.hpp>
+#include <geode/geosciences/implicit/representation/core/detail/helpers.hpp>
 #include <geode/geosciences/implicit/representation/core/horizons_stack.hpp>
 #include <geode/geosciences/implicit/representation/core/stratigraphic_model.hpp>
 #include <geode/geosciences/implicit/representation/io/implicit_structural_model_input.hpp>
@@ -438,6 +439,34 @@ void test_reinitialize_after_modification( const geode::uuid& block1_id )
         "Stratigraphic bounding box should be valid after block removal." );
 }
 
+void test_stratigraphic_model_from_coords()
+{
+    geode::Logger::info( "Testing stratigraphic model from coordinates" );
+    geode::ImplicitStructuralModel implicit_model{ geode::load_structural_model(
+        absl::StrCat( geode::DATA_PATH, "vri2.og_strm" ) ) };
+    const auto model =
+        geode::detail::stratigraphic_model_from_implicit_model_and_coords(
+            std::move( implicit_model ), 2 );
+    geode::index_t nb_checks{ 0 };
+    for( const auto& block : model.blocks() )
+    {
+        for( const auto v : geode::Range{ block.mesh().nb_vertices() } )
+        {
+            const auto& point = block.mesh().point( v );
+            const auto& location = model.stratigraphic_coordinates( block, v )
+                                       .stratigraphic_location();
+            geode::OpenGeodeGeosciencesImplicitException::test(
+                location.value( 0 ) == point.value( 0 )
+                    && location.value( 1 ) == point.value( 1 ),
+                "Wrong stratigraphic location from coordinates for vertex ", v,
+                ": ", location.string(), " instead of ", point.string() );
+            nb_checks++;
+        }
+    }
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        nb_checks > 0, "No stratigraphic location checked." );
+}
+
 int main()
 {
     try
@@ -466,6 +495,7 @@ int main()
         test_non_tetrahedral_block();
         test_empty_block();
         test_reinitialize_after_modification( block1_id );
+        test_stratigraphic_model_from_coords();
         geode::Logger::info( "TEST SUCCESS" );
         return 0;
     }

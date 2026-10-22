@@ -319,41 +319,25 @@ namespace geode
 
             const local_index_t first_axis = implicit_axis == 0 ? 1 : 0;
             const local_index_t second_axis = implicit_axis == 1 ? 2 : 1;
-            for( const auto& block : implicit_model.blocks() )
+            StratigraphicModel model{ std::move( implicit_model ) };
+            StratigraphicModelBuilder builder{ model };
+            for( const auto& block : model.blocks() )
             {
                 const auto& block_mesh = block.mesh();
-                AttributeValues<
-                    StratigraphicModel::stratigraphic_location_type >
-                    strati_location_attribute_default_values;
-                strati_location_attribute_default_values.default_value =
-                    Point2D{};
-                strati_location_attribute_default_values.no_value = Point2D{};
-                AttributeProperties strati_location_attribute_properties;
-                strati_location_attribute_properties.assignable = false;
-                strati_location_attribute_properties.interpolable = true;
-                strati_location_attribute_properties.transferable = true;
-                auto strati_location_attribute_id =
-                    block_mesh.vertex_attribute_manager()
-                        .create_attribute< VariableAttribute,
-                            StratigraphicModel::stratigraphic_location_type >(
-                            StratigraphicModel::
-                                STRATIGRAPHIC_LOCATION_ATTRIBUTE_NAME,
-                            strati_location_attribute_default_values,
-                            strati_location_attribute_properties );
-                auto strati_location_attribute =
-                    block_mesh.vertex_attribute_manager()
-                        .find_attribute< VariableAttribute,
-                            StratigraphicModel::stratigraphic_location_type >(
-                            strati_location_attribute_id );
+                if( !block_mesh.vertex_attribute_manager().attribute_exists(
+                        model.stratigraphic_location_attribute_id() ) )
+                {
+                    continue;
+                }
                 for( const auto vertex_id : Range{ block_mesh.nb_vertices() } )
                 {
                     const auto& vertex_point = block_mesh.point( vertex_id );
-                    strati_location_attribute->set_value(
-                        vertex_id, Point2D{ { vertex_point.value( first_axis ),
-                                       vertex_point.value( second_axis ) } } );
+                    builder.set_stratigraphic_location( block, vertex_id,
+                        Point2D{ { vertex_point.value( first_axis ),
+                            vertex_point.value( second_axis ) } } );
                 }
             }
-            return StratigraphicModel{ std::move( implicit_model ) };
+            return model;
         }
 
         template < index_t dimension >
