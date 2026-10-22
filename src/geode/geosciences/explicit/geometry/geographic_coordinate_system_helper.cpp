@@ -122,24 +122,47 @@ namespace
     {
         const auto& crs_manager =
             mesh.main_coordinate_reference_system_manager();
-        const auto old_crs_name =
-            crs_manager.active_coordinate_reference_system_name();
-        const auto& attribute_crs = dynamic_cast<
-            const geode::AttributeCoordinateReferenceSystem< Mesh::dim >& >(
-            crs_manager.find_coordinate_reference_system( old_crs_name ) );
+        const auto old_crs_name = geode::to_string(
+            crs_manager.active_coordinate_reference_system_name() );
+        const auto* attribute_crs = dynamic_cast<
+            const geode::AttributeCoordinateReferenceSystem< Mesh::dim >* >(
+            &crs_manager.find_coordinate_reference_system( old_crs_name ) );
+        geode::OpenGeodeGeosciencesExplicitException::check_exception(
+            attribute_crs != nullptr, nullptr,
+            geode::OpenGeodeException::TYPE::data,
+            "[assign_geographic_coordinate_system_info] Active CRS ",
+            old_crs_name, " is not based on an attribute" );
+        const auto replace_active = crs_name == old_crs_name;
+        geode::OpenGeodeGeosciencesExplicitException::check_exception(
+            replace_active
+                || !crs_manager.coordinate_reference_system_exists( crs_name ),
+            nullptr, geode::OpenGeodeException::TYPE::data,
+            "[assign_geographic_coordinate_system_info] CRS named ", crs_name,
+            " already exists" );
         auto& attribute_manager = mesh.vertex_attribute_manager();
         auto attribute =
             attribute_manager.template find_attribute< geode::VariableAttribute,
-                geode::Point< Mesh::dim > >( attribute_crs.attribute_id() );
+                geode::Point< Mesh::dim > >( attribute_crs->attribute_id() );
         geode::IdentifierBuilder attribute_identifier_builder{ *attribute };
         attribute_identifier_builder.set_name( info.name );
+        auto crs =
+            std::make_shared< geode::GeographicCoordinateSystem< Mesh::dim > >(
+                attribute_manager, attribute_crs->attribute_id(),
+                std::move( info ) );
         auto crs_builder =
             builder.main_coordinate_reference_system_manager_builder();
-        crs_builder.register_coordinate_reference_system( crs_name,
-            std::make_shared< geode::GeographicCoordinateSystem< Mesh::dim > >(
-                attribute_manager, attribute_crs.attribute_id(),
-                std::move( info ) ) );
-        crs_builder.delete_coordinate_reference_system( old_crs_name );
+        if( replace_active )
+        {
+            crs_builder.delete_coordinate_reference_system( old_crs_name );
+            crs_builder.register_coordinate_reference_system(
+                crs_name, std::move( crs ) );
+        }
+        else
+        {
+            crs_builder.register_coordinate_reference_system(
+                crs_name, std::move( crs ) );
+            crs_builder.delete_coordinate_reference_system( old_crs_name );
+        }
         crs_builder.set_active_coordinate_reference_system( crs_name );
     }
 

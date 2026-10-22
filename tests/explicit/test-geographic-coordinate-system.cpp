@@ -163,6 +163,41 @@ void test_failed_mesh_conversion_leaves_no_attribute()
         "Failed conversion from an unknown CRS modified the mesh" );
 }
 
+void test_assign_validation()
+{
+    auto surf = geode::load_triangulated_surface< 2 >(
+        absl::StrCat( geode::DATA_PATH, "3patches.og_tsf2d" ) );
+    auto builder = geode::TriangulatedSurfaceBuilder2D::create( *surf );
+    geode::assign_surface_mesh_geographic_coordinate_system_info(
+        *surf, *builder, "first", { "EPSG", "2005", "first" } );
+    geode::convert_surface_mesh_coordinate_reference_system(
+        *surf, *builder, "second", { "EPSG", "2008", "second" } );
+    const auto& crs_manager = surf->main_coordinate_reference_system_manager();
+    const auto active_crs = [&crs_manager]() -> decltype( auto ) {
+        return dynamic_cast< const geode::GeographicCoordinateSystem2D& >(
+            crs_manager.active_coordinate_reference_system() );
+    };
+    check_throws(
+        [&] {
+            geode::assign_surface_mesh_geographic_coordinate_system_info(
+                *surf, *builder, "first", { "EPSG", "2005", "renamed" } );
+        },
+        "Assignment to an existing CRS name" );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        crs_manager.active_coordinate_reference_system_name() == "second"
+            && active_crs().attribute_name() == "second"
+            && active_crs().info().code == "2008",
+        "Failed assignment modified the mesh" );
+
+    geode::assign_surface_mesh_geographic_coordinate_system_info(
+        *surf, *builder, "second", { "EPSG", "2154", "renamed" } );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        crs_manager.active_coordinate_reference_system_name() == "second"
+            && active_crs().attribute_name() == "renamed"
+            && active_crs().info().code == "2154",
+        "Wrong assignment to the active CRS name" );
+}
+
 void test_crs()
 {
     const auto infos =
@@ -299,6 +334,7 @@ int main()
         test_invalid_codes();
         test_failed_point_conversion();
         test_failed_mesh_conversion_leaves_no_attribute();
+        test_assign_validation();
 
         geode::Logger::info( "TEST SUCCESS" );
         return 0;
