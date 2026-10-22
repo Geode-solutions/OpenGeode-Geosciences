@@ -23,7 +23,10 @@
 
 #include <geode/geosciences/implicit/representation/core/detail/helpers.hpp>
 
+#include <cmath>
+
 #include <geode/basic/attribute_manager.hpp>
+#include <geode/basic/logger.hpp>
 #include <geode/basic/variable_attribute.hpp>
 
 #include <geode/geometry/basic_objects/tetrahedron.hpp>
@@ -106,6 +109,15 @@ namespace geode
             double scaling_factor =
                 strati_lengths.value( 0 ) * section_lengths.value( 1 )
                 / ( section_lengths.value( 0 ) * strati_lengths.value( 1 ) );
+            if( !std::isfinite( scaling_factor ) || scaling_factor == 0 )
+            {
+                Logger::warning(
+                    "[rescale_implicit_value_to_bbox_scale] "
+                    "Degenerate StratigraphicSection bounding box or "
+                    "stratigraphic bounding box: implicit values "
+                    "are not rescaled." );
+                return;
+            }
             rescale_implicit_value( section, scaling_factor );
         }
 
@@ -134,6 +146,15 @@ namespace geode
             auto scaling_factor =
                 strati_lengths.value( 0 ) * model_lengths.value( 2 )
                 / ( model_lengths.value( 0 ) * strati_lengths.value( 2 ) );
+            if( !std::isfinite( scaling_factor ) || scaling_factor == 0 )
+            {
+                Logger::warning(
+                    "[rescale_implicit_value_to_bbox_scale] "
+                    "Degenerate StratigraphicModel bounding box or "
+                    "stratigraphic bounding box: implicit values "
+                    "are not rescaled." );
+                return;
+            }
             rescale_implicit_value( model, scaling_factor );
         }
 

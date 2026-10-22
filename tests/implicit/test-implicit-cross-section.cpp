@@ -42,6 +42,7 @@
 #include <geode/geosciences/implicit/representation/core/detail/helpers.hpp>
 #include <geode/geosciences/implicit/representation/core/horizons_stack.hpp>
 #include <geode/geosciences/implicit/representation/core/implicit_cross_section.hpp>
+#include <geode/geosciences/implicit/representation/core/stratigraphic_section.hpp>
 
 namespace
 {
@@ -307,6 +308,34 @@ void test_from_scalar_field()
         "[scalar field] There should be only one implicit attribute" );
 }
 
+void test_rescale_constant_field()
+{
+    geode::Logger::info( "Testing rescale of a constant implicit field" );
+    auto model = create_model();
+    {
+        geode::ImplicitCrossSectionBuilder builder{ model };
+        for( const auto& surface : model.surfaces() )
+        {
+            for( const auto vertex :
+                geode::Range{ surface.mesh().nb_vertices() } )
+            {
+                builder.set_implicit_value( surface, vertex, 1 );
+            }
+        }
+    }
+    geode::StratigraphicSection stratigraphic{ std::move( model ) };
+    geode::detail::rescale_implicit_value_to_bbox_scale( stratigraphic );
+    for( const auto& surface : stratigraphic.surfaces() )
+    {
+        for( const auto vertex : geode::Range{ surface.mesh().nb_vertices() } )
+        {
+            geode::OpenGeodeGeosciencesImplicitException::test(
+                stratigraphic.implicit_value( surface, vertex ) == 1,
+                "[rescale] Constant implicit field should not be rescaled" );
+        }
+    }
+}
+
 int main()
 {
     try
@@ -318,6 +347,7 @@ int main()
         test_empty_mesh_query();
         test_reinitialize_after_mesh_edition();
         test_from_scalar_field();
+        test_rescale_constant_field();
 
         geode::Logger::info( "TEST SUCCESS" );
         return 0;
