@@ -430,6 +430,28 @@ void test_non_tetrahedral_block()
                 model.stratigraphic_location_attribute_id() ),
             "Tetrahedral block should have stratigraphic location." );
     }
+    geode::StratigraphicModelBuilder import_builder{ model };
+    import_builder
+        .import_old_stratigraphic_attribute_values_from_attribute_name(
+            geode::StratigraphicModel::STRATIGRAPHIC_LOCATION_ATTRIBUTE_NAME );
+    import_builder
+        .import_old_stratigraphic_attribute_values_from_attribute_name(
+            "unknown_attribute" );
+    for( const auto& block : model.blocks() )
+    {
+        if( block.id() == polyhedral_block_id )
+        {
+            continue;
+        }
+        const auto ids =
+            block.mesh().vertex_attribute_manager().attribute_ids_matching_name(
+                geode::StratigraphicModel::
+                    STRATIGRAPHIC_LOCATION_ATTRIBUTE_NAME );
+        geode::OpenGeodeGeosciencesImplicitException::test(
+            ids && ids->size() == 1
+                && ids->front() == model.stratigraphic_location_attribute_id(),
+            "Old stratigraphic attribute should have been removed." );
+    }
     test_copy_stratigraphic_values_with_non_tetrahedral_block(
         model, polyhedral_block_id );
     geode::StratigraphicModel moved_model{ std::move( model ) };

@@ -284,7 +284,21 @@ void test_empty_surface()
     geode::CrossSectionBuilder cross_section_builder{ cross_section };
     const auto empty_surface_id = cross_section_builder.add_surface(
         geode::OpenGeodeTriangulatedSurface2D::impl_name_static() );
-    const geode::StratigraphicSection section{ std::move( cross_section ) };
+    geode::StratigraphicSection section{ std::move( cross_section ) };
+    geode::StratigraphicSectionBuilder builder{ section };
+    builder.import_old_stratigraphic_attribute_values_from_attribute_name(
+        geode::StratigraphicSection::STRATIGRAPHIC_LOCATION_ATTRIBUTE_NAME );
+    builder.import_old_stratigraphic_attribute_values_from_attribute_name(
+        "unknown_attribute" );
+    builder.import_old_stratigraphic_attribute_values_from_attribute_id(
+        section.stratigraphic_location_attribute_id() );
+    for( const auto& surface : section.surfaces() )
+    {
+        geode::OpenGeodeGeosciencesImplicitException::test(
+            surface.mesh().vertex_attribute_manager().attribute_exists(
+                section.stratigraphic_location_attribute_id() ),
+            "Stratigraphic attribute should not have been removed." );
+    }
     const auto& empty_surface = section.surface( empty_surface_id );
     const geode::StratigraphicPoint2D query{ geode::Point1D{ { 0 } }, 0 };
     geode::OpenGeodeGeosciencesImplicitException::test(

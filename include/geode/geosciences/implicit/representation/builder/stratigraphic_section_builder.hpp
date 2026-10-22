@@ -71,6 +71,10 @@ namespace geode
             const StratigraphicSection& other_section );
 
     private:
+        void import_old_stratigraphic_attribute_values(
+            const Surface2D& surface, const uuid& old_attribute_id );
+
+    private:
         StratigraphicSection& stratigraphic_section_;
     };
 } // namespace geode

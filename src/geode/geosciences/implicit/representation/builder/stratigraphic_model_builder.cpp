@@ -91,28 +91,51 @@ namespace geode
         import_old_stratigraphic_attribute_values_from_attribute_name(
             std::string_view old_attribute_name )
     {
+        const auto& new_attribute_id =
+            stratigraphic_model_.stratigraphic_location_attribute_id();
         for( const auto& block : stratigraphic_model_.blocks() )
         {
             auto& block_vertex_attribute_manager =
                 block.mesh().vertex_attribute_manager();
-            const auto old_attribute_id =
-                block_vertex_attribute_manager
-                    .attribute_ids_matching_name( old_attribute_name )
-                    .value()
-                    .front();
-            const auto old_attribute =
-                block_vertex_attribute_manager
-                    .find_read_only_attribute< Point2D >( old_attribute_id );
-            auto new_attribute = block_vertex_attribute_manager.find_attribute<
-                VariableAttribute, Point2D >(
-                stratigraphic_model_.stratigraphic_location_attribute_id() );
-            for( const auto vertex :
-                geode::Range{ block.mesh().nb_vertices() } )
+            if( !block_vertex_attribute_manager.attribute_exists(
+                    new_attribute_id ) )
             {
-                new_attribute->set_value(
-                    vertex, old_attribute->value( vertex ) );
+                continue;
+            }
+            const auto attribute_ids =
+                block_vertex_attribute_manager.attribute_ids_matching_name(
+                    old_attribute_name );
+            if( !attribute_ids )
+            {
+                continue;
+            }
+            for( const auto& old_attribute_id : attribute_ids.value() )
+            {
+                if( old_attribute_id == new_attribute_id )
+                {
+                    continue;
+                }
+                const auto old_attribute =
+                    block_vertex_attribute_manager
+                        .find_read_only_attribute< Point2D >(
+                            old_attribute_id );
+                auto new_attribute =
+                    block_vertex_attribute_manager
+                        .find_attribute< VariableAttribute, Point2D >(
+                            new_attribute_id );
+                for( const auto vertex :
+                    geode::Range{ block.mesh().nb_vertices() } )
+                {
+                    new_attribute->set_value(
+                        vertex, old_attribute->value( vertex ) );
+                }
+                block_vertex_attribute_manager.delete_attribute(
+                    old_attribute_id );
+                break;
             }
         }
+        stratigraphic_model_.initialize_stratigraphic_query_trees(
+            StratigraphicModel::StratigraphicModelBuilderKey{} );
     }
 
     void StratigraphicModelBuilder::copy_stratigraphic_attribute_values(
