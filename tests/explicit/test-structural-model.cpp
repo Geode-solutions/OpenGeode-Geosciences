@@ -725,6 +725,21 @@ void test_geological_components_activity()
             && model.nb_active_fault_blocks() == 0
             && model.nb_active_stratigraphic_units() == 0,
         "Inactive geological components should not be in active ranges" );
+    geode::StructuralModel copy;
+    geode::StructuralModelBuilder copier{ copy };
+    const auto mappings = copier.copy( model );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        copy.nb_active_faults() == 0 && copy.nb_active_horizons() == 0
+            && copy.nb_active_fault_blocks() == 0
+            && copy.nb_active_stratigraphic_units() == 0,
+        "Copied geological components should keep their activity" );
+    const auto clone = model.clone();
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        !clone.fault( fault.id() ).is_active()
+            && !clone.horizon( horizon.id() ).is_active()
+            && !clone.fault_block( fault_block.id() ).is_active()
+            && !clone.stratigraphic_unit( unit.id() ).is_active(),
+        "Cloned geological components should keep their activity" );
     builder.set_fault_active( fault, true );
     geode::OpenGeodeGeosciencesExplicitException::test(
         fault.is_active(), "Fault should be active again" );

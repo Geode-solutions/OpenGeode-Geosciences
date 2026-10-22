@@ -51,6 +51,8 @@ namespace geode
                         builder_to.set_fault_name(
                             model_to.fault( fault_id ), name.value() );
                     }
+                    builder_to.set_fault_active(
+                        model_to.fault( fault_id ), fault.is_active() );
                     builder_to.set_fault_type(
                         model_to.fault( fault_id ), fault.type() );
                 }
@@ -62,6 +64,8 @@ namespace geode
                         builder_to.set_fault_name(
                             model_to.fault( fault_id ), name.value() );
                     }
+                    builder_to.set_fault_active(
+                        model_to.fault( fault_id ), fault.is_active() );
                     builder_to.set_fault_type(
                         model_to.fault( fault_id ), fault.type() );
                     mapping.map( fault.id(), fault_id );
@@ -86,6 +90,8 @@ namespace geode
                         builder_to.set_horizon_name(
                             model_to.horizon( horizon_id ), name.value() );
                     }
+                    builder_to.set_horizon_active(
+                        model_to.horizon( horizon_id ), horizon.is_active() );
                     builder_to.set_horizon_contact_type(
                         model_to.horizon( horizon_id ),
                         horizon.contact_type() );
@@ -99,6 +105,8 @@ namespace geode
                         builder_to.set_horizon_name(
                             model_to.horizon( horizon_id ), name.value() );
                     }
+                    builder_to.set_horizon_active(
+                        model_to.horizon( horizon_id ), horizon.is_active() );
                     builder_to.set_horizon_contact_type(
                         model_to.horizon( horizon_id ),
                         horizon.contact_type() );
@@ -125,6 +133,9 @@ namespace geode
                             model_to.fault_block( fault_block_id ),
                             name.value() );
                     }
+                    builder_to.set_fault_block_active(
+                        model_to.fault_block( fault_block_id ),
+                        fault_block.is_active() );
                 }
                 else
                 {
@@ -135,6 +146,9 @@ namespace geode
                             model_to.fault_block( fault_block_id ),
                             name.value() );
                     }
+                    builder_to.set_fault_block_active(
+                        model_to.fault_block( fault_block_id ),
+                        fault_block.is_active() );
                     mapping.map( fault_block.id(), fault_block_id );
                 }
             }
@@ -160,6 +174,9 @@ namespace geode
                                 stratigraphic_unit_id ),
                             name.value() );
                     }
+                    builder_to.set_stratigraphic_unit_active(
+                        model_to.stratigraphic_unit( stratigraphic_unit_id ),
+                        stratigraphic_unit.is_active() );
                 }
                 else
                 {
@@ -174,6 +191,9 @@ namespace geode
                                 stratigraphic_unit_id ),
                             name.value() );
                     }
+                    builder_to.set_stratigraphic_unit_active(
+                        model_to.stratigraphic_unit( stratigraphic_unit_id ),
+                        stratigraphic_unit.is_active() );
                 }
             }
         }
