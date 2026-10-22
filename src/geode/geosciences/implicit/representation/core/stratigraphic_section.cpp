@@ -65,6 +65,10 @@ namespace geode
             surface_stratigraphic_aabb_trees_.reserve( model.nb_surfaces() );
             for( const auto& surface : model.surfaces() )
             {
+                if( !is_triangulated( surface ) )
+                {
+                    continue;
+                }
                 surface_stratigraphic_aabb_trees_.try_emplace( surface.id() );
             }
         }
@@ -206,15 +210,10 @@ namespace geode
         {
             for( const auto& surface : model.surfaces() )
             {
-                OpenGeodeGeosciencesImplicitException::check_exception(
-                    ( surface.mesh().type_name()
-                        == TriangulatedSurface2D::type_name_static() ),
-                    nullptr, OpenGeodeException::TYPE::data,
-                    "[StratigraphicSection::instantiate_stratigraphic_"
-                    "attribute_on_surfaces] Surfaces must be meshed as "
-                    "TriangulatedSurface2D, which is not the case for surface "
-                    "with uuid '",
-                    surface.id().string(), "'." );
+                if( !is_triangulated( surface ) )
+                {
+                    continue;
+                }
                 if( surface.mesh().vertex_attribute_manager().attribute_exists(
                         stratigraphic_location_attribute_id_ ) )
                 {
@@ -263,6 +262,12 @@ namespace geode
         }
 
     private:
+        static bool is_triangulated( const Surface2D& surface )
+        {
+            return surface.mesh().type_name()
+                   == TriangulatedSurface2D::type_name_static();
+        }
+
         struct PositiveStratigraphicTriangle
         {
             PositiveStratigraphicTriangle() = delete;
@@ -495,19 +500,16 @@ namespace geode
         : ImplicitCrossSection{ std::move( other ) },
           impl_{ std::move( other.impl_ ) }
     {
-        DEBUG( "StratigraphicSection move constructor" );
-        impl_->initialize_stratigraphic_query_trees( *this );
     }
 
     StratigraphicSection::StratigraphicSection(
-        ImplicitCrossSection&& implicit_section ) noexcept
+        ImplicitCrossSection&& implicit_section )
         : ImplicitCrossSection{ std::move( implicit_section ) }
     {
         impl_->initialize_stratigraphic_query_trees( *this );
     }
 
-    StratigraphicSection::StratigraphicSection(
-        CrossSection&& cross_section ) noexcept
+    StratigraphicSection::StratigraphicSection( CrossSection&& cross_section )
         : ImplicitCrossSection{ std::move( cross_section ) }
     {
         impl_->initialize_stratigraphic_query_trees( *this );
@@ -516,7 +518,7 @@ namespace geode
     StratigraphicSection::StratigraphicSection(
         const StratigraphicSection& initial_model,
         Section&& section,
-        const ModelGenericMapping& initial_to_section_mappings ) noexcept
+        const ModelGenericMapping& initial_to_section_mappings )
         : ImplicitCrossSection{ initial_model, std::move( section ),
               initial_to_section_mappings }
     {

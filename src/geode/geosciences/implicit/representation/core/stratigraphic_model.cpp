@@ -64,6 +64,10 @@ namespace geode
             block_stratigraphic_aabb_trees_.reserve( model.nb_blocks() );
             for( const auto& block : model.blocks() )
             {
+                if( !is_tetrahedral( block ) )
+                {
+                    continue;
+                }
                 block_stratigraphic_aabb_trees_.try_emplace( block.id() );
             }
         }
@@ -193,15 +197,10 @@ namespace geode
         {
             for( const auto& block : model.blocks() )
             {
-                OpenGeodeGeosciencesImplicitException::check_exception(
-                    ( block.mesh().type_name()
-                        == TetrahedralSolid3D::type_name_static() ),
-                    nullptr, OpenGeodeException::TYPE::data,
-                    "[StratigraphicModel::instantiate_stratigraphic_"
-                    "attribute_on_blocks] Blocks must be meshed as "
-                    "TetrahedralSolids, which is not the case for block "
-                    "with uuid '",
-                    block.id().string(), "'." );
+                if( !is_tetrahedral( block ) )
+                {
+                    continue;
+                }
                 if( block.mesh().vertex_attribute_manager().attribute_exists(
                         stratigraphic_location_attribute_id_ ) )
                 {
@@ -263,6 +262,12 @@ namespace geode
         }
 
     private:
+        static bool is_tetrahedral( const Block3D& block )
+        {
+            return block.mesh().type_name()
+                   == TetrahedralSolid3D::type_name_static();
+        }
+
         struct PositiveStratigraphicTetrahedron
         {
             PositiveStratigraphicTetrahedron() = delete;
@@ -517,18 +522,16 @@ namespace geode
         : ImplicitStructuralModel{ std::move( other ) },
           impl_{ std::move( other.impl_ ) }
     {
-        impl_->initialize_stratigraphic_query_trees( *this );
     }
 
     StratigraphicModel::StratigraphicModel(
-        ImplicitStructuralModel&& implicit_model ) noexcept
+        ImplicitStructuralModel&& implicit_model )
         : ImplicitStructuralModel{ std::move( implicit_model ) }
     {
         impl_->initialize_stratigraphic_query_trees( *this );
     }
 
-    StratigraphicModel::StratigraphicModel(
-        StructuralModel&& structural_model ) noexcept
+    StratigraphicModel::StratigraphicModel( StructuralModel&& structural_model )
         : ImplicitStructuralModel{ std::move( structural_model ) }
     {
         impl_->initialize_stratigraphic_query_trees( *this );
@@ -537,7 +540,7 @@ namespace geode
     StratigraphicModel::StratigraphicModel(
         const StratigraphicModel& initial_model,
         BRep&& brep,
-        const ModelGenericMapping& initial_to_brep_mappings ) noexcept
+        const ModelGenericMapping& initial_to_brep_mappings )
         : ImplicitStructuralModel{ initial_model, std::move( brep ),
               initial_to_brep_mappings }
     {

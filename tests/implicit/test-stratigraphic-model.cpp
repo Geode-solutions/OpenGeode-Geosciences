@@ -30,6 +30,7 @@
 #include <geode/geometry/bounding_box.hpp>
 #include <geode/geometry/point.hpp>
 
+#include <geode/mesh/core/geode/geode_polyhedral_solid.hpp>
 #include <geode/mesh/core/tetrahedral_solid.hpp>
 #include <geode/mesh/core/triangulated_surface.hpp>
 #include <geode/mesh/io/triangulated_surface_output.hpp>
@@ -37,6 +38,8 @@
 #include <geode/model/mixin/core/block.hpp>
 #include <geode/model/mixin/core/surface.hpp>
 
+#include <geode/geosciences/explicit/representation/builder/structural_model_builder.hpp>
+#include <geode/geosciences/explicit/representation/core/structural_model.hpp>
 #include <geode/geosciences/explicit/representation/io/structural_model_input.hpp>
 #include <geode/geosciences/implicit/geometry/stratigraphic_point.hpp>
 #include <geode/geosciences/implicit/representation/builder/horizons_stack_builder.hpp>
@@ -269,6 +272,41 @@ void test_move( geode::StratigraphicModel& implicit_model )
         "Stratigraphic location attribute id not moved." );
 }
 
+void test_non_tetrahedral_block()
+{
+    geode::Logger::info( "Testing non tetrahedral block" );
+    auto structural_model = geode::load_structural_model(
+        absl::StrCat( geode::DATA_PATH, "vri2.og_strm" ) );
+    geode::StructuralModelBuilder structural_builder{ structural_model };
+    const auto polyhedral_block_id = structural_builder.add_block(
+        geode::OpenGeodePolyhedralSolid3D::impl_name_static() );
+    geode::StratigraphicModel model{ std::move( structural_model ) };
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        !model.block( polyhedral_block_id )
+            .mesh()
+            .vertex_attribute_manager()
+            .attribute_exists( model.stratigraphic_location_attribute_id() ),
+        "Non tetrahedral block should not have stratigraphic location." );
+    for( const auto& block : model.blocks() )
+    {
+        if( block.id() == polyhedral_block_id )
+        {
+            continue;
+        }
+        geode::OpenGeodeGeosciencesImplicitException::test(
+            block.mesh().vertex_attribute_manager().attribute_exists(
+                model.stratigraphic_location_attribute_id() ),
+            "Tetrahedral block should have stratigraphic location." );
+    }
+    geode::StratigraphicModel moved_model{ std::move( model ) };
+    geode::StratigraphicModelBuilder builder{ moved_model };
+    builder.reinitialize_stratigraphic_query_trees();
+    const auto box = moved_model.stratigraphic_bounding_box();
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        box.min().value( 0 ) <= box.max().value( 0 ),
+        "Stratigraphic bounding box should be valid." );
+}
+
 int main()
 {
     try
@@ -293,6 +331,7 @@ int main()
         DEBUG( "Testing IO" );
         test_io( model, block1_id );
         test_move( model );
+        test_non_tetrahedral_block();
         geode::Logger::info( "TEST SUCCESS" );
         return 0;
     }
