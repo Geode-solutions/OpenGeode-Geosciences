@@ -51,6 +51,23 @@ namespace geode
     ModelCopyMapping CrossSectionBuilder::copy(
         const CrossSection& cross_section )
     {
+        const auto nb_components =
+            cross_section_.nb_corners() + cross_section_.nb_lines()
+            + cross_section_.nb_surfaces()
+            + cross_section_.nb_model_boundaries()
+            + cross_section_.nb_corner_collections()
+            + cross_section_.nb_line_collections()
+            + cross_section_.nb_surface_collections()
+            + cross_section_.nb_faults() + cross_section_.nb_horizons()
+            + cross_section_.nb_fault_blocks()
+            + cross_section_.nb_stratigraphic_units()
+            + cross_section_.nb_unique_vertices()
+            + cross_section_.nb_components_with_relations();
+        OpenGeodeGeosciencesExplicitException::check_exception(
+            nb_components == 0, nullptr, OpenGeodeException::TYPE::data,
+            "[CrossSectionBuilder::copy] CrossSection should be empty before "
+            "copy. To add components in a CrossSection which is not empty, "
+            "use ModelConcatener." );
         if( const auto name = cross_section.name() )
         {
             set_name( name.value() );

@@ -558,6 +558,27 @@ void test_transfer_with_many_to_one_mapping( const geode::CrossSection& model )
     }
 }
 
+void test_copy_in_non_empty_model( const geode::CrossSection& model )
+{
+    geode::CrossSection target;
+    geode::CrossSectionBuilder target_builder{ target };
+    const auto& uid = target_builder.add_fault();
+    geode_unused( uid );
+    bool thrown{ false };
+    try
+    {
+        const auto mappings = target_builder.copy( model );
+    }
+    catch( const geode::OpenGeodeException& /*unused*/ )
+    {
+        thrown = true;
+    }
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        thrown, "Copy in a non-empty CrossSection should throw" );
+    geode::OpenGeodeGeosciencesExplicitException::test( target.nb_faults() == 1,
+        "Non-empty CrossSection should not be modified" );
+}
+
 void modify_model(
     geode::CrossSection& model, geode::CrossSectionBuilder& builder )
 {
@@ -624,6 +645,7 @@ int main()
 
         test_io( model );
         test_copy( model );
+        test_copy_in_non_empty_model( model );
         test_transfer_with_stale_mapping( model );
         test_transfer_with_many_to_one_mapping( model );
         test_item_ranges_with_mistyped_items();
