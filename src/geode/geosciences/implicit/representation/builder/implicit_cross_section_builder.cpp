@@ -118,13 +118,14 @@ namespace geode
             .copy( mapping, other_model.horizons_stack() );
         const auto& horizon_mapping =
             mapping.at( Horizon2D::component_type_static() );
-        for( const auto& horizon : other_model.horizons() )
+        for( const auto& horizon : other_model.horizons_stack().horizons() )
         {
             if( const auto isovalue =
                     other_model.horizon_implicit_value( horizon ) )
             {
-                const auto& new_horizon = implicit_section_.horizon(
-                    horizon_mapping.in2out( horizon.id() ) );
+                const auto& new_horizon =
+                    implicit_section_.horizons_stack().horizon(
+                        horizon_mapping.in2out( horizon.id() ) );
                 implicit_section_.set_horizon_implicit_value( new_horizon,
                     isovalue.value(),
                     ImplicitCrossSection::ImplicitCrossSectionBuilderKey{} );

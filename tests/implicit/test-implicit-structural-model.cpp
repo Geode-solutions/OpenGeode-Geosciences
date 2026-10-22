@@ -397,6 +397,37 @@ void test_copy_with_unsupported_mesh()
     }
 }
 
+void test_copy_horizons_isovalues()
+{
+    geode::Logger::info( "Testing copy of horizons isovalues" );
+    auto model = create_model();
+    const auto ids = add_horizons_stack( model, { 0., 1., 2. } );
+    {
+        geode::ImplicitStructuralModelBuilder builder{ model };
+        const auto model_only_horizon = builder.add_horizon();
+        geode::OpenGeodeGeosciencesImplicitException::test(
+            !model.horizons_stack().has_horizon( model_only_horizon ),
+            "[copy isovalues] Horizon should not be in the stack" );
+    }
+    geode::ImplicitStructuralModel copy;
+    geode::ImplicitStructuralModelBuilder copy_builder{ copy };
+    const auto mappings = copy_builder.copy( model );
+    const auto& horizon_mapping =
+        mappings.at( geode::Horizon3D::component_type_static() );
+    for( const auto h : geode::LRange{ 3 } )
+    {
+        const auto& copy_horizon = copy.horizons_stack().horizon(
+            horizon_mapping.in2out( ids.horizons[h] ) );
+        const auto isovalue = copy.horizon_implicit_value( copy_horizon );
+        geode::OpenGeodeGeosciencesImplicitException::test(
+            isovalue.has_value() && isovalue.value() == h,
+            "[copy isovalues] Wrong horizon isovalue in copy" );
+    }
+    check_unit( copy, 0.5,
+        mappings.at( geode::StratigraphicUnit3D::component_type_static() )
+            .in2out( ids.units[1] ) );
+}
+
 int main()
 {
     try
@@ -411,6 +442,7 @@ int main()
         test_rescale_constant_field();
         test_rescale_with_unsupported_mesh();
         test_copy_with_unsupported_mesh();
+        test_copy_horizons_isovalues();
 
         geode::Logger::info( "TEST SUCCESS" );
         return 0;
