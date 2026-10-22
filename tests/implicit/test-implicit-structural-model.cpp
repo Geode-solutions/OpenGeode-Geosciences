@@ -29,6 +29,7 @@
 
 #include <geode/geometry/point.hpp>
 
+#include <geode/basic/variable_attribute.hpp>
 #include <geode/mesh/builder/tetrahedral_solid_builder.hpp>
 #include <geode/mesh/core/mesh_factory.hpp>
 #include <geode/mesh/core/tetrahedral_solid.hpp>
@@ -38,6 +39,7 @@
 #include <geode/geosciences/explicit/representation/builder/structural_model_builder.hpp>
 #include <geode/geosciences/implicit/representation/builder/horizons_stack_builder.hpp>
 #include <geode/geosciences/implicit/representation/builder/implicit_structural_model_builder.hpp>
+#include <geode/geosciences/implicit/representation/core/detail/helpers.hpp>
 #include <geode/geosciences/implicit/representation/core/horizons_stack.hpp>
 #include <geode/geosciences/implicit/representation/core/implicit_structural_model.hpp>
 
@@ -129,6 +131,14 @@ namespace
         }
         stack_builder.compute_top_and_bottom_horizons();
         return ids;
+    }
+
+    geode::index_t nb_implicit_attributes(
+        const geode::AttributeManager& manager )
+    {
+        const auto ids = manager.attribute_ids_matching_name(
+            geode::ImplicitStructuralModel::IMPLICIT_ATTRIBUTE_NAME );
+        return ids ? static_cast< geode::index_t >( ids->size() ) : 0;
     }
 
     void check_unit( const geode::ImplicitStructuralModel& model,
@@ -260,6 +270,44 @@ void test_reinitialize_after_mesh_edition()
         "[mesh edition] Element should be found after edition" );
 }
 
+void test_from_scalar_field()
+{
+    geode::Logger::info( "Testing creation from scalar field" );
+    geode::StructuralModel base_model;
+    geode::StructuralModelBuilder builder{ base_model };
+    const auto block_id = add_tetrahedral_block( builder );
+    fill_tetrahedral_block( builder, base_model.block( block_id ), 0 );
+    const auto& mesh = base_model.block( block_id ).mesh();
+    geode::AttributeValues< double > values;
+    values.default_value = 0;
+    values.no_value = 0;
+    const auto attribute_id =
+        mesh.vertex_attribute_manager()
+            .create_attribute< geode::VariableAttribute, double >(
+                "scalar", values, geode::AttributeProperties{} );
+    auto attribute =
+        mesh.vertex_attribute_manager()
+            .find_attribute< geode::VariableAttribute, double >( attribute_id );
+    for( const auto vertex : geode::Range{ mesh.nb_vertices() } )
+    {
+        attribute->set_value( vertex, mesh.point( vertex ).value( 2 ) + 1 );
+    }
+    const auto model =
+        geode::detail::implicit_model_from_structural_model_scalar_field(
+            std::move( base_model ), attribute_id );
+    const auto& block = model.block( block_id );
+    for( const auto vertex : geode::Range{ block.mesh().nb_vertices() } )
+    {
+        geode::OpenGeodeGeosciencesImplicitException::test(
+            model.implicit_value( block, vertex )
+                == block.mesh().point( vertex ).value( 2 ) + 1,
+            "[scalar field] Wrong implicit value" );
+    }
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        nb_implicit_attributes( block.mesh().vertex_attribute_manager() ) == 1,
+        "[scalar field] There should be only one implicit attribute" );
+}
+
 int main()
 {
     try
@@ -270,6 +318,7 @@ int main()
         test_conversion_and_move();
         test_empty_mesh_query();
         test_reinitialize_after_mesh_edition();
+        test_from_scalar_field();
 
         geode::Logger::info( "TEST SUCCESS" );
         return 0;

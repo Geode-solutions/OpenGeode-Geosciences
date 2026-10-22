@@ -224,84 +224,57 @@ namespace geode
         ImplicitCrossSection implicit_section_from_cross_section_scalar_field(
             CrossSection&& section, const uuid& scalar_atribute_id )
         {
-            for( const auto& surface : section.surfaces() )
+            ImplicitCrossSection implicit_section{ std::move( section ) };
+            ImplicitCrossSectionBuilder builder{ implicit_section };
+            for( const auto& surface : implicit_section.surfaces() )
             {
                 const auto& surface_mesh = surface.mesh();
-                auto scalar_attribute =
+                if( !surface_mesh.vertex_attribute_manager().attribute_exists(
+                        implicit_section.implicit_attribute_id() ) )
+                {
+                    continue;
+                }
+                const auto scalar_attribute =
                     surface_mesh.vertex_attribute_manager()
                         .find_read_only_attribute<
                             ImplicitCrossSection::implicit_attribute_type >(
                             scalar_atribute_id );
-                AttributeValues< ImplicitCrossSection::implicit_attribute_type >
-                    implicit_attribute_default_values;
-                implicit_attribute_default_values.default_value = 0;
-                implicit_attribute_default_values.no_value = 0;
-                AttributeProperties implicit_attribute_properties;
-                implicit_attribute_properties.assignable = false;
-                implicit_attribute_properties.interpolable = true;
-                implicit_attribute_properties.transferable = true;
-                auto implicit_attribute_id =
-                    surface_mesh.vertex_attribute_manager()
-                        .create_attribute< VariableAttribute,
-                            ImplicitCrossSection::implicit_attribute_type >(
-                            ImplicitCrossSection::IMPLICIT_ATTRIBUTE_NAME,
-                            implicit_attribute_default_values,
-                            implicit_attribute_properties );
-                auto implicit_attribute =
-                    surface_mesh.vertex_attribute_manager()
-                        .find_attribute< VariableAttribute,
-                            ImplicitCrossSection::implicit_attribute_type >(
-                            implicit_attribute_id );
                 for( const auto vertex_id :
                     Range{ surface_mesh.nb_vertices() } )
                 {
-                    implicit_attribute->set_value(
-                        vertex_id, scalar_attribute->value( vertex_id ) );
+                    builder.set_implicit_value( surface, vertex_id,
+                        scalar_attribute->value( vertex_id ) );
                 }
             }
-            return ImplicitCrossSection{ std::move( section ) };
+            return implicit_section;
         }
 
         ImplicitStructuralModel
             implicit_model_from_structural_model_scalar_field(
                 StructuralModel&& model, const uuid& scalar_atribute_id )
         {
-            for( const auto& block : model.blocks() )
+            ImplicitStructuralModel implicit_model{ std::move( model ) };
+            ImplicitStructuralModelBuilder builder{ implicit_model };
+            for( const auto& block : implicit_model.blocks() )
             {
                 const auto& block_mesh = block.mesh();
-                auto scalar_attribute =
+                if( !block_mesh.vertex_attribute_manager().attribute_exists(
+                        implicit_model.implicit_attribute_id() ) )
+                {
+                    continue;
+                }
+                const auto scalar_attribute =
                     block_mesh.vertex_attribute_manager()
                         .find_read_only_attribute<
                             ImplicitStructuralModel::implicit_attribute_type >(
                             scalar_atribute_id );
-                AttributeValues<
-                    ImplicitStructuralModel::implicit_attribute_type >
-                    implicit_attribute_default_values;
-                implicit_attribute_default_values.default_value = 0;
-                implicit_attribute_default_values.no_value = 0;
-                AttributeProperties implicit_attribute_properties;
-                implicit_attribute_properties.assignable = false;
-                implicit_attribute_properties.interpolable = true;
-                implicit_attribute_properties.transferable = true;
-                auto implicit_attribute_id =
-                    block_mesh.vertex_attribute_manager()
-                        .create_attribute< VariableAttribute,
-                            ImplicitStructuralModel::implicit_attribute_type >(
-                            ImplicitStructuralModel::IMPLICIT_ATTRIBUTE_NAME,
-                            implicit_attribute_default_values,
-                            implicit_attribute_properties );
-                auto implicit_attribute =
-                    block_mesh.vertex_attribute_manager()
-                        .find_attribute< VariableAttribute,
-                            ImplicitStructuralModel::implicit_attribute_type >(
-                            implicit_attribute_id );
                 for( const auto vertex_id : Range{ block_mesh.nb_vertices() } )
                 {
-                    implicit_attribute->set_value(
-                        vertex_id, scalar_attribute->value( vertex_id ) );
+                    builder.set_implicit_value( block, vertex_id,
+                        scalar_attribute->value( vertex_id ) );
                 }
             }
-            return ImplicitStructuralModel{ std::move( model ) };
+            return implicit_model;
         }
 
         StratigraphicModel stratigraphic_model_from_implicit_model_and_coords(

@@ -29,6 +29,7 @@
 
 #include <geode/geometry/point.hpp>
 
+#include <geode/basic/variable_attribute.hpp>
 #include <geode/mesh/builder/triangulated_surface_builder.hpp>
 #include <geode/mesh/core/mesh_factory.hpp>
 #include <geode/mesh/core/triangulated_surface.hpp>
@@ -38,6 +39,7 @@
 #include <geode/geosciences/explicit/representation/builder/cross_section_builder.hpp>
 #include <geode/geosciences/implicit/representation/builder/horizons_stack_builder.hpp>
 #include <geode/geosciences/implicit/representation/builder/implicit_cross_section_builder.hpp>
+#include <geode/geosciences/implicit/representation/core/detail/helpers.hpp>
 #include <geode/geosciences/implicit/representation/core/horizons_stack.hpp>
 #include <geode/geosciences/implicit/representation/core/implicit_cross_section.hpp>
 
@@ -127,6 +129,14 @@ namespace
         }
         stack_builder.compute_top_and_bottom_horizons();
         return ids;
+    }
+
+    geode::index_t nb_implicit_attributes(
+        const geode::AttributeManager& manager )
+    {
+        const auto ids = manager.attribute_ids_matching_name(
+            geode::ImplicitCrossSection::IMPLICIT_ATTRIBUTE_NAME );
+        return ids ? static_cast< geode::index_t >( ids->size() ) : 0;
     }
 
     void check_unit( const geode::ImplicitCrossSection& model,
@@ -258,6 +268,45 @@ void test_reinitialize_after_mesh_edition()
         "[mesh edition] Element should be found after edition" );
 }
 
+void test_from_scalar_field()
+{
+    geode::Logger::info( "Testing creation from scalar field" );
+    geode::CrossSection base_model;
+    geode::CrossSectionBuilder builder{ base_model };
+    const auto surface_id = add_triangulated_surface( builder );
+    fill_triangulated_surface( builder, base_model.surface( surface_id ), 0 );
+    const auto& mesh = base_model.surface( surface_id ).mesh();
+    geode::AttributeValues< double > values;
+    values.default_value = 0;
+    values.no_value = 0;
+    const auto attribute_id =
+        mesh.vertex_attribute_manager()
+            .create_attribute< geode::VariableAttribute, double >(
+                "scalar", values, geode::AttributeProperties{} );
+    auto attribute =
+        mesh.vertex_attribute_manager()
+            .find_attribute< geode::VariableAttribute, double >( attribute_id );
+    for( const auto vertex : geode::Range{ mesh.nb_vertices() } )
+    {
+        attribute->set_value( vertex, mesh.point( vertex ).value( 1 ) + 1 );
+    }
+    const auto model =
+        geode::detail::implicit_section_from_cross_section_scalar_field(
+            std::move( base_model ), attribute_id );
+    const auto& surface = model.surface( surface_id );
+    for( const auto vertex : geode::Range{ surface.mesh().nb_vertices() } )
+    {
+        geode::OpenGeodeGeosciencesImplicitException::test(
+            model.implicit_value( surface, vertex )
+                == surface.mesh().point( vertex ).value( 1 ) + 1,
+            "[scalar field] Wrong implicit value" );
+    }
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        nb_implicit_attributes( surface.mesh().vertex_attribute_manager() )
+            == 1,
+        "[scalar field] There should be only one implicit attribute" );
+}
+
 int main()
 {
     try
@@ -268,6 +317,7 @@ int main()
         test_conversion_and_move();
         test_empty_mesh_query();
         test_reinitialize_after_mesh_edition();
+        test_from_scalar_field();
 
         geode::Logger::info( "TEST SUCCESS" );
         return 0;
