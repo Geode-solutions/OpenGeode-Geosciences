@@ -43,6 +43,7 @@
 #include <geode/geosciences/explicit/mixin/core/fault.hpp>
 #include <geode/geosciences/explicit/mixin/core/horizon.hpp>
 #include <geode/geosciences/explicit/representation/builder/structural_model_builder.hpp>
+#include <geode/geosciences/explicit/representation/core/detail/clone.hpp>
 #include <geode/geosciences/explicit/representation/core/structural_model.hpp>
 #include <geode/geosciences/explicit/representation/io/structural_model_input.hpp>
 #include <geode/geosciences/explicit/representation/io/structural_model_output.hpp>
@@ -633,6 +634,39 @@ void test_load_invalid_geological_types()
         "Invalid legacy Horizon contact type should be reported" );
 }
 
+void test_geology_clone_mapping_with_existing_mappings(
+    const geode::StructuralModel& model )
+{
+    geode::ModelCopyMapping mappings;
+    const auto& first_fault = *model.faults().begin();
+    const geode::uuid custom_fault_id;
+    mappings[geode::Fault3D::component_type_static()].map(
+        first_fault.id(), custom_fault_id );
+    mappings[geode::FaultBlock3D::component_type_static()];
+    mappings[geode::Horizon3D::component_type_static()];
+    mappings[geode::StratigraphicUnit3D::component_type_static()];
+    geode::detail::add_geology_clone_mapping( mappings, model );
+    const auto& faults_mapping =
+        mappings.at( geode::Fault3D::component_type_static() );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        faults_mapping.in2out( first_fault.id() ) == custom_fault_id,
+        "Existing Fault clone mapping should be kept" );
+    for( const auto& fault : model.faults() )
+    {
+        geode::OpenGeodeGeosciencesExplicitException::test(
+            faults_mapping.has_mapping_input( fault.id() ),
+            "All Faults should be in the clone mapping" );
+    }
+    for( const auto& horizon : model.horizons() )
+    {
+        geode::OpenGeodeGeosciencesExplicitException::test(
+            mappings.at( geode::Horizon3D::component_type_static() )
+                    .in2out( horizon.id() )
+                == horizon.id(),
+            "All Horizons should be in the clone mapping" );
+    }
+}
+
 void modify_model(
     geode::StructuralModel& model, geode::StructuralModelBuilder& builder )
 {
@@ -716,6 +750,7 @@ int main()
         test_transfer_with_many_to_one_mapping( model );
         test_item_ranges_with_mistyped_items();
         test_load_invalid_geological_types();
+        test_geology_clone_mapping_with_existing_mappings( model );
         modify_model( model, builder );
 
         geode::Logger::info( "TEST SUCCESS" );
