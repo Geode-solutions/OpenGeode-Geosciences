@@ -771,9 +771,9 @@ void test_copy_in_non_empty_model( const geode::StructuralModel& model )
 void test_load_without_fault_blocks_and_stratigraphic_units()
 {
     nb_warnings = 0;
-    const auto model = geode::load_structural_model( absl::StrCat(
-        geode::DATA_PATH,
-        "structural_model_without_fault_blocks_and_units.og_strm" ) );
+    const auto model =
+        geode::load_structural_model( absl::StrCat( geode::DATA_PATH,
+            "structural_model_without_fault_blocks_and_units.og_strm" ) );
     geode::OpenGeodeGeosciencesExplicitException::test( nb_warnings == 0,
         "Loading a StructuralModel saved before FaultBlocks and "
         "StratigraphicUnits existed should not warn" );
