@@ -426,6 +426,45 @@ void test_update_top_and_bottom_horizons()
         count_units( stack ) == 3, "Should iterate on 3 units" );
 }
 
+void test_incomplete_stack()
+{
+    geode::HorizonsStack2D stack;
+    geode::HorizonsStackBuilder2D builder{ stack };
+    const auto& horizon = builder.add_horizon();
+    const auto& unit = builder.add_stratigraphic_unit();
+    builder.set_horizon_above(
+        stack.horizon( horizon ), stack.stratigraphic_unit( unit ) );
+    builder.compute_top_and_bottom_horizons();
+    geode::Logger::info( stack.string() );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        count_horizons( stack ) == 1, "Should iterate on 1 horizon" );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        count_units( stack ) == 1, "Should iterate on 1 unit" );
+
+    std::array< std::string, 3 > horizons_list{ "h1", "h2", "h3" };
+    std::array< std::string, 2 > units_list{ "su1", "su2" };
+    auto named_stack =
+        geode::detail::horizons_stack_from_bottom_to_top_names< 2 >(
+            horizons_list, units_list );
+    geode::HorizonsStackBuilder2D named_builder{ named_stack };
+    const auto bottom = named_stack.bottom_horizon().value();
+    const auto unit_above_bottom = named_stack.above( bottom ).value();
+    // Creates a gap in the stack without updating top and bottom horizons
+    named_builder.remove_above_relation( unit_above_bottom, bottom );
+    geode::Logger::info( named_stack.string() );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        count_horizons( named_stack ) == 1,
+        "Should stop horizon iteration at the gap" );
+    geode::index_t counter{ 0 };
+    for( const auto& unit_in_stack : named_stack.bottom_to_top_units() )
+    {
+        geode::Logger::debug( "Found unit ", unit_in_stack.id().string() );
+        counter++;
+    }
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        counter == 1, "Should stop unit iteration at the gap" );
+}
+
 int main()
 {
     try
@@ -440,6 +479,7 @@ int main()
         test_reverse_relation();
         test_replace_relation();
         test_update_top_and_bottom_horizons();
+        test_incomplete_stack();
 
         geode::Logger::info( "TEST SUCCESS" );
         return 0;
