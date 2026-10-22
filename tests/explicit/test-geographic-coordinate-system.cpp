@@ -174,6 +174,31 @@ void test_invalid_codes()
     test_invalid_code( { "EPSG", "27571", "I" }, { "", "", "empty" } );
 }
 
+void test_failed_point_conversion()
+{
+    geode::AttributeManager manager;
+    manager.resize( 2 );
+    geode::GeographicCoordinateSystem3D wgs84{ manager,
+        { "EPSG", "4326", "WGS 84" } };
+    wgs84.set_point( 0, geode::Point3D{ { 1, 1, 0 } } );
+    wgs84.set_point( 1, geode::Point3D{ { 1000, 1000, 0 } } );
+    geode::GeographicCoordinateSystem3D mercator{ manager,
+        { "EPSG", "3857", "Mercator" } };
+    try
+    {
+        mercator.import_coordinates( wgs84 );
+    }
+    catch( const geode::OpenGeodeException& exception )
+    {
+        geode::Logger::info(
+            "Invalid point conversion throws as expected: ", exception.what() );
+        return;
+    }
+    throw geode::OpenGeodeGeosciencesExplicitException{ nullptr,
+        geode::OpenGeodeException::TYPE::internal,
+        "[Test] Conversion of an invalid point should throw" };
+}
+
 int main()
 {
     try
@@ -183,6 +208,7 @@ int main()
         test_corrupted_info_size();
         test_crs();
         test_invalid_codes();
+        test_failed_point_conversion();
 
         geode::Logger::info( "TEST SUCCESS" );
         return 0;

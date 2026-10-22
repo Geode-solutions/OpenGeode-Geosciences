@@ -23,6 +23,8 @@
 
 #include <geode/geosciences/explicit/geometry/geographic_coordinate_system.hpp>
 
+#include <memory>
+
 #include <ogr_spatialref.h>
 #include <ogr_srs_api.h>
 
@@ -71,8 +73,11 @@ namespace geode
             set_spatial_reference( destination, info_ );
             OGRSpatialReference origin;
             set_spatial_reference( origin, from.info() );
-            auto* transformer =
-                OGRCreateCoordinateTransformation( &origin, &destination );
+            const std::unique_ptr< OGRCoordinateTransformation,
+                decltype( &OGRCoordinateTransformation::DestroyCT ) >
+                transformer{ OGRCreateCoordinateTransformation(
+                                 &origin, &destination ),
+                    &OGRCoordinateTransformation::DestroyCT };
             OpenGeodeGeosciencesExplicitException::check_exception(
                 transformer != nullptr, nullptr, OpenGeodeException::TYPE::data,
                 "[GeographicCoordinateSystem::import_coordinates] Cannot "
@@ -98,7 +103,6 @@ namespace geode
                 }
                 to.set_point( p, std::move( point ) );
             }
-            OGRCoordinateTransformation::DestroyCT( transformer );
         }
 
     private:
