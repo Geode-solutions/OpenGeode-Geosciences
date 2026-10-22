@@ -24,6 +24,7 @@
 #include <geode/geosciences/explicit/mixin/core/fault.hpp>
 
 #include <geode/basic/bitsery_archive.hpp>
+#include <geode/basic/logger.hpp>
 #include <geode/basic/pimpl_impl.hpp>
 
 namespace geode
@@ -48,7 +49,21 @@ namespace geode
             archive.ext( *this,
                 Growable< Archive, Impl >{ { []( Archive& a, Impl& impl ) {
                     a.value4b( impl.fault_type_ );
+                    impl.repair_type();
                 } } } );
+        }
+
+    private:
+        void repair_type()
+        {
+            const auto type = static_cast< int >( fault_type_ );
+            if( type < static_cast< int >( FAULT_TYPE::no_type )
+                || type > static_cast< int >( FAULT_TYPE::decollement ) )
+            {
+                Logger::warning(
+                    "[Fault] Unknown fault type ", type, ", set to no_type" );
+                fault_type_ = FAULT_TYPE::no_type;
+            }
         }
 
     private:

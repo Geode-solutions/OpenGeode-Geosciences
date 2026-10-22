@@ -21,6 +21,10 @@
  *
  */
 
+#include <filesystem>
+#include <fstream>
+#include <iterator>
+
 #include <geode/basic/assert.hpp>
 #include <geode/basic/attribute_manager.hpp>
 #include <geode/basic/logger.hpp>
@@ -503,6 +507,132 @@ void test_transfer_with_many_to_one_mapping(
     }
 }
 
+std::vector< char > read_bytes( const std::string& filename )
+{
+    std::ifstream file{ filename, std::ifstream::binary };
+    return { std::istreambuf_iterator< char >{ file },
+        std::istreambuf_iterator< char >{} };
+}
+
+void write_bytes(
+    const std::string& filename, const std::vector< char >& bytes )
+{
+    std::ofstream file{ filename, std::ofstream::binary };
+    file.write( bytes.data(), static_cast< std::streamsize >( bytes.size() ) );
+}
+
+size_t single_difference(
+    const std::vector< char >& lhs, const std::vector< char >& rhs )
+{
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        lhs.size() == rhs.size(), "Files should have the same size" );
+    std::vector< size_t > differences;
+    for( const auto i : geode::Range{ lhs.size() } )
+    {
+        if( lhs[i] != rhs[i] )
+        {
+            differences.push_back( i );
+        }
+    }
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        differences.size() == 1, "Files should differ by a single byte" );
+    return differences.front();
+}
+
+geode::StructuralModel load_geology( const std::string& directory )
+{
+    geode::StructuralModel model;
+    geode::StructuralModelBuilder builder{ model };
+    builder.load_faults( directory );
+    builder.load_horizons( directory );
+    return model;
+}
+
+void test_load_invalid_geological_types()
+{
+    const std::string root{ "invalid_geological_types" };
+    for( const auto& directory :
+        { "/ref", "/modified", "/corrupted", "/legacy", "/legacy_corrupted" } )
+    {
+        std::filesystem::create_directories( absl::StrCat( root, directory ) );
+    }
+    geode::StructuralModel model;
+    geode::StructuralModelBuilder builder{ model };
+    const auto& fault =
+        model.fault( builder.add_fault( geode::Fault3D::FAULT_TYPE::normal ) );
+    const auto& horizon = model.horizon(
+        builder.add_horizon( geode::Horizon3D::CONTACT_TYPE::conformal ) );
+    model.save_faults( absl::StrCat( root, "/ref" ) );
+    model.save_horizons( absl::StrCat( root, "/ref" ) );
+    builder.set_fault_type( fault, geode::Fault3D::FAULT_TYPE::reverse );
+    builder.set_horizon_contact_type(
+        horizon, geode::Horizon3D::CONTACT_TYPE::erosion );
+    model.save_faults( absl::StrCat( root, "/modified" ) );
+    model.save_horizons( absl::StrCat( root, "/modified" ) );
+
+    const auto faults = read_bytes( absl::StrCat( root, "/ref/faults" ) );
+    const auto horizons = read_bytes( absl::StrCat( root, "/ref/horizons" ) );
+    const auto fault_type_byte = single_difference(
+        faults, read_bytes( absl::StrCat( root, "/modified/faults" ) ) );
+    const auto contact_type_byte = single_difference(
+        horizons, read_bytes( absl::StrCat( root, "/modified/horizons" ) ) );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        horizons[contact_type_byte - 1] == 2,
+        "Horizon contact type should be serialized in version 2" );
+
+    auto corrupted_faults = faults;
+    corrupted_faults[fault_type_byte] = 0x7F;
+    write_bytes( absl::StrCat( root, "/corrupted/faults" ), corrupted_faults );
+    auto corrupted_horizons = horizons;
+    corrupted_horizons[contact_type_byte] = 0x7F;
+    write_bytes(
+        absl::StrCat( root, "/corrupted/horizons" ), corrupted_horizons );
+    auto nb_warnings_before = nb_warnings;
+    const auto corrupted = load_geology( absl::StrCat( root, "/corrupted" ) );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        corrupted.fault( fault.id() ).type()
+            == geode::Fault3D::FAULT_TYPE::no_type,
+        "Invalid loaded Fault type should be repaired" );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        corrupted.horizon( horizon.id() ).contact_type()
+            == geode::Horizon3D::CONTACT_TYPE::conformal,
+        "Invalid loaded Horizon contact type should be repaired" );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        nb_warnings == nb_warnings_before + 2,
+        "Invalid loaded Fault type and Horizon contact type should be "
+        "reported" );
+
+    write_bytes( absl::StrCat( root, "/legacy/faults" ), faults );
+    write_bytes( absl::StrCat( root, "/legacy_corrupted/faults" ), faults );
+    auto legacy_horizons = horizons;
+    legacy_horizons[contact_type_byte - 1] = 1;
+    legacy_horizons[contact_type_byte] = 2; // legacy non_conformal
+    write_bytes( absl::StrCat( root, "/legacy/horizons" ), legacy_horizons );
+    nb_warnings_before = nb_warnings;
+    const auto legacy = load_geology( absl::StrCat( root, "/legacy" ) );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        legacy.horizon( horizon.id() ).contact_type()
+            == geode::Horizon3D::CONTACT_TYPE::erosion,
+        "Legacy non conformal Horizon should be loaded as erosion" );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        nb_warnings == nb_warnings_before,
+        "Valid legacy Horizon should be loaded without warning" );
+
+    legacy_horizons[contact_type_byte] = 0x7F;
+    write_bytes(
+        absl::StrCat( root, "/legacy_corrupted/horizons" ), legacy_horizons );
+    nb_warnings_before = nb_warnings;
+    const auto legacy_corrupted =
+        load_geology( absl::StrCat( root, "/legacy_corrupted" ) );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        legacy_corrupted.horizon( horizon.id() ).contact_type()
+            == geode::Horizon3D::CONTACT_TYPE::conformal,
+        "Invalid legacy Horizon contact type should be repaired" );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        nb_warnings == nb_warnings_before + 1,
+        "Invalid legacy Horizon contact type should be reported" );
+}
+
 void modify_model(
     geode::StructuralModel& model, geode::StructuralModelBuilder& builder )
 {
@@ -585,6 +715,7 @@ int main()
         test_transfer_with_stale_mapping( model );
         test_transfer_with_many_to_one_mapping( model );
         test_item_ranges_with_mistyped_items();
+        test_load_invalid_geological_types();
         modify_model( model, builder );
 
         geode::Logger::info( "TEST SUCCESS" );
