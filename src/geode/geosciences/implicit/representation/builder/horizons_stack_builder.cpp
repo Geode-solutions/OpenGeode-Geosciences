@@ -23,6 +23,8 @@
 
 #include <geode/geosciences/implicit/representation/builder/horizons_stack_builder.hpp>
 
+#include <geode/basic/logger.hpp>
+
 #include <geode/geosciences/explicit/mixin/core/horizon.hpp>
 #include <geode/geosciences/explicit/mixin/core/stratigraphic_unit.hpp>
 #include <geode/geosciences/explicit/representation/builder/detail/copy.hpp>
@@ -233,7 +235,8 @@ namespace geode
         const Horizon< dimension >& horizon_above,
         const StratigraphicUnit< dimension >& strati_unit_under )
     {
-        StratigraphicRelationshipsBuilder::add_above_relation(
+        check_stack_components( horizon_above, strati_unit_under );
+        set_above_relation(
             horizon_above.component_id(), strati_unit_under.component_id() );
     }
 
@@ -242,8 +245,62 @@ namespace geode
         const Horizon< dimension >& horizon_under,
         const StratigraphicUnit< dimension >& strati_unit_above )
     {
-        StratigraphicRelationshipsBuilder::add_above_relation(
+        check_stack_components( horizon_under, strati_unit_above );
+        set_above_relation(
             strati_unit_above.component_id(), horizon_under.component_id() );
+    }
+
+    template < index_t dimension >
+    void HorizonsStackBuilder< dimension >::check_stack_components(
+        const Horizon< dimension >& horizon,
+        const StratigraphicUnit< dimension >& strati_unit ) const
+    {
+        OpenGeodeGeosciencesImplicitException::check_exception(
+            horizons_stack_.has_horizon( horizon.id() ), nullptr,
+            OpenGeodeException::TYPE::data, "[HorizonsStackBuilder] Horizon ",
+            horizon.component_id().string(),
+            " does not exist in the HorizonsStack" );
+        OpenGeodeGeosciencesImplicitException::check_exception(
+            horizons_stack_.has_stratigraphic_unit( strati_unit.id() ), nullptr,
+            OpenGeodeException::TYPE::data,
+            "[HorizonsStackBuilder] Stratigraphic unit ",
+            strati_unit.component_id().string(),
+            " does not exist in the HorizonsStack" );
+    }
+
+    template < index_t dimension >
+    void HorizonsStackBuilder< dimension >::set_above_relation(
+        const ComponentID& above, const ComponentID& under )
+    {
+        // In a stack, each component has at most one component directly
+        // above and one directly under: previous links are replaced
+        auto old_under = horizons_stack_.under( above.id );
+        if( old_under == under.id )
+        {
+            old_under.reset();
+        }
+        auto old_above = horizons_stack_.above( under.id );
+        if( old_above == above.id )
+        {
+            old_above.reset();
+        }
+        StratigraphicRelationshipsBuilder::add_above_relation( above, under );
+        if( old_under )
+        {
+            Logger::warning(
+                "[HorizonsStackBuilder] Replacing component under ",
+                above.string(), ": ", old_under->string(), " by ",
+                under.string() );
+            this->remove_above_relation( above.id, old_under.value() );
+        }
+        if( old_above )
+        {
+            Logger::warning(
+                "[HorizonsStackBuilder] Replacing component above ",
+                under.string(), ": ", old_above->string(), " by ",
+                above.string() );
+            this->remove_above_relation( old_above.value(), under.id );
+        }
     }
 
     template < index_t dimension >

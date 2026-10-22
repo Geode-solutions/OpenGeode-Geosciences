@@ -322,6 +322,46 @@ void test_reverse_relation()
         "Relation direction should have been reversed" );
 }
 
+void test_replace_relation()
+{
+    geode::HorizonsStack3D stack;
+    geode::HorizonsStackBuilder3D builder{ stack };
+    const auto& h0 = builder.add_horizon();
+    const auto& h1 = builder.add_horizon();
+    const auto& u0 = builder.add_stratigraphic_unit();
+    const auto& u1 = builder.add_stratigraphic_unit();
+    builder.set_horizon_above(
+        stack.horizon( h0 ), stack.stratigraphic_unit( u0 ) );
+    builder.set_horizon_above(
+        stack.horizon( h1 ), stack.stratigraphic_unit( u0 ) );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        stack.above( u0 ) == h1 && !stack.under( h0 ),
+        "Horizon above unit should have been replaced" );
+    builder.set_horizon_under(
+        stack.horizon( h0 ), stack.stratigraphic_unit( u0 ) );
+    builder.set_horizon_under(
+        stack.horizon( h0 ), stack.stratigraphic_unit( u1 ) );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        stack.above( h0 ) == u1 && !stack.under( u0 ),
+        "Unit above horizon should have been replaced" );
+
+    geode::HorizonsStack3D other_stack;
+    geode::HorizonsStackBuilder3D other_builder{ other_stack };
+    const auto& other_horizon = other_builder.add_horizon();
+    bool throws{ false };
+    try
+    {
+        builder.set_horizon_above( other_stack.horizon( other_horizon ),
+            stack.stratigraphic_unit( u1 ) );
+    }
+    catch( const geode::OpenGeodeException& /*unused*/ )
+    {
+        throws = true;
+    }
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        throws, "Should not relate a horizon from another stack" );
+}
+
 int main()
 {
     try
@@ -334,6 +374,7 @@ int main()
         test_cycle_rejection();
         test_load_cyclic_stack();
         test_reverse_relation();
+        test_replace_relation();
 
         geode::Logger::info( "TEST SUCCESS" );
         return 0;
