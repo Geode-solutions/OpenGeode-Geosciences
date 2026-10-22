@@ -622,6 +622,36 @@ void test_load_stale_horizon_isovalue()
         "[stale isovalue] Isovalue of removed horizon should be dropped" );
 }
 
+void test_construction_from_remeshed_model()
+{
+    geode::Logger::info( "Testing construction from initial model and "
+                         "BRep" );
+    const auto initial = create_model();
+    auto brep = static_cast< const geode::BRep& >( initial ).clone();
+    geode::ModelGenericMapping mappings;
+    auto& block_mapping = mappings[geode::Block3D::component_type_static()];
+    for( const auto& block : initial.blocks() )
+    {
+        block_mapping.map( block.id(), block.id() );
+    }
+    const geode::ImplicitStructuralModel model{ initial, std::move( brep ),
+        mappings };
+    for( const auto& block : model.blocks() )
+    {
+        geode::OpenGeodeGeosciencesImplicitException::test(
+            nb_implicit_attributes( block.mesh().vertex_attribute_manager() )
+                == 1,
+            "[remeshed model] There should be only one implicit attribute" );
+        for( const auto vertex : geode::Range{ block.mesh().nb_vertices() } )
+        {
+            geode::OpenGeodeGeosciencesImplicitException::test(
+                model.implicit_value( block, vertex )
+                    == block.mesh().point( vertex ).value( 2 ),
+                "[remeshed model] Wrong implicit value" );
+        }
+    }
+}
+
 int main()
 {
     try
@@ -640,6 +670,7 @@ int main()
         test_copy_single_implicit_attribute();
         test_clone();
         test_load_stale_horizon_isovalue();
+        test_construction_from_remeshed_model();
         test_import_old_attribute( "old_implicit" );
         test_import_old_attribute(
             geode::ImplicitStructuralModel::IMPLICIT_ATTRIBUTE_NAME );

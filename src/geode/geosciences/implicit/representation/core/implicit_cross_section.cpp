@@ -293,6 +293,20 @@ namespace geode
             horizon_isovalues_[horizon.id()] = isovalue;
         }
 
+        void adopt_implicit_attribute_id_if_present(
+            const ImplicitCrossSection& model, const uuid& attribute_id )
+        {
+            for( const auto& surface : model.surfaces() )
+            {
+                if( surface.mesh().vertex_attribute_manager().attribute_exists(
+                        attribute_id ) )
+                {
+                    implicit_attribute_id_ = attribute_id;
+                    return;
+                }
+            }
+        }
+
         void check_horizons_consistency( const ImplicitCrossSection& model )
         {
             for( auto it = horizon_isovalues_.begin();
@@ -439,6 +453,8 @@ namespace geode
         : CrossSection{ initial_model, std::move( section ),
               initial_to_section_mappings }
     {
+        impl_->adopt_implicit_attribute_id_if_present(
+            *this, initial_model.implicit_attribute_id() );
         impl_->initialize_implicit_query_trees( *this );
         ModelCopyMapping mappings;
         detail::add_geology_clone_mapping< CrossSection >(

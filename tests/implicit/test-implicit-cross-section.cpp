@@ -588,6 +588,36 @@ void test_load_stale_horizon_isovalue()
         "[stale isovalue] Isovalue of removed horizon should be dropped" );
 }
 
+void test_construction_from_remeshed_model()
+{
+    geode::Logger::info( "Testing construction from initial model and "
+                         "Section" );
+    const auto initial = create_model();
+    auto section = static_cast< const geode::Section& >( initial ).clone();
+    geode::ModelGenericMapping mappings;
+    auto& surface_mapping = mappings[geode::Surface2D::component_type_static()];
+    for( const auto& surface : initial.surfaces() )
+    {
+        surface_mapping.map( surface.id(), surface.id() );
+    }
+    const geode::ImplicitCrossSection model{ initial, std::move( section ),
+        mappings };
+    for( const auto& surface : model.surfaces() )
+    {
+        geode::OpenGeodeGeosciencesImplicitException::test(
+            nb_implicit_attributes( surface.mesh().vertex_attribute_manager() )
+                == 1,
+            "[remeshed model] There should be only one implicit attribute" );
+        for( const auto vertex : geode::Range{ surface.mesh().nb_vertices() } )
+        {
+            geode::OpenGeodeGeosciencesImplicitException::test(
+                model.implicit_value( surface, vertex )
+                    == surface.mesh().point( vertex ).value( 1 ),
+                "[remeshed model] Wrong implicit value" );
+        }
+    }
+}
+
 int main()
 {
     try
@@ -606,6 +636,7 @@ int main()
         test_copy_single_implicit_attribute();
         test_clone();
         test_load_stale_horizon_isovalue();
+        test_construction_from_remeshed_model();
         test_import_old_attribute( "old_implicit" );
         test_import_old_attribute(
             geode::ImplicitCrossSection::IMPLICIT_ATTRIBUTE_NAME );

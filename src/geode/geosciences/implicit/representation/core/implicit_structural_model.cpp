@@ -288,6 +288,20 @@ namespace geode
             horizon_isovalues_[horizon.id()] = isovalue;
         }
 
+        void adopt_implicit_attribute_id_if_present(
+            const ImplicitStructuralModel& model, const uuid& attribute_id )
+        {
+            for( const auto& block : model.blocks() )
+            {
+                if( block.mesh().vertex_attribute_manager().attribute_exists(
+                        attribute_id ) )
+                {
+                    implicit_attribute_id_ = attribute_id;
+                    return;
+                }
+            }
+        }
+
         void check_horizons_consistency( const ImplicitStructuralModel& model )
         {
             for( auto it = horizon_isovalues_.begin();
@@ -441,6 +455,8 @@ namespace geode
         : StructuralModel{ initial_model, std::move( brep ),
               initial_to_brep_mappings }
     {
+        impl_->adopt_implicit_attribute_id_if_present(
+            *this, initial_model.implicit_attribute_id() );
         impl_->initialize_implicit_query_trees( *this );
         ModelCopyMapping mappings;
         detail::add_geology_clone_mapping< StructuralModel >(
