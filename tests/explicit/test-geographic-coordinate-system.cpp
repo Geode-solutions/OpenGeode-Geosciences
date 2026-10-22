@@ -145,6 +145,35 @@ void test_crs()
     }
 }
 
+void test_invalid_code( const geode::GeographicCoordinateSystemInfo& from,
+    const geode::GeographicCoordinateSystemInfo& to )
+{
+    geode::AttributeManager manager;
+    manager.resize( 2 );
+    geode::GeographicCoordinateSystem3D from_crs{ manager, from };
+    geode::GeographicCoordinateSystem3D to_crs{ manager, to };
+    try
+    {
+        to_crs.import_coordinates( from_crs );
+    }
+    catch( const geode::OpenGeodeException& exception )
+    {
+        geode::Logger::info(
+            "Invalid CRS code throws as expected: ", exception.what() );
+        return;
+    }
+    throw geode::OpenGeodeGeosciencesExplicitException{ nullptr,
+        geode::OpenGeodeException::TYPE::internal,
+        "[Test] Conversion with an invalid CRS code should throw" };
+}
+
+void test_invalid_codes()
+{
+    test_invalid_code( { "EPSG", "27571", "I" }, { "EPSG", "99999", "bad" } );
+    test_invalid_code( { "EPSG", "99999", "bad" }, { "EPSG", "27571", "I" } );
+    test_invalid_code( { "EPSG", "27571", "I" }, { "", "", "empty" } );
+}
+
 int main()
 {
     try
@@ -153,6 +182,7 @@ int main()
         test_bitsery();
         test_corrupted_info_size();
         test_crs();
+        test_invalid_codes();
 
         geode::Logger::info( "TEST SUCCESS" );
         return 0;

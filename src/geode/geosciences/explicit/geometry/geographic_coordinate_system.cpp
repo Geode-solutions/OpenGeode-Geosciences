@@ -68,11 +68,16 @@ namespace geode
             GeographicCoordinateSystem< dimension >& to )
         {
             OGRSpatialReference destination;
-            destination.SetFromUserInput( info_.authority_code().c_str() );
+            set_spatial_reference( destination, info_ );
             OGRSpatialReference origin;
-            origin.SetFromUserInput( from.info().authority_code().c_str() );
+            set_spatial_reference( origin, from.info() );
             auto* transformer =
                 OGRCreateCoordinateTransformation( &origin, &destination );
+            OpenGeodeGeosciencesExplicitException::check_exception(
+                transformer != nullptr, nullptr, OpenGeodeException::TYPE::data,
+                "[GeographicCoordinateSystem::import_coordinates] Cannot "
+                "create coordinate transformation from ",
+                from.info().authority_code(), " to ", info_.authority_code() );
             for( const auto p : Range{ from.nb_points() } )
             {
                 auto point = from.point( p );
@@ -97,6 +102,19 @@ namespace geode
         }
 
     private:
+        static void set_spatial_reference( OGRSpatialReference& reference,
+            const GeographicCoordinateSystemInfo& info )
+        {
+            const auto authority_code = info.authority_code();
+            OpenGeodeGeosciencesExplicitException::check_exception(
+                reference.SetFromUserInput( authority_code.c_str() )
+                    == OGRERR_NONE,
+                nullptr, OpenGeodeException::TYPE::data,
+                "[GeographicCoordinateSystem::import_coordinates] Unknown "
+                "coordinate system ",
+                authority_code );
+        }
+
         template < typename Archive >
         void serialize( Archive& archive )
         {
