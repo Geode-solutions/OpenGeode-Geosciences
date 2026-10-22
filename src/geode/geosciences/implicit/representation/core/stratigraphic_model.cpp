@@ -637,6 +637,8 @@ namespace geode
               initial_to_brep_mappings }
     {
         impl_->initialize_stratigraphic_query_trees( *this );
+        impl_->import_stratigraphic_locations(
+            *this, initial_model.stratigraphic_location_attribute_id() );
     }
 
     StratigraphicModel::~StratigraphicModel() = default;

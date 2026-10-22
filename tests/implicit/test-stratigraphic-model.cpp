@@ -40,6 +40,8 @@
 #include <geode/mesh/io/triangulated_surface_output.hpp>
 
 #include <geode/model/mixin/core/block.hpp>
+#include <geode/model/mixin/core/corner.hpp>
+#include <geode/model/mixin/core/line.hpp>
 #include <geode/model/mixin/core/surface.hpp>
 
 #include <geode/geosciences/explicit/representation/builder/structural_model_builder.hpp>
@@ -368,6 +370,46 @@ void test_clone( const geode::StratigraphicModel& model )
     }
 }
 
+void test_construction_from_brep( const geode::StratigraphicModel& model )
+{
+    geode::Logger::info( "Testing construction from BRep" );
+    geode::ModelGenericMapping mappings;
+    const auto add_identity = [&mappings]( const auto& range ) {
+        for( const auto& component : range )
+        {
+            mappings[component.component_type()].map(
+                component.id(), component.id() );
+        }
+    };
+    add_identity( model.corners() );
+    add_identity( model.lines() );
+    add_identity( model.surfaces() );
+    add_identity( model.blocks() );
+    const geode::StratigraphicModel new_model{ model, model.BRep::clone(),
+        mappings };
+    for( const auto& block : model.blocks() )
+    {
+        const auto& new_block = new_model.block( block.id() );
+        const auto ids =
+            new_block.mesh()
+                .vertex_attribute_manager()
+                .attribute_ids_matching_name( geode::StratigraphicModel::
+                        STRATIGRAPHIC_LOCATION_ATTRIBUTE_NAME );
+        geode::OpenGeodeGeosciencesImplicitException::test(
+            ids && ids->size() == 1,
+            "New model should have one stratigraphic location attribute." );
+        for( const auto v : geode::Range{ block.mesh().nb_vertices() } )
+        {
+            geode::OpenGeodeGeosciencesImplicitException::test(
+                new_model.stratigraphic_coordinates( new_block, v )
+                        .stratigraphic_location()
+                    == model.stratigraphic_coordinates( block, v )
+                        .stratigraphic_location(),
+                "Wrong transferred stratigraphic location." );
+        }
+    }
+}
+
 void test_move( geode::StratigraphicModel& implicit_model )
 {
     const auto old_implicit_id = implicit_model.implicit_attribute_id();
@@ -660,6 +702,7 @@ int main()
         DEBUG( "Testing IO" );
         test_io( model, block1_id );
         test_clone( model );
+        test_construction_from_brep( model );
         test_invalid_stratigraphic_tetrahedra( model );
         test_move( model );
         test_non_tetrahedral_block();

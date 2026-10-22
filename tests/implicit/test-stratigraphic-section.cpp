@@ -35,6 +35,7 @@
 #include <geode/mesh/core/triangulated_surface.hpp>
 #include <geode/mesh/io/edged_curve_output.hpp>
 
+#include <geode/model/mixin/core/corner.hpp>
 #include <geode/model/mixin/core/line.hpp>
 #include <geode/model/mixin/core/surface.hpp>
 #include <geode/model/representation/builder/section_builder.hpp>
@@ -289,6 +290,46 @@ void test_clone( const geode::StratigraphicSection& section )
     }
 }
 
+void test_construction_from_section(
+    const geode::StratigraphicSection& section )
+{
+    geode::Logger::info( "Testing construction from Section" );
+    geode::ModelGenericMapping mappings;
+    const auto add_identity = [&mappings]( const auto& range ) {
+        for( const auto& component : range )
+        {
+            mappings[component.component_type()].map(
+                component.id(), component.id() );
+        }
+    };
+    add_identity( section.corners() );
+    add_identity( section.lines() );
+    add_identity( section.surfaces() );
+    const geode::StratigraphicSection new_section{ section,
+        section.Section::clone(), mappings };
+    for( const auto& surface : section.surfaces() )
+    {
+        const auto& new_surface = new_section.surface( surface.id() );
+        const auto ids =
+            new_surface.mesh()
+                .vertex_attribute_manager()
+                .attribute_ids_matching_name( geode::StratigraphicSection::
+                        STRATIGRAPHIC_LOCATION_ATTRIBUTE_NAME );
+        geode::OpenGeodeGeosciencesImplicitException::test(
+            ids && ids->size() == 1,
+            "New section should have one stratigraphic location attribute." );
+        for( const auto v : geode::Range{ surface.mesh().nb_vertices() } )
+        {
+            geode::OpenGeodeGeosciencesImplicitException::test(
+                new_section.stratigraphic_coordinates( new_surface, v )
+                        .stratigraphic_location()
+                    == section.stratigraphic_coordinates( surface, v )
+                        .stratigraphic_location(),
+                "Wrong transferred stratigraphic location." );
+        }
+    }
+}
+
 void test_move( geode::StratigraphicSection& implicit_model )
 {
     const auto old_implicit_id = implicit_model.implicit_attribute_id();
@@ -387,6 +428,7 @@ int main()
         test_stratigraphic_lines_values( model );
         test_copy( model );
         test_clone( model );
+        test_construction_from_section( model );
         test_io( model );
         test_move( model );
         test_empty_surface();
