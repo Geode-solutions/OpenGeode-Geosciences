@@ -157,7 +157,8 @@ void test_backward_io( std::string filename )
 {
     const auto implicit_cross_section =
         geode::load_implicit_cross_section( filename );
-    geode::save_implicit_cross_section( implicit_cross_section, filename );
+    geode::save_implicit_cross_section(
+        implicit_cross_section, "test_backward_io.og_ixsctn" );
 }
 
 void test_io( const geode::StratigraphicSection& implicit_model )
