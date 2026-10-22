@@ -264,6 +264,10 @@ void test_empty_surface()
     geode::OpenGeodeGeosciencesImplicitException::test(
         !section.geometric_coordinates( empty_surface, query ),
         "No geometric coordinates should be found in an empty surface." );
+    const auto box = section.stratigraphic_bounding_box();
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        box.min().value( 0 ) <= box.max().value( 0 ),
+        "Stratigraphic bounding box should ignore empty components." );
 }
 
 void test_reinitialize_after_modification()

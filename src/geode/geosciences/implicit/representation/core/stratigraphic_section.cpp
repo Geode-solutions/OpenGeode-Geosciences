@@ -197,13 +197,33 @@ namespace geode
             const StratigraphicSection& model ) const
         {
             BoundingBox2D box;
-            for( const auto& stratigraphic_tree :
-                surface_stratigraphic_aabb_trees_ )
+            for( const auto& surface : model.surfaces() )
             {
-                box.add_box( stratigraphic_tree
-                        .second( create_stratigraphic_aabb_tree, *this, model,
-                            model.surface( stratigraphic_tree.first ) )
-                        .bounding_box() );
+                if( !stratigraphic_location_attributes_.contains(
+                        surface.id() ) )
+                {
+                    continue;
+                }
+                const SurfaceStratigraphicCoordinates coordinates{ *this, model,
+                    surface };
+                const auto& surface_mesh = surface.mesh();
+                std::vector< bool > visited(
+                    surface_mesh.nb_vertices(), false );
+                for( const auto p : Range{ surface_mesh.nb_polygons() } )
+                {
+                    for( const auto v :
+                        LRange{ surface_mesh.nb_polygon_vertices( p ) } )
+                    {
+                        const auto vertex =
+                            surface_mesh.polygon_vertex( { p, v } );
+                        if( visited[vertex] )
+                        {
+                            continue;
+                        }
+                        visited[vertex] = true;
+                        box.add_point( coordinates( vertex ) );
+                    }
+                }
             }
             return box;
         }

@@ -396,6 +396,10 @@ void test_empty_block()
     geode::OpenGeodeGeosciencesImplicitException::test(
         !model.geometric_coordinates( empty_block, query ),
         "No geometric coordinates should be found in an empty block." );
+    const auto box = model.stratigraphic_bounding_box();
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        box.min().value( 0 ) <= box.max().value( 0 ),
+        "Stratigraphic bounding box should ignore empty components." );
 }
 
 void test_reinitialize_after_modification( const geode::uuid& block1_id )

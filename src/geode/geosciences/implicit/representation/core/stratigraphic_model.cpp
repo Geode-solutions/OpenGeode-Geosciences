@@ -231,13 +231,31 @@ namespace geode
             const StratigraphicModel& model ) const
         {
             BoundingBox3D box;
-            for( const auto& stratigraphic_tree :
-                block_stratigraphic_aabb_trees_ )
+            for( const auto& block : model.blocks() )
             {
-                box.add_box( stratigraphic_tree
-                        .second( create_stratigraphic_aabb_tree, *this, model,
-                            model.block( stratigraphic_tree.first ) )
-                        .bounding_box() );
+                if( !stratigraphic_location_attributes_.contains( block.id() ) )
+                {
+                    continue;
+                }
+                const BlockStratigraphicCoordinates coordinates{ *this, model,
+                    block };
+                const auto& block_mesh = block.mesh();
+                std::vector< bool > visited( block_mesh.nb_vertices(), false );
+                for( const auto p : Range{ block_mesh.nb_polyhedra() } )
+                {
+                    for( const auto v :
+                        LRange{ block_mesh.nb_polyhedron_vertices( p ) } )
+                    {
+                        const auto vertex =
+                            block_mesh.polyhedron_vertex( { p, v } );
+                        if( visited[vertex] )
+                        {
+                            continue;
+                        }
+                        visited[vertex] = true;
+                        box.add_point( coordinates( vertex ) );
+                    }
+                }
             }
             return box;
         }
