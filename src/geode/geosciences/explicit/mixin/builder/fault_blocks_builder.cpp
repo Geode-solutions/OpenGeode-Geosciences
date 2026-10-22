@@ -70,6 +70,17 @@ namespace geode
                 typename FaultBlock< dimension >::FaultBlocksBuilderKey{} );
     }
 
+    template < index_t dimension >
+    void FaultBlocksBuilder< dimension >::set_fault_block_active(
+        const FaultBlock< dimension >& fault_block, bool active )
+    {
+        fault_blocks_
+            .modifiable_fault_block( fault_block.id(),
+                typename FaultBlock< dimension >::FaultBlocksBuilderKey{} )
+            .set_fault_block_active( active,
+                typename FaultBlock< dimension >::FaultBlocksBuilderKey{} );
+    }
+
     template class opengeode_geosciences_explicit_api FaultBlocksBuilder< 2 >;
     template class opengeode_geosciences_explicit_api FaultBlocksBuilder< 3 >;
 } // namespace geode

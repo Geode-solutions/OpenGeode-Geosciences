@@ -35,7 +35,10 @@
             pybind11::arg( "horizon" ), pybind11::arg( "contact_type" ) )      \
         .def( "set_horizon_name",                                              \
             &HorizonsBuilder##dimension##D::set_horizon_name,                  \
-            pybind11::arg( "horizon" ), pybind11::arg( "name" ) )
+            pybind11::arg( "horizon" ), pybind11::arg( "name" ) )              \
+        .def( "set_horizon_active",                                            \
+            &HorizonsBuilder##dimension##D::set_horizon_active,                \
+            pybind11::arg( "horizon" ), pybind11::arg( "active" ) )
 
 namespace geode
 {

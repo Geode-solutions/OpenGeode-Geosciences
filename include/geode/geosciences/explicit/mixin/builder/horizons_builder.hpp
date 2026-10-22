@@ -49,6 +49,9 @@ namespace geode
         void set_horizon_name(
             const Horizon< dimension >& horizon, std::string_view name );
 
+        void set_horizon_active(
+            const Horizon< dimension >& horizon, bool active );
+
     protected:
         explicit HorizonsBuilder( Horizons< dimension >& horizons )
             : horizons_( horizons )

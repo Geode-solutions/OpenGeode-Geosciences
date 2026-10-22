@@ -703,6 +703,33 @@ void test_geological_components_mappings_with_existing_mappings(
     }
 }
 
+void test_geological_components_activity()
+{
+    geode::StructuralModel model;
+    geode::StructuralModelBuilder builder{ model };
+    const auto& fault = model.fault( builder.add_fault() );
+    const auto& horizon = model.horizon( builder.add_horizon() );
+    const auto& fault_block = model.fault_block( builder.add_fault_block() );
+    const auto& unit =
+        model.stratigraphic_unit( builder.add_stratigraphic_unit() );
+    builder.set_fault_active( fault, false );
+    builder.set_horizon_active( horizon, false );
+    builder.set_fault_block_active( fault_block, false );
+    builder.set_stratigraphic_unit_active( unit, false );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        !fault.is_active() && !horizon.is_active() && !fault_block.is_active()
+            && !unit.is_active(),
+        "Geological components should be inactive" );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        model.nb_active_faults() == 0 && model.nb_active_horizons() == 0
+            && model.nb_active_fault_blocks() == 0
+            && model.nb_active_stratigraphic_units() == 0,
+        "Inactive geological components should not be in active ranges" );
+    builder.set_fault_active( fault, true );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        fault.is_active(), "Fault should be active again" );
+}
+
 void modify_model(
     geode::StructuralModel& model, geode::StructuralModelBuilder& builder )
 {
@@ -788,6 +815,7 @@ int main()
         test_load_invalid_geological_types();
         test_geology_clone_mapping_with_existing_mappings( model );
         test_geological_components_mappings_with_existing_mappings( model );
+        test_geological_components_activity();
         modify_model( model, builder );
 
         geode::Logger::info( "TEST SUCCESS" );

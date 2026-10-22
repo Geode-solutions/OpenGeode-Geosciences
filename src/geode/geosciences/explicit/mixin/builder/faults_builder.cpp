@@ -95,6 +95,17 @@ namespace geode
                 name, typename Fault< dimension >::FaultsBuilderKey{} );
     }
 
+    template < index_t dimension >
+    void FaultsBuilder< dimension >::set_fault_active(
+        const Fault< dimension >& fault, bool active )
+    {
+        faults_
+            .modifiable_fault(
+                fault.id(), typename Fault< dimension >::FaultsBuilderKey{} )
+            .set_fault_active(
+                active, typename Fault< dimension >::FaultsBuilderKey{} );
+    }
+
     template class opengeode_geosciences_explicit_api FaultsBuilder< 2 >;
     template class opengeode_geosciences_explicit_api FaultsBuilder< 3 >;
 } // namespace geode

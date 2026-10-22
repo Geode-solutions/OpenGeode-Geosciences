@@ -33,7 +33,11 @@
         .def( "set_stratigraphic_unit_name",                                   \
             &StratigraphicUnitsBuilder##dimension##D::                         \
                 set_stratigraphic_unit_name,                                   \
-            pybind11::arg( "stratigraphic_unit" ), pybind11::arg( "name" ) )
+            pybind11::arg( "stratigraphic_unit" ), pybind11::arg( "name" ) )   \
+        .def( "set_stratigraphic_unit_active",                                 \
+            &StratigraphicUnitsBuilder##dimension##D::                         \
+                set_stratigraphic_unit_active,                                 \
+            pybind11::arg( "stratigraphic_unit" ), pybind11::arg( "active" ) )
 
 namespace geode
 {
