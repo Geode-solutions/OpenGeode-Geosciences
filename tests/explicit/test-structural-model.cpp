@@ -24,6 +24,8 @@
 #include <geode/basic/assert.hpp>
 #include <geode/basic/attribute_manager.hpp>
 #include <geode/basic/logger.hpp>
+#include <geode/basic/logger_client.hpp>
+#include <geode/basic/logger_manager.hpp>
 #include <geode/basic/range.hpp>
 #include <geode/basic/uuid.hpp>
 #include <geode/basic/variable_attribute.hpp>
@@ -40,6 +42,25 @@
 #include <geode/geosciences/explicit/representation/core/structural_model.hpp>
 #include <geode/geosciences/explicit/representation/io/structural_model_input.hpp>
 #include <geode/geosciences/explicit/representation/io/structural_model_output.hpp>
+
+namespace
+{
+    geode::index_t nb_warnings{ 0 };
+
+    class WarningCounter : public geode::LoggerClient
+    {
+    public:
+        void trace( const std::string& /*unused*/ ) override {}
+        void debug( const std::string& /*unused*/ ) override {}
+        void info( const std::string& /*unused*/ ) override {}
+        void warning( const std::string& /*unused*/ ) override
+        {
+            nb_warnings++;
+        }
+        void error( const std::string& /*unused*/ ) override {}
+        void critical( const std::string& /*unused*/ ) override {}
+    };
+} // namespace
 
 template < class ItemRange >
 geode::index_t count_items( ItemRange items )
@@ -439,6 +460,49 @@ void test_item_ranges_with_mistyped_items()
         "Blocks" );
 }
 
+void test_transfer_with_many_to_one_mapping(
+    const geode::StructuralModel& model )
+{
+    geode::BRep new_model;
+    geode::BRepBuilder new_builder{ new_model };
+    const auto merged_id = new_builder.add_surface();
+    geode::ModelGenericMapping mappings;
+    auto& surfaces_mapping =
+        mappings[geode::Surface3D::component_type_static()];
+    for( const auto& surface : model.surfaces() )
+    {
+        surfaces_mapping.map( surface.id(), merged_id );
+    }
+    const auto nb_warnings_before = nb_warnings;
+    geode::StructuralModel transferred{ model, std::move( new_model ),
+        mappings };
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        nb_warnings == nb_warnings_before,
+        "Transfer with a many-to-one mapping should not emit warnings" );
+    for( const auto& horizon : model.horizons() )
+    {
+        const auto& new_horizon = transferred.horizon( horizon.id() );
+        const auto expected = model.nb_items( horizon.id() ) == 0 ? 0 : 1;
+        geode::OpenGeodeGeosciencesExplicitException::test(
+            transferred.nb_items( new_horizon.id() ) == expected,
+            "Wrong number of items in transferred Horizon" );
+    }
+    for( const auto& fault : model.faults() )
+    {
+        const auto& new_fault = transferred.fault( fault.id() );
+        const auto expected = model.nb_items( fault.id() ) == 0 ? 0 : 1;
+        geode::OpenGeodeGeosciencesExplicitException::test(
+            transferred.nb_items( new_fault.id() ) == expected,
+            "Wrong number of items in transferred Fault" );
+        if( expected == 1 )
+        {
+            geode::OpenGeodeGeosciencesExplicitException::test(
+                transferred.is_item( merged_id, new_fault.id() ),
+                "Merged surface should be in transferred Fault" );
+        }
+    }
+}
+
 void modify_model(
     geode::StructuralModel& model, geode::StructuralModelBuilder& builder )
 {
@@ -499,6 +563,8 @@ int main()
     try
     {
         geode::OpenGeodeGeosciencesExplicitLibrary::initialize();
+        geode::LoggerManager::register_client(
+            std::make_unique< WarningCounter >() );
 
         geode::StructuralModel model{ build_brep() };
         geode::StructuralModelBuilder builder( model );
@@ -517,6 +583,7 @@ int main()
         test_io( model );
         test_copy( model );
         test_transfer_with_stale_mapping( model );
+        test_transfer_with_many_to_one_mapping( model );
         test_item_ranges_with_mistyped_items();
         modify_model( model, builder );
 

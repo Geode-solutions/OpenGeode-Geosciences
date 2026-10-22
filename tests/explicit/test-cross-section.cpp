@@ -23,6 +23,8 @@
 
 #include <geode/basic/assert.hpp>
 #include <geode/basic/logger.hpp>
+#include <geode/basic/logger_client.hpp>
+#include <geode/basic/logger_manager.hpp>
 #include <geode/basic/range.hpp>
 
 #include <geode/model/mixin/core/line.hpp>
@@ -36,6 +38,25 @@
 #include <geode/geosciences/explicit/representation/core/cross_section.hpp>
 #include <geode/geosciences/explicit/representation/io/cross_section_input.hpp>
 #include <geode/geosciences/explicit/representation/io/cross_section_output.hpp>
+
+namespace
+{
+    geode::index_t nb_warnings{ 0 };
+
+    class WarningCounter : public geode::LoggerClient
+    {
+    public:
+        void trace( const std::string& /*unused*/ ) override {}
+        void debug( const std::string& /*unused*/ ) override {}
+        void info( const std::string& /*unused*/ ) override {}
+        void warning( const std::string& /*unused*/ ) override
+        {
+            nb_warnings++;
+        }
+        void error( const std::string& /*unused*/ ) override {}
+        void critical( const std::string& /*unused*/ ) override {}
+    };
+} // namespace
 
 template < class ItemRange >
 geode::index_t count_items( ItemRange items )
@@ -497,6 +518,46 @@ void test_item_ranges_with_mistyped_items()
         "Surfaces" );
 }
 
+void test_transfer_with_many_to_one_mapping( const geode::CrossSection& model )
+{
+    geode::Section new_model;
+    geode::SectionBuilder new_builder{ new_model };
+    const auto merged_id = new_builder.add_line();
+    geode::ModelGenericMapping mappings;
+    auto& lines_mapping = mappings[geode::Line2D::component_type_static()];
+    for( const auto& line : model.lines() )
+    {
+        lines_mapping.map( line.id(), merged_id );
+    }
+    const auto nb_warnings_before = nb_warnings;
+    geode::CrossSection transferred{ model, std::move( new_model ), mappings };
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        nb_warnings == nb_warnings_before,
+        "Transfer with a many-to-one mapping should not emit warnings" );
+    for( const auto& horizon : model.horizons() )
+    {
+        const auto& new_horizon = transferred.horizon( horizon.id() );
+        const auto expected = model.nb_items( horizon.id() ) == 0 ? 0 : 1;
+        geode::OpenGeodeGeosciencesExplicitException::test(
+            transferred.nb_items( new_horizon.id() ) == expected,
+            "Wrong number of items in transferred Horizon" );
+    }
+    for( const auto& fault : model.faults() )
+    {
+        const auto& new_fault = transferred.fault( fault.id() );
+        const auto expected = model.nb_items( fault.id() ) == 0 ? 0 : 1;
+        geode::OpenGeodeGeosciencesExplicitException::test(
+            transferred.nb_items( new_fault.id() ) == expected,
+            "Wrong number of items in transferred Fault" );
+        if( expected == 1 )
+        {
+            geode::OpenGeodeGeosciencesExplicitException::test(
+                transferred.is_item( merged_id, new_fault.id() ),
+                "Merged line should be in transferred Fault" );
+        }
+    }
+}
+
 void modify_model(
     geode::CrossSection& model, geode::CrossSectionBuilder& builder )
 {
@@ -548,6 +609,8 @@ int main()
     try
     {
         geode::OpenGeodeGeosciencesExplicitLibrary::initialize();
+        geode::LoggerManager::register_client(
+            std::make_unique< WarningCounter >() );
 
         geode::CrossSection model;
         geode::CrossSectionBuilder builder( model );
@@ -562,6 +625,7 @@ int main()
         test_io( model );
         test_copy( model );
         test_transfer_with_stale_mapping( model );
+        test_transfer_with_many_to_one_mapping( model );
         test_item_ranges_with_mistyped_items();
         modify_model( model, builder );
 
