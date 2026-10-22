@@ -27,6 +27,7 @@
 
 #include <geode/basic/attribute_manager.hpp>
 #include <geode/basic/bitsery_archive.hpp>
+#include <geode/basic/logger.hpp>
 #include <geode/basic/pimpl_impl.hpp>
 #include <geode/basic/range.hpp>
 #include <geode/basic/sparse_attribute.hpp>
@@ -212,6 +213,7 @@ namespace geode
                     && std::get< 1 >( context ).isValid(),
                 nullptr, OpenGeodeException::TYPE::internal,
                 "[Relationships::load] Error while reading file: ", filename );
+            remove_cycles();
         }
 
     private:
@@ -241,6 +243,72 @@ namespace geode
             above_relations_ = relation_attribute_manager()
                                    .find_attribute< SparseAttribute, bool >(
                                        above_relations_id );
+        }
+
+        /*!
+         * Removes the above relations closing a cycle (corrupted data).
+         * Iterative depth-first search following the above relations upward:
+         * any relation leading to a vertex in the current path closes a cycle.
+         */
+        void remove_cycles()
+        {
+            const auto& graph = this->graph();
+            const auto nb_vertices = graph.nb_vertices();
+            constexpr local_index_t NOT_VISITED{ 0 };
+            constexpr local_index_t IN_PATH{ 1 };
+            constexpr local_index_t DONE{ 2 };
+            std::vector< local_index_t > status( nb_vertices, NOT_VISITED );
+            std::vector< bool > to_delete( graph.nb_edges(), false );
+            bool has_cycle{ false };
+            // Stack of (vertex, next edge around vertex to process)
+            std::vector< std::pair< index_t, index_t > > path;
+            for( const auto start : Range{ nb_vertices } )
+            {
+                if( status[start] != NOT_VISITED )
+                {
+                    continue;
+                }
+                status[start] = IN_PATH;
+                path.emplace_back( start, 0 );
+                while( !path.empty() )
+                {
+                    auto& [vertex, next_edge] = path.back();
+                    const auto& edges = graph.edges_around_vertex( vertex );
+                    if( next_edge >= edges.size() )
+                    {
+                        status[vertex] = DONE;
+                        path.pop_back();
+                        continue;
+                    }
+                    const auto& edge_vertex = edges[next_edge++];
+                    if( edge_vertex.vertex_id != UNDER_EDGE_VERTEX
+                        || !above_relations_->value( edge_vertex.edge_id ) )
+                    {
+                        continue;
+                    }
+                    const auto vertex_above =
+                        graph.edge_vertex( edge_vertex.opposite() );
+                    if( status[vertex_above] == IN_PATH )
+                    {
+                        to_delete[edge_vertex.edge_id] = true;
+                        has_cycle = true;
+                        Logger::warning( "[StratigraphicRelationships::load] "
+                                         "Removing relation ",
+                            graph_component_id( vertex_above ).string(),
+                            " above ", graph_component_id( vertex ).string(),
+                            " which closes a cycle in above relations" );
+                    }
+                    else if( status[vertex_above] == NOT_VISITED )
+                    {
+                        status[vertex_above] = IN_PATH;
+                        path.emplace_back( vertex_above, 0 );
+                    }
+                }
+            }
+            if( has_cycle )
+            {
+                GraphBuilder::create( *graph_ )->delete_edges( to_delete );
+            }
         }
 
         /*!

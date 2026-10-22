@@ -275,6 +275,31 @@ void test_cycle_rejection()
         "Wrong top and bottom horizons after cycle rejection" );
 }
 
+void test_load_cyclic_stack()
+{
+    // File saved with a cycle h0 > u0 > h1 > u1 > h0 in above relations
+    const auto stack = geode::load_horizons_stack< 3 >(
+        absl::StrCat( geode::DATA_PATH, "test_HorizonStack_cycle.og_hst3d" ) );
+    for( const auto& horizon : stack.horizons() )
+    {
+        geode::OpenGeodeGeosciencesImplicitException::test(
+            !stack.is_above( horizon.id(), horizon.id() ),
+            "Cycle should have been removed on load" );
+    }
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        stack.top_horizon().has_value() && stack.bottom_horizon().has_value()
+            && stack.top_horizon() != stack.bottom_horizon(),
+        "Top and bottom horizons should be computed after cycle removal" );
+    geode::index_t counter{ 0 };
+    for( const auto& horizon : stack.top_to_bottom_horizons() )
+    {
+        geode::Logger::debug( "Found horizon ", horizon.id().string() );
+        counter++;
+    }
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        counter == 2, "Should iterate on 2 horizons after cycle removal" );
+}
+
 int main()
 {
     try
@@ -285,6 +310,7 @@ int main()
         test_create_horizons_stack_bottom_to_top();
         test_create_horizons_stack_top_to_bottom();
         test_cycle_rejection();
+        test_load_cyclic_stack();
 
         geode::Logger::info( "TEST SUCCESS" );
         return 0;
