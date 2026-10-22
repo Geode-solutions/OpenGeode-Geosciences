@@ -141,6 +141,11 @@ namespace geode
         {
             auto& old_surface_vertex_attribute_manager =
                 old_surface.mesh().vertex_attribute_manager();
+            if( !old_surface_vertex_attribute_manager.attribute_exists(
+                    other_model.implicit_attribute_id() ) )
+            {
+                continue;
+            }
             const auto old_attribute =
                 old_surface_vertex_attribute_manager
                     .find_read_only_attribute< double >(

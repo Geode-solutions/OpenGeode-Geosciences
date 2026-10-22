@@ -366,6 +366,37 @@ void test_rescale_with_unsupported_mesh()
         "[rescale] Unsupported mesh should be kept" );
 }
 
+void test_copy_with_unsupported_mesh()
+{
+    geode::Logger::info( "Testing copy with unsupported mesh type" );
+    geode::StructuralModel base_model;
+    geode::StructuralModelBuilder builder{ base_model };
+    const auto unsupported_id = builder.add_block();
+    builder.block_mesh_builder( base_model.block( unsupported_id ) )
+        ->create_point( geode::Point3D{ { 0, 0, 0 } } );
+    const auto block_id = add_tetrahedral_block( builder );
+    fill_tetrahedral_block( builder, base_model.block( block_id ), 0 );
+    geode::ImplicitStructuralModel model{ std::move( base_model ) };
+    geode::ImplicitStructuralModelBuilder implicit_builder{ model };
+    const auto& block = model.block( block_id );
+    for( const auto vertex : geode::Range{ block.mesh().nb_vertices() } )
+    {
+        implicit_builder.set_implicit_value( block, vertex, vertex + 1 );
+    }
+    geode::ImplicitStructuralModel copy;
+    geode::ImplicitStructuralModelBuilder copy_builder{ copy };
+    const auto mappings = copy_builder.copy( model );
+    const auto& copy_block =
+        copy.block( mappings.at( geode::Block3D::component_type_static() )
+                .in2out( block_id ) );
+    for( const auto vertex : geode::Range{ copy_block.mesh().nb_vertices() } )
+    {
+        geode::OpenGeodeGeosciencesImplicitException::test(
+            copy.implicit_value( copy_block, vertex ) == vertex + 1,
+            "[copy] Wrong implicit value in copy" );
+    }
+}
+
 int main()
 {
     try
@@ -379,6 +410,7 @@ int main()
         test_from_scalar_field();
         test_rescale_constant_field();
         test_rescale_with_unsupported_mesh();
+        test_copy_with_unsupported_mesh();
 
         geode::Logger::info( "TEST SUCCESS" );
         return 0;

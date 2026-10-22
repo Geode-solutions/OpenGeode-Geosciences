@@ -365,6 +365,37 @@ void test_rescale_with_unsupported_mesh()
         "[rescale] Unsupported mesh should be kept" );
 }
 
+void test_copy_with_unsupported_mesh()
+{
+    geode::Logger::info( "Testing copy with unsupported mesh type" );
+    geode::CrossSection base_model;
+    geode::CrossSectionBuilder builder{ base_model };
+    const auto unsupported_id = builder.add_surface();
+    builder.surface_mesh_builder( base_model.surface( unsupported_id ) )
+        ->create_point( geode::Point2D{ { 0, 0 } } );
+    const auto surface_id = add_triangulated_surface( builder );
+    fill_triangulated_surface( builder, base_model.surface( surface_id ), 0 );
+    geode::ImplicitCrossSection model{ std::move( base_model ) };
+    geode::ImplicitCrossSectionBuilder implicit_builder{ model };
+    const auto& surface = model.surface( surface_id );
+    for( const auto vertex : geode::Range{ surface.mesh().nb_vertices() } )
+    {
+        implicit_builder.set_implicit_value( surface, vertex, vertex + 1 );
+    }
+    geode::ImplicitCrossSection copy;
+    geode::ImplicitCrossSectionBuilder copy_builder{ copy };
+    const auto mappings = copy_builder.copy( model );
+    const auto& copy_surface =
+        copy.surface( mappings.at( geode::Surface2D::component_type_static() )
+                .in2out( surface_id ) );
+    for( const auto vertex : geode::Range{ copy_surface.mesh().nb_vertices() } )
+    {
+        geode::OpenGeodeGeosciencesImplicitException::test(
+            copy.implicit_value( copy_surface, vertex ) == vertex + 1,
+            "[copy] Wrong implicit value in copy" );
+    }
+}
+
 int main()
 {
     try
@@ -378,6 +409,7 @@ int main()
         test_from_scalar_field();
         test_rescale_constant_field();
         test_rescale_with_unsupported_mesh();
+        test_copy_with_unsupported_mesh();
 
         geode::Logger::info( "TEST SUCCESS" );
         return 0;
