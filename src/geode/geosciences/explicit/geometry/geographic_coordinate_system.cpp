@@ -25,6 +25,8 @@
 
 #include <memory>
 
+#include <absl/algorithm/container.h>
+
 #include <ogr_spatialref.h>
 #include <ogr_srs_api.h>
 
@@ -184,27 +186,42 @@ namespace geode
         std::vector< Point< dimension > > transform(
             const GeographicCoordinateSystem< dimension >& from ) const
         {
-            std::vector< Point< dimension > > points;
-            points.reserve( from.nb_points() );
-            for( const auto p : Range{ from.nb_points() } )
+            const auto nb_points = from.nb_points();
+            std::array< std::vector< double >, 3 > values{
+                std::vector< double >( nb_points, 0 ),
+                std::vector< double >( nb_points, 0 ),
+                std::vector< double >( nb_points, 0 )
+            };
+            for( const auto p : Range{ nb_points } )
             {
-                auto point = from.point( p );
-                std::array< double, 3 > values{ 0, 0, 0 };
+                const auto& point = from.point( p );
                 for( const auto d : LRange{ dimension } )
                 {
-                    values[d] = point.value( d );
+                    values[d][p] = point.value( d );
                 }
-                const auto status = transformer_->Transform(
-                    1, &values[0], &values[1], &values[2] );
-                OpenGeodeGeosciencesExplicitException::check_exception( status,
-                    nullptr, OpenGeodeException::TYPE::data,
+            }
+            if( nb_points != 0 )
+            {
+                std::vector< int > success( nb_points, FALSE );
+                const auto status =
+                    transformer_->Transform( nb_points, values[0].data(),
+                        values[1].data(), values[2].data(), success.data() );
+                const auto nb_failures =
+                    static_cast< index_t >( absl::c_count( success, FALSE ) );
+                OpenGeodeGeosciencesExplicitException::check_exception(
+                    status && nb_failures == 0, nullptr,
+                    OpenGeodeException::TYPE::data,
                     "[GeographicCoordinateTransformation] Failed to convert "
-                    "coordinates" );
+                    "coordinates of ",
+                    nb_failures, " points" );
+            }
+            std::vector< Point< dimension > > points( nb_points );
+            for( const auto p : Range{ nb_points } )
+            {
                 for( const auto d : LRange{ dimension } )
                 {
-                    point.set_value( d, values[d] );
+                    points[p].set_value( d, values[d][p] );
                 }
-                points.push_back( std::move( point ) );
             }
             return points;
         }

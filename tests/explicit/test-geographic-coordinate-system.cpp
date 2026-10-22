@@ -64,6 +64,19 @@ void test_bitsery()
         *surf, *builder, "test2", { "EPSG", "2008", "test2" } );
     geode::save_triangulated_surface( *surf, "crs.og_tsf2d" );
 
+    geode::convert_surface_mesh_coordinate_reference_system(
+        *surf, *builder, "back", { "EPSG", "2005", "back" } );
+    const auto& original_crs = surf->main_coordinate_reference_system_manager()
+                                   .find_coordinate_reference_system( "test" );
+    for( const auto v : geode::Range{ surf->nb_vertices() } )
+    {
+        geode::OpenGeodeGeosciencesExplicitException::test(
+            surf->point( v ).inexact_equal( original_crs.point( v ) ),
+            "Wrong round trip coordinate conversion" );
+    }
+    builder->main_coordinate_reference_system_manager_builder()
+        .set_active_coordinate_reference_system( "test2" );
+
     const auto reloaded =
         geode::load_triangulated_surface< 2 >( "crs.og_tsf2d" );
     const auto& crs_manager =
@@ -471,11 +484,12 @@ void test_invalid_codes()
 void test_failed_point_conversion()
 {
     geode::AttributeManager manager;
-    manager.resize( 2 );
+    manager.resize( 3 );
     geode::GeographicCoordinateSystem3D wgs84{ manager,
         { "EPSG", "4326", "WGS 84" } };
-    wgs84.set_point( 0, geode::Point3D{ { 1, 1, 0 } } );
-    wgs84.set_point( 1, geode::Point3D{ { 1000, 1000, 0 } } );
+    wgs84.set_point( 0, geode::Point3D{ { 1000, 1000, 0 } } );
+    wgs84.set_point( 1, geode::Point3D{ { 1, 1, 0 } } );
+    wgs84.set_point( 2, geode::Point3D{ { -1000, 1000, 0 } } );
     geode::GeographicCoordinateSystem3D mercator{ manager,
         { "EPSG", "3857", "Mercator" } };
     try
@@ -486,6 +500,10 @@ void test_failed_point_conversion()
     {
         geode::Logger::info(
             "Invalid point conversion throws as expected: ", exception.what() );
+        geode::OpenGeodeGeosciencesExplicitException::test(
+            std::string_view{ exception.what() }.find( "2 points" )
+                != std::string_view::npos,
+            "Wrong number of failed points reported" );
         return;
     }
     throw geode::OpenGeodeGeosciencesExplicitException{ nullptr,
