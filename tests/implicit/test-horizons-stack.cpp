@@ -493,6 +493,58 @@ void test_repair_stack_without_horizon()
         "Repair of a stack without horizon should not change it" );
 }
 
+void test_large_stack_relations()
+{
+    constexpr geode::index_t nb_horizons{ 200 };
+    std::vector< std::string > horizons_names;
+    std::vector< std::string > units_names;
+    for( const auto index : geode::Range{ nb_horizons } )
+    {
+        horizons_names.push_back( absl::StrCat( "h", index ) );
+        units_names.push_back( absl::StrCat( "su", index ) );
+    }
+    units_names.pop_back();
+    auto stack = geode::detail::horizons_stack_from_bottom_to_top_names< 3 >(
+        horizons_names, units_names );
+    std::vector< geode::uuid > horizons;
+    for( const auto& horizon : stack.bottom_to_top_horizons() )
+    {
+        horizons.push_back( horizon.id() );
+    }
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        horizons.size() == nb_horizons, "Wrong number of horizons" );
+    for( const auto index : geode::Range{ 1, nb_horizons } )
+    {
+        const auto unit = stack.above( horizons[index - 1] ).value();
+        geode::OpenGeodeGeosciencesImplicitException::test(
+            stack.is_directly_above( unit, horizons[index - 1] )
+                && stack.is_directly_above( horizons[index], unit )
+                && !stack.is_directly_above( unit, horizons[index] )
+                && !stack.is_directly_above(
+                    horizons[index], horizons[index - 1] ),
+            "Wrong direct relations in large stack" );
+    }
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        stack.is_above( horizons.back(), horizons.front() )
+            && !stack.is_above( horizons.front(), horizons.back() ),
+        "Wrong indirect relations in large stack" );
+    geode::HorizonsStackBuilder3D builder{ stack };
+    const auto middle = nb_horizons / 2;
+    const auto unit_above = stack.above( horizons[middle] ).value();
+    const auto unit_under = stack.under( horizons[middle] ).value();
+    // Removal works whatever the order of the given components
+    builder.remove_above_relation( unit_above, horizons[middle] );
+    builder.remove_above_relation( unit_under, horizons[middle] );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        !stack.above( horizons[middle] ) && !stack.under( horizons[middle] )
+            && !stack.under( unit_above ) && !stack.above( unit_under ),
+        "Relations should have been removed in large stack" );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        stack.is_above( horizons.back(), horizons[middle + 1] )
+            && !stack.is_above( horizons.back(), horizons.front() ),
+        "Wrong indirect relations after removal in large stack" );
+}
+
 int main()
 {
     try
@@ -510,6 +562,7 @@ int main()
         test_incomplete_stack();
         test_create_empty_horizons_stack();
         test_repair_stack_without_horizon();
+        test_large_stack_relations();
 
         geode::Logger::info( "TEST SUCCESS" );
         return 0;

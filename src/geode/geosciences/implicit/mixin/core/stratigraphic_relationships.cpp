@@ -80,7 +80,7 @@ namespace geode
 
         bool is_directly_above( const uuid& above, const uuid& under ) const
         {
-            const auto edge_id = relation_edge( above, under );
+            const auto edge_id = relation_edge_index( above, under );
             if( !edge_id )
             {
                 return false;
@@ -143,7 +143,8 @@ namespace geode
         index_t add_above_relation(
             const ComponentID& above, const ComponentID& under )
         {
-            const auto existing_edge = relation_edge( above.id, under.id );
+            const auto existing_edge =
+                relation_edge_index( above.id, under.id );
             if( existing_edge
                 && graph_component_id(
                        { existing_edge.value(), ABOVE_EDGE_VERTEX } )
@@ -174,16 +175,10 @@ namespace geode
 
         void remove_above_relation( const uuid& id1, const uuid& id2 )
         {
-            auto id = relation_edge( id1, id2 );
-            if( !id )
+            if( const auto id = relation_edge_index( id1, id2 ) )
             {
-                id = relation_edge( id2, id1 );
-                if( !id )
-                {
-                    return;
-                }
+                this->remove_relation_edge( id.value() );
             }
-            this->remove_relation_edge( id.value() );
         }
 
         void copy( const Impl& impl, const ModelCopyMapping& mapping )
@@ -373,32 +368,6 @@ namespace geode
                 }
             }
             return false;
-        }
-
-        std::optional< index_t > relation_edge(
-            const uuid& from, const uuid& to ) const
-        {
-            const auto index_from = vertex_id( from );
-            if( !index_from )
-            {
-                return std::nullopt;
-            }
-            const auto index_to = vertex_id( to );
-            if( !index_to )
-            {
-                return std::nullopt;
-            }
-            for( const auto& edge_vertex :
-                this->graph().edges_around_vertex( index_from.value() ) )
-            {
-                const auto& other =
-                    this->graph_component_id( edge_vertex.opposite() );
-                if( to == other.id )
-                {
-                    return edge_vertex.edge_id;
-                }
-            }
-            return std::nullopt;
         }
 
         void remove_relation_edge( index_t relation_edge_id )
