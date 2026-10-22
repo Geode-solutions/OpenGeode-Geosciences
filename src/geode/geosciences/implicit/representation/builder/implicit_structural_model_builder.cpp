@@ -25,6 +25,7 @@
 
 #include <geode/geometry/point.hpp>
 
+#include <geode/basic/attribute_manager.hpp>
 #include <geode/basic/variable_attribute.hpp>
 
 #include <geode/model/mixin/core/block.hpp>
@@ -33,6 +34,32 @@
 #include <geode/geosciences/implicit/representation/builder/horizons_stack_builder.hpp>
 #include <geode/geosciences/implicit/representation/core/horizons_stack.hpp>
 #include <geode/geosciences/implicit/representation/core/implicit_structural_model.hpp>
+
+namespace
+{
+    void import_old_block_attribute_values(
+        geode::AttributeManager& vertex_attribute_manager,
+        geode::index_t nb_vertices,
+        const geode::uuid& old_attribute_id,
+        const geode::uuid& new_attribute_id )
+    {
+        {
+            const auto old_attribute =
+                vertex_attribute_manager.find_read_only_attribute< double >(
+                    old_attribute_id );
+            auto new_attribute =
+                vertex_attribute_manager
+                    .find_attribute< geode::VariableAttribute, double >(
+                        new_attribute_id );
+            for( const auto vertex : geode::Range{ nb_vertices } )
+            {
+                new_attribute->set_value(
+                    vertex, old_attribute->value( vertex ) );
+            }
+        }
+        vertex_attribute_manager.delete_attribute( old_attribute_id );
+    }
+} // namespace
 
 namespace geode
 {
@@ -57,27 +84,34 @@ namespace geode
         import_old_implicit_attribute_values_from_attribute_name(
             std::string_view old_attribute_name )
     {
+        const auto& implicit_attribute_id =
+            implicit_model_.implicit_attribute_id();
         for( const auto& block : implicit_model_.blocks() )
         {
             auto& block_vertex_attribute_manager =
                 block.mesh().vertex_attribute_manager();
-            const auto old_attribute_id =
-                block_vertex_attribute_manager
-                    .attribute_ids_matching_name( old_attribute_name )
-                    .value()
-                    .front();
-            const auto old_attribute =
-                block_vertex_attribute_manager
-                    .find_read_only_attribute< double >( old_attribute_id );
-            auto new_attribute =
-                block_vertex_attribute_manager
-                    .find_attribute< VariableAttribute, double >(
-                        implicit_model_.implicit_attribute_id() );
-            for( const auto vertex :
-                geode::Range{ block.mesh().nb_vertices() } )
+            if( !block_vertex_attribute_manager.attribute_exists(
+                    implicit_attribute_id ) )
             {
-                new_attribute->set_value(
-                    vertex, old_attribute->value( vertex ) );
+                continue;
+            }
+            const auto old_attribute_ids =
+                block_vertex_attribute_manager.attribute_ids_matching_name(
+                    old_attribute_name );
+            if( !old_attribute_ids )
+            {
+                continue;
+            }
+            for( const auto& old_attribute_id : old_attribute_ids.value() )
+            {
+                if( old_attribute_id == implicit_attribute_id )
+                {
+                    continue;
+                }
+                import_old_block_attribute_values(
+                    block_vertex_attribute_manager, block.mesh().nb_vertices(),
+                    old_attribute_id, implicit_attribute_id );
+                break;
             }
         }
     }

@@ -492,6 +492,62 @@ void test_clone()
     }
 }
 
+void test_import_old_attribute( std::string_view old_name )
+{
+    geode::Logger::info( "Testing import of old attribute ", old_name );
+    geode::StructuralModel base_model;
+    geode::StructuralModelBuilder builder{ base_model };
+    const auto unsupported_id = builder.add_block();
+    builder.block_mesh_builder( base_model.block( unsupported_id ) )
+        ->create_point( geode::Point3D{ { 0, 0, 0 } } );
+    const auto empty_id = add_tetrahedral_block( builder );
+    const auto block_id = add_tetrahedral_block( builder );
+    fill_tetrahedral_block( builder, base_model.block( block_id ), 0 );
+    const auto& mesh = base_model.block( block_id ).mesh();
+    geode::AttributeValues< double > values;
+    values.default_value = 0;
+    values.no_value = 0;
+    geode::AttributeProperties properties;
+    properties.interpolable = true;
+    properties.transferable = true;
+    const auto old_id =
+        mesh.vertex_attribute_manager()
+            .create_attribute< geode::VariableAttribute, double >(
+                old_name, values, properties );
+    auto old_attribute =
+        mesh.vertex_attribute_manager()
+            .find_attribute< geode::VariableAttribute, double >( old_id );
+    for( const auto vertex : geode::Range{ mesh.nb_vertices() } )
+    {
+        old_attribute->set_value( vertex, vertex + 1 );
+    }
+    old_attribute.reset();
+    geode::ImplicitStructuralModel model{ std::move( base_model ) };
+    geode::ImplicitStructuralModelBuilder implicit_builder{ model };
+    implicit_builder.import_old_implicit_attribute_values_from_attribute_name(
+        old_name );
+    const auto& block = model.block( block_id );
+    for( const auto vertex : geode::Range{ block.mesh().nb_vertices() } )
+    {
+        geode::OpenGeodeGeosciencesImplicitException::test(
+            model.implicit_value( block, vertex ) == vertex + 1,
+            "[import] Wrong imported implicit value" );
+    }
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        !block.mesh().vertex_attribute_manager().attribute_exists( old_id ),
+        "[import] Old attribute should be deleted" );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        nb_implicit_attributes( block.mesh().vertex_attribute_manager() ) == 1,
+        "[import] There should be only one implicit attribute" );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        model.block( empty_id )
+            .mesh()
+            .vertex_attribute_manager()
+            .attribute_exists( model.implicit_attribute_id() ),
+        "[import] Implicit attribute should be kept on block without old "
+        "attribute" );
+}
+
 int main()
 {
     try
@@ -509,6 +565,9 @@ int main()
         test_copy_horizons_isovalues();
         test_copy_single_implicit_attribute();
         test_clone();
+        test_import_old_attribute( "old_implicit" );
+        test_import_old_attribute(
+            geode::ImplicitStructuralModel::IMPLICIT_ATTRIBUTE_NAME );
 
         geode::Logger::info( "TEST SUCCESS" );
         return 0;
