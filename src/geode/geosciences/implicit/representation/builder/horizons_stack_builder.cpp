@@ -209,6 +209,7 @@ namespace geode
                 { Horizon< dimension >::component_type_static(),
                     under.value() } );
         }
+        // Also updates top and bottom horizons
         this->remove_stratigraphic_unit( strati_unit );
         return info;
     }
@@ -217,9 +218,9 @@ namespace geode
     void HorizonsStackBuilder< dimension >::remove_horizon(
         const Horizon< dimension >& horizon )
     {
-        /// Change top/bottom horizon or recompute ?
         unregister_component( horizon.id() );
         this->delete_horizon( horizon );
+        update_top_and_bottom_horizons();
     }
 
     template < index_t dimension >
@@ -228,6 +229,16 @@ namespace geode
     {
         unregister_component( stratigraphic_unit.id() );
         this->delete_stratigraphic_unit( stratigraphic_unit );
+        update_top_and_bottom_horizons();
+    }
+
+    template < index_t dimension >
+    void HorizonsStackBuilder< dimension >::update_top_and_bottom_horizons()
+    {
+        if( horizons_stack_.top_horizon() || horizons_stack_.bottom_horizon() )
+        {
+            compute_top_and_bottom_horizons();
+        }
     }
 
     template < index_t dimension >

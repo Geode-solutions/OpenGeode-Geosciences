@@ -123,6 +123,11 @@ namespace geode
         void set_above_relation(
             const ComponentID& above, const ComponentID& under );
 
+        /*!
+         * Recomputes top and bottom horizons if they were already computed
+         */
+        void update_top_and_bottom_horizons();
+
     private:
         HorizonsStack< dimension >& horizons_stack_;
     };

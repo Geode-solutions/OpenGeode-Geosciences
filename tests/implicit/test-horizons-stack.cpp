@@ -362,6 +362,70 @@ void test_replace_relation()
         throws, "Should not relate a horizon from another stack" );
 }
 
+geode::index_t count_horizons( const geode::HorizonsStack2D& stack )
+{
+    geode::index_t counter{ 0 };
+    for( const auto& horizon : stack.bottom_to_top_horizons() )
+    {
+        geode::Logger::debug( "Found horizon ", horizon.id().string() );
+        counter++;
+    }
+    return counter;
+}
+
+geode::index_t count_units( const geode::HorizonsStack2D& stack )
+{
+    geode::index_t counter{ 0 };
+    for( const auto& unit : stack.top_to_bottom_units() )
+    {
+        geode::Logger::debug( "Found unit ", unit.id().string() );
+        counter++;
+    }
+    return counter;
+}
+
+void test_update_top_and_bottom_horizons()
+{
+    std::array< std::string, 3 > horizons_list{ "h1", "h2", "h3" };
+    std::array< std::string, 2 > units_list{ "su1", "su2" };
+    auto stack = geode::detail::horizons_stack_from_bottom_to_top_names< 2 >(
+        horizons_list, units_list );
+    geode::HorizonsStackBuilder2D builder{ stack };
+    const auto top_unit = stack.above( stack.top_horizon().value() ).value();
+    const auto info = builder.add_horizon_in_stratigraphic_unit(
+        stack.stratigraphic_unit( top_unit ) );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        stack.top_horizon() == info.new_horizon_id,
+        "Inserted horizon should be the new top horizon" );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        count_horizons( stack ) == 4, "Should iterate on 4 horizons" );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        count_units( stack ) == 5, "Should iterate on 5 units" );
+
+    const auto bottom_horizon = stack.bottom_horizon().value();
+    const auto new_bottom =
+        stack.above( stack.above( bottom_horizon ).value() );
+    builder.remove_horizon( stack.horizon( bottom_horizon ) );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        stack.bottom_horizon() == new_bottom,
+        "Bottom horizon should have been updated after removal" );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        count_horizons( stack ) == 3, "Should iterate on 3 horizons" );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        count_units( stack ) == 4, "Should iterate on 4 units" );
+
+    const auto top_horizon = stack.top_horizon().value();
+    const auto new_top = stack.under( stack.under( top_horizon ).value() );
+    builder.remove_horizon( stack.horizon( top_horizon ) );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        stack.top_horizon() == new_top,
+        "Top horizon should have been updated after removal" );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        count_horizons( stack ) == 2, "Should iterate on 2 horizons" );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        count_units( stack ) == 3, "Should iterate on 3 units" );
+}
+
 int main()
 {
     try
@@ -375,6 +439,7 @@ int main()
         test_load_cyclic_stack();
         test_reverse_relation();
         test_replace_relation();
+        test_update_top_and_bottom_horizons();
 
         geode::Logger::info( "TEST SUCCESS" );
         return 0;

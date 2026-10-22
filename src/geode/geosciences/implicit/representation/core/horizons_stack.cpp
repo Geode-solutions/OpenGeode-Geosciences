@@ -58,6 +58,12 @@ namespace geode
             bottom_horizon_ = horizon_id;
         }
 
+        void reset_top_and_bottom_horizons()
+        {
+            top_horizon_.reset();
+            bottom_horizon_.reset();
+        }
+
     private:
         std::optional< uuid > top_horizon_{ std::nullopt };
         std::optional< uuid > bottom_horizon_{ std::nullopt };
@@ -315,6 +321,7 @@ namespace geode
                 "[HorizonsStack::compute_top_and_bottom_horizons] No horizons "
                 "were provided in the HorizonsStack, top and bottom horizons "
                 "will be set to std::nullopt." );
+            impl_->reset_top_and_bottom_horizons();
             return;
         }
         // Walks are bounded by the number of horizons to stay safe on
