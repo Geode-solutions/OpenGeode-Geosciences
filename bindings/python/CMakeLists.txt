@@ -31,5 +31,6 @@ add_geode_python_wheel(
     MODULES
         "explicit.py"
         "implicit.py"
+        "simulation.py"
     LICENSE "MIT"
 )
