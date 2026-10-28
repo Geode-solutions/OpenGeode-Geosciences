@@ -23,6 +23,19 @@ add_geode_python_binding(
     NAME "py_simulation"
     SOURCES
         "simulation.cpp"
+        "builder/physical_problem_builder.hpp"
+        "core/flow_model.hpp"
+        "core/fluid.hpp"
+        "core/initial_condition.hpp"
+        "core/material.hpp"
+        "core/physical_problem.hpp"
+        "core/saturation_functions.hpp"
+        "core/schedule.hpp"
+        "core/solver_options.hpp"
+        "core/source_term.hpp"
+        "core/thermal_parameters.hpp"
+        "helpers/physical_problem_validation.hpp"
+        "io/physical_problem.hpp"
     DEPENDENCIES
         ${PROJECT_NAME}::simulation
 )

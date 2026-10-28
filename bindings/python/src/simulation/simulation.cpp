@@ -21,9 +21,29 @@
  *
  */
 
+#include "../common.hpp"
+
 #include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
 
 #include <geode/geosciences/simulation/common.hpp>
+
+#include "core/flow_model.hpp"
+#include "core/fluid.hpp"
+#include "core/initial_condition.hpp"
+#include "core/material.hpp"
+#include "core/physical_problem.hpp"
+#include "core/saturation_functions.hpp"
+#include "core/schedule.hpp"
+#include "core/solver_options.hpp"
+#include "core/source_term.hpp"
+#include "core/thermal_parameters.hpp"
+
+#include "builder/physical_problem_builder.hpp"
+
+#include "helpers/physical_problem_validation.hpp"
+
+#include "io/physical_problem.hpp"
 
 PYBIND11_MODULE( opengeode_geosciences_py_simulation, module )
 {
@@ -33,4 +53,21 @@ PYBIND11_MODULE( opengeode_geosciences_py_simulation, module )
         module, "OpenGeodeGeosciencesSimulationLibrary" )
         .def( "initialize",
             &geode::OpenGeodeGeosciencesSimulationLibrary::initialize );
+
+    geode::define_fluid( module );
+    geode::define_flow_model( module );
+    geode::define_saturation_functions( module );
+    geode::define_material( module );
+    geode::define_initial_condition( module );
+    geode::define_schedule( module );
+    geode::define_source_term( module );
+    geode::define_thermal_parameters( module );
+    geode::define_solver_options( module );
+
+    geode::define_physical_problem( module );
+    geode::define_physical_problem_builder( module );
+
+    geode::define_physical_problem_validation( module );
+
+    geode::define_physical_problem_io( module );
 }
