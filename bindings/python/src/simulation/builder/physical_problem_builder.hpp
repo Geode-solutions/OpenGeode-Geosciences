@@ -41,8 +41,8 @@ namespace geode
         pybind11::class_< PhysicalProblemBuilder, IdentifierBuilder >(
             module, "PhysicalProblemBuilder" )
             .def( pybind11::init< PhysicalProblem& >(),
-                pybind11::kep_alive< 1, 2 >() )
-            .def( "copy", &PheysicalProblemBuilder::copy )
+                pybind11::keep_alive< 1, 2 >() )
+            .def( "copy", &PhysicalProblemBuilder::copy )
             .def( "set_model_id", &PhysicalProblemBuilder::set_model_id )
             .def( "set_flow", &PhysicalProblemBuilder::set_flow )
             .def( "set_thermal", &PhysicalProblemBuilder::set_thermal )
