@@ -242,9 +242,9 @@ namespace geode
     public:
         DeadOilFluid();
         /*!
-         * surface_densities in kg/m3, one per phase. One hydrocarbon PVT
-         * table per oil/gas phase. water_pvt is required if and only if water
-         * is a phase.
+         * Two or three phases. surface_densities in kg/m3, one per phase.
+         * One hydrocarbon PVT table per oil/gas phase. water_pvt is required
+         * if and only if water is a phase.
          */
         DeadOilFluid( std::vector< PHASE > phases,
             std::vector< FluidComponent > components,

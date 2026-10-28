@@ -38,9 +38,13 @@ namespace geode
 {
     /*!
      * Check the problem consistency, independently of any simulator and
-     * model. Returns one message per issue, empty if the problem is valid.
-     * Only the content of the leaf classes defined in this library is
-     * checked: leaf classes registered by other libraries are accepted as is.
+     * model. Every issue is reported, except those depending on a missing
+     * part (e.g. compositions without fluid). The flow model and the fluid
+     * must match: SinglePhaseFluid has one phase, DeadOilFluid and
+     * Co2BrineFluid are multiphase. Returns one message per issue, empty if
+     * the problem is valid. Only the content of the leaf classes defined in
+     * this library is checked: leaf classes registered by other libraries
+     * are accepted as is.
      */
     [[nodiscard]] std::vector< std::string >
         opengeode_geosciences_simulation_api validate_physical_problem(
@@ -49,8 +53,10 @@ namespace geode
     /*!
      * Check that every region referenced by the problem is a Block or a
      * collection of Blocks of the model (BlockCollection,
-     * StratigraphicUnit...), that no Block is covered by two materials or two
-     * initial conditions, and that the recorded model id, if any, matches.
+     * StratigraphicUnit...), that every Block is covered by exactly one
+     * material and one initial condition, and that the recorded model id, if
+     * any, matches. Coverage is not checked without any material or initial
+     * condition: validate_physical_problem reports it.
      * Returns one message per issue, empty if valid.
      */
     [[nodiscard]] std::vector< std::string >

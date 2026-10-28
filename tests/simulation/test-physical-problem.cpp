@@ -24,9 +24,12 @@
 #include <geode/tests_config.hpp>
 
 #include <algorithm>
+#include <array>
 #include <filesystem>
 #include <functional>
+#include <limits>
 #include <memory>
+#include <optional>
 #include <string>
 
 #include <absl/strings/match.h>
@@ -289,18 +292,24 @@ namespace
             "[Test] Clone should share the fluid" );
     }
 
+    std::shared_ptr< geode::SinglePhaseFlow > thermal_water_flow(
+        std::optional< geode::FluidThermalProperties > thermal )
+    {
+        auto fluid = std::make_shared< geode::SinglePhaseFluid >(
+            std::vector< geode::PHASE >{ geode::PHASE::water },
+            std::vector< geode::FluidComponent >{ { "water", 0.018 } }, 1000.,
+            1e-3, 5e-10, 0., 0., thermal );
+        auto flow = std::make_shared< geode::SinglePhaseFlow >();
+        flow->set_fluid( fluid );
+        return flow;
+    }
+
     geode::PhysicalProblem thermal_single_phase_problem()
     {
         geode::PhysicalProblem problem;
         geode::PhysicalProblemBuilder builder{ problem };
-        auto fluid = std::make_shared< geode::SinglePhaseFluid >(
-            std::vector< geode::PHASE >{ geode::PHASE::water },
-            std::vector< geode::FluidComponent >{ { "water", 0.018 } }, 1000.,
-            1e-3, 5e-10, 0., 0.,
-            geode::FluidThermalProperties{ 4180., 2e-4, 0. } );
-        auto flow = std::make_shared< geode::SinglePhaseFlow >();
-        flow->set_fluid( fluid );
-        builder.set_flow( flow );
+        builder.set_flow( thermal_water_flow(
+            geode::FluidThermalProperties{ 4180., 2e-4, 0. } ) );
         builder.set_thermal( geode::ThermalParameters{ 300. } );
         geode::Material material;
         material.name = "rock";
@@ -352,33 +361,64 @@ namespace
         return { { 0., 0.5, 1. }, std::move( values ) };
     }
 
+    // Constructor arguments of a Co2BrineFluid, modified by validation tests
+    struct Co2BrineData
+    {
+        double salinity{ 1. };
+        geode::ValidityRange pressure_range{ 1e5, 7.5e7, 1e5 };
+        geode::ValidityRange temperature_range{ 285., 395., 5. };
+    };
+
+    std::vector< geode::PHASE > co2_brine_phases()
+    {
+        return { geode::PHASE::gas, geode::PHASE::water };
+    }
+
+    std::shared_ptr< geode::MultiphaseFlow > co2_brine_flow(
+        const Co2BrineData& data )
+    {
+        auto fluid =
+            std::make_shared< geode::Co2BrineFluid >( co2_brine_phases(),
+                std::vector< geode::FluidComponent >{
+                    { "co2", 0.044 }, { "water", 0.018 } },
+                geode::CO2_BRINE_CORRELATION::ezrokhi, data.salinity,
+                data.pressure_range, data.temperature_range,
+                std::vector< double >{ 0.1, -1e-4, 1e-7 } );
+        auto flow = std::make_shared< geode::MultiphaseFlow >();
+        flow->set_fluid( fluid );
+        return flow;
+    }
+
+    geode::TwoPhaseRelativePermeabilityTable relperm_table(
+        geode::PHASE wetting, geode::PHASE non_wetting )
+    {
+        return { wetting, non_wetting, saturation_table( { 0., 0.2, 1. } ),
+            saturation_table( { 0., 0.3, 0.9 } ) };
+    }
+
+    std::shared_ptr< geode::TableCapillaryPressure > capillary_table(
+        std::vector< geode::PHASE > phases,
+        geode::PHASE wetting,
+        geode::PHASE non_wetting )
+    {
+        return std::make_shared< geode::TableCapillaryPressure >(
+            std::move( phases ),
+            std::vector< geode::TwoPhaseCapillaryPressureTable >{ { wetting,
+                non_wetting, saturation_table( { 1e5, 1e4, 0. } ) } } );
+    }
+
     geode::PhysicalProblem co2_brine_problem()
     {
         geode::PhysicalProblem problem;
         geode::PhysicalProblemBuilder builder{ problem };
-        const std::vector< geode::PHASE > phases{ geode::PHASE::gas,
-            geode::PHASE::water };
-        auto fluid = std::make_shared< geode::Co2BrineFluid >( phases,
-            std::vector< geode::FluidComponent >{
-                { "co2", 0.044 }, { "water", 0.018 } },
-            geode::CO2_BRINE_CORRELATION::ezrokhi, 1.,
-            geode::ValidityRange{ 1e5, 7.5e7, 1e5 },
-            geode::ValidityRange{ 285., 395., 5. },
-            std::vector< double >{ 0.1, -1e-4, 1e-7 } );
-        auto flow = std::make_shared< geode::MultiphaseFlow >();
-        flow->set_fluid( fluid );
-        builder.set_flow( flow );
+        builder.set_flow( co2_brine_flow( Co2BrineData{} ) );
         auto relperm = std::make_shared< geode::TableRelativePermeability >(
-            phases, std::vector< geode::TwoPhaseRelativePermeabilityTable >{
-                        { geode::PHASE::water, geode::PHASE::gas,
-                            saturation_table( { 0., 0.2, 1. } ),
-                            saturation_table( { 0., 0.3, 0.9 } ) } } );
-        auto capillary = std::make_shared< geode::TableCapillaryPressure >(
-            phases, std::vector< geode::TwoPhaseCapillaryPressureTable >{
-                        { geode::PHASE::water, geode::PHASE::gas,
-                            saturation_table( { 1e5, 1e4, 0. } ) } } );
+            co2_brine_phases(),
+            std::vector< geode::TwoPhaseRelativePermeabilityTable >{
+                relperm_table( geode::PHASE::water, geode::PHASE::gas ) } );
         auto material = reservoir_material( "aquifer", relperm );
-        material.capillary_pressure = capillary;
+        material.capillary_pressure = capillary_table(
+            co2_brine_phases(), geode::PHASE::water, geode::PHASE::gas );
         builder.add_material( material );
         builder.add_initial_condition(
             std::make_shared< geode::UniformInitialCondition >(
@@ -446,13 +486,39 @@ namespace
     }
 
     template < typename Modifier >
-    void check_broken_problem(
-        Modifier modifier, std::string_view keyword, std::string_view context )
+    void check_modified_problem( geode::PhysicalProblem problem,
+        Modifier modifier,
+        std::string_view keyword,
+        std::string_view context )
     {
-        auto problem = dead_oil_problem( geode::uuid{}, geode::uuid{} );
         geode::PhysicalProblemBuilder builder{ problem };
         modifier( problem, builder );
         check_issue( problem, keyword, context );
+    }
+
+    template < typename Modifier >
+    void check_broken_problem(
+        Modifier modifier, std::string_view keyword, std::string_view context )
+    {
+        check_modified_problem(
+            dead_oil_problem( geode::uuid{}, geode::uuid{} ), modifier, keyword,
+            context );
+    }
+
+    template < typename Modifier >
+    void check_broken_co2_brine(
+        Modifier modifier, std::string_view keyword, std::string_view context )
+    {
+        check_modified_problem(
+            co2_brine_problem(), modifier, keyword, context );
+    }
+
+    template < typename Modifier >
+    void check_broken_thermal(
+        Modifier modifier, std::string_view keyword, std::string_view context )
+    {
+        check_modified_problem(
+            thermal_single_phase_problem(), modifier, keyword, context );
     }
 
     std::shared_ptr< geode::MultiphaseFlow > modified_dead_oil_flow(
@@ -599,6 +665,495 @@ namespace
             "needs thermal properties", "thermal material" );
     }
 
+    std::shared_ptr< geode::SinglePhaseFluid > water_fluid(
+        std::vector< geode::PHASE > phases, double compressibility )
+    {
+        return std::make_shared< geode::SinglePhaseFluid >( std::move( phases ),
+            std::vector< geode::FluidComponent >{ { "water", 0.018 } }, 1000.,
+            1e-3, compressibility, 0., 0. );
+    }
+
+    std::shared_ptr< geode::SinglePhaseFlow > single_phase_flow(
+        std::vector< geode::PHASE > phases, double compressibility )
+    {
+        auto flow = std::make_shared< geode::SinglePhaseFlow >();
+        flow->set_fluid( water_fluid( std::move( phases ), compressibility ) );
+        return flow;
+    }
+
+    void test_flow_fluid_pairing()
+    {
+        check_broken_problem(
+            []( auto&, auto& builder ) {
+                auto flow = std::make_shared< geode::MultiphaseFlow >();
+                flow->set_fluid( water_fluid(
+                    { geode::PHASE::water, geode::PHASE::oil }, 0. ) );
+                builder.set_flow( flow );
+            },
+            "not a SinglePhaseFluid",
+            "multiphase flow with single phase fluid" );
+    }
+
+    void test_generic_rules()
+    {
+        check_broken_problem(
+            []( auto&, auto& builder ) {
+                builder.set_flow( single_phase_flow(
+                    { geode::PHASE::water, geode::PHASE::oil }, 0. ) );
+            },
+            "SinglePhaseFluid needs exactly 1 phase", "two phase fluid" );
+        check_broken_problem(
+            []( auto&, auto& builder ) {
+                builder.set_flow(
+                    single_phase_flow( { geode::PHASE::water }, -1. ) );
+            },
+            "compressibility must not be negative",
+            "negative compressibility" );
+        check_broken_problem(
+            []( auto&, auto& builder ) {
+                auto flow = std::make_shared< geode::SinglePhaseFlow >();
+                auto data = spe10_dead_oil_data();
+                data.phases = { geode::PHASE::oil };
+                data.components = { { "oil", 0.114 } };
+                data.surface_densities = { 800. };
+                data.hydrocarbon_pvt.pop_back();
+                data.water_pvt.reset();
+                flow->set_fluid( dead_oil( std::move( data ) ) );
+                builder.set_flow( flow );
+            },
+            "DeadOilFluid needs 2 or 3 phases", "single phase dead oil" );
+        check_broken_problem(
+            []( auto&, auto& builder ) {
+                builder.set_flow(
+                    modified_dead_oil_flow( []( DeadOilData& fluid ) {
+                        fluid.hydrocarbon_pvt[0].viscosities[1] = 0.;
+                    } ) );
+            },
+            "viscosities must be positive", "PVT viscosity" );
+        check_broken_problem(
+            []( auto&, auto& builder ) {
+                builder.set_flow(
+                    modified_dead_oil_flow( []( DeadOilData& fluid ) {
+                        fluid.water_pvt->viscosity = -1.;
+                    } ) );
+            },
+            "water PVT formation volume factor", "water PVT viscosity" );
+        check_broken_problem(
+            []( const auto& problem, auto& builder ) {
+                builder.remove_material( 1 );
+                builder.remove_material( 0 );
+                static_cast< void >( problem );
+            },
+            "No material", "no material" );
+        check_broken_problem(
+            []( const auto& problem, auto& builder ) {
+                auto material = problem.materials()[0];
+                material.reference_pressure =
+                    std::numeric_limits< double >::infinity();
+                builder.set_material( 0, material );
+            },
+            "reference pressure must be finite",
+            "material reference pressure" );
+        check_broken_problem(
+            []( const auto& problem, auto& builder ) {
+                auto material = problem.materials()[0];
+                material.porosity = std::numeric_limits< double >::quiet_NaN();
+                builder.set_material( 0, material );
+            },
+            "porosity", "NaN porosity" );
+        check_broken_problem(
+            []( const auto& problem, auto& builder ) {
+                auto material = problem.materials()[0];
+                material.relative_permeability =
+                    std::make_shared< geode::BrooksCoreyRelativePermeability >(
+                        std::vector< geode::PHASE >{ geode::PHASE::oil,
+                            geode::PHASE::gas, geode::PHASE::water },
+                        std::vector< double >{ 0.1, 0., 0.2 },
+                        std::vector< double >{ 2., 0., 2. },
+                        std::vector< double >{ 1., 1., 1. } );
+                builder.set_material( 0, material );
+            },
+            "exponents must be positive", "Brooks-Corey exponent" );
+        check_broken_problem(
+            []( auto&, auto& builder ) {
+                builder.remove_initial_condition( 0 );
+                builder.add_initial_condition(
+                    std::make_shared< geode::UniformInitialCondition >(
+                        std::vector< geode::uuid >{},
+                        std::numeric_limits< double >::quiet_NaN(), 300.,
+                        std::vector< double >{ 0.9995, 0., 0.0005 } ) );
+            },
+            "Initial condition #0 pressure must be finite", "NaN pressure" );
+        check_broken_problem(
+            []( auto&, auto& builder ) {
+                builder.set_gravity( geode::Vector3D{
+                    { 0., 0., std::numeric_limits< double >::infinity() } } );
+            },
+            "Gravity must be finite", "infinite gravity" );
+        check_broken_problem(
+            []( auto&, auto& builder ) {
+                builder.set_schedule(
+                    { 0., 10., std::numeric_limits< double >::quiet_NaN(),
+                        std::nullopt } );
+            },
+            "initial time step must be positive", "NaN time step" );
+        check_broken_problem(
+            []( auto&, auto& builder ) {
+                builder.set_flow(
+                    modified_dead_oil_flow( []( DeadOilData& fluid ) {
+                        fluid.hydrocarbon_pvt[0].pressures[1] =
+                            std::numeric_limits< double >::quiet_NaN();
+                    } ) );
+            },
+            "strictly increasing", "NaN PVT pressure" );
+        check_broken_problem(
+            []( auto&, auto& builder ) {
+                builder.set_flow(
+                    modified_dead_oil_flow( []( DeadOilData& fluid ) {
+                        fluid.components[0].molar_weight =
+                            std::numeric_limits< double >::quiet_NaN();
+                    } ) );
+            },
+            "molar weight must be finite", "NaN molar weight" );
+        check_broken_problem(
+            []( const auto& problem, auto& builder ) {
+                auto material = problem.materials()[0];
+                material.capillary_pressure =
+                    std::make_shared< geode::TableCapillaryPressure >(
+                        std::vector< geode::PHASE >{
+                            geode::PHASE::water, geode::PHASE::oil },
+                        std::vector< geode::TwoPhaseCapillaryPressureTable >{
+                            { geode::PHASE::water, geode::PHASE::oil,
+                                saturation_table( { 1e5,
+                                    std::numeric_limits< double >::infinity(),
+                                    0. } ) } } );
+                builder.set_material( 0, material );
+            },
+            "capillary pressure values must be finite",
+            "infinite capillary pressure" );
+    }
+
+    void test_co2_brine_validation()
+    {
+        const auto nan = std::numeric_limits< double >::quiet_NaN();
+        for( const auto salinity : { -1., nan } )
+        {
+            check_broken_co2_brine(
+                [salinity]( auto&, auto& builder ) {
+                    Co2BrineData data;
+                    data.salinity = salinity;
+                    builder.set_flow( co2_brine_flow( data ) );
+                },
+                "Co2BrineFluid salinity must not be negative",
+                absl::StrCat( "salinity ", salinity ) );
+        }
+        for( const auto& range : { geode::ValidityRange{ 7.5e7, 1e5, 1e5 },
+                 geode::ValidityRange{ 1e5, 1e5, 1e5 },
+                 geode::ValidityRange{ nan, 7.5e7, 1e5 } } )
+        {
+            check_broken_co2_brine(
+                [&range]( auto&, auto& builder ) {
+                    Co2BrineData data;
+                    data.pressure_range = range;
+                    builder.set_flow( co2_brine_flow( data ) );
+                },
+                "Co2BrineFluid pressure range needs min < max and a positive "
+                "step",
+                "pressure range bounds" );
+        }
+        for( const auto step : { 0., -5., nan } )
+        {
+            check_broken_co2_brine(
+                [step]( auto&, auto& builder ) {
+                    Co2BrineData data;
+                    data.temperature_range.step = step;
+                    builder.set_flow( co2_brine_flow( data ) );
+                },
+                "Co2BrineFluid temperature range needs min < max and a "
+                "positive step",
+                absl::StrCat( "temperature range step ", step ) );
+        }
+    }
+
+    [[nodiscard]] std::shared_ptr< geode::BrooksCoreyCapillaryPressure >
+        brooks_corey_capillary( std::vector< double > entry_pressures,
+            std::vector< double > indices = { 2., 2., 2. } )
+    {
+        return std::make_shared< geode::BrooksCoreyCapillaryPressure >(
+            std::vector< geode::PHASE >{
+                geode::PHASE::oil, geode::PHASE::gas, geode::PHASE::water },
+            std::vector< double >{ 0.1, 0., 0.2 }, std::move( entry_pressures ),
+            std::move( indices ) );
+    }
+
+    void test_brooks_corey_capillary_validation()
+    {
+        auto problem = dead_oil_problem( geode::uuid{}, geode::uuid{} );
+        auto material = problem.materials()[0];
+        material.capillary_pressure = brooks_corey_capillary( { 0., 1e4, 0. } );
+        geode::PhysicalProblemBuilder{ problem }.set_material( 0, material );
+        check_no_issue( problem );
+
+        const auto nan = std::numeric_limits< double >::quiet_NaN();
+        for( const auto entry_pressure :
+            { -1., nan, std::numeric_limits< double >::infinity() } )
+        {
+            check_broken_problem(
+                [entry_pressure]( const auto& broken, auto& builder ) {
+                    auto broken_material = broken.materials()[0];
+                    broken_material.capillary_pressure =
+                        brooks_corey_capillary( { 0., entry_pressure, 0. } );
+                    builder.set_material( 0, broken_material );
+                },
+                "capillary entry pressures must be finite and not negative",
+                absl::StrCat( "entry pressure ", entry_pressure ) );
+        }
+        check_broken_problem(
+            []( const auto& broken, auto& builder ) {
+                auto broken_material = broken.materials()[0];
+                broken_material.capillary_pressure =
+                    brooks_corey_capillary( { 0., 1e4, 0. }, { 2., 0., 2. } );
+                builder.set_material( 0, broken_material );
+            },
+            "pore size distribution indices must be positive",
+            "pore size distribution index" );
+        check_broken_problem(
+            []( const auto& broken, auto& builder ) {
+                auto broken_material = broken.materials()[0];
+                broken_material.capillary_pressure =
+                    brooks_corey_capillary( { 0., 1e4 } );
+                builder.set_material( 0, broken_material );
+            },
+            "Brooks-Corey capillary pressure needs one value per fluid phase",
+            "missing entry pressure" );
+    }
+
+    void test_table_saturation_validation()
+    {
+        check_broken_problem(
+            []( const auto& problem, auto& builder ) {
+                auto material = problem.materials()[0];
+                material.relative_permeability =
+                    std::make_shared< geode::TableRelativePermeability >(
+                        std::vector< geode::PHASE >{ geode::PHASE::oil,
+                            geode::PHASE::gas, geode::PHASE::water },
+                        std::vector< geode::TwoPhaseRelativePermeabilityTable >{
+                            relperm_table(
+                                geode::PHASE::water, geode::PHASE::oil ) } );
+                builder.set_material( 0, material );
+            },
+            "table relative permeability needs 2 tables for 3 phases",
+            "three phases with one relperm table" );
+        check_broken_co2_brine(
+            []( const auto& problem, auto& builder ) {
+                auto material = problem.materials()[0];
+                material.relative_permeability =
+                    std::make_shared< geode::TableRelativePermeability >(
+                        co2_brine_phases(),
+                        std::vector< geode::TwoPhaseRelativePermeabilityTable >{
+                            relperm_table(
+                                geode::PHASE::water, geode::PHASE::gas ),
+                            relperm_table(
+                                geode::PHASE::water, geode::PHASE::gas ) } );
+                builder.set_material( 0, material );
+            },
+            "table relative permeability needs 1 tables for 2 phases",
+            "two phases with two relperm tables" );
+        check_broken_co2_brine(
+            []( const auto& problem, auto& builder ) {
+                auto material = problem.materials()[0];
+                material.relative_permeability = std::make_shared<
+                    geode::TableRelativePermeability >( co2_brine_phases(),
+                    std::vector< geode::TwoPhaseRelativePermeabilityTable >{} );
+                builder.set_material( 0, material );
+            },
+            "table relative permeability has no table", "no relperm table" );
+
+        const std::array< std::array< geode::PHASE, 2 >, 3 > wrong_phases{ {
+            { geode::PHASE::water, geode::PHASE::water },
+            { geode::PHASE::water, geode::PHASE::oil },
+            { geode::PHASE::oil, geode::PHASE::gas },
+        } };
+        for( const auto& phases : wrong_phases )
+        {
+            check_broken_co2_brine(
+                [&phases]( const auto& problem, auto& builder ) {
+                    auto material = problem.materials()[0];
+                    material.capillary_pressure = capillary_table(
+                        co2_brine_phases(), phases[0], phases[1] );
+                    builder.set_material( 0, material );
+                },
+                "table phases must be two different fluid phases",
+                absl::StrCat( "capillary table phases ",
+                    geode::phase_name( phases[0] ), "-",
+                    geode::phase_name( phases[1] ) ) );
+        }
+        check_broken_co2_brine(
+            []( const auto& problem, auto& builder ) {
+                auto material = problem.materials()[0];
+                material.capillary_pressure =
+                    capillary_table( { geode::PHASE::water, geode::PHASE::oil },
+                        geode::PHASE::water, geode::PHASE::gas );
+                builder.set_material( 0, material );
+            },
+            "capillary pressure phases must be the fluid phases",
+            "capillary phases" );
+        check_broken_problem(
+            []( const auto& problem, auto& builder ) {
+                auto material = problem.materials()[0];
+                material.relative_permeability =
+                    std::make_shared< geode::TableRelativePermeability >(
+                        std::vector< geode::PHASE >{ geode::PHASE::oil,
+                            geode::PHASE::gas, geode::PHASE::water },
+                        std::vector< geode::TwoPhaseRelativePermeabilityTable >{
+                            relperm_table(
+                                geode::PHASE::water, geode::PHASE::oil ),
+                            relperm_table(
+                                geode::PHASE::oil, geode::PHASE::water ) } );
+                builder.set_material( 0, material );
+            },
+            "relative permeability has several tables for the same two phases",
+            "two water-oil relperm tables" );
+        const auto pressure_table = []( geode::PHASE wetting,
+                                        geode::PHASE non_wetting ) {
+            return geode::TwoPhaseCapillaryPressureTable{ wetting, non_wetting,
+                saturation_table( { 1e5, 1e4, 0. } ) };
+        };
+        check_broken_problem(
+            [&pressure_table]( const auto& problem, auto& builder ) {
+                auto material = problem.materials()[0];
+                material.capillary_pressure =
+                    std::make_shared< geode::TableCapillaryPressure >(
+                        std::vector< geode::PHASE >{ geode::PHASE::oil,
+                            geode::PHASE::gas, geode::PHASE::water },
+                        std::vector< geode::TwoPhaseCapillaryPressureTable >{
+                            pressure_table(
+                                geode::PHASE::water, geode::PHASE::oil ),
+                            pressure_table(
+                                geode::PHASE::oil, geode::PHASE::gas ),
+                            pressure_table(
+                                geode::PHASE::water, geode::PHASE::gas ) } );
+                builder.set_material( 0, material );
+            },
+            "table capillary pressure needs at most 2 tables for 3 phases",
+            "three capillary tables" );
+        check_broken_problem(
+            [&pressure_table]( const auto& problem, auto& builder ) {
+                auto material = problem.materials()[0];
+                material.capillary_pressure =
+                    std::make_shared< geode::TableCapillaryPressure >(
+                        std::vector< geode::PHASE >{ geode::PHASE::oil,
+                            geode::PHASE::gas, geode::PHASE::water },
+                        std::vector< geode::TwoPhaseCapillaryPressureTable >{
+                            pressure_table(
+                                geode::PHASE::water, geode::PHASE::oil ),
+                            pressure_table(
+                                geode::PHASE::water, geode::PHASE::oil ) } );
+                builder.set_material( 0, material );
+            },
+            "capillary pressure has several tables for the same two phases",
+            "two water-oil capillary tables" );
+    }
+
+    void test_thermal_validation()
+    {
+        const auto nan = std::numeric_limits< double >::quiet_NaN();
+        for( const auto heat_capacity : { 0., -1., nan } )
+        {
+            check_broken_thermal(
+                [heat_capacity]( const auto& problem, auto& builder ) {
+                    auto material = problem.materials()[0];
+                    material.thermal->volumetric_heat_capacity = heat_capacity;
+                    builder.set_material( 0, material );
+                },
+                "heat capacity and thermal conductivity must be positive",
+                absl::StrCat( "heat capacity ", heat_capacity ) );
+        }
+        for( const auto conductivity : { 0., -2.5, nan } )
+        {
+            check_broken_thermal(
+                [conductivity]( const auto& problem, auto& builder ) {
+                    auto material = problem.materials()[0];
+                    material.thermal->thermal_conductivity[1] = conductivity;
+                    builder.set_material( 0, material );
+                },
+                "heat capacity and thermal conductivity must be positive",
+                absl::StrCat( "thermal conductivity ", conductivity ) );
+        }
+        check_broken_thermal(
+            []( auto&, auto& builder ) {
+                builder.set_flow( thermal_water_flow( std::nullopt ) );
+            },
+            "SinglePhaseFluid needs thermal properties for a thermal problem",
+            "fluid without thermal properties" );
+        for( const auto specific_heat : { 0., nan } )
+        {
+            check_broken_thermal(
+                [specific_heat]( auto&, auto& builder ) {
+                    builder.set_flow(
+                        thermal_water_flow( geode::FluidThermalProperties{
+                            specific_heat, 2e-4, 0. } ) );
+                },
+                "SinglePhaseFluid specific heat capacity must be positive",
+                absl::StrCat( "fluid specific heat ", specific_heat ) );
+        }
+        const auto infinity = std::numeric_limits< double >::infinity();
+        for( const auto& thermal :
+            { geode::FluidThermalProperties{ 4180., infinity, 0. },
+                geode::FluidThermalProperties{ 4180., 2e-4, nan } } )
+        {
+            check_broken_thermal(
+                [&thermal]( auto&, auto& builder ) {
+                    builder.set_flow( thermal_water_flow( thermal ) );
+                },
+                "SinglePhaseFluid thermal expansion and viscosity temperature "
+                "coefficient must be finite",
+                "non-finite fluid thermal coefficient" );
+        }
+    }
+
+    class ExternalFlow : public geode::FlowModel
+    {
+    public:
+        [[nodiscard]] std::string_view type_name() const override
+        {
+            return "ExternalFlow";
+        }
+    };
+
+    void test_external_flow()
+    {
+        auto problem = dead_oil_problem( geode::uuid{}, geode::uuid{} );
+        geode::PhysicalProblemBuilder builder{ problem };
+        auto flow = std::make_shared< ExternalFlow >();
+        flow->set_fluid( dead_oil( spe10_dead_oil_data() ) );
+        builder.set_flow( flow );
+        const auto issues = geode::validate_physical_problem( problem );
+        Exception::test( std::none_of( issues.begin(), issues.end(),
+                             []( const auto& issue ) {
+                                 return absl::StrContainsIgnoreCase(
+                                     issue, "single phase" );
+                             } ),
+            "[Test] A flow from another library is not single phase: ",
+            absl::StrJoin( issues, " | " ) );
+    }
+
+    void test_exhaustive_validation()
+    {
+        geode::PhysicalProblem problem;
+        geode::PhysicalProblemBuilder builder{ problem };
+        geode::Material material;
+        material.name = "rock";
+        material.porosity = 2.;
+        builder.add_material( material );
+        builder.set_schedule( { 10., 0., 1., std::nullopt } );
+        for( const auto* keyword : { "No flow model", "porosity",
+                 "No initial condition", "Schedule end time" } )
+        {
+            check_issue( problem, keyword, "exhaustive report" );
+        }
+    }
+
     void test_region_validation()
     {
         geode::BRep model;
@@ -648,6 +1203,36 @@ namespace
             geode::validate_physical_problem_regions( problem, model ).size()
                 == 2,
             "[Test] Wrong model id should be reported" );
+        builder.set_model_id( model.id() );
+        material.regions = { block_id };
+        builder.set_material( 0, material );
+        builder.remove_material( 1 );
+        const auto& other_block = model_builder.add_block();
+        const auto coverage_issues =
+            geode::validate_physical_problem_regions( problem, model );
+        Exception::test( coverage_issues.size() == 1
+                             && absl::StrContains(
+                                 coverage_issues.front(), other_block.string() )
+                             && absl::StrContains(
+                                 coverage_issues.front(), "has no material" ),
+            "[Test] Block without material should be reported: ",
+            absl::StrJoin( coverage_issues, " | " ) );
+
+        builder.add_material( reservoir_material( "default", brooks_corey() ) );
+        builder.remove_initial_condition( 0 );
+        builder.add_initial_condition(
+            std::make_shared< geode::UniformInitialCondition >(
+                std::vector< geode::uuid >{ block_id }, 4.1369e7, 300.,
+                std::vector< double >{ 0.9995, 0., 0.0005 } ) );
+        const auto condition_issues =
+            geode::validate_physical_problem_regions( problem, model );
+        Exception::test( condition_issues.size() == 1
+                             && absl::StrContains( condition_issues.front(),
+                                 other_block.string() )
+                             && absl::StrContains( condition_issues.front(),
+                                 "has no initial condition" ),
+            "[Test] Block without initial condition should be reported: ",
+            absl::StrJoin( condition_issues, " | " ) );
     }
 
     class UnregisteredFluid final : public geode::FluidModel
@@ -696,6 +1281,14 @@ int main()
         test_fluid_validation();
         test_material_validation();
         test_condition_and_schedule_validation();
+        test_flow_fluid_pairing();
+        test_generic_rules();
+        test_co2_brine_validation();
+        test_brooks_corey_capillary_validation();
+        test_table_saturation_validation();
+        test_thermal_validation();
+        test_external_flow();
+        test_exhaustive_validation();
         test_region_validation();
         test_unregistered_type();
 

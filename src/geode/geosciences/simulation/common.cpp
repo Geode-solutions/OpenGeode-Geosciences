@@ -25,7 +25,7 @@
 
 #include <geode/basic/bitsery_archive.hpp>
 
-#include <geode/geometry/common.hpp>
+#include <geode/model/common.hpp>
 
 #include <geode/geosciences/simulation/core/bitsery_archive.hpp>
 #include <geode/geosciences/simulation/core/physical_problem.hpp>
@@ -53,7 +53,7 @@ namespace geode
 {
     OPENGEODE_LIBRARY_IMPLEMENTATION( OpenGeodeGeosciences, Simulation )
     {
-        OpenGeodeGeometryLibrary::initialize();
+        OpenGeodeModelLibrary::initialize();
         register_physical_problem_input();
         register_physical_problem_output();
         BitseryExtensions::register_functions(
