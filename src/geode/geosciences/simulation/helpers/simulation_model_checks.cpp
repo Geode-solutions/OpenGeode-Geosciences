@@ -676,7 +676,7 @@ namespace geode
                 " does not cover every polyhedron of ",
                 simulation_component_description( *blocks.front() ),
                 blocks.size() > 1 ? absl::StrCat( " and ", blocks.size() - 1,
-                    " other Blocks of this material" )
+                                        " other Blocks of this material" )
                                   : "" );
         }
     }

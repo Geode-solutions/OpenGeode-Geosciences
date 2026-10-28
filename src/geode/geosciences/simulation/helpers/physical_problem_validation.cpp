@@ -107,9 +107,9 @@ namespace
         for( const auto& table : tables )
         {
             if( !pairs
-                     .emplace( std::minmax(
-                         table.wetting_phase, table.non_wetting_phase ) )
-                     .second )
+                    .emplace( std::minmax(
+                        table.wetting_phase, table.non_wetting_phase ) )
+                    .second )
             {
                 return true;
             }
