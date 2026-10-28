@@ -36,6 +36,8 @@ add_geode_library(
         "core/solver_options.cpp"
         "core/source_term.cpp"
         "core/thermal_parameters.cpp"
+        "helpers/physical_problem_blocks.cpp"
+        "helpers/physical_problem_simulation.cpp"
         "helpers/physical_problem_validation.cpp"
         "io/geode/geode_physical_problem_input.cpp"
         "io/geode/geode_physical_problem_output.cpp"
@@ -55,6 +57,8 @@ add_geode_library(
         "core/solver_options.hpp"
         "core/source_term.hpp"
         "core/thermal_parameters.hpp"
+        "helpers/physical_problem_blocks.hpp"
+        "helpers/physical_problem_simulation.hpp"
         "helpers/physical_problem_validation.hpp"
         "io/physical_problem_input.hpp"
         "io/physical_problem_output.hpp"
@@ -64,6 +68,5 @@ add_geode_library(
     PUBLIC_DEPENDENCIES
         OpenGeode::basic
         OpenGeode::geometry
-    PRIVATE_DEPENDENCIES
         OpenGeode::model
 )
