@@ -39,6 +39,7 @@ add_geode_library(
         "helpers/physical_problem_blocks.cpp"
         "helpers/physical_problem_simulation.cpp"
         "helpers/physical_problem_validation.cpp"
+        "helpers/simulation_model_checks.cpp"
         "io/geode/geode_physical_problem_input.cpp"
         "io/geode/geode_physical_problem_output.cpp"
         "io/physical_problem_input.cpp"
@@ -60,6 +61,7 @@ add_geode_library(
         "helpers/physical_problem_blocks.hpp"
         "helpers/physical_problem_simulation.hpp"
         "helpers/physical_problem_validation.hpp"
+        "helpers/simulation_model_checks.hpp"
         "io/physical_problem_input.hpp"
         "io/physical_problem_output.hpp"
     ADVANCED_HEADERS
