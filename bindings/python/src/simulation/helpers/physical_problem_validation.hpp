@@ -33,5 +33,8 @@ namespace geode
         module.def( "validate_physical_problem", &validate_physical_problem );
         module.def( "validate_physical_problem_regions",
             &validate_physical_problem_regions );
+        module.def( "validate_physical_problem_properties",
+            &validate_physical_problem_properties );
+        module.def( "physical_problem_warnings", &physical_problem_warnings );
     }
 } // namespace geode

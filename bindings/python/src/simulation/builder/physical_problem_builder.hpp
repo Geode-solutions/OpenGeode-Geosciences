@@ -31,6 +31,7 @@
 #include <geode/geosciences/simulation/core/material.hpp>
 #include <geode/geosciences/simulation/core/physical_problem.hpp>
 #include <geode/geosciences/simulation/core/schedule.hpp>
+#include <geode/geosciences/simulation/core/solid_mechanics.hpp>
 #include <geode/geosciences/simulation/core/source_term.hpp>
 #include <geode/geosciences/simulation/core/thermal_parameters.hpp>
 
@@ -46,6 +47,10 @@ namespace geode
             .def( "set_model_id", &PhysicalProblemBuilder::set_model_id )
             .def( "set_flow", &PhysicalProblemBuilder::set_flow )
             .def( "set_thermal", &PhysicalProblemBuilder::set_thermal )
+            .def( "set_solid_mechanics",
+                &PhysicalProblemBuilder::set_solid_mechanics )
+            .def( "remove_solid_mechanics",
+                &PhysicalProblemBuilder::remove_solid_mechanics )
             .def( "add_material", &PhysicalProblemBuilder::add_material )
             .def( "set_material", &PhysicalProblemBuilder::set_material )
             .def( "remove_material", &PhysicalProblemBuilder::remove_material )

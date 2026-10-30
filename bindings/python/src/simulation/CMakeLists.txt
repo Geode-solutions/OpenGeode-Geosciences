@@ -31,6 +31,7 @@ add_geode_python_binding(
         "core/physical_problem.hpp"
         "core/saturation_functions.hpp"
         "core/schedule.hpp"
+        "core/solid_mechanics.hpp"
         "core/solver_options.hpp"
         "core/source_term.hpp"
         "core/thermal_parameters.hpp"

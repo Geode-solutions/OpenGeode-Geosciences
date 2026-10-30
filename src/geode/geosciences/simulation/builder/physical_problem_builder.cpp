@@ -32,6 +32,7 @@
 #include <geode/geosciences/simulation/core/material.hpp>
 #include <geode/geosciences/simulation/core/physical_problem.hpp>
 #include <geode/geosciences/simulation/core/schedule.hpp>
+#include <geode/geosciences/simulation/core/solid_mechanics.hpp>
 #include <geode/geosciences/simulation/core/source_term.hpp>
 #include <geode/geosciences/simulation/core/thermal_parameters.hpp>
 
@@ -70,6 +71,17 @@ namespace geode
     void PhysicalProblemBuilder::set_thermal( const ThermalParameters& thermal )
     {
         problem_.set_thermal( thermal, BuilderKey{} );
+    }
+
+    void PhysicalProblemBuilder::set_solid_mechanics(
+        const SolidMechanics& mechanics )
+    {
+        problem_.set_solid_mechanics( mechanics, BuilderKey{} );
+    }
+
+    void PhysicalProblemBuilder::remove_solid_mechanics()
+    {
+        problem_.remove_solid_mechanics( BuilderKey{} );
     }
 
     index_t PhysicalProblemBuilder::add_material( Material material )
