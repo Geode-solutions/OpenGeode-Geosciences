@@ -102,7 +102,11 @@ namespace
 
         std::vector< std::string > run()
         {
-            if( check_flow() )
+            if( problem_.solid_mechanics() )
+            {
+                check_solid_mechanics();
+            }
+            else if( check_flow() )
             {
                 check_fluid();
                 check_materials();
@@ -138,7 +142,7 @@ namespace
         {
             if( !problem_.has_flow() )
             {
-                add_issue( "No flow model is defined" );
+                add_issue( "No flow model nor solid mechanics is defined" );
                 return false;
             }
             if( !problem_.flow().has_fluid() )
@@ -691,6 +695,28 @@ namespace
                     add_issue( "Several source terms of component ",
                         source.component, " on well ", source.well );
                 }
+            }
+        }
+
+        void check_solid_mechanics()
+        {
+            if( problem_.has_flow() )
+            {
+                add_issue( "Coupled flow and solid mechanics (poromechanics) "
+                           "is not supported yet" );
+                return;
+            }
+            if( problem_.thermal() )
+            {
+                add_issue( "Thermal parameters require a flow model" );
+            }
+            if( problem_.nb_initial_conditions() != 0 )
+            {
+                add_issue( "Initial conditions require a flow model" );
+            }
+            if( !problem_.source_terms().empty() )
+            {
+                add_issue( "Source terms require a flow model" );
             }
         }
 

@@ -35,6 +35,7 @@
 #include "core/physical_problem.hpp"
 #include "core/saturation_functions.hpp"
 #include "core/schedule.hpp"
+#include "core/solid_mechanics.hpp"
 #include "core/solver_options.hpp"
 #include "core/source_term.hpp"
 #include "core/thermal_parameters.hpp"
@@ -62,6 +63,7 @@ PYBIND11_MODULE( opengeode_geosciences_py_simulation, module )
     geode::define_schedule( module );
     geode::define_source_term( module );
     geode::define_thermal_parameters( module );
+    geode::define_solid_mechanics( module );
     geode::define_solver_options( module );
 
     geode::define_physical_problem( module );

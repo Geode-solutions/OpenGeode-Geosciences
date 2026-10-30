@@ -51,6 +51,7 @@
 #include <geode/geosciences/simulation/core/physical_problem.hpp>
 #include <geode/geosciences/simulation/core/saturation_functions.hpp>
 #include <geode/geosciences/simulation/core/schedule.hpp>
+#include <geode/geosciences/simulation/core/solid_mechanics.hpp>
 #include <geode/geosciences/simulation/core/solver_options.hpp>
 #include <geode/geosciences/simulation/core/source_term.hpp>
 #include <geode/geosciences/simulation/core/thermal_parameters.hpp>
@@ -599,6 +600,78 @@ namespace
             "needs thermal properties", "thermal material" );
     }
 
+    geode::PhysicalProblem mechanics_problem()
+    {
+        geode::PhysicalProblem problem;
+        geode::PhysicalProblemBuilder builder{ problem };
+        builder.set_name( "gravity" );
+        builder.set_solid_mechanics( geode::SolidMechanics{} );
+        builder.set_schedule( { 0., 1., 1., std::nullopt } );
+        return problem;
+    }
+
+    template < typename Modifier >
+    void check_broken_mechanics_problem(
+        Modifier modifier, std::string_view keyword, std::string_view context )
+    {
+        auto problem = mechanics_problem();
+        geode::PhysicalProblemBuilder builder{ problem };
+        modifier( builder );
+        check_issue( problem, keyword, context );
+    }
+
+    void test_solid_mechanics()
+    {
+        const auto problem = mechanics_problem();
+        check_no_issue( problem );
+        const auto filename = absl::StrCat(
+            "gravity.", geode::PhysicalProblem::native_extension_static() );
+        geode::save_physical_problem( problem, filename );
+        const auto reloaded = geode::load_physical_problem( filename );
+        Exception::test(
+            !reloaded.has_flow() && reloaded.solid_mechanics()
+                && reloaded.solid_mechanics()->law
+                       == geode::SOLID_MECHANICS_LAW::linear_elastic_isotropic,
+            "[Test] Wrong reloaded solid mechanics" );
+        check_no_issue( reloaded );
+        Exception::test( reloaded.clone().solid_mechanics().has_value(),
+            "[Test] Clone should keep the solid mechanics" );
+        Exception::test(
+            !dead_oil_problem( geode::uuid{}, geode::uuid{} ).solid_mechanics(),
+            "[Test] Flow problems have no solid mechanics" );
+
+        check_broken_mechanics_problem(
+            []( geode::PhysicalProblemBuilder& builder ) {
+                auto flow = std::make_shared< geode::MultiphaseFlow >();
+                flow->set_fluid( spe10_dead_oil() );
+                builder.set_flow( flow );
+            },
+            "poromechanics", "Flow and mechanics" );
+        check_broken_mechanics_problem(
+            []( geode::PhysicalProblemBuilder& builder ) {
+                builder.set_thermal( { 300. } );
+            },
+            "Thermal parameters require", "Thermal mechanics" );
+        check_broken_mechanics_problem(
+            []( geode::PhysicalProblemBuilder& builder ) {
+                builder.add_initial_condition(
+                    std::make_shared< geode::UniformInitialCondition >(
+                        std::vector< geode::uuid >{}, 1e7, 300.,
+                        std::vector< double >{ 1. } ) );
+            },
+            "Initial conditions require", "Mechanics initial condition" );
+        check_broken_mechanics_problem(
+            []( geode::PhysicalProblemBuilder& builder ) {
+                builder.add_source_term( { "injector", "water", 10. } );
+            },
+            "Source terms require", "Mechanics source term" );
+        check_broken_mechanics_problem(
+            []( geode::PhysicalProblemBuilder& builder ) {
+                builder.remove_solid_mechanics();
+            },
+            "No flow model nor solid mechanics", "Empty problem" );
+    }
+
     void test_region_validation()
     {
         geode::BRep model;
@@ -697,6 +770,7 @@ int main()
         test_material_validation();
         test_condition_and_schedule_validation();
         test_region_validation();
+        test_solid_mechanics();
         test_unregistered_type();
 
         geode::Logger::info( "TEST SUCCESS" );
