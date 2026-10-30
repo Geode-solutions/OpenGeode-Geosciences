@@ -47,8 +47,9 @@ namespace geode
                 return SolidMechanics{ law, sign_convention };
             } ),
                 pybind11::arg( "law" ),
-                pybind11::arg( "sign_convention" ) =
-                    STRESS_SIGN_CONVENTION::compression_positive )
+                pybind11::arg_v( "sign_convention",
+                    STRESS_SIGN_CONVENTION::compression_positive,
+                    "STRESS_SIGN_CONVENTION.compression_positive" ) )
             .def_readwrite( "law", &SolidMechanics::law )
             .def_readwrite(
                 "sign_convention", &SolidMechanics::sign_convention );
