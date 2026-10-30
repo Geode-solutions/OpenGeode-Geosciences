@@ -24,6 +24,7 @@
 #include <geode/geosciences/simulation/helpers/physical_problem_validation.hpp>
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <limits>
 #include <numeric>
@@ -35,8 +36,11 @@
 #include <absl/strings/str_cat.h>
 #include <absl/types/span.h>
 
+#include <geode/basic/attribute_manager.hpp>
 #include <geode/basic/range.hpp>
 #include <geode/basic/uuid.hpp>
+
+#include <geode/mesh/core/solid_mesh.hpp>
 
 #include <geode/model/mixin/core/block.hpp>
 #include <geode/model/representation/core/brep.hpp>
@@ -48,6 +52,7 @@
 #include <geode/geosciences/simulation/core/physical_problem.hpp>
 #include <geode/geosciences/simulation/core/saturation_functions.hpp>
 #include <geode/geosciences/simulation/core/schedule.hpp>
+#include <geode/geosciences/simulation/core/solid_mechanics.hpp>
 #include <geode/geosciences/simulation/core/source_term.hpp>
 #include <geode/geosciences/simulation/core/thermal_parameters.hpp>
 
@@ -866,6 +871,47 @@ namespace
             std::pair< geode::index_t, std::string > >
             block_items_;
     };
+
+    struct MeanStressSigns
+    {
+        geode::index_t nb_positives{ 0 };
+        geode::index_t nb_negatives{ 0 };
+    };
+
+    // Sign of the mean normal stress of each cell, uniform values included
+    MeanStressSigns mean_stress_signs(
+        const geode::BRep& model, const geode::uuid& attribute_id )
+    {
+        MeanStressSigns signs;
+        for( const auto& block : model.blocks() )
+        {
+            const auto& mesh = block.mesh();
+            const auto& manager = mesh.polyhedron_attribute_manager();
+            if( !manager.attribute_exists( attribute_id )
+                || manager.attribute_type( attribute_id )
+                       != typeid( std::array< double, 3 > ).name() )
+            {
+                continue;
+            }
+            const auto stress =
+                manager.find_read_only_attribute< std::array< double, 3 > >(
+                    attribute_id );
+            for( const auto polyhedron : geode::Range{ mesh.nb_polyhedra() } )
+            {
+                const auto& value = stress->value( polyhedron );
+                const auto trace = value[0] + value[1] + value[2];
+                if( trace > 0 )
+                {
+                    signs.nb_positives++;
+                }
+                else if( trace < 0 )
+                {
+                    signs.nb_negatives++;
+                }
+            }
+        }
+        return signs;
+    }
 } // namespace
 
 namespace geode
@@ -904,5 +950,40 @@ namespace geode
                 problem.initial_condition( condition_id ).regions() );
         }
         return issues;
+    }
+
+    std::vector< std::string > physical_problem_warnings(
+        const PhysicalProblem& problem, const BRep& model )
+    {
+        std::vector< std::string > warnings;
+        const auto& mechanics = problem.solid_mechanics();
+        if( !mechanics
+            || !model.has_physical_property(
+                PHYSICAL_PROPERTY_NAME::initial_stress ) )
+        {
+            return warnings;
+        }
+        const auto signs = mean_stress_signs(
+            model, model
+                       .physical_property_info(
+                           PHYSICAL_PROPERTY_NAME::initial_stress )
+                       .attribute_id );
+        const auto compression_positive =
+            mechanics->sign_convention
+            == STRESS_SIGN_CONVENTION::compression_positive;
+        const auto nb_compressions =
+            compression_positive ? signs.nb_positives : signs.nb_negatives;
+        const auto nb_tensions =
+            compression_positive ? signs.nb_negatives : signs.nb_positives;
+        if( nb_tensions > nb_compressions )
+        {
+            warnings.emplace_back( absl::StrCat( "Read as ",
+                compression_positive ? "compression positive"
+                                     : "tension positive",
+                " values, the mean initial_stress is a tension in ",
+                nb_tensions, " of ", nb_tensions + nb_compressions,
+                " cells: the model may use the opposite sign convention" ) );
+        }
+        return warnings;
     }
 } // namespace geode

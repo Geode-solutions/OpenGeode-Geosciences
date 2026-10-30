@@ -34,8 +34,15 @@
 #include <absl/strings/str_join.h>
 
 #include <geode/basic/assert.hpp>
+#include <geode/basic/attribute_manager.hpp>
+#include <geode/basic/constant_attribute.hpp>
 #include <geode/basic/logger.hpp>
 #include <geode/basic/uuid.hpp>
+
+#include <geode/geometry/point.hpp>
+
+#include <geode/mesh/builder/solid_mesh_builder.hpp>
+#include <geode/mesh/core/solid_mesh.hpp>
 
 #include <geode/model/common.hpp>
 #include <geode/model/mixin/core/block.hpp>
@@ -682,6 +689,62 @@ namespace
             "No flow model nor solid mechanics", "Empty problem" );
     }
 
+    // One tetrahedron Block carrying a uniform initial_stress
+    geode::BRep stressed_model( const std::array< double, 3 >& stress )
+    {
+        geode::BRep model;
+        geode::BRepBuilder model_builder{ model };
+        const auto& block_id = model_builder.add_block();
+        auto mesh_builder =
+            model_builder.block_mesh_builder( model.block( block_id ) );
+        mesh_builder->create_point( geode::Point3D{ { 0., 0., 0. } } );
+        mesh_builder->create_point( geode::Point3D{ { 1., 0., 0. } } );
+        mesh_builder->create_point( geode::Point3D{ { 0., 1., 0. } } );
+        mesh_builder->create_point( geode::Point3D{ { 0., 0., 1. } } );
+        const std::array< geode::index_t, 4 > vertices{ 0, 1, 2, 3 };
+        const std::vector< std::vector< geode::local_index_t > > facets{
+            { 1, 3, 2 }, { 0, 2, 3 }, { 3, 1, 0 }, { 0, 1, 2 }
+        };
+        mesh_builder->create_polyhedron( vertices, facets );
+        const geode::uuid attribute_id;
+        geode::AttributeValues< std::array< double, 3 > > values;
+        values.default_value = stress;
+        model.block( block_id )
+            .mesh()
+            .polyhedron_attribute_manager()
+            .create_attribute< geode::ConstantAttribute,
+                std::array< double, 3 > >(
+                "initial_stress", attribute_id, values, {} );
+        model_builder.set_physical_property(
+            geode::PHYSICAL_PROPERTY_NAME::initial_stress,
+            geode::Block3D::component_type_static(), attribute_id );
+        return model;
+    }
+
+    void test_stress_sign_warning()
+    {
+        // In-situ stresses, tension positive
+        const auto model = stressed_model( { -1e7, -1e7, -2e7 } );
+        auto problem = mechanics_problem();
+        const auto warnings =
+            geode::physical_problem_warnings( problem, model );
+        Exception::test( warnings.size() == 1
+                             && absl::StrContains(
+                                 warnings.front(), "opposite sign convention" ),
+            "[Test] Tension positive stresses read as compression positive "
+            "should be reported" );
+        geode::PhysicalProblemBuilder{ problem }.set_solid_mechanics(
+            { geode::SOLID_MECHANICS_LAW::linear_elastic_isotropic,
+                geode::STRESS_SIGN_CONVENTION::tension_positive } );
+        Exception::test(
+            geode::physical_problem_warnings( problem, model ).empty(),
+            "[Test] Stresses matching the convention should not be reported" );
+        Exception::test( geode::physical_problem_warnings(
+                             mechanics_problem(), geode::BRep{} )
+                             .empty(),
+            "[Test] A model without initial stress has no warning" );
+    }
+
     void test_region_validation()
     {
         geode::BRep model;
@@ -781,6 +844,7 @@ int main()
         test_condition_and_schedule_validation();
         test_region_validation();
         test_solid_mechanics();
+        test_stress_sign_warning();
         test_unregistered_type();
 
         geode::Logger::info( "TEST SUCCESS" );

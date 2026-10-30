@@ -56,4 +56,15 @@ namespace geode
     [[nodiscard]] std::vector< std::string >
         opengeode_geosciences_simulation_api validate_physical_problem_regions(
             const PhysicalProblem& problem, const BRep& model );
+
+    /*!
+     * Look for data that is valid but probably wrong. Unlike issues, warnings
+     * do not prevent a simulation. For solid mechanics, the in-situ mean
+     * stress is a compression: an initial_stress whose mean is a tension in
+     * most cells suggests the opposite sign convention than the one declared
+     * by the problem. Returns one message per warning.
+     */
+    [[nodiscard]] std::vector< std::string >
+        opengeode_geosciences_simulation_api physical_problem_warnings(
+            const PhysicalProblem& problem, const BRep& model );
 } // namespace geode

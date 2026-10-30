@@ -413,6 +413,8 @@ def test_solid_mechanics():
     )
     if tension.sign_convention != simulation.STRESS_SIGN_CONVENTION.tension_positive:
         raise ValueError("[Test] Wrong sign convention")
+    if simulation.physical_problem_warnings(problem, opengeode.BRep()):
+        raise ValueError("[Test] A model without initial stress has no warning")
     simulation.PhysicalProblemBuilder(problem).set_thermal(
         simulation.ThermalParameters(300.0)
     )
