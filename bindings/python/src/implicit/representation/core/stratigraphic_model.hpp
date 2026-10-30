@@ -76,7 +76,7 @@ namespace geode
             .def( "native_extension", &StratigraphicModel::native_extension )
             .def( "stratigraphic_model_component",
                 &StratigraphicModel::component,
-                pybind11::return_value_policy::reference )
+                pybind11::return_value_policy::reference_internal )
             .def( "stratigraphic_location_attribute_id",
                 &StratigraphicModel::stratigraphic_location_attribute_id );
     }

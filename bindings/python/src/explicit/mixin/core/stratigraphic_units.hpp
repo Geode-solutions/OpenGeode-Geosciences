@@ -33,7 +33,7 @@
             &StratigraphicUnits##dimension##D::nb_stratigraphic_units )        \
         .def( "stratigraphic_unit",                                            \
             &StratigraphicUnits##dimension##D::stratigraphic_unit,             \
-            pybind11::return_value_policy::reference )                         \
+            pybind11::return_value_policy::reference_internal )                \
         .def(                                                                  \
             "stratigraphic_units",                                             \
             []( const StratigraphicUnits##dimension##D& self ) {               \
@@ -45,7 +45,7 @@
                 }                                                              \
                 return components;                                             \
             },                                                                 \
-            pybind11::return_value_policy::reference )
+            pybind11::return_value_policy::reference_internal )
 
 namespace geode
 {

@@ -48,7 +48,7 @@ namespace geode
                     }
                     return components;
                 },
-                pybind11::return_value_policy::reference )
+                pybind11::return_value_policy::reference_internal )
             .def(
                 "fault_items",
                 []( const StructuralModel& structural_model,
@@ -61,7 +61,7 @@ namespace geode
                     }
                     return components;
                 },
-                pybind11::return_value_policy::reference )
+                pybind11::return_value_policy::reference_internal )
             .def(
                 "fault_block_items",
                 []( const StructuralModel& structural_model,
@@ -74,7 +74,7 @@ namespace geode
                     }
                     return components;
                 },
-                pybind11::return_value_policy::reference )
+                pybind11::return_value_policy::reference_internal )
             .def(
                 "stratigraphic_unit_items",
                 []( const StructuralModel& structural_model,
@@ -88,9 +88,9 @@ namespace geode
                     }
                     return components;
                 },
-                pybind11::return_value_policy::reference )
+                pybind11::return_value_policy::reference_internal )
             .def( "native_extension", &StructuralModel::native_extension )
             .def( "structural_model_component", &StructuralModel::component,
-                pybind11::return_value_policy::reference );
+                pybind11::return_value_policy::reference_internal );
     }
 } // namespace geode

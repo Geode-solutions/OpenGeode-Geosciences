@@ -53,7 +53,7 @@ namespace geode
                     const Block3D&, const Point3D&, index_t ) const >(
                     &ImplicitStructuralModel::implicit_value ) )
             .def( "horizons_stack", &ImplicitStructuralModel::horizons_stack,
-                pybind11::return_value_policy::reference )
+                pybind11::return_value_policy::reference_internal )
             .def( "horizon_implicit_value",
                 &ImplicitStructuralModel::horizon_implicit_value )
             .def( "implicit_value_is_above_horizon",
@@ -62,6 +62,6 @@ namespace geode
                 &ImplicitStructuralModel::containing_stratigraphic_unit )
             .def( "implicit_structural_model_component",
                 &ImplicitStructuralModel::component,
-                pybind11::return_value_policy::reference );
+                pybind11::return_value_policy::reference_internal );
     }
 } // namespace geode

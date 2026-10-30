@@ -46,7 +46,7 @@
                 }                                                              \
                 return components;                                             \
             },                                                                 \
-            pybind11::return_value_policy::reference )                         \
+            pybind11::return_value_policy::reference_internal )                \
         .def(                                                                  \
             "bottom_to_top_units",                                             \
             []( const HorizonsStack< dimension >& stack ) {                    \
@@ -58,7 +58,7 @@
                 }                                                              \
                 return components;                                             \
             },                                                                 \
-            pybind11::return_value_policy::reference )                         \
+            pybind11::return_value_policy::reference_internal )                \
         .def(                                                                  \
             "top_to_bottom_horizons",                                          \
             []( const HorizonsStack< dimension >& stack ) {                    \
@@ -69,7 +69,7 @@
                 }                                                              \
                 return components;                                             \
             },                                                                 \
-            pybind11::return_value_policy::reference )                         \
+            pybind11::return_value_policy::reference_internal )                \
         .def(                                                                  \
             "top_to_bottom_units",                                             \
             []( const HorizonsStack< dimension >& stack ) {                    \
@@ -81,10 +81,10 @@
                 }                                                              \
                 return components;                                             \
             },                                                                 \
-            pybind11::return_value_policy::reference )                         \
+            pybind11::return_value_policy::reference_internal )                \
         .def( "horizon_stack_component",                                       \
             &HorizonsStack< dimension >::component,                            \
-            pybind11::return_value_policy::reference )
+            pybind11::return_value_policy::reference_internal )
 
 namespace geode
 {

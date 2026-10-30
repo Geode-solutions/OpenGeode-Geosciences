@@ -76,6 +76,6 @@ namespace geode
             .def( "native_extension", &StratigraphicSection::native_extension )
             .def( "stratigraphic_section_component",
                 &StratigraphicSection::component,
-                pybind11::return_value_policy::reference );
+                pybind11::return_value_policy::reference_internal );
     }
 } // namespace geode

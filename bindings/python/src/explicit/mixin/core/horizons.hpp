@@ -31,7 +31,7 @@
         module, name##dimension.c_str() )                                      \
         .def( "nb_horizons", &Horizons##dimension##D::nb_horizons )            \
         .def( "horizon", &Horizons##dimension##D::horizon,                     \
-            pybind11::return_value_policy::reference )                         \
+            pybind11::return_value_policy::reference_internal )                \
         .def(                                                                  \
             "horizons",                                                        \
             []( const Horizons##dimension##D& self ) {                         \
@@ -42,7 +42,7 @@
                 }                                                              \
                 return components;                                             \
             },                                                                 \
-            pybind11::return_value_policy::reference )
+            pybind11::return_value_policy::reference_internal )
 
 namespace geode
 {
