@@ -415,6 +415,10 @@ def test_solid_mechanics():
         raise ValueError("[Test] Wrong sign convention")
     if simulation.physical_problem_warnings(problem, opengeode.BRep()):
         raise ValueError("[Test] A model without initial stress has no warning")
+    if "along z" not in " ".join(
+        simulation.validate_physical_problem_properties(problem, opengeode.BRep())
+    ):
+        raise ValueError("[Test] A model without displacement should be reported")
     simulation.PhysicalProblemBuilder(problem).set_thermal(
         simulation.ThermalParameters(300.0)
     )

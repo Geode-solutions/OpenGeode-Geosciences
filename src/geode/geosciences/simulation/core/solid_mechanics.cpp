@@ -34,12 +34,9 @@ namespace geode
         archive.ext( *this,
             Growable< Archive, SolidMechanics >{
                 { []( Archive& local_archive, SolidMechanics& mechanics ) {
-                     local_archive.value4b( mechanics.law );
-                 },
-                    []( Archive& local_archive, SolidMechanics& mechanics ) {
-                        local_archive.value4b( mechanics.law );
-                        local_archive.value4b( mechanics.sign_convention );
-                    } } } );
+                    local_archive.value4b( mechanics.law );
+                    local_archive.value4b( mechanics.sign_convention );
+                } } } );
     }
 
     SERIALIZE_BITSERY_ARCHIVE(

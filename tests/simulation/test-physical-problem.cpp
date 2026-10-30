@@ -26,9 +26,11 @@
 #include <algorithm>
 #include <filesystem>
 #include <functional>
+#include <limits>
 #include <memory>
 #include <string>
 
+#include <absl/algorithm/container.h>
 #include <absl/strings/match.h>
 #include <absl/strings/str_cat.h>
 #include <absl/strings/str_join.h>
@@ -37,16 +39,21 @@
 #include <geode/basic/attribute_manager.hpp>
 #include <geode/basic/constant_attribute.hpp>
 #include <geode/basic/logger.hpp>
+#include <geode/basic/range.hpp>
 #include <geode/basic/uuid.hpp>
+#include <geode/basic/variable_attribute.hpp>
 
 #include <geode/geometry/point.hpp>
 
 #include <geode/mesh/builder/solid_mesh_builder.hpp>
+#include <geode/mesh/builder/surface_mesh_builder.hpp>
 #include <geode/mesh/core/solid_mesh.hpp>
+#include <geode/mesh/core/surface_mesh.hpp>
 
 #include <geode/model/common.hpp>
 #include <geode/model/mixin/core/block.hpp>
 #include <geode/model/mixin/core/block_collection.hpp>
+#include <geode/model/mixin/core/surface.hpp>
 #include <geode/model/representation/builder/brep_builder.hpp>
 #include <geode/model/representation/core/brep.hpp>
 
@@ -745,6 +752,188 @@ namespace
             "[Test] A model without initial stress has no warning" );
     }
 
+    template < template < typename > class Attribute, typename T >
+    void set_block_property( geode::BRep& model,
+        geode::PHYSICAL_PROPERTY_NAME property,
+        std::string_view name,
+        const T& value )
+    {
+        const geode::uuid attribute_id;
+        geode::AttributeValues< T > values;
+        values.default_value = value;
+        for( const auto& block : model.blocks() )
+        {
+            block.mesh()
+                .polyhedron_attribute_manager()
+                .create_attribute< Attribute, T >(
+                    name, attribute_id, values, {} );
+        }
+        geode::BRepBuilder{ model }.set_physical_property(
+            property, geode::Block3D::component_type_static(), attribute_id );
+    }
+
+    template < typename T >
+    void set_surface_property( geode::BRep& model,
+        geode::PHYSICAL_PROPERTY_NAME property,
+        std::string_view name,
+        absl::Span< const T > polygon_values )
+    {
+        const geode::uuid attribute_id;
+        geode::AttributeValues< T > values;
+        values.default_value = polygon_values.front();
+        for( const auto& surface : model.surfaces() )
+        {
+            auto& manager = surface.mesh().polygon_attribute_manager();
+            manager.create_attribute< geode::VariableAttribute, T >(
+                name, attribute_id, values, {} );
+            auto attribute =
+                manager.find_attribute< geode::VariableAttribute, T >(
+                    attribute_id );
+            for( const auto polygon : geode::Indices{ polygon_values } )
+            {
+                attribute->set_value( polygon, polygon_values[polygon] );
+            }
+        }
+        geode::BRepBuilder{ model }.set_physical_property(
+            property, geode::Surface3D::component_type_static(), attribute_id );
+    }
+
+    // One tetrahedron Block with elastic properties and one two-triangle
+    // Surface
+    geode::BRep elastic_model()
+    {
+        auto model = stressed_model( { 1e7, 1e7, 2e7 } );
+        set_block_property< geode::ConstantAttribute >( model,
+            geode::PHYSICAL_PROPERTY_NAME::bulk_modulus, "bulk_modulus", 5e9 );
+        set_block_property< geode::ConstantAttribute >( model,
+            geode::PHYSICAL_PROPERTY_NAME::shear_modulus, "shear_modulus",
+            4e9 );
+        set_block_property< geode::ConstantAttribute >( model,
+            geode::PHYSICAL_PROPERTY_NAME::density, "density", 2650. );
+        geode::BRepBuilder model_builder{ model };
+        const auto& surface_id = model_builder.add_surface();
+        auto mesh_builder =
+            model_builder.surface_mesh_builder( model.surface( surface_id ) );
+        mesh_builder->create_point( geode::Point3D{ { 0., 0., 0. } } );
+        mesh_builder->create_point( geode::Point3D{ { 1., 0., 0. } } );
+        mesh_builder->create_point( geode::Point3D{ { 1., 1., 0. } } );
+        mesh_builder->create_point( geode::Point3D{ { 0., 1., 0. } } );
+        mesh_builder->create_polygon( std::array< geode::index_t, 3 >{ 0, 1, 2 } );
+        mesh_builder->create_polygon( std::array< geode::index_t, 3 >{ 0, 2, 3 } );
+        return model;
+    }
+
+    constexpr double FREE{ std::numeric_limits< double >::quiet_NaN() };
+
+    void set_displacement( geode::BRep& model,
+        absl::Span< const std::array< double, 3 > > polygon_values )
+    {
+        set_surface_property( model,
+            geode::PHYSICAL_PROPERTY_NAME::boundary_displacement,
+            "displacement", polygon_values );
+    }
+
+    void check_property_issues( const geode::PhysicalProblem& problem,
+        const geode::BRep& model,
+        absl::Span< const std::string_view > keywords,
+        std::string_view context )
+    {
+        const auto issues =
+            geode::validate_physical_problem_properties( problem, model );
+        Exception::test( issues.size() == keywords.size(), "[Test] ", context,
+            ": unexpected issues: ", absl::StrJoin( issues, " | " ) );
+        for( const auto& keyword : keywords )
+        {
+            Exception::test( absl::c_any_of( issues,
+                                 [keyword]( const std::string& issue ) {
+                                     return absl::StrContains( issue, keyword );
+                                 } ),
+                "[Test] ", context, ": missing issue ", keyword, " in ",
+                absl::StrJoin( issues, " | " ) );
+        }
+    }
+
+    void test_mechanics_properties_validation()
+    {
+        const auto problem = mechanics_problem();
+        auto model = elastic_model();
+        check_property_issues( problem, model,
+            { "along x", "along y", "along z" }, "No displacement" );
+        set_displacement( model, std::array< std::array< double, 3 >, 1 >{
+                                     { { 0., 0., 0. } } } );
+        check_property_issues( problem, model, {}, "Fixed Surface" );
+
+        auto partial = elastic_model();
+        set_displacement(
+            partial, std::array< std::array< double, 3 >, 2 >{
+                         { { 0., FREE, FREE }, { 0., FREE, FREE } } } );
+        check_property_issues(
+            problem, partial, { "along y", "along z" }, "Free components" );
+
+        auto non_uniform = elastic_model();
+        set_displacement(
+            non_uniform, std::array< std::array< double, 3 >, 2 >{
+                             { { 0., 0., 0. }, { 1., 0., 0. } } } );
+        check_property_issues( problem, non_uniform,
+            { "must be uniform", "along x", "along y", "along z" },
+            "Non uniform displacement" );
+
+        auto tractions = elastic_model();
+        set_displacement( tractions, std::array< std::array< double, 3 >, 1 >{
+                                         { { 0., 0., 0. } } } );
+        set_surface_property< std::array< double, 3 > >( tractions,
+            geode::PHYSICAL_PROPERTY_NAME::boundary_traction, "traction",
+            std::array< std::array< double, 3 >, 2 >{
+                { { 0., 0., 1e6 }, { FREE, 0., 1e6 } } } );
+        set_surface_property< double >( tractions,
+            geode::PHYSICAL_PROPERTY_NAME::boundary_normal_traction,
+            "normal_traction", std::array< double, 1 >{ 1e6 } );
+        set_surface_property< double >( tractions,
+            geode::PHYSICAL_PROPERTY_NAME::boundary_pressure, "pressure",
+            std::array< double, 1 >{ 1e7 } );
+        check_property_issues( problem, tractions,
+            { "boundary_traction on Surface", "needs a flow model" },
+            "Invalid tractions" );
+
+        auto invalid_rock = elastic_model();
+        set_displacement( invalid_rock,
+            std::array< std::array< double, 3 >, 1 >{ { { 0., 0., 0. } } } );
+        set_block_property< geode::ConstantAttribute >( invalid_rock,
+            geode::PHYSICAL_PROPERTY_NAME::bulk_modulus, "negative_modulus",
+            -1. );
+        set_block_property< geode::ConstantAttribute >( invalid_rock,
+            geode::PHYSICAL_PROPERTY_NAME::initial_stress, "scalar_stress",
+            1e7 );
+        check_property_issues( problem, invalid_rock,
+            { "without a positive bulk_modulus",
+                "must store std::array< double, 3 > values" },
+            "Invalid rock" );
+
+        auto missing_rock = stressed_model( { 1e7, 1e7, 2e7 } );
+        check_property_issues( problem, missing_rock,
+            { "needs a bulk_modulus", "needs a shear_modulus",
+                "needs a density", "along x", "along y", "along z" },
+            "Missing rock properties" );
+
+        check_property_issues(
+            dead_oil_problem( geode::uuid{}, geode::uuid{} ), model,
+            { "needs solid mechanics" }, "Flow with displacement" );
+    }
+
+    void test_ignored_materials_warning()
+    {
+        auto problem = mechanics_problem();
+        geode::Material material;
+        material.name = "rock";
+        geode::PhysicalProblemBuilder{ problem }.add_material( material );
+        const auto warnings =
+            geode::physical_problem_warnings( problem, geode::BRep{} );
+        Exception::test( warnings.size() == 1
+                             && absl::StrContains(
+                                 warnings.front(), "Materials are ignored" ),
+            "[Test] Materials of a mechanics problem should be reported" );
+    }
+
     void test_region_validation()
     {
         geode::BRep model;
@@ -845,6 +1034,8 @@ int main()
         test_region_validation();
         test_solid_mechanics();
         test_stress_sign_warning();
+        test_mechanics_properties_validation();
+        test_ignored_materials_warning();
         test_unregistered_type();
 
         geode::Logger::info( "TEST SUCCESS" );
