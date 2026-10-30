@@ -808,8 +808,8 @@ namespace
         set_block_property< geode::ConstantAttribute >( model,
             geode::PHYSICAL_PROPERTY_NAME::shear_modulus, "shear_modulus",
             4e9 );
-        set_block_property< geode::ConstantAttribute >( model,
-            geode::PHYSICAL_PROPERTY_NAME::density, "density", 2650. );
+        set_block_property< geode::ConstantAttribute >(
+            model, geode::PHYSICAL_PROPERTY_NAME::density, "density", 2650. );
         geode::BRepBuilder model_builder{ model };
         const auto& surface_id = model_builder.add_surface();
         auto mesh_builder =
@@ -818,8 +818,10 @@ namespace
         mesh_builder->create_point( geode::Point3D{ { 1., 0., 0. } } );
         mesh_builder->create_point( geode::Point3D{ { 1., 1., 0. } } );
         mesh_builder->create_point( geode::Point3D{ { 0., 1., 0. } } );
-        mesh_builder->create_polygon( std::array< geode::index_t, 3 >{ 0, 1, 2 } );
-        mesh_builder->create_polygon( std::array< geode::index_t, 3 >{ 0, 2, 3 } );
+        mesh_builder->create_polygon(
+            std::array< geode::index_t, 3 >{ 0, 1, 2 } );
+        mesh_builder->create_polygon(
+            std::array< geode::index_t, 3 >{ 0, 2, 3 } );
         return model;
     }
 
@@ -859,8 +861,8 @@ namespace
         auto model = elastic_model();
         check_property_issues( problem, model,
             { "along x", "along y", "along z" }, "No displacement" );
-        set_displacement( model, std::array< std::array< double, 3 >, 1 >{
-                                     { { 0., 0., 0. } } } );
+        set_displacement( model,
+            std::array< std::array< double, 3 >, 1 >{ { { 0., 0., 0. } } } );
         check_property_issues( problem, model, {}, "Fixed Surface" );
 
         auto partial = elastic_model();
@@ -879,8 +881,8 @@ namespace
             "Non uniform displacement" );
 
         auto tractions = elastic_model();
-        set_displacement( tractions, std::array< std::array< double, 3 >, 1 >{
-                                         { { 0., 0., 0. } } } );
+        set_displacement( tractions,
+            std::array< std::array< double, 3 >, 1 >{ { { 0., 0., 0. } } } );
         set_surface_property< std::array< double, 3 > >( tractions,
             geode::PHYSICAL_PROPERTY_NAME::boundary_traction, "traction",
             std::array< std::array< double, 3 >, 2 >{
@@ -915,9 +917,8 @@ namespace
                 "needs a density", "along x", "along y", "along z" },
             "Missing rock properties" );
 
-        check_property_issues(
-            dead_oil_problem( geode::uuid{}, geode::uuid{} ), model,
-            { "needs solid mechanics" }, "Flow with displacement" );
+        check_property_issues( dead_oil_problem( geode::uuid{}, geode::uuid{} ),
+            model, { "needs solid mechanics" }, "Flow with displacement" );
     }
 
     void test_ignored_materials_warning()

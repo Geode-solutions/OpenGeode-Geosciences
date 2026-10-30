@@ -1027,8 +1027,8 @@ namespace
             std::string_view requirement,
             const IsValid& is_valid )
         {
-            const auto attribute_id = property_attribute( property,
-                geode::Block3D::component_type_static(), "Blocks" );
+            const auto attribute_id = property_attribute(
+                property, geode::Block3D::component_type_static(), "Blocks" );
             if( !attribute_id )
             {
                 return;
@@ -1055,9 +1055,8 @@ namespace
                         value_type_name< T >(), " values" );
                     continue;
                 }
-                const auto attribute =
-                    manager.find_read_only_attribute< T >(
-                        attribute_id.value() );
+                const auto attribute = manager.find_read_only_attribute< T >(
+                    attribute_id.value() );
                 geode::index_t nb_invalid{ 0 };
                 geode::index_t first_invalid{ geode::NO_ID };
                 for( const auto polyhedron :
@@ -1164,9 +1163,8 @@ namespace
                         value_type_name< T >(), " values" );
                     continue;
                 }
-                const auto attribute =
-                    manager.find_read_only_attribute< T >(
-                        attribute_id.value() );
+                const auto attribute = manager.find_read_only_attribute< T >(
+                    attribute_id.value() );
                 std::vector< T > values;
                 values.reserve( mesh.nb_polygons() );
                 for( const auto polygon : geode::Range{ mesh.nb_polygons() } )
@@ -1190,8 +1188,7 @@ namespace
         void check_displacements()
         {
             std::array< bool, 3 > displaced_axes{ false, false, false };
-            check_surface_values< Vector3 >(
-                MECHANICS_BOUNDARY_PROPERTIES[0],
+            check_surface_values< Vector3 >( MECHANICS_BOUNDARY_PROPERTIES[0],
                 [this, &displaced_axes]( const geode::Surface3D& surface,
                     absl::Span< const Vector3 > values ) {
                     const auto& displacement = values.front();
@@ -1207,9 +1204,9 @@ namespace
                     }
                     for( const auto axis : geode::LRange{ 3 } )
                     {
-                        displaced_axes[axis] = displaced_axes[axis]
-                                               || !std::isnan(
-                                                   displacement[axis] );
+                        displaced_axes[axis] =
+                            displaced_axes[axis]
+                            || !std::isnan( displacement[axis] );
                     }
                 } );
             for( const auto axis : geode::LRange{ 3 } )
