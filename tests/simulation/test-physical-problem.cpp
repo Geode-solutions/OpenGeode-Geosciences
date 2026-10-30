@@ -636,6 +636,16 @@ namespace
         check_no_issue( reloaded );
         Exception::test( reloaded.clone().solid_mechanics().has_value(),
             "[Test] Clone should keep the solid mechanics" );
+        auto tension_problem = mechanics_problem();
+        geode::PhysicalProblemBuilder{ tension_problem }.set_solid_mechanics(
+            { geode::SOLID_MECHANICS_LAW::linear_elastic_isotropic,
+                geode::STRESS_SIGN_CONVENTION::tension_positive } );
+        geode::save_physical_problem( tension_problem, filename );
+        Exception::test( geode::load_physical_problem( filename )
+                                 .solid_mechanics()
+                                 ->sign_convention
+                             == geode::STRESS_SIGN_CONVENTION::tension_positive,
+            "[Test] Wrong reloaded sign convention" );
         Exception::test(
             !dead_oil_problem( geode::uuid{}, geode::uuid{} ).solid_mechanics(),
             "[Test] Flow problems have no solid mechanics" );

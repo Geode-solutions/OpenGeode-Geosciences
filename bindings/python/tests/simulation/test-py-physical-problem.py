@@ -402,6 +402,17 @@ def test_solid_mechanics():
         raise ValueError("[Test] Reloaded problem should be mechanics only")
     if mechanics.law != simulation.SOLID_MECHANICS_LAW.linear_elastic_isotropic:
         raise ValueError("[Test] Wrong solid mechanics law")
+    if (
+        mechanics.sign_convention
+        != simulation.STRESS_SIGN_CONVENTION.compression_positive
+    ):
+        raise ValueError("[Test] Wrong default sign convention")
+    tension = simulation.SolidMechanics(
+        simulation.SOLID_MECHANICS_LAW.linear_elastic_isotropic,
+        simulation.STRESS_SIGN_CONVENTION.tension_positive,
+    )
+    if tension.sign_convention != simulation.STRESS_SIGN_CONVENTION.tension_positive:
+        raise ValueError("[Test] Wrong sign convention")
     simulation.PhysicalProblemBuilder(problem).set_thermal(
         simulation.ThermalParameters(300.0)
     )

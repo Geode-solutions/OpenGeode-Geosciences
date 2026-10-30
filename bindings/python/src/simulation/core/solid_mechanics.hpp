@@ -32,12 +32,25 @@ namespace geode
                 SOLID_MECHANICS_LAW::linear_elastic_isotropic )
             .export_values();
 
+        pybind11::enum_< STRESS_SIGN_CONVENTION >(
+            module, "STRESS_SIGN_CONVENTION" )
+            .value( "compression_positive",
+                STRESS_SIGN_CONVENTION::compression_positive )
+            .value(
+                "tension_positive", STRESS_SIGN_CONVENTION::tension_positive )
+            .export_values();
+
         pybind11::class_< SolidMechanics >( module, "SolidMechanics" )
             .def( pybind11::init<>() )
-            .def( pybind11::init( []( SOLID_MECHANICS_LAW law ) {
-                return SolidMechanics{ law };
+            .def( pybind11::init( []( SOLID_MECHANICS_LAW law,
+                                      STRESS_SIGN_CONVENTION sign_convention ) {
+                return SolidMechanics{ law, sign_convention };
             } ),
-                pybind11::arg( "law" ) )
-            .def_readwrite( "law", &SolidMechanics::law );
+                pybind11::arg( "law" ),
+                pybind11::arg( "sign_convention" ) =
+                    STRESS_SIGN_CONVENTION::compression_positive )
+            .def_readwrite( "law", &SolidMechanics::law )
+            .def_readwrite(
+                "sign_convention", &SolidMechanics::sign_convention );
     }
 } // namespace geode

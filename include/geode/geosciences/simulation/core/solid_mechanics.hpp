@@ -38,6 +38,19 @@ namespace geode
     };
 
     /*!
+     * Sign of the stresses and normal tractions stored in the model
+     * (initial_stress, initial_shear_stress, boundary_normal_traction) and
+     * of the computed stresses.
+     */
+    enum struct STRESS_SIGN_CONVENTION
+    {
+        // Geomechanics: pressures and overburden loads are positive
+        compression_positive,
+        // Continuum mechanics, as in GEOS
+        tension_positive
+    };
+
+    /*!
      * Set when the problem solves quasi-static solid mechanics.
      * Elastic moduli and density are the bulk_modulus, shear_modulus and
      * density PhysicalProperties of the model.
@@ -46,6 +59,9 @@ namespace geode
     {
         SOLID_MECHANICS_LAW law{
             SOLID_MECHANICS_LAW::linear_elastic_isotropic
+        };
+        STRESS_SIGN_CONVENTION sign_convention{
+            STRESS_SIGN_CONVENTION::compression_positive
         };
 
     private:
