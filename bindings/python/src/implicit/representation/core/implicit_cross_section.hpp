@@ -32,9 +32,13 @@ namespace geode
         pybind11::class_< ImplicitCrossSection, CrossSection,
             pybind11::smart_holder >( module, "ImplicitCrossSection" )
             .def( pybind11::init<>() )
+            .def( pybind11::init( []( const ImplicitCrossSection& section ) {
+                return section.clone();
+            } ) )
             .def( pybind11::init( []( CrossSection& cross_section ) {
                 return ImplicitCrossSection{ cross_section.clone() };
             } ) )
+            .def( "clone", &ImplicitCrossSection::clone )
             .def( "native_extension", &ImplicitCrossSection::native_extension )
             .def( "implicit_value_from_vertex_id",
                 static_cast< double ( ImplicitCrossSection::* )(

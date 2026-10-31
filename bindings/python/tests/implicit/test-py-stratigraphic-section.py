@@ -145,4 +145,6 @@ if __name__ == "__main__":
 
     model = import_section_with_stratigraphy()
     test_section(model)
+    test_section(geode_imp.StratigraphicSection(model))
+    test_section(model.clone())
     test_save_stratigraphic_lines(model)

@@ -168,11 +168,7 @@ def test_io(model):
     check_reloaded_model(reloaded_model)
 
 
-def test_copy(model):
-    copy = geosciences.StructuralModel()
-    copier = geosciences.StructuralModelBuilder(copy)
-    copier.copy(model)
-
+def check_copied_model(copy):
     if copy.nb_surfaces() != 8:
         raise ValueError("[Test] Number of surfaces in copied model should be 8")
     if copy.nb_horizons() != 3:
@@ -200,6 +196,16 @@ def test_copy(model):
         raise ValueError(
             "[Test] Number of items in stratigraphic_units in copied model should be 4"
         )
+
+
+
+def test_copy(model):
+    copy = geosciences.StructuralModel()
+    copier = geosciences.StructuralModelBuilder(copy)
+    copier.copy(model)
+    check_copied_model(copy)
+    check_copied_model(geosciences.StructuralModel(model))
+    check_copied_model(model.clone())
 
 
 def modify_model(model, builder):

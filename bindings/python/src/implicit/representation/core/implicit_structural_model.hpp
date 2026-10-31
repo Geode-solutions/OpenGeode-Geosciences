@@ -34,9 +34,13 @@ namespace geode
         pybind11::class_< ImplicitStructuralModel, StructuralModel,
             pybind11::smart_holder >( module, "ImplicitStructuralModel" )
             .def( pybind11::init<>() )
+            .def( pybind11::init( []( const ImplicitStructuralModel& model ) {
+                return model.clone();
+            } ) )
             .def( pybind11::init( []( StructuralModel& model ) {
                 return ImplicitStructuralModel{ model.clone() };
             } ) )
+            .def( "clone", &ImplicitStructuralModel::clone )
             .def(
                 "native_extension", &ImplicitStructuralModel::native_extension )
             .def( "implicit_value_from_vertex_id",

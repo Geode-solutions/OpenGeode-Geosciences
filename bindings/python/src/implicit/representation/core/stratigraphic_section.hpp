@@ -38,12 +38,16 @@ namespace geode
         pybind11::class_< StratigraphicSection, ImplicitCrossSection,
             pybind11::smart_holder >( module, "StratigraphicSection" )
             .def( pybind11::init<>() )
+            .def( pybind11::init( []( const StratigraphicSection& section ) {
+                return section.clone();
+            } ) )
             .def( pybind11::init( []( ImplicitCrossSection& cross_section ) {
                 return StratigraphicSection{ cross_section.clone() };
             } ) )
             .def( pybind11::init( []( CrossSection& cross_section ) {
                 return StratigraphicSection{ cross_section.clone() };
             } ) )
+            .def( "clone", &StratigraphicSection::clone )
             .def( "stratigraphic_coordinates_from_vertex_id",
                 static_cast< StratigraphicPoint2D ( StratigraphicSection::* )(
                     const Surface2D&, index_t ) const >(

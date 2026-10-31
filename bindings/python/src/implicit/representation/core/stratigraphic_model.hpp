@@ -38,6 +38,9 @@ namespace geode
         pybind11::class_< StratigraphicModel, ImplicitStructuralModel,
             pybind11::smart_holder >( module, "StratigraphicModel" )
             .def( pybind11::init<>() )
+            .def( pybind11::init( []( const StratigraphicModel& model ) {
+                return model.clone();
+            } ) )
             .def( pybind11::init( []( ImplicitStructuralModel& model ) {
                 Logger::info( "Converting ImplicitStructuralModel to "
                               "StratigraphicModel" );
@@ -48,6 +51,7 @@ namespace geode
                     "Converting StructuralModel to StratigraphicModel" );
                 return StratigraphicModel{ model.clone() };
             } ) )
+            .def( "clone", &StratigraphicModel::clone )
             .def( "stratigraphic_coordinates_from_vertex_id",
                 static_cast< StratigraphicPoint3D ( StratigraphicModel::* )(
                     const Block3D&, index_t ) const >(

@@ -33,9 +33,13 @@ namespace geode
             FaultBlocks3D, StratigraphicUnits3D, pybind11::smart_holder >(
             module, "StructuralModel" )
             .def( pybind11::init<>() )
+            .def( pybind11::init( []( const StructuralModel& model ) {
+                return model.clone();
+            } ) )
             .def( pybind11::init( []( BRep& model ) {
                 return StructuralModel{ model.clone() };
             } ) )
+            .def( "clone", &StructuralModel::clone )
             .def(
                 "horizon_items",
                 []( const StructuralModel& structural_model,
