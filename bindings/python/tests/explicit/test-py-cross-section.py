@@ -276,11 +276,7 @@ def test_io(model):
     check_reloaded_model(reloaded_model)
 
 
-def test_copy(model):
-    copy = geosciences.CrossSection()
-    copier = geosciences.CrossSectionBuilder(copy)
-    copier.copy(model)
-
+def check_copied_model(copy):
     if copy.nb_surfaces() != 4:
         raise ValueError("[Test] Number of surfaces in copied model should be 4")
     if copy.nb_lines() != 8:
@@ -329,6 +325,16 @@ def test_copy(model):
         raise ValueError(
             "[Test] Number of items in stratigraphic_units in copied model should be 4"
         )
+
+
+
+def test_copy(model):
+    copy = geosciences.CrossSection()
+    copier = geosciences.CrossSectionBuilder(copy)
+    copier.copy(model)
+    check_copied_model(copy)
+    check_copied_model(geosciences.CrossSection(model))
+    check_copied_model(model.clone())
 
 
 def modify_model(model, builder):

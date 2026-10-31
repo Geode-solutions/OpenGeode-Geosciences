@@ -129,6 +129,16 @@ def test_save_stratigraphic_surfaces(model):
             counter += 1
 
 
+def test_implicit_copy(model):
+    block_id = geode.uuid("00000000-c271-42e7-8000-00002c3147ed")
+    value = model.implicit_value_from_vertex_id(model.block(block_id), 59)
+    for copy in (geode_imp.ImplicitStructuralModel(model), model.clone()):
+        if copy.horizons_stack().nb_horizons() != model.horizons_stack().nb_horizons():
+            raise ValueError("[Test] Copied model should keep the horizons stack")
+        if copy.implicit_value_from_vertex_id(copy.block(block_id), 59) != value:
+            raise ValueError("[Test] Copied model should keep the implicit values")
+
+
 if __name__ == "__main__":
     print("Starting test")
     geode_imp.OpenGeodeGeosciencesImplicitLibrary.initialize()
@@ -142,4 +152,7 @@ if __name__ == "__main__":
     builder_stratigraphic = geode_imp.StratigraphicModelBuilder(stratigraphic_model)
     builder_stratigraphic.import_old_stratigraphic_attribute_values_from_attribute_name("geode_stratigraphic_location")
     test_model(stratigraphic_model)
+    test_model(geode_imp.StratigraphicModel(stratigraphic_model))
+    test_model(stratigraphic_model.clone())
+    test_implicit_copy(stratigraphic_model)
     test_save_stratigraphic_surfaces(stratigraphic_model)
