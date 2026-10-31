@@ -30,7 +30,7 @@
         module, name##dimension.c_str() )                                      \
         .def( "nb_faults", &Faults##dimension##D::nb_faults )                  \
         .def( "fault", &Faults##dimension##D::fault,                           \
-            pybind11::return_value_policy::reference )                         \
+            pybind11::return_value_policy::reference_internal )                \
         .def(                                                                  \
             "faults",                                                          \
             []( const Faults##dimension##D& self ) {                           \
@@ -41,7 +41,7 @@
                 }                                                              \
                 return components;                                             \
             },                                                                 \
-            pybind11::return_value_policy::reference )
+            pybind11::return_value_policy::reference_internal )
 
 namespace geode
 {

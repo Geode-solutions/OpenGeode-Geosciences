@@ -20,6 +20,9 @@
 # SOFTWARE.
 
 
+import gc
+import weakref
+
 import geode_test_env
 
 import opengeode
@@ -268,6 +271,25 @@ def test_setters_with_keywords():
         raise ValueError("[Test] Setters with keyword arguments should modify the model")
 
 
+def test_components_keep_model_alive():
+    model = geosciences.StructuralModel()
+    builder = geosciences.StructuralModelBuilder(model)
+    horizon_id = builder.add_horizon()
+    del builder
+    model_ref = weakref.ref(model)
+    horizon = model.horizons()[0]
+    del model
+    gc.collect()
+    if model_ref() is None:
+        raise ValueError("[Test] Horizon should keep its StructuralModel alive")
+    if horizon.id().string() != horizon_id.string():
+        raise ValueError("[Test] Wrong Horizon")
+    del horizon
+    gc.collect()
+    if model_ref() is not None:
+        raise ValueError("[Test] StructuralModel should be released with its Horizon")
+
+
 if __name__ == "__main__":
     geosciences.OpenGeodeGeosciencesExplicitLibrary.initialize()
     model = geosciences.StructuralModel()
@@ -281,3 +303,4 @@ if __name__ == "__main__":
     modify_model(model, builder)
     test_typed_creation()
     test_setters_with_keywords()
+    test_components_keep_model_alive()

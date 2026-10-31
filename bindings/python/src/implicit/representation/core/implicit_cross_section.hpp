@@ -51,7 +51,7 @@ namespace geode
                     const Surface2D&, const Point2D&, index_t ) const >(
                     &ImplicitCrossSection::implicit_value ) )
             .def( "horizons_stack", &ImplicitCrossSection::horizons_stack,
-                pybind11::return_value_policy::reference )
+                pybind11::return_value_policy::reference_internal )
             .def( "horizon_implicit_value",
                 &ImplicitCrossSection::horizon_implicit_value )
             .def( "implicit_value_is_above_horizon",
@@ -60,6 +60,6 @@ namespace geode
                 &ImplicitCrossSection::containing_stratigraphic_unit )
             .def( "implicit_cross_section_component",
                 &ImplicitCrossSection::component,
-                pybind11::return_value_policy::reference );
+                pybind11::return_value_policy::reference_internal );
     }
 } // namespace geode

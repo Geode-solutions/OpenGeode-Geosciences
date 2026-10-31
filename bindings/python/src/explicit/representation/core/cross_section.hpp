@@ -48,7 +48,7 @@ namespace geode
                     }
                     return components;
                 },
-                pybind11::return_value_policy::reference )
+                pybind11::return_value_policy::reference_internal )
             .def(
                 "fault_items",
                 []( const CrossSection& cross_section, const Fault2D& fault ) {
@@ -60,7 +60,7 @@ namespace geode
                     }
                     return components;
                 },
-                pybind11::return_value_policy::reference )
+                pybind11::return_value_policy::reference_internal )
             .def(
                 "fault_block_items",
                 []( const CrossSection& cross_section,
@@ -73,7 +73,7 @@ namespace geode
                     }
                     return components;
                 },
-                pybind11::return_value_policy::reference )
+                pybind11::return_value_policy::reference_internal )
             .def(
                 "stratigraphic_unit_items",
                 []( const CrossSection& cross_section,
@@ -87,9 +87,9 @@ namespace geode
                     }
                     return components;
                 },
-                pybind11::return_value_policy::reference )
+                pybind11::return_value_policy::reference_internal )
             .def( "native_extension", &CrossSection::native_extension )
             .def( "cross_section_component", &CrossSection::component,
-                pybind11::return_value_policy::reference );
+                pybind11::return_value_policy::reference_internal );
     }
 } // namespace geode
