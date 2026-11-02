@@ -56,4 +56,30 @@ namespace geode
     [[nodiscard]] std::vector< std::string >
         opengeode_geosciences_simulation_api validate_physical_problem_regions(
             const PhysicalProblem& problem, const BRep& model );
+
+    /*!
+     * Check the model physical properties read by the problem. For solid
+     * mechanics: positive elastic moduli and non-negative density on every
+     * Block (density only needed with gravity), finite initial stresses,
+     * displacements uniform on each Surface and imposed along each axis,
+     * finite tractions, and no flow boundary condition. For flow problems:
+     * no mechanical boundary condition. Returns one message per issue, empty
+     * if valid.
+     */
+    [[nodiscard]] std::vector< std::string >
+        opengeode_geosciences_simulation_api
+        validate_physical_problem_properties(
+            const PhysicalProblem& problem, const BRep& model );
+
+    /*!
+     * Look for data that is valid but probably wrong. Unlike issues, warnings
+     * do not prevent a simulation. For solid mechanics, the in-situ mean
+     * stress is a compression: an initial_stress whose mean is a tension in
+     * most cells suggests the opposite sign convention than the one declared
+     * by the problem. Materials of a solid mechanics problem are ignored.
+     * Returns one message per warning.
+     */
+    [[nodiscard]] std::vector< std::string >
+        opengeode_geosciences_simulation_api physical_problem_warnings(
+            const PhysicalProblem& problem, const BRep& model );
 } // namespace geode

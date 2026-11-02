@@ -379,9 +379,54 @@ def test_region_validation():
     check_region_issues(problem, model, 1, "Unknown region should be reported")
 
 
+def mechanics_problem():
+    problem = simulation.PhysicalProblem()
+    builder = simulation.PhysicalProblemBuilder(problem)
+    law = simulation.SOLID_MECHANICS_LAW.linear_elastic_isotropic
+    builder.set_solid_mechanics(simulation.SolidMechanics(law))
+    builder.set_schedule(simulation.Schedule(0.0, 1.0, 1.0))
+    return problem
+
+
+def test_solid_mechanics():
+    problem = mechanics_problem()
+    check_valid_problem(problem)
+    reloaded = save_and_reload(problem, "gravity." + problem.native_extension())
+    mechanics = reloaded.solid_mechanics()
+    if reloaded.has_flow() or mechanics is None:
+        raise ValueError("[Test] Reloaded problem should be mechanics only")
+    if mechanics.law != simulation.SOLID_MECHANICS_LAW.linear_elastic_isotropic:
+        raise ValueError("[Test] Wrong solid mechanics law")
+    if (
+        mechanics.sign_convention
+        != simulation.STRESS_SIGN_CONVENTION.compression_positive
+    ):
+        raise ValueError("[Test] Wrong default sign convention")
+    tension = simulation.SolidMechanics(
+        simulation.SOLID_MECHANICS_LAW.linear_elastic_isotropic,
+        simulation.STRESS_SIGN_CONVENTION.tension_positive,
+    )
+    if tension.sign_convention != simulation.STRESS_SIGN_CONVENTION.tension_positive:
+        raise ValueError("[Test] Wrong sign convention")
+    if simulation.physical_problem_warnings(problem, opengeode.BRep()):
+        raise ValueError("[Test] A model without initial stress has no warning")
+    if "along z" not in " ".join(
+        simulation.validate_physical_problem_properties(problem, opengeode.BRep())
+    ):
+        raise ValueError("[Test] A model without displacement should be reported")
+    simulation.PhysicalProblemBuilder(problem).set_thermal(
+        simulation.ThermalParameters(300.0)
+    )
+    if "Thermal parameters require" not in " ".join(
+        simulation.validate_physical_problem(problem)
+    ):
+        raise ValueError("[Test] Thermal mechanics should be reported")
+
+
 if __name__ == "__main__":
     simulation.OpenGeodeGeosciencesSimulationLibrary.initialize()
     test_dead_oil_roundtrip()
     test_single_phase_problem()
     test_co2_brine_fluid()
     test_region_validation()
+    test_solid_mechanics()

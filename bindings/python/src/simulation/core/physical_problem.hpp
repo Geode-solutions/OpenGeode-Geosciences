@@ -52,6 +52,7 @@ namespace geode
             .def( "fluid", &PhysicalProblem::fluid,
                 pybind11::return_value_policy::reference_internal )
             .def( "thermal", &PhysicalProblem::thermal )
+            .def( "solid_mechanics", &PhysicalProblem::solid_mechanics )
             .def( "materials",
                 []( const PhysicalProblem& problem ) {
                     const auto materials = problem.materials();

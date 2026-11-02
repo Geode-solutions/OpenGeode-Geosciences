@@ -36,6 +36,7 @@
 #include <geode/geometry/vector.hpp>
 
 #include <geode/geosciences/simulation/common.hpp>
+#include <geode/geosciences/simulation/core/solid_mechanics.hpp>
 #include <geode/geosciences/simulation/core/thermal_parameters.hpp>
 
 namespace geode
@@ -55,12 +56,13 @@ namespace geode
 namespace geode
 {
     /*!
-     * Simulator-independent description of a flow simulation on a model:
-     * fluid, flow process, rock materials, initial state, well source terms,
-     * time schedule, outputs and simulator-specific options.
+     * Simulator-independent description of a flow or solid mechanics
+     * simulation on a model: fluid, flow process, rock materials, initial
+     * state, well source terms, time schedule, outputs and simulator-specific
+     * options.
      * Model regions are referenced by component uuid. Spatially varying data
-     * (porosity, permeability, boundary conditions) stay in the model
-     * PhysicalProperties.
+     * (porosity, permeability, elastic moduli, density, initial stress,
+     * boundary conditions) stay in the model PhysicalProperties.
      */
     class opengeode_geosciences_simulation_api PhysicalProblem
         : public Identifier
@@ -103,6 +105,9 @@ namespace geode
 
         [[nodiscard]] const std::optional< ThermalParameters >& thermal() const;
 
+        [[nodiscard]] const std::optional< SolidMechanics >&
+            solid_mechanics() const;
+
         [[nodiscard]] absl::Span< const Material > materials() const;
 
         [[nodiscard]] index_t nb_initial_conditions() const;
@@ -129,6 +134,11 @@ namespace geode
 
         void set_thermal(
             const ThermalParameters& thermal, PhysicalProblemBuilderKey );
+
+        void set_solid_mechanics(
+            const SolidMechanics& mechanics, PhysicalProblemBuilderKey );
+
+        void remove_solid_mechanics( PhysicalProblemBuilderKey );
 
         [[nodiscard]] index_t add_material(
             Material material, PhysicalProblemBuilderKey );

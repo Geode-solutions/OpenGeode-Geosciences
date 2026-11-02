@@ -99,6 +99,22 @@ namespace geode
             thermal_ = thermal;
         }
 
+        [[nodiscard]] const std::optional< SolidMechanics >&
+            solid_mechanics() const
+        {
+            return solid_mechanics_;
+        }
+
+        void set_solid_mechanics( const SolidMechanics& mechanics )
+        {
+            solid_mechanics_ = mechanics;
+        }
+
+        void remove_solid_mechanics()
+        {
+            solid_mechanics_.reset();
+        }
+
         [[nodiscard]] absl::Span< const Material > materials() const
         {
             return materials_;
@@ -233,10 +249,20 @@ namespace geode
         template < typename Archive >
         void serialize( Archive& archive )
         {
-            archive.ext( *this, Growable< Archive, Impl >{
-                                    { []( Archive& local_archive, Impl& impl ) {
-                                        impl.serialize_members( local_archive );
-                                    } } } );
+            archive.ext( *this,
+                Growable< Archive, Impl >{
+                    { []( Archive& local_archive, Impl& impl ) {
+                         impl.serialize_members( local_archive );
+                     },
+                        []( Archive& local_archive, Impl& impl ) {
+                            impl.serialize_members( local_archive );
+                            local_archive.ext( impl.solid_mechanics_,
+                                bitsery::ext::StdOptional{},
+                                []( Archive& mechanics_archive,
+                                    SolidMechanics& mechanics ) {
+                                    mechanics_archive.object( mechanics );
+                                } );
+                        } } } );
         }
 
         template < typename Archive >
@@ -280,6 +306,7 @@ namespace geode
         std::optional< uuid > model_id_;
         std::shared_ptr< FlowModel > flow_;
         std::optional< ThermalParameters > thermal_;
+        std::optional< SolidMechanics > solid_mechanics_;
         std::vector< Material > materials_;
         std::vector< std::shared_ptr< InitialCondition > > initial_conditions_;
         std::vector< SourceTerm > source_terms_;
@@ -325,6 +352,12 @@ namespace geode
     const std::optional< ThermalParameters >& PhysicalProblem::thermal() const
     {
         return impl_->thermal();
+    }
+
+    const std::optional< SolidMechanics >&
+        PhysicalProblem::solid_mechanics() const
+    {
+        return impl_->solid_mechanics();
     }
 
     absl::Span< const Material > PhysicalProblem::materials() const
@@ -384,6 +417,18 @@ namespace geode
         const ThermalParameters& thermal, PhysicalProblemBuilderKey /*unused*/ )
     {
         impl_->set_thermal( thermal );
+    }
+
+    void PhysicalProblem::set_solid_mechanics(
+        const SolidMechanics& mechanics, PhysicalProblemBuilderKey /*unused*/ )
+    {
+        impl_->set_solid_mechanics( mechanics );
+    }
+
+    void PhysicalProblem::remove_solid_mechanics(
+        PhysicalProblemBuilderKey /*unused*/ )
+    {
+        impl_->remove_solid_mechanics();
     }
 
     index_t PhysicalProblem::add_material(

@@ -24,10 +24,12 @@
 #include <geode/geosciences/simulation/helpers/physical_problem_validation.hpp>
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <limits>
 #include <numeric>
 #include <optional>
+#include <string_view>
 
 #include <absl/algorithm/container.h>
 #include <absl/container/flat_hash_map.h>
@@ -35,10 +37,15 @@
 #include <absl/strings/str_cat.h>
 #include <absl/types/span.h>
 
+#include <geode/basic/attribute_manager.hpp>
 #include <geode/basic/range.hpp>
 #include <geode/basic/uuid.hpp>
 
+#include <geode/mesh/core/solid_mesh.hpp>
+#include <geode/mesh/core/surface_mesh.hpp>
+
 #include <geode/model/mixin/core/block.hpp>
+#include <geode/model/mixin/core/surface.hpp>
 #include <geode/model/representation/core/brep.hpp>
 
 #include <geode/geosciences/simulation/core/flow_model.hpp>
@@ -48,6 +55,7 @@
 #include <geode/geosciences/simulation/core/physical_problem.hpp>
 #include <geode/geosciences/simulation/core/saturation_functions.hpp>
 #include <geode/geosciences/simulation/core/schedule.hpp>
+#include <geode/geosciences/simulation/core/solid_mechanics.hpp>
 #include <geode/geosciences/simulation/core/source_term.hpp>
 #include <geode/geosciences/simulation/core/thermal_parameters.hpp>
 
@@ -102,7 +110,11 @@ namespace
 
         std::vector< std::string > run()
         {
-            if( check_flow() )
+            if( problem_.solid_mechanics() )
+            {
+                check_solid_mechanics();
+            }
+            else if( check_flow() )
             {
                 check_fluid();
                 check_materials();
@@ -138,7 +150,7 @@ namespace
         {
             if( !problem_.has_flow() )
             {
-                add_issue( "No flow model is defined" );
+                add_issue( "No flow model nor solid mechanics is defined" );
                 return false;
             }
             if( !problem_.flow().has_fluid() )
@@ -694,6 +706,28 @@ namespace
             }
         }
 
+        void check_solid_mechanics()
+        {
+            if( problem_.has_flow() )
+            {
+                add_issue( "Coupled flow and solid mechanics (poromechanics) "
+                           "is not supported yet" );
+                return;
+            }
+            if( problem_.thermal() )
+            {
+                add_issue( "Thermal parameters require a flow model" );
+            }
+            if( problem_.nb_initial_conditions() != 0 )
+            {
+                add_issue( "Initial conditions require a flow model" );
+            }
+            if( !problem_.source_terms().empty() )
+            {
+                add_issue( "Source terms require a flow model" );
+            }
+        }
+
         void check_thermal()
         {
             if( !problem_.thermal() )
@@ -840,6 +874,424 @@ namespace
             std::pair< geode::index_t, std::string > >
             block_items_;
     };
+
+    struct NamedProperty
+    {
+        geode::PHYSICAL_PROPERTY_NAME property;
+        std::string_view name;
+    };
+
+    constexpr std::array< NamedProperty, 5 > FLOW_BOUNDARY_PROPERTIES{ {
+        { geode::PHYSICAL_PROPERTY_NAME::boundary_pressure,
+            "boundary_pressure" },
+        { geode::PHYSICAL_PROPERTY_NAME::boundary_temperature,
+            "boundary_temperature" },
+        { geode::PHYSICAL_PROPERTY_NAME::boundary_oil_fraction,
+            "boundary_oil_fraction" },
+        { geode::PHYSICAL_PROPERTY_NAME::boundary_gas_fraction,
+            "boundary_gas_fraction" },
+        { geode::PHYSICAL_PROPERTY_NAME::boundary_water_fraction,
+            "boundary_water_fraction" },
+    } };
+
+    constexpr std::array< NamedProperty, 3 > MECHANICS_BOUNDARY_PROPERTIES{ {
+        { geode::PHYSICAL_PROPERTY_NAME::boundary_displacement,
+            "boundary_displacement" },
+        { geode::PHYSICAL_PROPERTY_NAME::boundary_traction,
+            "boundary_traction" },
+        { geode::PHYSICAL_PROPERTY_NAME::boundary_normal_traction,
+            "boundary_normal_traction" },
+    } };
+
+    constexpr std::array< std::string_view, 3 > AXIS_NAMES{ "x", "y", "z" };
+
+    using Vector3 = std::array< double, 3 >;
+
+    template < typename T >
+    std::string_view value_type_name();
+
+    template <>
+    std::string_view value_type_name< double >()
+    {
+        return "double";
+    }
+
+    template <>
+    std::string_view value_type_name< Vector3 >()
+    {
+        return "std::array< double, 3 >";
+    }
+
+    bool is_finite( double value )
+    {
+        return std::isfinite( value );
+    }
+
+    bool is_finite( const Vector3& value )
+    {
+        return absl::c_all_of( value, []( double component ) {
+            return std::isfinite( component );
+        } );
+    }
+
+    // Free displacement components are NaN, which equals no value
+    bool same_components( const Vector3& first, const Vector3& second )
+    {
+        for( const auto axis : geode::LRange{ 3 } )
+        {
+            if( first[axis] != second[axis]
+                && !(
+                    std::isnan( first[axis] ) && std::isnan( second[axis] ) ) )
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    // Model physical properties read by solid mechanics, and boundary
+    // conditions of the other process
+    class PhysicalPropertyChecker
+    {
+    public:
+        PhysicalPropertyChecker(
+            const geode::PhysicalProblem& problem, const geode::BRep& model )
+            : problem_( problem ), model_( model )
+        {
+        }
+
+        std::vector< std::string > run()
+        {
+            if( problem_.solid_mechanics() )
+            {
+                check_absent_properties( FLOW_BOUNDARY_PROPERTIES,
+                    "a flow boundary condition: it needs a flow model, not "
+                    "solid mechanics" );
+                check_elastic_properties();
+                check_initial_stresses();
+                check_displacements();
+                check_tractions();
+            }
+            else if( problem_.has_flow() )
+            {
+                check_absent_properties( MECHANICS_BOUNDARY_PROPERTIES,
+                    "a mechanical boundary condition: it needs solid "
+                    "mechanics, not a flow model" );
+            }
+            return std::move( issues_ );
+        }
+
+    private:
+        template < typename... Args >
+        void add_issue( const Args&... args )
+        {
+            issues_.emplace_back( absl::StrCat( args... ) );
+        }
+
+        void check_absent_properties(
+            absl::Span< const NamedProperty > properties,
+            std::string_view reason )
+        {
+            for( const auto& [property, name] : properties )
+            {
+                if( model_.has_physical_property( property ) )
+                {
+                    add_issue( "Physical property ", name, " is ", reason );
+                }
+            }
+        }
+
+        // Attribute of the property, if defined on the expected components
+        std::optional< geode::uuid > property_attribute(
+            const NamedProperty& property,
+            const geode::ComponentType& component_type,
+            std::string_view component_name )
+        {
+            if( !model_.has_physical_property( property.property ) )
+            {
+                return std::nullopt;
+            }
+            const auto& info =
+                model_.physical_property_info( property.property );
+            if( info.component_type != component_type )
+            {
+                add_issue( "Physical property ", property.name,
+                    " must be defined on ", component_name );
+                return std::nullopt;
+            }
+            return info.attribute_id;
+        }
+
+        template < typename T, typename IsValid >
+        void check_block_values( const NamedProperty& property,
+            std::string_view requirement,
+            const IsValid& is_valid )
+        {
+            const auto attribute_id = property_attribute(
+                property, geode::Block3D::component_type_static(), "Blocks" );
+            if( !attribute_id )
+            {
+                return;
+            }
+            for( const auto& block : model_.blocks() )
+            {
+                const auto& mesh = block.mesh();
+                if( mesh.nb_polyhedra() == 0 )
+                {
+                    continue;
+                }
+                const auto& manager = mesh.polyhedron_attribute_manager();
+                if( !manager.attribute_exists( attribute_id.value() ) )
+                {
+                    add_issue( "Block ", block.id().string(), " has no ",
+                        property.name, " attribute" );
+                    continue;
+                }
+                if( manager.attribute_type( attribute_id.value() )
+                    != typeid( T ).name() )
+                {
+                    add_issue( property.name, " attribute on Block ",
+                        block.id().string(), " must store ",
+                        value_type_name< T >(), " values" );
+                    continue;
+                }
+                const auto attribute = manager.find_read_only_attribute< T >(
+                    attribute_id.value() );
+                geode::index_t nb_invalid{ 0 };
+                geode::index_t first_invalid{ geode::NO_ID };
+                for( const auto polyhedron :
+                    geode::Range{ mesh.nb_polyhedra() } )
+                {
+                    if( attribute->has_value( polyhedron )
+                        && is_valid( attribute->value( polyhedron ) ) )
+                    {
+                        continue;
+                    }
+                    if( nb_invalid == 0 )
+                    {
+                        first_invalid = polyhedron;
+                    }
+                    nb_invalid++;
+                }
+                if( nb_invalid != 0 )
+                {
+                    add_issue( "Block ", block.id().string(), " has ",
+                        nb_invalid, " polyhedra without ", requirement, " ",
+                        property.name, " value (first: polyhedron ",
+                        first_invalid, ")" );
+                }
+            }
+        }
+
+        void check_required_block_property( const NamedProperty& property )
+        {
+            if( !model_.has_physical_property( property.property ) )
+            {
+                add_issue( "Solid mechanics needs a ", property.name,
+                    " physical property on the model Blocks" );
+            }
+        }
+
+        void check_elastic_properties()
+        {
+            const auto is_positive = []( double value ) {
+                return value > 0;
+            };
+            for( const auto& modulus :
+                { NamedProperty{ geode::PHYSICAL_PROPERTY_NAME::bulk_modulus,
+                      "bulk_modulus" },
+                    NamedProperty{ geode::PHYSICAL_PROPERTY_NAME::shear_modulus,
+                        "shear_modulus" } } )
+            {
+                check_required_block_property( modulus );
+                check_block_values< double >(
+                    modulus, "a positive", is_positive );
+            }
+            const NamedProperty density{ geode::PHYSICAL_PROPERTY_NAME::density,
+                "density" };
+            if( problem_.gravity().length() > 0 )
+            {
+                check_required_block_property( density );
+            }
+            check_block_values< double >(
+                density, "a non-negative", []( double value ) {
+                    return value >= 0;
+                } );
+        }
+
+        void check_initial_stresses()
+        {
+            for( const auto& stress :
+                { NamedProperty{ geode::PHYSICAL_PROPERTY_NAME::initial_stress,
+                      "initial_stress" },
+                    NamedProperty{
+                        geode::PHYSICAL_PROPERTY_NAME::initial_shear_stress,
+                        "initial_shear_stress" } } )
+            {
+                check_block_values< Vector3 >(
+                    stress, "a finite", []( const Vector3& value ) {
+                        return is_finite( value );
+                    } );
+            }
+        }
+
+        // Value on each polygon of each Surface carrying the property
+        template < typename T, typename Check >
+        void check_surface_values(
+            const NamedProperty& property, const Check& check )
+        {
+            const auto attribute_id = property_attribute( property,
+                geode::Surface3D::component_type_static(), "Surfaces" );
+            if( !attribute_id )
+            {
+                return;
+            }
+            for( const auto& surface : model_.surfaces() )
+            {
+                const auto& mesh = surface.mesh();
+                const auto& manager = mesh.polygon_attribute_manager();
+                if( mesh.nb_polygons() == 0
+                    || !manager.attribute_exists( attribute_id.value() ) )
+                {
+                    continue;
+                }
+                if( manager.attribute_type( attribute_id.value() )
+                    != typeid( T ).name() )
+                {
+                    add_issue( property.name, " attribute on Surface ",
+                        surface.id().string(), " must store ",
+                        value_type_name< T >(), " values" );
+                    continue;
+                }
+                const auto attribute = manager.find_read_only_attribute< T >(
+                    attribute_id.value() );
+                std::vector< T > values;
+                values.reserve( mesh.nb_polygons() );
+                for( const auto polygon : geode::Range{ mesh.nb_polygons() } )
+                {
+                    if( !attribute->has_value( polygon ) )
+                    {
+                        add_issue( property.name, " attribute on Surface ",
+                            surface.id().string(), " has no value on polygon ",
+                            polygon );
+                        break;
+                    }
+                    values.push_back( attribute->value( polygon ) );
+                }
+                if( values.size() == mesh.nb_polygons() )
+                {
+                    check( surface, values );
+                }
+            }
+        }
+
+        void check_displacements()
+        {
+            std::array< bool, 3 > displaced_axes{ false, false, false };
+            check_surface_values< Vector3 >( MECHANICS_BOUNDARY_PROPERTIES[0],
+                [this, &displaced_axes]( const geode::Surface3D& surface,
+                    absl::Span< const Vector3 > values ) {
+                    const auto& displacement = values.front();
+                    if( !absl::c_all_of(
+                            values, [&displacement]( const Vector3& value ) {
+                                return same_components( value, displacement );
+                            } ) )
+                    {
+                        add_issue( "boundary_displacement on Surface ",
+                            surface.id().string(),
+                            " must be uniform on the Surface" );
+                        return;
+                    }
+                    for( const auto axis : geode::LRange{ 3 } )
+                    {
+                        displaced_axes[axis] =
+                            displaced_axes[axis]
+                            || !std::isnan( displacement[axis] );
+                    }
+                } );
+            for( const auto axis : geode::LRange{ 3 } )
+            {
+                if( !displaced_axes[axis] )
+                {
+                    add_issue( "Solid mechanics needs a displacement imposed "
+                               "along ",
+                        AXIS_NAMES[axis],
+                        " on at least one Surface to prevent rigid body "
+                        "motions" );
+                }
+            }
+        }
+
+        template < typename T >
+        void check_finite_surface_values( const NamedProperty& property )
+        {
+            check_surface_values< T >(
+                property, [this, &property]( const geode::Surface3D& surface,
+                              absl::Span< const T > values ) {
+                    if( !absl::c_all_of( values, []( const T& value ) {
+                            return is_finite( value );
+                        } ) )
+                    {
+                        add_issue( property.name, " on Surface ",
+                            surface.id().string(), " must be finite" );
+                    }
+                } );
+        }
+
+        void check_tractions()
+        {
+            check_finite_surface_values< Vector3 >(
+                MECHANICS_BOUNDARY_PROPERTIES[1] );
+            check_finite_surface_values< double >(
+                MECHANICS_BOUNDARY_PROPERTIES[2] );
+        }
+
+    private:
+        const geode::PhysicalProblem& problem_;
+        const geode::BRep& model_;
+        std::vector< std::string > issues_;
+    };
+
+    struct MeanStressSigns
+    {
+        geode::index_t nb_positives{ 0 };
+        geode::index_t nb_negatives{ 0 };
+    };
+
+    // Sign of the mean normal stress of each cell, uniform values included
+    MeanStressSigns mean_stress_signs(
+        const geode::BRep& model, const geode::uuid& attribute_id )
+    {
+        MeanStressSigns signs;
+        for( const auto& block : model.blocks() )
+        {
+            const auto& mesh = block.mesh();
+            const auto& manager = mesh.polyhedron_attribute_manager();
+            if( !manager.attribute_exists( attribute_id )
+                || manager.attribute_type( attribute_id )
+                       != typeid( std::array< double, 3 > ).name() )
+            {
+                continue;
+            }
+            const auto stress =
+                manager.find_read_only_attribute< std::array< double, 3 > >(
+                    attribute_id );
+            for( const auto polyhedron : geode::Range{ mesh.nb_polyhedra() } )
+            {
+                const auto& value = stress->value( polyhedron );
+                const auto trace = value[0] + value[1] + value[2];
+                if( trace > 0 )
+                {
+                    signs.nb_positives++;
+                }
+                else if( trace < 0 )
+                {
+                    signs.nb_negatives++;
+                }
+            }
+        }
+        return signs;
+    }
 } // namespace
 
 namespace geode
@@ -878,5 +1330,55 @@ namespace geode
                 problem.initial_condition( condition_id ).regions() );
         }
         return issues;
+    }
+
+    std::vector< std::string > validate_physical_problem_properties(
+        const PhysicalProblem& problem, const BRep& model )
+    {
+        return PhysicalPropertyChecker{ problem, model }.run();
+    }
+
+    std::vector< std::string > physical_problem_warnings(
+        const PhysicalProblem& problem, const BRep& model )
+    {
+        std::vector< std::string > warnings;
+        const auto& mechanics = problem.solid_mechanics();
+        if( !mechanics )
+        {
+            return warnings;
+        }
+        if( !problem.materials().empty() )
+        {
+            warnings.emplace_back(
+                "Materials are ignored by solid mechanics: the elastic "
+                "properties and density are the model physical properties" );
+        }
+        if( !model.has_physical_property(
+                PHYSICAL_PROPERTY_NAME::initial_stress ) )
+        {
+            return warnings;
+        }
+        const auto signs = mean_stress_signs(
+            model, model
+                       .physical_property_info(
+                           PHYSICAL_PROPERTY_NAME::initial_stress )
+                       .attribute_id );
+        const auto compression_positive =
+            mechanics->sign_convention
+            == STRESS_SIGN_CONVENTION::compression_positive;
+        const auto nb_compressions =
+            compression_positive ? signs.nb_positives : signs.nb_negatives;
+        const auto nb_tensions =
+            compression_positive ? signs.nb_negatives : signs.nb_positives;
+        if( nb_tensions > nb_compressions )
+        {
+            warnings.emplace_back( absl::StrCat( "Read as ",
+                compression_positive ? "compression positive"
+                                     : "tension positive",
+                " values, the mean initial_stress is a tension in ",
+                nb_tensions, " of ", nb_tensions + nb_compressions,
+                " cells: the model may use the opposite sign convention" ) );
+        }
+        return warnings;
     }
 } // namespace geode

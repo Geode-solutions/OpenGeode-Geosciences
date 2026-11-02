@@ -40,6 +40,7 @@ namespace geode
     struct Material;
     struct OutputSettings;
     struct Schedule;
+    struct SolidMechanics;
     struct SourceTerm;
     struct ThermalParameters;
     struct uuid;
@@ -71,6 +72,11 @@ namespace geode
 
         /// Solves the energy equation. Problems are isothermal by default.
         void set_thermal( const ThermalParameters& thermal );
+
+        /// Solves quasi-static solid mechanics
+        void set_solid_mechanics( const SolidMechanics& mechanics );
+
+        void remove_solid_mechanics();
 
         index_t add_material( Material material );
 
