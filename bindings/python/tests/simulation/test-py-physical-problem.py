@@ -428,6 +428,23 @@ def test_solid_mechanics():
         raise ValueError("[Test] Thermal mechanics should be reported")
 
 
+def test_poromechanics():
+    problem = thermal_single_phase_problem()
+    simulation.PhysicalProblemBuilder(problem).set_solid_mechanics(
+        simulation.SolidMechanics()
+    )
+    check_valid_problem(problem)
+    issues = " ".join(
+        simulation.validate_physical_problem_properties(problem, opengeode.BRep())
+    )
+    if "needs a biot_coefficient" not in issues:
+        raise ValueError("[Test] Poromechanics without Biot should be reported")
+    if "needs a thermal_expansion_coefficient" not in issues:
+        raise ValueError(
+            "[Test] Thermal poromechanics without expansion should be reported"
+        )
+
+
 if __name__ == "__main__":
     simulation.OpenGeodeGeosciencesSimulationLibrary.initialize()
     test_dead_oil_roundtrip()
@@ -435,3 +452,4 @@ if __name__ == "__main__":
     test_co2_brine_fluid()
     test_region_validation()
     test_solid_mechanics()
+    test_poromechanics()
