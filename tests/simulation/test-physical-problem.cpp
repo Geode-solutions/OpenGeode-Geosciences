@@ -992,6 +992,16 @@ namespace
         check_property_issues( problem, invalid_biot,
             { "without a (0, 1] biot_coefficient" }, "Invalid Biot" );
 
+        auto biot_below_porosity = poroelastic_model( 0.05 );
+        set_thermal_expansion( biot_below_porosity );
+        check_property_issues( problem, biot_below_porosity,
+            { "biot_coefficient smaller than the porosity" },
+            "Biot below material porosity" );
+        set_block_property< geode::ConstantAttribute >( biot_below_porosity,
+            geode::PHYSICAL_PROPERTY_NAME::porosity, "porosity", 0.01 );
+        check_property_issues( problem, biot_below_porosity, {},
+            "Biot above porosity property" );
+
         auto bulk_density = elastic_model();
         set_displacement( bulk_density,
             std::array< std::array< double, 3 >, 1 >{ { { 0., 0., 0. } } } );

@@ -27,6 +27,7 @@
 #include <array>
 #include <cmath>
 #include <limits>
+#include <memory>
 #include <numeric>
 #include <optional>
 #include <string_view>
@@ -841,6 +842,47 @@ namespace
         return blocks;
     }
 
+    // Material index of each Block: the first Material covering it, or else
+    // the first Material without region
+    absl::flat_hash_map< geode::uuid, geode::index_t > block_materials(
+        const geode::PhysicalProblem& problem, const geode::BRep& model )
+    {
+        absl::flat_hash_map< geode::uuid, geode::index_t > materials_of_blocks;
+        std::optional< geode::index_t > default_material;
+        const auto materials = problem.materials();
+        for( const auto material : geode::Indices{ materials } )
+        {
+            const auto& regions = materials[material].regions;
+            if( regions.empty() )
+            {
+                if( !default_material )
+                {
+                    default_material = material;
+                }
+                continue;
+            }
+            for( const auto& region : regions )
+            {
+                if( const auto blocks = region_blocks( model, region ) )
+                {
+                    for( const auto& block : blocks.value() )
+                    {
+                        materials_of_blocks.try_emplace( block, material );
+                    }
+                }
+            }
+        }
+        if( default_material )
+        {
+            for( const auto& block : model.blocks() )
+            {
+                materials_of_blocks.try_emplace(
+                    block.id(), default_material.value() );
+            }
+        }
+        return materials_of_blocks;
+    }
+
     // Checks that the regions of items of one kind (materials or initial
     // conditions) are model regions, and that no Block gets two items
     class RegionCoverageChecker
@@ -1179,6 +1221,7 @@ namespace
                 BIOT_COEFFICIENT, "a (0, 1]", []( double value ) {
                     return value > 0 && value <= 1;
                 } );
+            check_biot_coefficients_above_porosity();
             if( !problem_.thermal() )
             {
                 return;
@@ -1188,6 +1231,86 @@ namespace
                 THERMAL_EXPANSION, "a non-negative", []( double value ) {
                     return value >= 0;
                 } );
+        }
+
+        // Double attribute of a Block property, null if the Block has none
+        std::shared_ptr< geode::ReadOnlyAttribute< double > >
+            block_double_attribute( const geode::Block3D& block,
+                geode::PHYSICAL_PROPERTY_NAME property ) const
+        {
+            if( !model_.has_physical_property( property ) )
+            {
+                return nullptr;
+            }
+            const auto& info = model_.physical_property_info( property );
+            const auto& manager =
+                block.mesh().polyhedron_attribute_manager();
+            if( info.component_type != geode::Block3D::component_type_static()
+                || !manager.attribute_exists( info.attribute_id )
+                || manager.attribute_type( info.attribute_id )
+                       != typeid( double ).name() )
+            {
+                return nullptr;
+            }
+            return manager.find_read_only_attribute< double >(
+                info.attribute_id );
+        }
+
+        // The pore compressibility (b - porosity) / Ks must not be negative.
+        // The porosity is the porosity property, or else the one of the
+        // Block Material.
+        void check_biot_coefficients_above_porosity()
+        {
+            const auto materials = problem_.materials();
+            const auto materials_of_blocks = block_materials( problem_, model_ );
+            for( const auto& block : model_.blocks() )
+            {
+                const auto biot = block_double_attribute(
+                    block, BIOT_COEFFICIENT.property );
+                if( !biot )
+                {
+                    continue;
+                }
+                const auto porosity = block_double_attribute(
+                    block, geode::PHYSICAL_PROPERTY_NAME::porosity );
+                std::optional< double > material_porosity;
+                if( const auto material = materials_of_blocks.find( block.id() );
+                    material != materials_of_blocks.end() )
+                {
+                    material_porosity = materials[material->second].porosity;
+                }
+                geode::index_t nb_invalid{ 0 };
+                geode::index_t first_invalid{ geode::NO_ID };
+                for( const auto polyhedron :
+                    geode::Range{ block.mesh().nb_polyhedra() } )
+                {
+                    auto cell_porosity = material_porosity;
+                    if( porosity && porosity->has_value( polyhedron ) )
+                    {
+                        cell_porosity = porosity->value( polyhedron );
+                    }
+                    if( !biot->has_value( polyhedron ) || !cell_porosity
+                        || biot->value( polyhedron ) >= cell_porosity.value() )
+                    {
+                        continue;
+                    }
+                    if( nb_invalid == 0 )
+                    {
+                        first_invalid = polyhedron;
+                    }
+                    nb_invalid++;
+                }
+                if( nb_invalid != 0 )
+                {
+                    add_issue( "Block ", block.id().string(), " has ",
+                        nb_invalid,
+                        " polyhedra with a biot_coefficient smaller than the "
+                        "porosity (first: polyhedron ",
+                        first_invalid,
+                        "): the pore compressibility (biot - porosity) / Ks "
+                        "would be negative" );
+                }
+            }
         }
 
         void check_initial_stresses()

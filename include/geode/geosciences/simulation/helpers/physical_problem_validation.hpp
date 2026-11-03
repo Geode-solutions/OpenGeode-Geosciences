@@ -64,8 +64,9 @@ namespace geode
      * displacements uniform on each Surface and imposed along each axis,
      * finite tractions, and no flow boundary condition. For poromechanics
      * (flow and solid mechanics): the same mechanical checks with the
-     * grain_density instead of the density, a Biot coefficient in (0, 1] on
-     * every Block and, for a thermal problem, a non-negative thermal
+     * grain_density instead of the density, a Biot coefficient in (0, 1] and
+     * not smaller than the porosity on every Block and, for a thermal
+     * problem, a non-negative thermal
      * expansion coefficient on every Block. For flow problems: no mechanical
      * boundary condition. Returns one message per issue, empty if valid.
      */
