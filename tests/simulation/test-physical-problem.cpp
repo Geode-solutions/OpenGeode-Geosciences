@@ -999,8 +999,8 @@ namespace
             "Biot below material porosity" );
         set_block_property< geode::ConstantAttribute >( biot_below_porosity,
             geode::PHYSICAL_PROPERTY_NAME::porosity, "porosity", 0.01 );
-        check_property_issues( problem, biot_below_porosity, {},
-            "Biot above porosity property" );
+        check_property_issues(
+            problem, biot_below_porosity, {}, "Biot above porosity property" );
 
         auto bulk_density = elastic_model();
         set_displacement( bulk_density,

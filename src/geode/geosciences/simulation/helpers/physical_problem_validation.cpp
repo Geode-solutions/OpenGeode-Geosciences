@@ -961,8 +961,9 @@ namespace
             "boundary_normal_traction" },
     } };
 
-    constexpr NamedProperty BULK_DENSITY{ geode::PHYSICAL_PROPERTY_NAME::density,
-        "density" };
+    constexpr NamedProperty BULK_DENSITY{
+        geode::PHYSICAL_PROPERTY_NAME::density, "density"
+    };
 
     // Block properties read by poromechanics only
     constexpr NamedProperty BIOT_COEFFICIENT{
@@ -1243,8 +1244,7 @@ namespace
                 return nullptr;
             }
             const auto& info = model_.physical_property_info( property );
-            const auto& manager =
-                block.mesh().polyhedron_attribute_manager();
+            const auto& manager = block.mesh().polyhedron_attribute_manager();
             if( info.component_type != geode::Block3D::component_type_static()
                 || !manager.attribute_exists( info.attribute_id )
                 || manager.attribute_type( info.attribute_id )
@@ -1262,11 +1262,12 @@ namespace
         void check_biot_coefficients_above_porosity()
         {
             const auto materials = problem_.materials();
-            const auto materials_of_blocks = block_materials( problem_, model_ );
+            const auto materials_of_blocks =
+                block_materials( problem_, model_ );
             for( const auto& block : model_.blocks() )
             {
-                const auto biot = block_double_attribute(
-                    block, BIOT_COEFFICIENT.property );
+                const auto biot =
+                    block_double_attribute( block, BIOT_COEFFICIENT.property );
                 if( !biot )
                 {
                     continue;
@@ -1274,7 +1275,8 @@ namespace
                 const auto porosity = block_double_attribute(
                     block, geode::PHYSICAL_PROPERTY_NAME::porosity );
                 std::optional< double > material_porosity;
-                if( const auto material = materials_of_blocks.find( block.id() );
+                if( const auto material =
+                        materials_of_blocks.find( block.id() );
                     material != materials_of_blocks.end() )
                 {
                     material_porosity = materials[material->second].porosity;
