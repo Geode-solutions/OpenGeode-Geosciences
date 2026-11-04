@@ -38,6 +38,14 @@ add_geode_library(
         "core/source_term.cpp"
         "core/thermal_parameters.cpp"
         "helpers/physical_problem_validation.cpp"
+        "helpers/internal/physical_problem_blocks.cpp"
+        "helpers/internal/problem_definition_checker.cpp"
+        "helpers/internal/problem_properties_checker.cpp"
+        "helpers/internal/problem_regions_checker.cpp"
+        "helpers/internal/property_attribute_checker.cpp"
+        "helpers/internal/simulation_checker_helpers.cpp"
+        "helpers/simulation_checker.cpp"
+        "helpers/simulation_report.cpp"
         "io/geode/geode_physical_problem_input.cpp"
         "io/geode/geode_physical_problem_output.cpp"
         "io/physical_problem_input.cpp"
@@ -58,14 +66,22 @@ add_geode_library(
         "core/source_term.hpp"
         "core/thermal_parameters.hpp"
         "helpers/physical_problem_validation.hpp"
+        "helpers/simulation_checker.hpp"
+        "helpers/simulation_report.hpp"
         "io/physical_problem_input.hpp"
         "io/physical_problem_output.hpp"
     ADVANCED_HEADERS
         "io/geode/geode_physical_problem_input.hpp"
         "io/geode/geode_physical_problem_output.hpp"
+    INTERNAL_HEADERS
+        "helpers/internal/physical_problem_blocks.hpp"
+        "helpers/internal/problem_definition_checker.hpp"
+        "helpers/internal/problem_properties_checker.hpp"
+        "helpers/internal/problem_regions_checker.hpp"
+        "helpers/internal/property_attribute_checker.hpp"
+        "helpers/internal/simulation_checker_helpers.hpp"
     PUBLIC_DEPENDENCIES
         OpenGeode::basic
         OpenGeode::geometry
-    PRIVATE_DEPENDENCIES
         OpenGeode::model
 )
