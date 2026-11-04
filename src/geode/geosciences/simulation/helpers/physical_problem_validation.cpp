@@ -27,6 +27,7 @@
 #include <array>
 #include <cmath>
 #include <limits>
+#include <memory>
 #include <numeric>
 #include <optional>
 #include <string_view>
@@ -34,6 +35,7 @@
 #include <absl/algorithm/container.h>
 #include <absl/container/flat_hash_map.h>
 #include <absl/container/flat_hash_set.h>
+#include <absl/container/inlined_vector.h>
 #include <absl/strings/str_cat.h>
 #include <absl/types/span.h>
 
@@ -110,7 +112,7 @@ namespace
 
         std::vector< std::string > run()
         {
-            if( problem_.solid_mechanics() )
+            if( problem_.solid_mechanics() && !problem_.has_flow() )
             {
                 check_solid_mechanics();
             }
@@ -121,6 +123,7 @@ namespace
                 check_initial_conditions();
                 check_source_terms();
                 check_thermal();
+                check_poromechanics();
             }
             check_schedule();
             check_output();
@@ -708,12 +711,6 @@ namespace
 
         void check_solid_mechanics()
         {
-            if( problem_.has_flow() )
-            {
-                add_issue( "Coupled flow and solid mechanics (poromechanics) "
-                           "is not supported yet" );
-                return;
-            }
             if( problem_.thermal() )
             {
                 add_issue( "Thermal parameters require a flow model" );
@@ -725,6 +722,26 @@ namespace
             if( !problem_.source_terms().empty() )
             {
                 add_issue( "Source terms require a flow model" );
+            }
+        }
+
+        // The Biot coefficient gives the pore compressibility
+        void check_poromechanics()
+        {
+            if( !problem_.solid_mechanics() )
+            {
+                return;
+            }
+            for( const auto& material : problem_.materials() )
+            {
+                if( material.pore_compressibility != 0
+                    || material.reference_pressure != 0 )
+                {
+                    add_issue( "Material ", material.name,
+                        " pore compressibility and reference pressure must be "
+                        "0 with solid mechanics: the Biot coefficient gives "
+                        "the pore compressibility" );
+                }
             }
         }
 
@@ -825,6 +842,47 @@ namespace
         return blocks;
     }
 
+    // Material index of each Block: the first Material covering it, or else
+    // the first Material without region
+    absl::flat_hash_map< geode::uuid, geode::index_t > block_materials(
+        const geode::PhysicalProblem& problem, const geode::BRep& model )
+    {
+        absl::flat_hash_map< geode::uuid, geode::index_t > materials_of_blocks;
+        std::optional< geode::index_t > default_material;
+        const auto materials = problem.materials();
+        for( const auto material : geode::Indices{ materials } )
+        {
+            const auto& regions = materials[material].regions;
+            if( regions.empty() )
+            {
+                if( !default_material )
+                {
+                    default_material = material;
+                }
+                continue;
+            }
+            for( const auto& region : regions )
+            {
+                if( const auto blocks = region_blocks( model, region ) )
+                {
+                    for( const auto& block : blocks.value() )
+                    {
+                        materials_of_blocks.try_emplace( block, material );
+                    }
+                }
+            }
+        }
+        if( default_material )
+        {
+            for( const auto& block : model.blocks() )
+            {
+                materials_of_blocks.try_emplace(
+                    block.id(), default_material.value() );
+            }
+        }
+        return materials_of_blocks;
+    }
+
     // Checks that the regions of items of one kind (materials or initial
     // conditions) are model regions, and that no Block gets two items
     class RegionCoverageChecker
@@ -903,6 +961,22 @@ namespace
             "boundary_normal_traction" },
     } };
 
+    constexpr NamedProperty BULK_DENSITY{
+        geode::PHYSICAL_PROPERTY_NAME::density, "density"
+    };
+
+    // Block properties read by poromechanics only
+    constexpr NamedProperty BIOT_COEFFICIENT{
+        geode::PHYSICAL_PROPERTY_NAME::biot_coefficient, "biot_coefficient"
+    };
+    constexpr NamedProperty GRAIN_DENSITY{
+        geode::PHYSICAL_PROPERTY_NAME::grain_density, "grain_density"
+    };
+    constexpr NamedProperty THERMAL_EXPANSION{
+        geode::PHYSICAL_PROPERTY_NAME::thermal_expansion_coefficient,
+        "thermal_expansion_coefficient"
+    };
+
     constexpr std::array< std::string_view, 3 > AXIS_NAMES{ "x", "y", "z" };
 
     using Vector3 = std::array< double, 3 >;
@@ -964,13 +1038,21 @@ namespace
         {
             if( problem_.solid_mechanics() )
             {
-                check_absent_properties( FLOW_BOUNDARY_PROPERTIES,
-                    "a flow boundary condition: it needs a flow model, not "
-                    "solid mechanics" );
+                if( !problem_.has_flow() )
+                {
+                    check_absent_properties( FLOW_BOUNDARY_PROPERTIES,
+                        "a flow boundary condition: it needs a flow model, "
+                        "not solid mechanics" );
+                }
                 check_elastic_properties();
+                check_density();
                 check_initial_stresses();
                 check_displacements();
                 check_tractions();
+                if( problem_.has_flow() )
+                {
+                    check_poromechanics_properties();
+                }
             }
             else if( problem_.has_flow() )
             {
@@ -1087,7 +1169,9 @@ namespace
         {
             if( !model_.has_physical_property( property.property ) )
             {
-                add_issue( "Solid mechanics needs a ", property.name,
+                add_issue(
+                    problem_.has_flow() ? "Poromechanics" : "Solid mechanics",
+                    " needs a ", property.name,
                     " physical property on the model Blocks" );
             }
         }
@@ -1107,16 +1191,128 @@ namespace
                 check_block_values< double >(
                     modulus, "a positive", is_positive );
             }
-            const NamedProperty density{ geode::PHYSICAL_PROPERTY_NAME::density,
-                "density" };
+        }
+
+        // With flow, the weight of the rock comes from its grains and fluid
+        void check_density()
+        {
+            const auto& required_density =
+                problem_.has_flow() ? GRAIN_DENSITY : BULK_DENSITY;
+            if( problem_.has_flow()
+                && model_.has_physical_property( BULK_DENSITY.property ) )
+            {
+                add_issue( "Physical property density is the bulk density of "
+                           "solid mechanics without flow: poromechanics needs "
+                           "the grain_density" );
+            }
             if( problem_.gravity().length() > 0 )
             {
-                check_required_block_property( density );
+                check_required_block_property( required_density );
             }
             check_block_values< double >(
-                density, "a non-negative", []( double value ) {
+                required_density, "a non-negative", []( double value ) {
                     return value >= 0;
                 } );
+        }
+
+        void check_poromechanics_properties()
+        {
+            check_required_block_property( BIOT_COEFFICIENT );
+            check_block_values< double >(
+                BIOT_COEFFICIENT, "a (0, 1]", []( double value ) {
+                    return value > 0 && value <= 1;
+                } );
+            check_biot_coefficients_above_porosity();
+            if( !problem_.thermal() )
+            {
+                return;
+            }
+            check_required_block_property( THERMAL_EXPANSION );
+            check_block_values< double >(
+                THERMAL_EXPANSION, "a non-negative", []( double value ) {
+                    return value >= 0;
+                } );
+        }
+
+        // Double attribute of a Block property, null if the Block has none
+        std::shared_ptr< geode::ReadOnlyAttribute< double > >
+            block_double_attribute( const geode::Block3D& block,
+                geode::PHYSICAL_PROPERTY_NAME property ) const
+        {
+            if( !model_.has_physical_property( property ) )
+            {
+                return nullptr;
+            }
+            const auto& info = model_.physical_property_info( property );
+            const auto& manager = block.mesh().polyhedron_attribute_manager();
+            if( info.component_type != geode::Block3D::component_type_static()
+                || !manager.attribute_exists( info.attribute_id )
+                || manager.attribute_type( info.attribute_id )
+                       != typeid( double ).name() )
+            {
+                return nullptr;
+            }
+            return manager.find_read_only_attribute< double >(
+                info.attribute_id );
+        }
+
+        // The pore compressibility (b - porosity) / Ks must not be negative.
+        // The porosity is the porosity property, or else the one of the
+        // Block Material.
+        void check_biot_coefficients_above_porosity()
+        {
+            const auto materials = problem_.materials();
+            const auto materials_of_blocks =
+                block_materials( problem_, model_ );
+            for( const auto& block : model_.blocks() )
+            {
+                const auto biot =
+                    block_double_attribute( block, BIOT_COEFFICIENT.property );
+                if( !biot )
+                {
+                    continue;
+                }
+                const auto porosity = block_double_attribute(
+                    block, geode::PHYSICAL_PROPERTY_NAME::porosity );
+                std::optional< double > material_porosity;
+                if( const auto material =
+                        materials_of_blocks.find( block.id() );
+                    material != materials_of_blocks.end() )
+                {
+                    material_porosity = materials[material->second].porosity;
+                }
+                geode::index_t nb_invalid{ 0 };
+                geode::index_t first_invalid{ geode::NO_ID };
+                for( const auto polyhedron :
+                    geode::Range{ block.mesh().nb_polyhedra() } )
+                {
+                    auto cell_porosity = material_porosity;
+                    if( porosity && porosity->has_value( polyhedron ) )
+                    {
+                        cell_porosity = porosity->value( polyhedron );
+                    }
+                    if( !biot->has_value( polyhedron ) || !cell_porosity
+                        || biot->value( polyhedron ) >= cell_porosity.value() )
+                    {
+                        continue;
+                    }
+                    if( nb_invalid == 0 )
+                    {
+                        first_invalid = polyhedron;
+                    }
+                    nb_invalid++;
+                }
+                if( nb_invalid != 0 )
+                {
+                    add_issue( "Block ", block.id().string(), " has ",
+                        nb_invalid,
+                        " polyhedra with a biot_coefficient smaller than the "
+                        "porosity (first: polyhedron ",
+                        first_invalid,
+                        "): the pore compressibility (biot - porosity) / Ks "
+                        "would be negative" );
+                }
+            }
         }
 
         void check_initial_stresses()
@@ -1292,6 +1488,21 @@ namespace
         }
         return signs;
     }
+
+    // Properties of poromechanics a solid mechanics problem does not read
+    absl::InlinedVector< NamedProperty, 3 > unused_coupling_properties(
+        bool has_flow, bool is_thermal )
+    {
+        if( !has_flow )
+        {
+            return { BIOT_COEFFICIENT, GRAIN_DENSITY, THERMAL_EXPANSION };
+        }
+        if( !is_thermal )
+        {
+            return { THERMAL_EXPANSION };
+        }
+        return {};
+    }
 } // namespace
 
 namespace geode
@@ -1347,11 +1558,22 @@ namespace geode
         {
             return warnings;
         }
-        if( !problem.materials().empty() )
+        if( !problem.has_flow() && !problem.materials().empty() )
         {
             warnings.emplace_back(
                 "Materials are ignored by solid mechanics: the elastic "
                 "properties and density are the model physical properties" );
+        }
+        for( const auto& [property, name] : unused_coupling_properties(
+                 problem.has_flow(), problem.thermal().has_value() ) )
+        {
+            if( model.has_physical_property( property ) )
+            {
+                warnings.emplace_back( absl::StrCat( "Physical property ", name,
+                    " is ignored: it is only read by ",
+                    problem.has_flow() ? "thermal poromechanics"
+                                       : "poromechanics" ) );
+            }
         }
         if( !model.has_physical_property(
                 PHYSICAL_PROPERTY_NAME::initial_stress ) )

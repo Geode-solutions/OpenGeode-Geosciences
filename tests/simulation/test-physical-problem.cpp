@@ -666,13 +666,6 @@ namespace
 
         check_broken_mechanics_problem(
             []( geode::PhysicalProblemBuilder& builder ) {
-                auto flow = std::make_shared< geode::MultiphaseFlow >();
-                flow->set_fluid( spe10_dead_oil() );
-                builder.set_flow( flow );
-            },
-            "poromechanics", "Flow and mechanics" );
-        check_broken_mechanics_problem(
-            []( geode::PhysicalProblemBuilder& builder ) {
                 builder.set_thermal( { 300. } );
             },
             "Thermal parameters require", "Thermal mechanics" );
@@ -694,6 +687,36 @@ namespace
                 builder.remove_solid_mechanics();
             },
             "No flow model nor solid mechanics", "Empty problem" );
+    }
+
+    // Dead oil flow and solid mechanics, without pore compressibility
+    geode::PhysicalProblem poromechanics_problem()
+    {
+        auto problem = dead_oil_problem( geode::uuid{}, geode::uuid{} );
+        geode::PhysicalProblemBuilder builder{ problem };
+        builder.set_solid_mechanics( geode::SolidMechanics{} );
+        for( const auto material_id : geode::Indices{ problem.materials() } )
+        {
+            auto material = problem.materials()[material_id];
+            material.pore_compressibility = 0;
+            material.reference_pressure = 0;
+            builder.set_material( material_id, material );
+        }
+        return problem;
+    }
+
+    void test_poromechanics()
+    {
+        check_no_issue( poromechanics_problem() );
+        auto thermal = thermal_single_phase_problem();
+        geode::PhysicalProblemBuilder{ thermal }.set_solid_mechanics(
+            geode::SolidMechanics{} );
+        check_no_issue( thermal );
+        auto compressible = dead_oil_problem( geode::uuid{}, geode::uuid{} );
+        geode::PhysicalProblemBuilder{ compressible }.set_solid_mechanics(
+            geode::SolidMechanics{} );
+        check_issue( compressible, "the Biot coefficient gives",
+            "Pore compressibility with solid mechanics" );
     }
 
     // One tetrahedron Block carrying a uniform initial_stress
@@ -798,9 +821,8 @@ namespace
             property, geode::Surface3D::component_type_static(), attribute_id );
     }
 
-    // One tetrahedron Block with elastic properties and one two-triangle
-    // Surface
-    geode::BRep elastic_model()
+    // One tetrahedron Block with elastic moduli and one two-triangle Surface
+    geode::BRep elastic_moduli_model()
     {
         auto model = stressed_model( { 1e7, 1e7, 2e7 } );
         set_block_property< geode::ConstantAttribute >( model,
@@ -808,8 +830,6 @@ namespace
         set_block_property< geode::ConstantAttribute >( model,
             geode::PHYSICAL_PROPERTY_NAME::shear_modulus, "shear_modulus",
             4e9 );
-        set_block_property< geode::ConstantAttribute >(
-            model, geode::PHYSICAL_PROPERTY_NAME::density, "density", 2650. );
         geode::BRepBuilder model_builder{ model };
         const auto& surface_id = model_builder.add_surface();
         auto mesh_builder =
@@ -825,6 +845,14 @@ namespace
         return model;
     }
 
+    geode::BRep elastic_model()
+    {
+        auto model = elastic_moduli_model();
+        set_block_property< geode::ConstantAttribute >(
+            model, geode::PHYSICAL_PROPERTY_NAME::density, "density", 2650. );
+        return model;
+    }
+
     constexpr double FREE{ std::numeric_limits< double >::quiet_NaN() };
 
     void set_displacement( geode::BRep& model,
@@ -833,6 +861,28 @@ namespace
         set_surface_property( model,
             geode::PHYSICAL_PROPERTY_NAME::boundary_displacement,
             "displacement", polygon_values );
+    }
+
+    // Elastic model of poromechanics with a fixed Surface
+    geode::BRep poroelastic_model( double biot_coefficient )
+    {
+        auto model = elastic_moduli_model();
+        set_block_property< geode::ConstantAttribute >( model,
+            geode::PHYSICAL_PROPERTY_NAME::grain_density, "grain_density",
+            2650. );
+        set_block_property< geode::ConstantAttribute >( model,
+            geode::PHYSICAL_PROPERTY_NAME::biot_coefficient, "biot_coefficient",
+            biot_coefficient );
+        set_displacement( model,
+            std::array< std::array< double, 3 >, 1 >{ { { 0., 0., 0. } } } );
+        return model;
+    }
+
+    void set_thermal_expansion( geode::BRep& model )
+    {
+        set_block_property< geode::ConstantAttribute >( model,
+            geode::PHYSICAL_PROPERTY_NAME::thermal_expansion_coefficient,
+            "thermal_expansion_coefficient", 1e-5 );
     }
 
     void check_property_issues( const geode::PhysicalProblem& problem,
@@ -919,6 +969,78 @@ namespace
 
         check_property_issues( dead_oil_problem( geode::uuid{}, geode::uuid{} ),
             model, { "needs solid mechanics" }, "Flow with displacement" );
+    }
+
+    void test_poromechanics_properties_validation()
+    {
+        auto problem = thermal_single_phase_problem();
+        geode::PhysicalProblemBuilder{ problem }.set_solid_mechanics(
+            geode::SolidMechanics{} );
+        auto model = poroelastic_model( 0.8 );
+        check_property_issues( problem, model,
+            { "needs a thermal_expansion_coefficient" },
+            "Thermal without expansion" );
+        set_thermal_expansion( model );
+        set_surface_property< double >( model,
+            geode::PHYSICAL_PROPERTY_NAME::boundary_pressure, "pressure",
+            std::array< double, 1 >{ 1e7 } );
+        check_property_issues(
+            problem, model, {}, "Poromechanics with boundary pressure" );
+
+        auto invalid_biot = poroelastic_model( 1.5 );
+        set_thermal_expansion( invalid_biot );
+        check_property_issues( problem, invalid_biot,
+            { "without a (0, 1] biot_coefficient" }, "Invalid Biot" );
+
+        auto biot_below_porosity = poroelastic_model( 0.05 );
+        set_thermal_expansion( biot_below_porosity );
+        check_property_issues( problem, biot_below_porosity,
+            { "biot_coefficient smaller than the porosity" },
+            "Biot below material porosity" );
+        set_block_property< geode::ConstantAttribute >( biot_below_porosity,
+            geode::PHYSICAL_PROPERTY_NAME::porosity, "porosity", 0.01 );
+        check_property_issues(
+            problem, biot_below_porosity, {}, "Biot above porosity property" );
+
+        auto bulk_density = elastic_model();
+        set_displacement( bulk_density,
+            std::array< std::array< double, 3 >, 1 >{ { { 0., 0., 0. } } } );
+        check_property_issues( poromechanics_problem(), bulk_density,
+            { "is the bulk density", "needs a grain_density",
+                "needs a biot_coefficient" },
+            "Mechanics only rock" );
+    }
+
+    bool has_warning(
+        absl::Span< const std::string > warnings, std::string_view keyword )
+    {
+        return absl::c_any_of( warnings, [keyword]( const std::string& text ) {
+            return absl::StrContains( text, keyword );
+        } );
+    }
+
+    void test_ignored_coupling_properties_warning()
+    {
+        auto model = poroelastic_model( 0.8 );
+        const auto mechanics_warnings =
+            geode::physical_problem_warnings( mechanics_problem(), model );
+        Exception::test( mechanics_warnings.size() == 2
+                             && has_warning( mechanics_warnings,
+                                 "biot_coefficient is ignored" )
+                             && has_warning( mechanics_warnings,
+                                 "grain_density is ignored" ),
+            "[Test] Poromechanics properties of a mechanics problem should be "
+            "reported: ",
+            absl::StrJoin( mechanics_warnings, " | " ) );
+        set_thermal_expansion( model );
+        const auto isothermal_warnings =
+            geode::physical_problem_warnings( poromechanics_problem(), model );
+        Exception::test( isothermal_warnings.size() == 1
+                             && has_warning( isothermal_warnings,
+                                 "thermal_expansion_coefficient is ignored" ),
+            "[Test] Thermal expansion of an isothermal problem should be "
+            "reported: ",
+            absl::StrJoin( isothermal_warnings, " | " ) );
     }
 
     void test_ignored_materials_warning()
@@ -1037,6 +1159,9 @@ int main()
         test_stress_sign_warning();
         test_mechanics_properties_validation();
         test_ignored_materials_warning();
+        test_poromechanics();
+        test_poromechanics_properties_validation();
+        test_ignored_coupling_properties_warning();
         test_unregistered_type();
 
         geode::Logger::info( "TEST SUCCESS" );
