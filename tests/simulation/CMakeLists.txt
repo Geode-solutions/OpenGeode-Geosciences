@@ -28,3 +28,13 @@ add_geode_test(
         OpenGeode::model
         ${PROJECT_NAME}::simulation
 )
+
+add_geode_test(
+    SOURCE "test-physical-problem-simulation.cpp"
+    DEPENDENCIES
+        OpenGeode::basic
+        OpenGeode::geometry
+        OpenGeode::mesh
+        OpenGeode::model
+        ${PROJECT_NAME}::simulation
+)
