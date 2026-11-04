@@ -73,10 +73,6 @@ add_geode_library(
         "io/geode/geode_physical_problem_output.hpp"
     INTERNAL_HEADERS
         "helpers/internal/physical_problem_blocks.hpp"
-        "helpers/internal/problem_definition_checker.hpp"
-        "helpers/internal/problem_properties_checker.hpp"
-        "helpers/internal/problem_regions_checker.hpp"
-        "helpers/internal/property_attribute_checker.hpp"
         "helpers/internal/simulation_checker_helpers.hpp"
     PUBLIC_DEPENDENCIES
         OpenGeode::basic

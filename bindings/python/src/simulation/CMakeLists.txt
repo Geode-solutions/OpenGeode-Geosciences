@@ -35,6 +35,7 @@ add_geode_python_binding(
         "core/solver_options.hpp"
         "core/source_term.hpp"
         "core/thermal_parameters.hpp"
+        "helpers/simulation_checker.hpp"
         "helpers/simulation_report.hpp"
         "io/physical_problem.hpp"
     DEPENDENCIES

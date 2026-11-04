@@ -87,8 +87,10 @@ namespace geode
         /// Component name, empty if it has none
         std::string name;
         SIMULATION_ELEMENT_TYPE element_type{ SIMULATION_ELEMENT_TYPE::none };
-        /// Every element involved: all of them when the whole mesh is
+        /// Every element involved, empty if all_elements
         std::vector< index_t > elements;
+        /// Every element of this type is involved, they are not listed
+        bool all_elements{ false };
         /// Number of elements of this type in the component mesh
         index_t nb_elements{ 0 };
         /// Optional precision, e.g. "no attribute" or "first value -1"

@@ -21,10 +21,6 @@
  *
  */
 
-#include <geode/model/representation/core/brep.hpp>
-
-#include <geode/geosciences/simulation/core/physical_problem.hpp>
-#include <geode/geosciences/simulation/helpers/simulation_checker.hpp>
 #include <geode/geosciences/simulation/helpers/simulation_report.hpp>
 
 namespace geode
@@ -62,6 +58,8 @@ namespace geode
             .def_readwrite(
                 "element_type", &SimulationIssueLocation::element_type )
             .def_readwrite( "elements", &SimulationIssueLocation::elements )
+            .def_readwrite(
+                "all_elements", &SimulationIssueLocation::all_elements )
             .def_readwrite(
                 "nb_elements", &SimulationIssueLocation::nb_elements )
             .def_readwrite( "detail", &SimulationIssueLocation::detail )
@@ -148,17 +146,5 @@ namespace geode
                 } )
             .def( "string", &SimulationReport::string )
             .def( "__str__", &SimulationReport::string );
-
-        pybind11::class_< SimulationChecker >( module, "SimulationChecker" )
-            .def( "check", &SimulationChecker::check );
-
-        pybind11::class_< SimulationCheckerFactory >(
-            module, "SimulationCheckerFactory" )
-            .def_static(
-                "list_creators", &SimulationCheckerFactory::list_creators )
-            .def_static( "has_creator", &SimulationCheckerFactory::has_creator )
-            .def_static( "create", []( const std::string& key ) {
-                return SimulationCheckerFactory::create( key );
-            } );
     }
 } // namespace geode

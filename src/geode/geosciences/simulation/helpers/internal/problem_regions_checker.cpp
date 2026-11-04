@@ -21,7 +21,7 @@
  *
  */
 
-#include <geode/geosciences/simulation/helpers/internal/problem_regions_checker.hpp>
+#include <geode/geosciences/simulation/helpers/simulation_checker.hpp>
 
 #include <algorithm>
 #include <map>
@@ -193,12 +193,14 @@ namespace
     // already errors)
     void warn_unused_items( const geode::PhysicalProblem& problem,
         const geode::BRep& model,
+        const absl::flat_hash_map< geode::uuid, geode::index_t >&
+            block_materials,
+        const absl::flat_hash_map< geode::uuid, geode::index_t >&
+            block_conditions,
         geode::SimulationReport& report )
     {
         const auto materials = problem.materials();
-        const auto used_materials =
-            used_items( geode::internal::physical_problem_block_materials(
-                problem, model ) );
+        const auto used_materials = used_items( block_materials );
         for( const auto material : geode::Indices{ materials } )
         {
             if( !used_materials.contains( material )
@@ -209,9 +211,7 @@ namespace
                     "covers no Block" );
             }
         }
-        const auto used_conditions = used_items(
-            geode::internal::physical_problem_block_initial_conditions(
-                problem, model ) );
+        const auto used_conditions = used_items( block_conditions );
         for( const auto condition :
             geode::Range{ problem.nb_initial_conditions() } )
         {
@@ -226,9 +226,10 @@ namespace
     }
 } // namespace
 
-namespace geode::internal
+namespace geode
 {
-    void check_physical_problem_regions( const PhysicalProblem& problem,
+    void SimulationChecker::check_physical_problem_regions(
+        const PhysicalProblem& problem,
         const BRep& model,
         SimulationReport& report )
     {
@@ -242,6 +243,11 @@ namespace geode::internal
         {
             return;
         }
+        const auto block_materials =
+            internal::physical_problem_block_materials( problem, model );
+        const auto block_conditions =
+            internal::physical_problem_block_initial_conditions(
+                problem, model );
         RegionCoverageChecker material_checker{ model, "material", report };
         const auto materials = problem.materials();
         for( const auto material_id : Indices{ materials } )
@@ -253,8 +259,7 @@ namespace geode::internal
         material_checker.report_overlaps();
         if( !materials.empty() )
         {
-            material_checker.check_coverage(
-                internal::physical_problem_block_materials( problem, model ) );
+            material_checker.check_coverage( block_materials );
         }
         RegionCoverageChecker condition_checker{ model, "initial condition",
             report };
@@ -268,10 +273,9 @@ namespace geode::internal
         condition_checker.report_overlaps();
         if( problem.nb_initial_conditions() != 0 )
         {
-            condition_checker.check_coverage(
-                internal::physical_problem_block_initial_conditions(
-                    problem, model ) );
+            condition_checker.check_coverage( block_conditions );
         }
-        warn_unused_items( problem, model, report );
+        warn_unused_items(
+            problem, model, block_materials, block_conditions, report );
     }
-} // namespace geode::internal
+} // namespace geode

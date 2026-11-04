@@ -31,14 +31,12 @@
 #include <absl/algorithm/container.h>
 #include <absl/container/flat_hash_map.h>
 #include <absl/strings/str_cat.h>
-#include <absl/strings/str_join.h>
 #include <absl/types/span.h>
 
 #include <geode/basic/range.hpp>
 #include <geode/basic/uuid.hpp>
 
 #include <geode/mesh/core/solid_mesh.hpp>
-#include <geode/mesh/core/surface_mesh.hpp>
 
 #include <geode/model/mixin/core/block.hpp>
 #include <geode/model/mixin/core/surface.hpp>
@@ -48,10 +46,6 @@
 #include <geode/geosciences/simulation/core/physical_problem.hpp>
 #include <geode/geosciences/simulation/core/thermal_parameters.hpp>
 #include <geode/geosciences/simulation/helpers/internal/physical_problem_blocks.hpp>
-#include <geode/geosciences/simulation/helpers/internal/problem_definition_checker.hpp>
-#include <geode/geosciences/simulation/helpers/internal/problem_properties_checker.hpp>
-#include <geode/geosciences/simulation/helpers/internal/problem_regions_checker.hpp>
-#include <geode/geosciences/simulation/helpers/internal/property_attribute_checker.hpp>
 #include <geode/geosciences/simulation/helpers/internal/simulation_checker_helpers.hpp>
 #include <geode/geosciences/simulation/helpers/simulation_report.hpp>
 
@@ -59,36 +53,8 @@ namespace
 {
     using geode::PHYSICAL_PROPERTY_NAME;
     using geode::internal::component_location;
-    using geode::internal::ComponentElements;
     using geode::internal::count_string;
-    using geode::internal::for_each_component;
     using geode::internal::material_subject;
-
-    std::vector< bool > block_polyhedron_unique_vertices(
-        const geode::BRep& model )
-    {
-        std::vector< bool > on_block( model.nb_unique_vertices(), false );
-        for( const auto& block : model.blocks() )
-        {
-            const auto& mesh = block.mesh();
-            for( const auto polyhedron : geode::Range{ mesh.nb_polyhedra() } )
-            {
-                for( const auto vertex :
-                    geode::LRange{ mesh.nb_polyhedron_vertices( polyhedron ) } )
-                {
-                    const auto unique_vertex =
-                        model.unique_vertex( { block.component_id(),
-                            mesh.polyhedron_vertex(
-                                { polyhedron, vertex } ) } );
-                    if( unique_vertex != geode::NO_ID )
-                    {
-                        on_block[unique_vertex] = true;
-                    }
-                }
-            }
-        }
-        return on_block;
-    }
 
     // Block vertices, in increasing order, without unique vertex
     std::vector< geode::index_t > vertices_without_unique_vertex(
@@ -114,37 +80,6 @@ namespace
             }
         }
         return missing;
-    }
-
-    bool is_on_blocks( const geode::BRep& model,
-        const geode::Surface3D& surface,
-        geode::index_t vertex,
-        const std::vector< bool >& on_block )
-    {
-        const auto unique_vertex =
-            model.unique_vertex( { surface.component_id(), vertex } );
-        return unique_vertex != geode::NO_ID && on_block[unique_vertex];
-    }
-
-    // Surface polygons with a vertex which is not a Block vertex
-    std::vector< geode::index_t > polygons_outside_blocks(
-        const geode::BRep& model,
-        const geode::Surface3D& surface,
-        const std::vector< bool >& on_block )
-    {
-        const auto& mesh = surface.mesh();
-        std::vector< geode::index_t > polygons;
-        for( const auto polygon : geode::Range{ mesh.nb_polygons() } )
-        {
-            const auto vertices = mesh.polygon_vertices( polygon );
-            if( !absl::c_all_of( vertices, [&]( geode::index_t vertex ) {
-                    return is_on_blocks( model, surface, vertex, on_block );
-                } ) )
-            {
-                polygons.push_back( polygon );
-            }
-        }
-        return polygons;
     }
 
     struct UniqueVerticesOutsideBlocks
@@ -201,11 +136,11 @@ namespace
     std::vector< std::vector< const geode::Block3D* > >
         blocks_without_rock_property( const geode::PhysicalProblem& problem,
             const geode::BRep& model,
+            const absl::flat_hash_map< geode::uuid, geode::index_t >&
+                block_materials,
             const geode::PhysicalPropertyCoverage& coverage )
     {
         const auto materials = problem.materials();
-        const auto block_materials =
-            geode::internal::physical_problem_block_materials( problem, model );
         std::vector< std::vector< const geode::Block3D* > > uncovered_blocks(
             materials.size() );
         for( const auto& block : model.blocks() )
@@ -224,6 +159,54 @@ namespace
             }
         }
         return uncovered_blocks;
+    }
+
+    void check_material_rock_property( const geode::PhysicalProblem& problem,
+        const geode::BRep& model,
+        const absl::flat_hash_map< geode::uuid, geode::index_t >&
+            block_materials,
+        const geode::PhysicalPropertyCoverage& coverage,
+        geode::SimulationReport& report )
+    {
+        geode::OpenGeodeGeosciencesSimulationException::check_exception(
+            coverage.property == PHYSICAL_PROPERTY_NAME::porosity
+                || coverage.property == PHYSICAL_PROPERTY_NAME::permeability,
+            nullptr, geode::OpenGeodeException::TYPE::internal,
+            "[SimulationChecker::check_rock_property_availability] Materials "
+            "only give porosity and permeability, not ",
+            geode::physical_property_string( coverage.property ) );
+        const auto materials = problem.materials();
+        const auto uncovered_blocks = blocks_without_rock_property(
+            problem, model, block_materials, coverage );
+        const auto name = geode::physical_property_string( coverage.property );
+        for( const auto material : geode::Indices{ materials } )
+        {
+            const auto& blocks = uncovered_blocks[material];
+            if( blocks.empty() )
+            {
+                continue;
+            }
+            geode::SimulationIssue issue{
+                geode::SIMULATION_ISSUE_SEVERITY::error,
+                geode::SIMULATION_CHECK_STAGE::properties,
+                material_subject( materials[material].name ),
+                absl::StrCat( "no ", name, " on ",
+                    count_string( blocks.size(),
+                        geode::Block3D::component_type_static().get() ),
+                    coverage.is_registered
+                        ? absl::StrCat( ": the model ", name,
+                            " does not cover every polyhedron" )
+                        : absl::StrCat( ": the model has no ", name,
+                            " physical property on Blocks" ) )
+            };
+            issue.fix = absl::StrCat( "give the material a ", name,
+                " or a value to every polyhedron of the model ", name );
+            for( const auto* block : blocks )
+            {
+                issue.add_location( *block );
+            }
+            report.add_issue( std::move( issue ) );
+        }
     }
 
     // Name between quotes, or the id if the model has no name
@@ -251,28 +234,6 @@ namespace geode
         check_physical_problem_properties( problem, model, report );
         check_simulator( problem, model, report );
         return report;
-    }
-
-    void SimulationChecker::check_physical_problem_definition(
-        const PhysicalProblem& problem, SimulationReport& report )
-    {
-        internal::check_physical_problem_definition( problem, report );
-    }
-
-    void SimulationChecker::check_physical_problem_regions(
-        const PhysicalProblem& problem,
-        const BRep& model,
-        SimulationReport& report )
-    {
-        internal::check_physical_problem_regions( problem, model, report );
-    }
-
-    void SimulationChecker::check_physical_problem_properties(
-        const PhysicalProblem& problem,
-        const BRep& model,
-        SimulationReport& report )
-    {
-        internal::check_physical_problem_properties( problem, model, report );
     }
 
     void SimulationChecker::check_blocks(
@@ -327,44 +288,6 @@ namespace geode
         }
     }
 
-    void SimulationChecker::check_surfaces_on_blocks( const BRep& model,
-        absl::Span< const uuid > surfaces,
-        SimulationReport& report )
-    {
-        if( surfaces.empty() )
-        {
-            return;
-        }
-        const auto on_block = block_polyhedron_unique_vertices( model );
-        std::vector< SimulationIssueLocation > outside;
-        for( const auto& surface_id : surfaces )
-        {
-            const auto& surface = model.surface( surface_id );
-            auto polygons = polygons_outside_blocks( model, surface, on_block );
-            if( !polygons.empty() )
-            {
-                auto& location =
-                    outside.emplace_back( component_location( surface ) );
-                location.element_type = SIMULATION_ELEMENT_TYPE::polygon;
-                location.elements = std::move( polygons );
-                location.nb_elements = surface.mesh().nb_polygons();
-            }
-        }
-        if( outside.empty() )
-        {
-            return;
-        }
-        SimulationIssue issue{ SIMULATION_ISSUE_SEVERITY::error,
-            SIMULATION_CHECK_STAGE::mesh, "Surfaces",
-            absl::StrCat( "polygons with vertices which are not Block "
-                          "polyhedron vertices on ",
-                count_string( outside.size(),
-                    Surface3D::component_type_static().get() ) ) };
-        issue.locations = std::move( outside );
-        issue.fix = "the Surface meshes must match the Block meshes";
-        report.add_issue( std::move( issue ) );
-    }
-
     void SimulationChecker::check_unique_vertices_in_blocks(
         const BRep& model, SimulationReport& report )
     {
@@ -405,91 +328,45 @@ namespace geode
 
     std::string_view physical_property_string( PHYSICAL_PROPERTY_NAME property )
     {
-        switch( property )
-        {
-            case PHYSICAL_PROPERTY_NAME::porosity:
-                return "porosity";
-            case PHYSICAL_PROPERTY_NAME::permeability:
-                return "permeability";
-            case PHYSICAL_PROPERTY_NAME::bulk_modulus:
-                return "bulk_modulus";
-            case PHYSICAL_PROPERTY_NAME::shear_modulus:
-                return "shear_modulus";
-            case PHYSICAL_PROPERTY_NAME::density:
-                return "density";
-            case PHYSICAL_PROPERTY_NAME::biot_coefficient:
-                return "biot_coefficient";
-            case PHYSICAL_PROPERTY_NAME::grain_density:
-                return "grain_density";
-            case PHYSICAL_PROPERTY_NAME::thermal_expansion_coefficient:
-                return "thermal_expansion_coefficient";
-            case PHYSICAL_PROPERTY_NAME::initial_stress:
-                return "initial_stress";
-            case PHYSICAL_PROPERTY_NAME::initial_shear_stress:
-                return "initial_shear_stress";
-            case PHYSICAL_PROPERTY_NAME::boundary_pressure:
-                return "boundary_pressure";
-            case PHYSICAL_PROPERTY_NAME::boundary_temperature:
-                return "boundary_temperature";
-            case PHYSICAL_PROPERTY_NAME::boundary_oil_fraction:
-                return "boundary_oil_fraction";
-            case PHYSICAL_PROPERTY_NAME::boundary_gas_fraction:
-                return "boundary_gas_fraction";
-            case PHYSICAL_PROPERTY_NAME::boundary_water_fraction:
-                return "boundary_water_fraction";
-            case PHYSICAL_PROPERTY_NAME::boundary_displacement:
-                return "boundary_displacement";
-            case PHYSICAL_PROPERTY_NAME::boundary_traction:
-                return "boundary_traction";
-            case PHYSICAL_PROPERTY_NAME::boundary_normal_traction:
-                return "boundary_normal_traction";
-        }
-        return "unknown";
+        return internal::physical_property_description( property ).name;
     }
 
     ComponentType physical_property_component_type(
         PHYSICAL_PROPERTY_NAME property )
     {
-        switch( property )
+        if( internal::physical_property_description( property ).element_type
+            == SIMULATION_ELEMENT_TYPE::polygon )
         {
-            case PHYSICAL_PROPERTY_NAME::boundary_pressure:
-            case PHYSICAL_PROPERTY_NAME::boundary_temperature:
-            case PHYSICAL_PROPERTY_NAME::boundary_oil_fraction:
-            case PHYSICAL_PROPERTY_NAME::boundary_gas_fraction:
-            case PHYSICAL_PROPERTY_NAME::boundary_water_fraction:
-            case PHYSICAL_PROPERTY_NAME::boundary_displacement:
-            case PHYSICAL_PROPERTY_NAME::boundary_traction:
-            case PHYSICAL_PROPERTY_NAME::boundary_normal_traction:
-                return Surface3D::component_type_static();
-            default:
-                return Block3D::component_type_static();
+            return Surface3D::component_type_static();
         }
+        return Block3D::component_type_static();
     }
 
     bool is_physical_property_read(
         const PhysicalProblem& problem, PHYSICAL_PROPERTY_NAME property )
     {
-        return internal::property_reader( property ).reads( problem );
+        return internal::reads(
+            internal::physical_property_description( property ).reader,
+            problem );
     }
 
     PhysicalPropertyRequirement::PhysicalPropertyRequirement(
         PHYSICAL_PROPERTY_NAME property_in )
         : property( property_in )
     {
-        switch( property )
+        switch(
+            internal::physical_property_description( property ).value_types )
         {
-            case PHYSICAL_PROPERTY_NAME::permeability:
+            case internal::PROPERTY_VALUE_TYPES::scalar:
+                value_types = { PHYSICAL_PROPERTY_VALUE_TYPE::scalar };
+                return;
+            case internal::PROPERTY_VALUE_TYPES::vector3:
+                value_types = { PHYSICAL_PROPERTY_VALUE_TYPE::vector3 };
+                return;
+            case internal::PROPERTY_VALUE_TYPES::scalar_or_vector3:
                 value_types = { PHYSICAL_PROPERTY_VALUE_TYPE::scalar,
                     PHYSICAL_PROPERTY_VALUE_TYPE::vector3 };
                 return;
-            case PHYSICAL_PROPERTY_NAME::initial_stress:
-            case PHYSICAL_PROPERTY_NAME::initial_shear_stress:
-            case PHYSICAL_PROPERTY_NAME::boundary_displacement:
-            case PHYSICAL_PROPERTY_NAME::boundary_traction:
-                value_types = { PHYSICAL_PROPERTY_VALUE_TYPE::vector3 };
-                return;
-            default:
-                value_types = { PHYSICAL_PROPERTY_VALUE_TYPE::scalar };
         }
     }
 
@@ -515,93 +392,19 @@ namespace geode
         return !components.empty();
     }
 
-    PhysicalPropertyCoverage SimulationChecker::check_physical_property(
-        const BRep& model,
-        const PhysicalPropertyRequirement& requirement,
-        SimulationReport& report )
-    {
-        return internal::check_physical_property( model, requirement, report );
-    }
-
     void SimulationChecker::check_rock_property_availability(
         const PhysicalProblem& problem,
-        const BRep& model,
-        const PhysicalPropertyCoverage& coverage,
-        SimulationReport& report )
-    {
-        const auto materials = problem.materials();
-        const auto uncovered_blocks =
-            blocks_without_rock_property( problem, model, coverage );
-        const auto name = physical_property_string( coverage.property );
-        for( const auto material : Indices{ materials } )
-        {
-            const auto& blocks = uncovered_blocks[material];
-            if( blocks.empty() )
-            {
-                continue;
-            }
-            SimulationIssue issue{ SIMULATION_ISSUE_SEVERITY::error,
-                SIMULATION_CHECK_STAGE::properties,
-                material_subject( materials[material].name ),
-                absl::StrCat( "no ", name, " on ",
-                    count_string(
-                        blocks.size(), Block3D::component_type_static().get() ),
-                    coverage.is_registered
-                        ? absl::StrCat( ": the model ", name,
-                            " does not cover every polyhedron" )
-                        : absl::StrCat( ": the model has no ", name,
-                            " physical property on Blocks" ) ) };
-            issue.fix = absl::StrCat( "give the material a ", name,
-                " or a value to every polyhedron of the model ", name );
-            for( const auto* block : blocks )
-            {
-                issue.add_location( *block );
-            }
-            report.add_issue( std::move( issue ) );
-        }
-    }
-
-    void SimulationChecker::check_coinciding_physical_properties(
         const BRep& model,
         absl::Span< const PhysicalPropertyCoverage > coverages,
         SimulationReport& report )
     {
-        if( coverages.size() < 2 )
+        const auto block_materials =
+            internal::physical_problem_block_materials( problem, model );
+        for( const auto& coverage : coverages )
         {
-            return;
+            check_material_rock_property(
+                problem, model, block_materials, coverage, report );
         }
-        const auto type =
-            physical_property_component_type( coverages.front().property );
-        for_each_component( model, type,
-            [&coverages, &report]( const ComponentElements& elements ) {
-                std::vector< std::string_view > carried;
-                std::vector< std::string_view > missing;
-                for( const auto& coverage : coverages )
-                {
-                    const auto name =
-                        physical_property_string( coverage.property );
-                    if( coverage.carries( elements.component.id() ) )
-                    {
-                        carried.push_back( name );
-                    }
-                    else
-                    {
-                        missing.push_back( name );
-                    }
-                }
-                if( carried.empty() || missing.empty() )
-                {
-                    return;
-                }
-                SimulationIssue issue{ SIMULATION_ISSUE_SEVERITY::error,
-                    SIMULATION_CHECK_STAGE::properties,
-                    absl::StrJoin( carried, ", " ),
-                    absl::StrCat(
-                        "given without ", absl::StrJoin( missing, ", " ) ) };
-                issue.fix = "these properties must be given together";
-                issue.add_location( elements.component );
-                report.add_issue( std::move( issue ) );
-            } );
     }
 
     void SimulationChecker::check_physical_property_presence( const BRep& model,

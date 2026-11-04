@@ -1004,7 +1004,13 @@ namespace
             "[Test] ", context, ": one location expected in ",
             report.string() );
         const auto& location = issue->locations.front();
-        Exception::test( absl::c_equal( location.elements, elements )
+        auto listed = location.elements;
+        if( location.all_elements )
+        {
+            listed.resize( location.nb_elements );
+            absl::c_iota( listed, 0 );
+        }
+        Exception::test( absl::c_equal( listed, elements )
                              && location.element_type
                                     != geode::SIMULATION_ELEMENT_TYPE::none,
             "[Test] ", context, ": wrong elements in ", issue->string() );
@@ -1051,7 +1057,7 @@ namespace
             geode::PHYSICAL_PROPERTY_NAME::boundary_pressure, "pressure",
             std::array< double, 1 >{ 1e7 } );
         check_property_issues( problem, tractions,
-            { "boundary_traction values outside",
+            { "boundary_traction non-finite values",
                 "flow boundary condition without flow model" },
             "Invalid tractions" );
 

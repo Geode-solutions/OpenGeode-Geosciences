@@ -65,10 +65,27 @@ namespace
         return "";
     }
 
+    // "all 400 polygons", "its polygon"
+    std::string all_elements_string(
+        const geode::SimulationIssueLocation& location )
+    {
+        if( location.nb_elements == 1 )
+        {
+            return absl::StrCat(
+                "its ", element_type_string( location.element_type, false ) );
+        }
+        return absl::StrCat( "all ", location.nb_elements, " ",
+            element_type_string( location.element_type, true ) );
+    }
+
     // "12 of 400 polygons (3, 4, 17, 18, 40, ...)"
     std::string elements_string(
         const geode::SimulationIssueLocation& location )
     {
+        if( location.all_elements )
+        {
+            return all_elements_string( location );
+        }
         const auto nb_listed =
             static_cast< geode::index_t >( location.elements.size() );
         std::string message;
@@ -148,7 +165,8 @@ namespace geode
                                     : absl::StrCat( component.type.get(), " \"",
                                         name, "\"" );
         std::vector< std::string > precisions;
-        if( element_type != SIMULATION_ELEMENT_TYPE::none && !elements.empty() )
+        if( element_type != SIMULATION_ELEMENT_TYPE::none
+            && ( all_elements || !elements.empty() ) )
         {
             precisions.push_back( elements_string( *this ) );
         }

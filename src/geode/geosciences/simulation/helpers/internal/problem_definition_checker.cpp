@@ -21,7 +21,7 @@
  *
  */
 
-#include <geode/geosciences/simulation/helpers/internal/problem_definition_checker.hpp>
+#include <geode/geosciences/simulation/helpers/simulation_checker.hpp>
 
 #include <algorithm>
 #include <array>
@@ -133,10 +133,10 @@ namespace
             } );
     }
 
-    class ProblemValidator
+    class ProblemDefinitionChecker
     {
     public:
-        ProblemValidator( const geode::PhysicalProblem& problem,
+        ProblemDefinitionChecker( const geode::PhysicalProblem& problem,
             geode::SimulationReport& report )
             : problem_( problem ), report_( report )
         {
@@ -196,14 +196,6 @@ namespace
                           != nullptr;
         }
 
-        [[nodiscard]] bool is_multiphase() const
-        {
-            return problem_.has_flow()
-                   && dynamic_cast< const geode::MultiphaseFlow* >(
-                          &problem_.flow() )
-                          != nullptr;
-        }
-
         [[nodiscard]] bool is_single_phase_fluid() const
         {
             return dynamic_cast< const geode::SinglePhaseFluid* >( &fluid() )
@@ -231,7 +223,7 @@ namespace
                 return true;
             }
             const auto nb_phases = fluid().phases().size();
-            if( is_multiphase() )
+            if( is_multiphase( problem_ ) )
             {
                 if( is_single_phase_fluid() )
                 {
@@ -512,7 +504,6 @@ namespace
                 return;
             }
             absl::flat_hash_set< std::string > names;
-            absl::flat_hash_set< geode::uuid > regions;
             geode::index_t nb_defaults{ 0 };
             for( const auto& material : problem_.materials() )
             {
@@ -525,7 +516,8 @@ namespace
                         material.name, "\")" );
                 }
                 nb_defaults += material.regions.empty() ? 1 : 0;
-                check_unique_regions( material.regions, regions, "Materials" );
+                check_unique_regions(
+                    material.regions, material_subject( material.name ) );
                 check_material_values( material );
                 check_saturation_functions( material );
             }
@@ -536,16 +528,17 @@ namespace
             }
         }
 
+        // Regions shared by several items are reported in the regions stage
         void check_unique_regions( absl::Span< const geode::uuid > regions,
-            absl::flat_hash_set< geode::uuid >& known_regions,
-            std::string_view subject )
+            const std::string& subject )
         {
+            absl::flat_hash_set< geode::uuid > known_regions;
             for( const auto& region : regions )
             {
                 if( !known_regions.insert( region ).second )
                 {
-                    add_issue( std::string{ subject }, "region ",
-                        region.string(), " is assigned several times" );
+                    add_issue( subject, "region ", region.string(),
+                        " is listed several times" );
                 }
             }
         }
@@ -578,7 +571,7 @@ namespace
         void check_saturation_functions( const geode::Material& material )
         {
             const auto subject = material_subject( material.name );
-            if( !material.relative_permeability && is_multiphase() )
+            if( !material.relative_permeability && is_multiphase( problem_ ) )
             {
                 add_issue( subject,
                     "needs a relative permeability for multiphase flow" );
@@ -822,22 +815,20 @@ namespace
                     "Initial conditions", "no initial condition is defined" );
                 return;
             }
-            absl::flat_hash_set< geode::uuid > regions;
             geode::index_t nb_defaults{ 0 };
             for( const auto condition_id :
                 geode::Range{ problem_.nb_initial_conditions() } )
             {
                 const auto& condition =
                     problem_.initial_condition( condition_id );
+                const auto subject = initial_condition_subject( condition_id );
                 nb_defaults += condition.regions().empty() ? 1 : 0;
-                check_unique_regions(
-                    condition.regions(), regions, "Initial conditions" );
+                check_unique_regions( condition.regions(), subject );
                 if( const auto* uniform =
                         dynamic_cast< const geode::UniformInitialCondition* >(
                             &condition ) )
                 {
-                    check_uniform_condition(
-                        *uniform, initial_condition_subject( condition_id ) );
+                    check_uniform_condition( *uniform, subject );
                 }
             }
             if( nb_defaults > 1 )
@@ -855,7 +846,7 @@ namespace
             {
                 add_issue( subject, "pressure must be finite" );
             }
-            if( is_multiphase() )
+            if( is_multiphase( problem_ ) )
             {
                 if( has_fluid() )
                 {
@@ -1089,15 +1080,15 @@ namespace
     }
 } // namespace
 
-namespace geode::internal
+namespace geode
 {
-    void check_physical_problem_definition(
+    void SimulationChecker::check_physical_problem_definition(
         const PhysicalProblem& problem, SimulationReport& report )
     {
-        ProblemValidator{ problem, report }.run();
+        ProblemDefinitionChecker{ problem, report }.run();
         if( problem.solid_mechanics() )
         {
             warn_unused_materials( problem, report );
         }
     }
-} // namespace geode::internal
+} // namespace geode

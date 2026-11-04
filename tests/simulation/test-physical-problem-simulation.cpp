@@ -81,11 +81,9 @@ namespace
     public:
         // Checks available to simulator checkers, exposed for the tests
         using geode::SimulationChecker::check_blocks;
-        using geode::SimulationChecker::check_coinciding_physical_properties;
         using geode::SimulationChecker::check_physical_property;
         using geode::SimulationChecker::check_physical_property_presence;
         using geode::SimulationChecker::check_rock_property_availability;
-        using geode::SimulationChecker::check_surfaces_on_blocks;
         using geode::SimulationChecker::check_unique_vertices_in_blocks;
         using geode::SimulationChecker::warn_ignored_physical_properties;
 
@@ -325,8 +323,6 @@ namespace
         TetModel tet;
         geode::SimulationReport report;
         DummyChecker::check_blocks( tet.model, report );
-        DummyChecker::check_surfaces_on_blocks(
-            tet.model, { &tet.surface_id, 1 }, report );
         DummyChecker::check_unique_vertices_in_blocks( tet.model, report );
         check_no_error( report, "valid mesh" );
 
@@ -343,8 +339,6 @@ namespace
             builder.create_unique_vertices( 1 ) );
         geode::SimulationReport broken;
         DummyChecker::check_blocks( tet.model, broken );
-        DummyChecker::check_surfaces_on_blocks(
-            tet.model, { &tet.surface_id, 1 }, broken );
         DummyChecker::check_unique_vertices_in_blocks( tet.model, broken );
         check_error( broken, "1 Block without polyhedron", "empty Block" );
         check_elements(
@@ -352,12 +346,6 @@ namespace
                 "Block vertex without unique vertex" ),
             geode::SIMULATION_ELEMENT_TYPE::vertex,
             std::array< geode::index_t, 1 >{ 3 }, "Block vertex" );
-        check_elements( check_error( broken,
-                            "polygons with vertices which are not Block "
-                            "polyhedron vertices",
-                            "Surface vertex outside Blocks" ),
-            geode::SIMULATION_ELEMENT_TYPE::polygon,
-            std::array< geode::index_t, 1 >{ 1 }, "Surface polygon" );
         check_elements( check_error( broken, "are not Block vertices",
                             "unique vertices outside Blocks" ),
             geode::SIMULATION_ELEMENT_TYPE::vertex,
@@ -365,7 +353,7 @@ namespace
         check_error( broken, "1 unique vertex is not a vertex of any component",
             "isolated unique vertex" );
         Exception::test(
-            broken.issues( SIMULATION_CHECK_STAGE::mesh ).size() == 5,
+            broken.issues( SIMULATION_CHECK_STAGE::mesh ).size() == 4,
             "[Test] Mesh issues should be in the mesh stage: ",
             broken.string() );
 
@@ -414,8 +402,7 @@ namespace
         const geode::PhysicalPropertyRequirement& requirement )
     {
         geode::SimulationReport report;
-        static_cast< void >( DummyChecker::check_physical_property(
-            tet.model, requirement, report ) );
+        DummyChecker::check_physical_property( tet.model, requirement, report );
         return report;
     }
 
@@ -624,10 +611,14 @@ namespace
         const auto missing_report =
             check_property( tet, geode::PhysicalPropertyRequirement{
                                      PHYSICAL_PROPERTY_NAME::porosity } );
-        check_elements( check_error( missing_report,
-                            "porosity missing on 1 Block", "missing values" ),
-            geode::SIMULATION_ELEMENT_TYPE::polyhedron,
-            std::array< geode::index_t, 1 >{ 0 }, "missing value" );
+        const auto& missing_values = check_error(
+            missing_report, "porosity missing on 1 Block", "missing values" );
+        Exception::test(
+            missing_values.locations.size() == 1
+                && missing_values.locations.front().all_elements
+                && missing_values.locations.front().elements.empty(),
+            "[Test] A Block missing every value lists no element: ",
+            missing_values.string() );
 
         auto problem = water_problem();
         auto material = problem.materials()[0];
@@ -635,7 +626,7 @@ namespace
         geode::PhysicalProblemBuilder{ problem }.set_material( 0, material );
         geode::SimulationReport availability;
         DummyChecker::check_rock_property_availability(
-            problem, tet.model, coverage, availability );
+            problem, tet.model, { &coverage, 1 }, availability );
         check_error( availability, "does not cover every polyhedron",
             "material without porosity" );
 
@@ -656,20 +647,21 @@ namespace
         Exception::test(
             missing_attribute.locations.size() == 1
                 && missing_attribute.locations.front().detail == "no attribute"
+                && missing_attribute.locations.front().all_elements
                 && missing_attribute.locations.front().nb_elements == 1,
             "[Test] Missing attribute location: ", missing_attribute.string() );
 
+        const std::array< geode::PhysicalPropertyCoverage, 1 > no_coverage{
+            geode::PhysicalPropertyCoverage{ PHYSICAL_PROPERTY_NAME::porosity }
+        };
         geode::BRep empty;
         geode::SimulationReport no_property;
-        DummyChecker::check_rock_property_availability( problem, empty,
-            geode::PhysicalPropertyCoverage{ PHYSICAL_PROPERTY_NAME::porosity },
-            no_property );
+        DummyChecker::check_rock_property_availability(
+            problem, empty, no_coverage, no_property );
         check_no_error( no_property, "no meshed Block to cover" );
         const TetModel unregistered;
-        DummyChecker::check_rock_property_availability( problem,
-            unregistered.model,
-            geode::PhysicalPropertyCoverage{ PHYSICAL_PROPERTY_NAME::porosity },
-            no_property );
+        DummyChecker::check_rock_property_availability(
+            problem, unregistered.model, no_coverage, no_property );
         check_error( no_property, "has no porosity physical property",
             "unregistered porosity" );
     }
@@ -703,11 +695,6 @@ namespace
                 report )
         };
         check_no_error( report, "boundary properties" );
-        DummyChecker::check_coinciding_physical_properties(
-            tet.model, coverages, report );
-        check_error( report,
-            "boundary_pressure given without boundary_temperature",
-            "partial boundary set" );
         DummyChecker::check_physical_property_presence(
             tet.model, coverages[1], "no heat", report );
         check_warning( report,
@@ -874,18 +861,6 @@ namespace
             tet.model.unique_vertex( { surface.component_id(), 3 } )
                 == geode::NO_ID,
             "[Test] New Surface vertex should have no unique vertex" );
-        geode::SimulationReport report;
-        DummyChecker::check_surfaces_on_blocks(
-            tet.model, { &tet.surface_id, 1 }, report );
-        Exception::test(
-            report.nb_errors() == 1, "[Test] Wrong errors: ", report.string() );
-        check_elements(
-            check_error( report,
-                "polygons with vertices which are not Block polyhedron "
-                "vertices on 1 Surface",
-                "Surface vertex without unique vertex" ),
-            geode::SIMULATION_ELEMENT_TYPE::polygon,
-            std::array< geode::index_t, 1 >{ 1 }, "Surface polygon" );
         geode::SimulationReport unique_vertices;
         DummyChecker::check_unique_vertices_in_blocks(
             tet.model, unique_vertices );

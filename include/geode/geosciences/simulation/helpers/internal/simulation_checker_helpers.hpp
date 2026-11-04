@@ -24,8 +24,11 @@
 #pragma once
 
 #include <cstddef>
+#include <cstdint>
 #include <string>
 #include <string_view>
+
+#include <absl/types/span.h>
 
 #include <geode/basic/attribute_manager.hpp>
 
@@ -107,14 +110,55 @@ namespace geode::internal
     [[nodiscard]] std::string opengeode_geosciences_simulation_api
         initial_condition_subject( index_t condition );
 
-    // Simulation reading a physical property
-    struct PropertyReader
+    // Problems reading a physical property
+    enum struct PROPERTY_READER : std::uint8_t
     {
-        // e.g. "poromechanics", for "ignored" warnings
-        std::string_view name;
-        bool ( *reads )( const PhysicalProblem& problem );
+        flow,
+        multiphase_flow,
+        solid_mechanics,
+        solid_mechanics_without_flow,
+        poromechanics,
+        thermal_poromechanics
     };
 
-    [[nodiscard]] PropertyReader property_reader(
-        PHYSICAL_PROPERTY_NAME property );
+    // e.g. "poromechanics", for "ignored" warnings
+    [[nodiscard]] std::string_view property_reader_string(
+        PROPERTY_READER reader );
+
+    [[nodiscard]] bool reads(
+        PROPERTY_READER reader, const PhysicalProblem& problem );
+
+    enum struct PROPERTY_VALUE_TYPES : std::uint8_t
+    {
+        scalar,
+        vector3,
+        scalar_or_vector3
+    };
+
+    struct ValidRange
+    {
+        bool ( *contains )( double value );
+        // Values the range does not contain, e.g. "values outside (0, 1]"
+        std::string_view invalid_values;
+    };
+
+    // What simulators know about a physical property
+    struct PhysicalPropertyDescription
+    {
+        PHYSICAL_PROPERTY_NAME property;
+        std::string_view name;
+        // polygon for boundary conditions (Surfaces), polyhedron for the
+        // other properties (Blocks)
+        SIMULATION_ELEMENT_TYPE element_type;
+        PROPERTY_VALUE_TYPES value_types;
+        ValidRange valid_range;
+        PROPERTY_READER reader;
+    };
+
+    [[nodiscard]] const PhysicalPropertyDescription&
+        physical_property_description( PHYSICAL_PROPERTY_NAME property );
+
+    // Every physical property, in the enum order
+    [[nodiscard]] absl::Span< const PhysicalPropertyDescription >
+        physical_property_descriptions();
 } // namespace geode::internal

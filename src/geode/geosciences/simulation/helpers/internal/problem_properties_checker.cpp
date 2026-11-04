@@ -21,7 +21,7 @@
  *
  */
 
-#include <geode/geosciences/simulation/helpers/internal/problem_properties_checker.hpp>
+#include <geode/geosciences/simulation/helpers/simulation_checker.hpp>
 
 #include <array>
 #include <cmath>
@@ -52,9 +52,7 @@
 #include <geode/geosciences/simulation/core/solid_mechanics.hpp>
 #include <geode/geosciences/simulation/core/thermal_parameters.hpp>
 #include <geode/geosciences/simulation/helpers/internal/physical_problem_blocks.hpp>
-#include <geode/geosciences/simulation/helpers/internal/property_attribute_checker.hpp>
 #include <geode/geosciences/simulation/helpers/internal/simulation_checker_helpers.hpp>
-#include <geode/geosciences/simulation/helpers/simulation_checker.hpp>
 #include <geode/geosciences/simulation/helpers/simulation_report.hpp>
 
 namespace
@@ -65,39 +63,30 @@ namespace
     using geode::internal::component_location;
     using geode::internal::count_string;
 
-    constexpr std::array< PHYSICAL_PROPERTY_NAME, 5 > FLOW_BOUNDARY_PROPERTIES{
-        PHYSICAL_PROPERTY_NAME::boundary_pressure,
-        PHYSICAL_PROPERTY_NAME::boundary_temperature,
-        PHYSICAL_PROPERTY_NAME::boundary_oil_fraction,
-        PHYSICAL_PROPERTY_NAME::boundary_gas_fraction,
-        PHYSICAL_PROPERTY_NAME::boundary_water_fraction
-    };
+    using PropertyCheck = geode::PhysicalPropertyCoverage ( * )(
+        const geode::BRep&,
+        const geode::PhysicalPropertyRequirement&,
+        geode::SimulationReport& );
 
-    constexpr std::array< PHYSICAL_PROPERTY_NAME, 3 >
-        MECHANICS_BOUNDARY_PROPERTIES{
-            PHYSICAL_PROPERTY_NAME::boundary_displacement,
-            PHYSICAL_PROPERTY_NAME::boundary_traction,
-            PHYSICAL_PROPERTY_NAME::boundary_normal_traction
-        };
+    bool is_flow_boundary_condition(
+        const geode::internal::PhysicalPropertyDescription& description )
+    {
+        return description.element_type
+                   == geode::SIMULATION_ELEMENT_TYPE::polygon
+               && ( description.reader == geode::internal::PROPERTY_READER::flow
+                    || description.reader
+                           == geode::internal::PROPERTY_READER::
+                               multiphase_flow );
+    }
 
-    constexpr std::array< PHYSICAL_PROPERTY_NAME, 18 > ALL_PROPERTIES{
-        PHYSICAL_PROPERTY_NAME::porosity, PHYSICAL_PROPERTY_NAME::permeability,
-        PHYSICAL_PROPERTY_NAME::bulk_modulus,
-        PHYSICAL_PROPERTY_NAME::shear_modulus, PHYSICAL_PROPERTY_NAME::density,
-        PHYSICAL_PROPERTY_NAME::biot_coefficient,
-        PHYSICAL_PROPERTY_NAME::grain_density,
-        PHYSICAL_PROPERTY_NAME::thermal_expansion_coefficient,
-        PHYSICAL_PROPERTY_NAME::initial_stress,
-        PHYSICAL_PROPERTY_NAME::initial_shear_stress,
-        PHYSICAL_PROPERTY_NAME::boundary_pressure,
-        PHYSICAL_PROPERTY_NAME::boundary_temperature,
-        PHYSICAL_PROPERTY_NAME::boundary_oil_fraction,
-        PHYSICAL_PROPERTY_NAME::boundary_gas_fraction,
-        PHYSICAL_PROPERTY_NAME::boundary_water_fraction,
-        PHYSICAL_PROPERTY_NAME::boundary_displacement,
-        PHYSICAL_PROPERTY_NAME::boundary_traction,
-        PHYSICAL_PROPERTY_NAME::boundary_normal_traction
-    };
+    bool is_mechanics_boundary_condition(
+        const geode::internal::PhysicalPropertyDescription& description )
+    {
+        return description.element_type
+                   == geode::SIMULATION_ELEMENT_TYPE::polygon
+               && description.reader
+                      == geode::internal::PROPERTY_READER::solid_mechanics;
+    }
 
     constexpr std::array< std::string_view, 3 > AXIS_NAMES{ "x", "y", "z" };
 
@@ -162,8 +151,12 @@ namespace
     public:
         PhysicalPropertyChecker( const geode::PhysicalProblem& problem,
             const geode::BRep& model,
+            PropertyCheck check_physical_property,
             geode::SimulationReport& report )
-            : problem_( problem ), model_( model ), report_( report )
+            : problem_( problem ),
+              model_( model ),
+              check_physical_property_( check_physical_property ),
+              report_( report )
         {
         }
 
@@ -199,22 +192,22 @@ namespace
             {
                 requirement.required_by = std::string{ process() };
             }
-            return geode::internal::check_physical_property(
-                model_, requirement, report_ );
+            return check_physical_property_( model_, requirement, report_ );
         }
 
         // Boundary conditions of a missing process are errors: the problem
         // probably lacks this process. Other properties are ignored.
         void check_unread_properties()
         {
-            for( const auto property : ALL_PROPERTIES )
+            for( const auto& description :
+                geode::internal::physical_property_descriptions() )
             {
-                if( !model_.has_physical_property( property )
-                    || geode::is_physical_property_read( problem_, property ) )
+                if( !model_.has_physical_property( description.property )
+                    || geode::internal::reads( description.reader, problem_ ) )
                 {
                     continue;
                 }
-                report_unread_property( property );
+                report_unread_property( description );
             }
         }
 
@@ -228,28 +221,27 @@ namespace
             report_.add_issue( std::move( issue ) );
         }
 
-        void report_unread_property( PHYSICAL_PROPERTY_NAME property )
+        void report_unread_property(
+            const geode::internal::PhysicalPropertyDescription& description )
         {
-            const auto name = geode::physical_property_string( property );
             if( !problem_.has_flow()
-                && absl::c_linear_search( FLOW_BOUNDARY_PROPERTIES, property ) )
+                && is_flow_boundary_condition( description ) )
             {
-                add_unread_property_error( name,
+                add_unread_property_error( description.name,
                     "flow boundary condition without flow model",
                     "define a flow model or remove the property" );
             }
             else if( !problem_.solid_mechanics()
-                     && absl::c_linear_search(
-                         MECHANICS_BOUNDARY_PROPERTIES, property ) )
+                     && is_mechanics_boundary_condition( description ) )
             {
-                add_unread_property_error( name,
+                add_unread_property_error( description.name,
                     "mechanical boundary condition without solid mechanics",
                     "define solid mechanics or remove the property" );
             }
-            else if( property == PHYSICAL_PROPERTY_NAME::density
+            else if( description.property == PHYSICAL_PROPERTY_NAME::density
                      && problem_.solid_mechanics() )
             {
-                add_unread_property_error( name,
+                add_unread_property_error( description.name,
                     "bulk density of solid mechanics without flow, "
                     "poromechanics reads the grain density",
                     "give the grain_density instead" );
@@ -257,8 +249,9 @@ namespace
             else
             {
                 report_.add_warning( SIMULATION_CHECK_STAGE::properties,
-                    std::string{ name }, "ignored, only read by ",
-                    geode::internal::property_reader( property ).name );
+                    std::string{ description.name }, "ignored, only read by ",
+                    geode::internal::property_reader_string(
+                        description.reader ) );
             }
         }
 
@@ -448,8 +441,8 @@ namespace
             }
             geode::SimulationIssue issue{ SIMULATION_ISSUE_SEVERITY::error,
                 SIMULATION_CHECK_STAGE::properties, "boundary_displacement",
-                absl::StrCat(
-                    "not uniform on ", count_string( not_uniform.size(), "Surface" ) ) };
+                absl::StrCat( "not uniform on ",
+                    count_string( not_uniform.size(), "Surface" ) ) };
             issue.locations = std::move( not_uniform );
             issue.fix = "impose one displacement per Surface";
             report_.add_issue( std::move( issue ) );
@@ -489,6 +482,7 @@ namespace
     private:
         const geode::PhysicalProblem& problem_;
         const geode::BRep& model_;
+        PropertyCheck check_physical_property_;
         geode::SimulationReport& report_;
     };
 
@@ -570,16 +564,19 @@ namespace
     }
 } // namespace
 
-namespace geode::internal
+namespace geode
 {
-    void check_physical_problem_properties( const PhysicalProblem& problem,
+    void SimulationChecker::check_physical_problem_properties(
+        const PhysicalProblem& problem,
         const BRep& model,
         SimulationReport& report )
     {
-        PhysicalPropertyChecker{ problem, model, report }.run();
+        PhysicalPropertyChecker{ problem, model,
+            &SimulationChecker::check_physical_property, report }
+            .run();
         if( problem.solid_mechanics() )
         {
             warn_stress_sign_convention( problem, model, report );
         }
     }
-} // namespace geode::internal
+} // namespace geode

@@ -21,8 +21,6 @@
  *
  */
 
-#include <geode/geosciences/simulation/helpers/internal/property_attribute_checker.hpp>
-
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -51,7 +49,6 @@
 
 namespace
 {
-    using geode::PHYSICAL_PROPERTY_NAME;
     using geode::PHYSICAL_PROPERTY_VALUE_TYPE;
     using geode::SIMULATION_CHECK_STAGE;
     using geode::SIMULATION_ISSUE_SEVERITY;
@@ -59,8 +56,6 @@ namespace
     using geode::internal::ComponentElements;
     using geode::internal::count_string;
     using geode::internal::for_each_component;
-    using geode::internal::is_non_negative;
-    using geode::internal::is_positive;
 
     geode::SimulationIssueLocation elements_location(
         const ComponentElements& component,
@@ -68,16 +63,26 @@ namespace
     {
         auto location = component_location( component.component );
         location.element_type = component.element_type;
-        location.elements = std::move( elements );
         location.nb_elements = component.nb_elements;
+        if( elements.size() == component.nb_elements )
+        {
+            location.all_elements = true;
+        }
+        else
+        {
+            location.elements = std::move( elements );
+        }
         return location;
     }
 
-    std::vector< geode::index_t > all_elements( geode::index_t nb_elements )
+    geode::SimulationIssueLocation all_elements_location(
+        const ComponentElements& component )
     {
-        std::vector< geode::index_t > elements( nb_elements );
-        absl::c_iota( elements, 0 );
-        return elements;
+        auto location = component_location( component.component );
+        location.element_type = component.element_type;
+        location.nb_elements = component.nb_elements;
+        location.all_elements = true;
+        return location;
     }
 
     std::optional< PHYSICAL_PROPERTY_VALUE_TYPE > value_type(
@@ -103,44 +108,6 @@ namespace
         return "std::array< double, 3 >";
     }
 
-    struct ValidRange
-    {
-        bool ( *contains )( double value );
-        std::string_view string;
-    };
-
-    ValidRange valid_range( PHYSICAL_PROPERTY_NAME property )
-    {
-        switch( property )
-        {
-            case PHYSICAL_PROPERTY_NAME::porosity:
-            case PHYSICAL_PROPERTY_NAME::biot_coefficient:
-                return { []( double value ) { return value > 0 && value <= 1; },
-                    "(0, 1]" };
-            case PHYSICAL_PROPERTY_NAME::boundary_oil_fraction:
-            case PHYSICAL_PROPERTY_NAME::boundary_gas_fraction:
-            case PHYSICAL_PROPERTY_NAME::boundary_water_fraction:
-                return { []( double value ) { return value >= 0 && value <= 1; },
-                    "[0, 1]" };
-            case PHYSICAL_PROPERTY_NAME::bulk_modulus:
-            case PHYSICAL_PROPERTY_NAME::shear_modulus:
-            case PHYSICAL_PROPERTY_NAME::boundary_temperature:
-                return { is_positive, "(0, +inf)" };
-            case PHYSICAL_PROPERTY_NAME::permeability:
-            case PHYSICAL_PROPERTY_NAME::density:
-            case PHYSICAL_PROPERTY_NAME::grain_density:
-            case PHYSICAL_PROPERTY_NAME::thermal_expansion_coefficient:
-                return { is_non_negative, "[0, +inf)" };
-            // NaN components are free
-            case PHYSICAL_PROPERTY_NAME::boundary_displacement:
-                return { []( double value ) { return !std::isinf( value ); },
-                    "finite values or NaN (free)" };
-            default:
-                return { []( double value ) { return std::isfinite( value ); },
-                    "finite values" };
-        }
-    }
-
     class PropertyAttributeChecker
     {
     public:
@@ -154,7 +121,9 @@ namespace
               name_( geode::physical_property_string( requirement.property ) ),
               component_type_( geode::physical_property_component_type(
                   requirement.property ) ),
-              valid_range_( valid_range( requirement.property ) )
+              valid_range_( geode::internal::physical_property_description(
+                  requirement.property )
+                                .valid_range )
         {
         }
 
@@ -217,8 +186,7 @@ namespace
             }
             else if( needs_attribute() && elements.nb_elements != 0 )
             {
-                auto location = elements_location(
-                    elements, all_elements( elements.nb_elements ) );
+                auto location = all_elements_location( elements );
                 location.detail = "no attribute";
                 missing_.push_back( std::move( location ) );
             }
@@ -290,6 +258,9 @@ namespace
             const auto values =
                 elements.elements.find_read_only_attribute< Value >(
                     attribute_id_ );
+            // Missing elements are only listed when reported
+            const auto list_missing = requirement_.value_on_every_element;
+            geode::index_t nb_missing{ 0 };
             std::vector< geode::index_t > missing;
             std::vector< geode::index_t > invalid;
             std::optional< double > first_invalid;
@@ -297,7 +268,11 @@ namespace
             {
                 if( !values->has_value( element ) )
                 {
-                    missing.push_back( element );
+                    nb_missing++;
+                    if( list_missing )
+                    {
+                        missing.push_back( element );
+                    }
                     continue;
                 }
                 if( !check_element_value(
@@ -306,21 +281,23 @@ namespace
                     invalid.push_back( element );
                 }
             }
-            if( !missing.empty() && requirement_.value_on_every_element )
+            if( !missing.empty() )
             {
-                missing_.push_back( elements_location( elements, missing ) );
+                missing_.push_back(
+                    elements_location( elements, std::move( missing ) ) );
             }
             if( !invalid.empty() )
             {
-                auto location = elements_location( elements, invalid );
+                auto location =
+                    elements_location( elements, std::move( invalid ) );
                 location.detail =
                     absl::StrCat( "first value ", first_invalid.value() );
                 invalid_.push_back( std::move( location ) );
             }
-            if( missing.size() < elements.nb_elements )
+            if( nb_missing < elements.nb_elements )
             {
-                coverage_.components.emplace( elements.component.id(),
-                    static_cast< geode::index_t >( missing.size() ) );
+                coverage_.components.emplace(
+                    elements.component.id(), nb_missing );
             }
         }
 
@@ -429,9 +406,7 @@ namespace
                     ? std::string{}
                     : absl::StrCat( requirement_.required_by, " needs ", name_,
                         " on every ", component_type_.get() ) );
-            message = on_components(
-                absl::StrCat( "values outside ", valid_range_.string ),
-                invalid_ );
+            message = on_components( valid_range_.invalid_values, invalid_ );
             add_issue( message, std::move( invalid_ ) );
         }
 
@@ -442,7 +417,7 @@ namespace
         geode::PhysicalPropertyCoverage coverage_;
         std::string_view name_;
         geode::ComponentType component_type_;
-        ValidRange valid_range_;
+        geode::internal::ValidRange valid_range_;
         geode::uuid attribute_id_;
         std::optional< std::string > merged_type_;
         std::vector< geode::SimulationIssueLocation > on_vertices_;
@@ -455,12 +430,13 @@ namespace
     };
 } // namespace
 
-namespace geode::internal
+namespace geode
 {
-    PhysicalPropertyCoverage check_physical_property( const BRep& model,
+    PhysicalPropertyCoverage SimulationChecker::check_physical_property(
+        const BRep& model,
         const PhysicalPropertyRequirement& requirement,
         SimulationReport& report )
     {
         return PropertyAttributeChecker{ model, requirement, report }.run();
     }
-} // namespace geode::internal
+} // namespace geode

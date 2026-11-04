@@ -173,7 +173,8 @@ namespace geode
          * check_physical_problem_definition reports it. Materials and initial
          * conditions covering no Block are warnings.
          */
-        static void check_physical_problem_regions( const PhysicalProblem& problem,
+        static void check_physical_problem_regions(
+            const PhysicalProblem& problem,
             const BRep& model,
             SimulationReport& report );
 
@@ -203,11 +204,6 @@ namespace geode
          */
         static void check_blocks( const BRep& model, SimulationReport& report );
 
-        /// Every polygon vertex of the given Surfaces is a Block vertex
-        static void check_surfaces_on_blocks( const BRep& model,
-            absl::Span< const uuid > surfaces,
-            SimulationReport& report );
-
         /// Every unique vertex is a Block vertex, as convert_brep_into_solid
         /// needs
         static void check_unique_vertices_in_blocks(
@@ -221,24 +217,19 @@ namespace geode
          * and pressures, fractions in [0, 1]). An unregistered property is
          * an issue only if required. Issues are in the properties stage.
          */
-        [[nodiscard]] static PhysicalPropertyCoverage check_physical_property(
+        static PhysicalPropertyCoverage check_physical_property(
             const BRep& model,
             const PhysicalPropertyRequirement& requirement,
             SimulationReport& report );
 
         /*!
          * Error for each material lacking the porosity or permeability value
-         * of the coverage property on a meshed Block the model does not cover
+         * of each coverage property on a meshed Block the model does not
+         * cover. The coverage properties must be porosity or permeability.
          */
         static void check_rock_property_availability(
             const PhysicalProblem& problem,
             const BRep& model,
-            const PhysicalPropertyCoverage& coverage,
-            SimulationReport& report );
-
-        /// Error for each component carrying some but not all of the
-        /// properties
-        static void check_coinciding_physical_properties( const BRep& model,
             absl::Span< const PhysicalPropertyCoverage > coverages,
             SimulationReport& report );
 
