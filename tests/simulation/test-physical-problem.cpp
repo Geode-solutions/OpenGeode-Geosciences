@@ -31,6 +31,7 @@
 #include <string>
 
 #include <absl/algorithm/container.h>
+#include <absl/strings/ascii.h>
 #include <absl/strings/match.h>
 #include <absl/strings/str_cat.h>
 #include <absl/strings/str_join.h>
@@ -69,13 +70,30 @@
 #include <geode/geosciences/simulation/core/solver_options.hpp>
 #include <geode/geosciences/simulation/core/source_term.hpp>
 #include <geode/geosciences/simulation/core/thermal_parameters.hpp>
-#include <geode/geosciences/simulation/helpers/physical_problem_validation.hpp>
+#include <geode/geosciences/simulation/helpers/simulation_checker.hpp>
+#include <geode/geosciences/simulation/helpers/simulation_report.hpp>
 #include <geode/geosciences/simulation/io/physical_problem_input.hpp>
 #include <geode/geosciences/simulation/io/physical_problem_output.hpp>
 
 namespace
 {
     using Exception = geode::OpenGeodeGeosciencesSimulationException;
+
+    // Simulator independent checks, exposed for the tests
+    class GenericChecker final : public geode::SimulationChecker
+    {
+    public:
+        using geode::SimulationChecker::check_physical_problem_definition;
+        using geode::SimulationChecker::check_physical_problem_properties;
+        using geode::SimulationChecker::check_physical_problem_regions;
+
+    private:
+        void check_simulator( const geode::PhysicalProblem& /*unused*/,
+            const geode::BRep& /*unused*/,
+            geode::SimulationReport& /*unused*/ ) const final
+        {
+        }
+    };
 
     // Constructor arguments of a DeadOilFluid, modified by validation tests
     struct DeadOilData
@@ -178,24 +196,71 @@ namespace
         return problem;
     }
 
+    geode::SimulationReport definition_report(
+        const geode::PhysicalProblem& problem )
+    {
+        geode::SimulationReport report;
+        GenericChecker::check_physical_problem_definition( problem, report );
+        return report;
+    }
+
+    // Subject and message, lower case
+    std::string issue_text( const geode::SimulationIssue& issue )
+    {
+        return absl::AsciiStrToLower(
+            absl::StrCat( issue.subject, " ", issue.message ) );
+    }
+
+    std::vector< const geode::SimulationIssue* > report_issues(
+        const geode::SimulationReport& report,
+        geode::SIMULATION_ISSUE_SEVERITY severity )
+    {
+        std::vector< const geode::SimulationIssue* > issues;
+        for( const auto& issue : report.issues() )
+        {
+            if( issue.severity == severity )
+            {
+                issues.push_back( &issue );
+            }
+        }
+        return issues;
+    }
+
+    // Issue of this severity whose subject and message contain the keyword
+    const geode::SimulationIssue* find_issue(
+        const geode::SimulationReport& report,
+        geode::SIMULATION_ISSUE_SEVERITY severity,
+        std::string_view keyword )
+    {
+        const auto lower_keyword = absl::AsciiStrToLower( keyword );
+        for( const auto* issue : report_issues( report, severity ) )
+        {
+            if( absl::StrContains( issue_text( *issue ), lower_keyword ) )
+            {
+                return issue;
+            }
+        }
+        return nullptr;
+    }
+
     void check_no_issue( const geode::PhysicalProblem& problem )
     {
-        const auto issues = geode::validate_physical_problem( problem );
-        Exception::test( issues.empty(),
-            "[Test] Unexpected issues: ", absl::StrJoin( issues, " | " ) );
+        const auto report = definition_report( problem );
+        Exception::test( report.is_simulable(),
+            "[Test] Unexpected issues: ", report.string() );
     }
 
     void check_issue( const geode::PhysicalProblem& problem,
         std::string_view keyword,
         std::string_view context )
     {
-        const auto issues = geode::validate_physical_problem( problem );
-        const auto found = std::any_of(
-            issues.begin(), issues.end(), [keyword]( const auto& issue ) {
-                return absl::StrContains( issue, keyword );
-            } );
-        Exception::test( found, "[Test] ", context, ": no issue containing \"",
-            keyword, "\" in: ", absl::StrJoin( issues, " | " ) );
+        const auto report = definition_report( problem );
+        const auto* issue = find_issue(
+            report, geode::SIMULATION_ISSUE_SEVERITY::error, keyword );
+        Exception::test( issue != nullptr, "[Test] ", context,
+            ": no issue containing \"", keyword, "\" in: ", report.string() );
+        Exception::test( issue->stage == geode::SIMULATION_CHECK_STAGE::problem,
+            "[Test] ", context, ": problem issues are in the problem stage" );
     }
 
     void check_dead_oil_fluid( const geode::PhysicalProblem& problem )
@@ -715,7 +780,7 @@ namespace
         auto compressible = dead_oil_problem( geode::uuid{}, geode::uuid{} );
         geode::PhysicalProblemBuilder{ compressible }.set_solid_mechanics(
             geode::SolidMechanics{} );
-        check_issue( compressible, "the Biot coefficient gives",
+        check_issue( compressible, "must be 0 with solid mechanics",
             "Pore compressibility with solid mechanics" );
     }
 
@@ -751,27 +816,49 @@ namespace
         return model;
     }
 
+    geode::SimulationReport properties_report(
+        const geode::PhysicalProblem& problem, const geode::BRep& model )
+    {
+        geode::SimulationReport report;
+        GenericChecker::check_physical_problem_properties(
+            problem, model, report );
+        return report;
+    }
+
+    // Warnings are copied: the report is a temporary
+    std::vector< std::shared_ptr< geode::SimulationIssue > > property_warnings(
+        const geode::PhysicalProblem& problem, const geode::BRep& model )
+    {
+        std::vector< std::shared_ptr< geode::SimulationIssue > > warnings;
+        const auto report = properties_report( problem, model );
+        for( const auto* issue :
+            report_issues( report, geode::SIMULATION_ISSUE_SEVERITY::warning ) )
+        {
+            warnings.push_back(
+                std::make_shared< geode::SimulationIssue >( *issue ) );
+        }
+        return warnings;
+    }
+
     void test_stress_sign_warning()
     {
         // In-situ stresses, tension positive
         const auto model = stressed_model( { -1e7, -1e7, -2e7 } );
         auto problem = mechanics_problem();
-        const auto warnings =
-            geode::physical_problem_warnings( problem, model );
-        Exception::test( warnings.size() == 1
-                             && absl::StrContains(
-                                 warnings.front(), "opposite sign convention" ),
+        const auto warnings = property_warnings( problem, model );
+        Exception::test(
+            warnings.size() == 1
+                && warnings.front()->subject == "initial_stress"
+                && absl::StrContains( warnings.front()->fix, "opposite one" ),
             "[Test] Tension positive stresses read as compression positive "
             "should be reported" );
         geode::PhysicalProblemBuilder{ problem }.set_solid_mechanics(
             { geode::SOLID_MECHANICS_LAW::linear_elastic_isotropic,
                 geode::STRESS_SIGN_CONVENTION::tension_positive } );
-        Exception::test(
-            geode::physical_problem_warnings( problem, model ).empty(),
+        Exception::test( property_warnings( problem, model ).empty(),
             "[Test] Stresses matching the convention should not be reported" );
-        Exception::test( geode::physical_problem_warnings(
-                             mechanics_problem(), geode::BRep{} )
-                             .empty(),
+        Exception::test(
+            property_warnings( mechanics_problem(), geode::BRep{} ).empty(),
             "[Test] A model without initial stress has no warning" );
     }
 
@@ -890,27 +977,45 @@ namespace
         absl::Span< const std::string_view > keywords,
         std::string_view context )
     {
-        const auto issues =
-            geode::validate_physical_problem_properties( problem, model );
-        Exception::test( issues.size() == keywords.size(), "[Test] ", context,
-            ": unexpected issues: ", absl::StrJoin( issues, " | " ) );
+        const auto report = properties_report( problem, model );
+        Exception::test( report.nb_errors() == keywords.size(), "[Test] ",
+            context, ": unexpected issues: ", report.string() );
         for( const auto& keyword : keywords )
         {
-            Exception::test( absl::c_any_of( issues,
-                                 [keyword]( const std::string& issue ) {
-                                     return absl::StrContains( issue, keyword );
-                                 } ),
-                "[Test] ", context, ": missing issue ", keyword, " in ",
-                absl::StrJoin( issues, " | " ) );
+            const auto* issue = find_issue(
+                report, geode::SIMULATION_ISSUE_SEVERITY::error, keyword );
+            Exception::test( issue != nullptr, "[Test] ", context,
+                ": missing issue ", keyword, " in ", report.string() );
+            Exception::test(
+                issue->stage == geode::SIMULATION_CHECK_STAGE::properties,
+                "[Test] ", context, ": wrong stage for ", keyword );
         }
+    }
+
+    // The only location of the issue: its component elements
+    void check_issue_elements( const geode::SimulationReport& report,
+        std::string_view keyword,
+        absl::Span< const geode::index_t > elements,
+        std::string_view context )
+    {
+        const auto* issue = find_issue(
+            report, geode::SIMULATION_ISSUE_SEVERITY::error, keyword );
+        Exception::test( issue != nullptr && issue->locations.size() == 1,
+            "[Test] ", context, ": one location expected in ",
+            report.string() );
+        const auto& location = issue->locations.front();
+        Exception::test( absl::c_equal( location.elements, elements )
+                             && location.element_type
+                                    != geode::SIMULATION_ELEMENT_TYPE::none,
+            "[Test] ", context, ": wrong elements in ", issue->string() );
     }
 
     void test_mechanics_properties_validation()
     {
         const auto problem = mechanics_problem();
         auto model = elastic_model();
-        check_property_issues( problem, model,
-            { "along x", "along y", "along z" }, "No displacement" );
+        check_property_issues(
+            problem, model, { "along x, y, z" }, "No displacement" );
         set_displacement( model,
             std::array< std::array< double, 3 >, 1 >{ { { 0., 0., 0. } } } );
         check_property_issues( problem, model, {}, "Fixed Surface" );
@@ -920,15 +1025,17 @@ namespace
             partial, std::array< std::array< double, 3 >, 2 >{
                          { { 0., FREE, FREE }, { 0., FREE, FREE } } } );
         check_property_issues(
-            problem, partial, { "along y", "along z" }, "Free components" );
+            problem, partial, { "along y, z" }, "Free components" );
 
         auto non_uniform = elastic_model();
         set_displacement(
             non_uniform, std::array< std::array< double, 3 >, 2 >{
                              { { 0., 0., 0. }, { 1., 0., 0. } } } );
         check_property_issues( problem, non_uniform,
-            { "must be uniform", "along x", "along y", "along z" },
-            "Non uniform displacement" );
+            { "not uniform", "along x, y, z" }, "Non uniform displacement" );
+        check_issue_elements( properties_report( problem, non_uniform ),
+            "not uniform", std::array< geode::index_t, 1 >{ 1 },
+            "Non uniform polygon" );
 
         auto tractions = elastic_model();
         set_displacement( tractions,
@@ -944,7 +1051,8 @@ namespace
             geode::PHYSICAL_PROPERTY_NAME::boundary_pressure, "pressure",
             std::array< double, 1 >{ 1e7 } );
         check_property_issues( problem, tractions,
-            { "boundary_traction on Surface", "needs a flow model" },
+            { "boundary_traction values outside",
+                "flow boundary condition without flow model" },
             "Invalid tractions" );
 
         auto invalid_rock = elastic_model();
@@ -957,18 +1065,19 @@ namespace
             geode::PHYSICAL_PROPERTY_NAME::initial_stress, "scalar_stress",
             1e7 );
         check_property_issues( problem, invalid_rock,
-            { "without a positive bulk_modulus",
-                "must store std::array< double, 3 > values" },
+            { "bulk_modulus values outside (0, +inf)",
+                "initial_stress must store std::array< double, 3 > values" },
             "Invalid rock" );
 
         auto missing_rock = stressed_model( { 1e7, 1e7, 2e7 } );
         check_property_issues( problem, missing_rock,
-            { "needs a bulk_modulus", "needs a shear_modulus",
-                "needs a density", "along x", "along y", "along z" },
+            { "bulk_modulus missing", "shear_modulus missing",
+                "density missing", "along x, y, z" },
             "Missing rock properties" );
 
         check_property_issues( dead_oil_problem( geode::uuid{}, geode::uuid{} ),
-            model, { "needs solid mechanics" }, "Flow with displacement" );
+            model, { "mechanical boundary condition without solid mechanics" },
+            "Flow with displacement" );
     }
 
     void test_poromechanics_properties_validation()
@@ -978,7 +1087,7 @@ namespace
             geode::SolidMechanics{} );
         auto model = poroelastic_model( 0.8 );
         check_property_issues( problem, model,
-            { "needs a thermal_expansion_coefficient" },
+            { "thermal_expansion_coefficient missing" },
             "Thermal without expansion" );
         set_thermal_expansion( model );
         set_surface_property< double >( model,
@@ -990,7 +1099,10 @@ namespace
         auto invalid_biot = poroelastic_model( 1.5 );
         set_thermal_expansion( invalid_biot );
         check_property_issues( problem, invalid_biot,
-            { "without a (0, 1] biot_coefficient" }, "Invalid Biot" );
+            { "biot_coefficient values outside (0, 1]" }, "Invalid Biot" );
+        check_issue_elements( properties_report( problem, invalid_biot ),
+            "biot_coefficient values outside",
+            std::array< geode::index_t, 1 >{ 0 }, "Invalid Biot polyhedron" );
 
         auto biot_below_porosity = poroelastic_model( 0.05 );
         set_thermal_expansion( biot_below_porosity );
@@ -1006,41 +1118,52 @@ namespace
         set_displacement( bulk_density,
             std::array< std::array< double, 3 >, 1 >{ { { 0., 0., 0. } } } );
         check_property_issues( poromechanics_problem(), bulk_density,
-            { "is the bulk density", "needs a grain_density",
-                "needs a biot_coefficient" },
+            { "bulk density of solid mechanics", "grain_density missing",
+                "biot_coefficient missing" },
             "Mechanics only rock" );
     }
 
     bool has_warning(
-        absl::Span< const std::string > warnings, std::string_view keyword )
+        absl::Span< const std::shared_ptr< geode::SimulationIssue > > warnings,
+        std::string_view keyword )
     {
-        return absl::c_any_of( warnings, [keyword]( const std::string& text ) {
-            return absl::StrContains( text, keyword );
+        return absl::c_any_of( warnings, [keyword]( const auto& warning ) {
+            return absl::StrContains( issue_text( *warning ), keyword );
         } );
+    }
+
+    std::string warnings_string(
+        absl::Span< const std::shared_ptr< geode::SimulationIssue > > warnings )
+    {
+        std::vector< std::string > texts;
+        for( const auto& warning : warnings )
+        {
+            texts.push_back( warning->string() );
+        }
+        return absl::StrJoin( texts, " | " );
     }
 
     void test_ignored_coupling_properties_warning()
     {
         auto model = poroelastic_model( 0.8 );
         const auto mechanics_warnings =
-            geode::physical_problem_warnings( mechanics_problem(), model );
-        Exception::test( mechanics_warnings.size() == 2
-                             && has_warning( mechanics_warnings,
-                                 "biot_coefficient is ignored" )
-                             && has_warning( mechanics_warnings,
-                                 "grain_density is ignored" ),
+            property_warnings( mechanics_problem(), model );
+        Exception::test(
+            mechanics_warnings.size() == 2
+                && has_warning( mechanics_warnings, "biot_coefficient ignored" )
+                && has_warning( mechanics_warnings, "grain_density ignored" ),
             "[Test] Poromechanics properties of a mechanics problem should be "
             "reported: ",
-            absl::StrJoin( mechanics_warnings, " | " ) );
+            warnings_string( mechanics_warnings ) );
         set_thermal_expansion( model );
         const auto isothermal_warnings =
-            geode::physical_problem_warnings( poromechanics_problem(), model );
+            property_warnings( poromechanics_problem(), model );
         Exception::test( isothermal_warnings.size() == 1
                              && has_warning( isothermal_warnings,
-                                 "thermal_expansion_coefficient is ignored" ),
+                                 "thermal_expansion_coefficient ignored" ),
             "[Test] Thermal expansion of an isothermal problem should be "
             "reported: ",
-            absl::StrJoin( isothermal_warnings, " | " ) );
+            warnings_string( isothermal_warnings ) );
     }
 
     void test_ignored_materials_warning()
@@ -1049,12 +1172,22 @@ namespace
         geode::Material material;
         material.name = "rock";
         geode::PhysicalProblemBuilder{ problem }.add_material( material );
+        const auto report = definition_report( problem );
         const auto warnings =
-            geode::physical_problem_warnings( problem, geode::BRep{} );
-        Exception::test( warnings.size() == 1
-                             && absl::StrContains(
-                                 warnings.front(), "Materials are ignored" ),
-            "[Test] Materials of a mechanics problem should be reported" );
+            report_issues( report, geode::SIMULATION_ISSUE_SEVERITY::warning );
+        Exception::test( report.is_simulable() && warnings.size() == 1
+                             && warnings.front()->subject == "Materials",
+            "[Test] Materials of a mechanics problem should be reported: ",
+            report.string() );
+    }
+
+    geode::SimulationReport region_report(
+        const geode::PhysicalProblem& problem, const geode::BRep& model )
+    {
+        geode::SimulationReport report;
+        GenericChecker::check_physical_problem_regions(
+            problem, model, report );
+        return report;
     }
 
     void test_region_validation()
@@ -1067,44 +1200,57 @@ namespace
             model.block( block_id ), model.block_collection( collection_id ) );
 
         auto problem = dead_oil_problem( model.id(), block_id );
-        Exception::test(
-            geode::validate_physical_problem_regions( problem, model ).empty(),
+        Exception::test( region_report( problem, model ).is_simulable(),
             "[Test] Block region should be valid" );
         geode::PhysicalProblemBuilder builder{ problem };
         auto material = problem.materials()[0];
         material.regions = { collection_id };
         builder.set_material( 0, material );
-        Exception::test(
-            geode::validate_physical_problem_regions( problem, model ).empty(),
+        Exception::test( region_report( problem, model ).is_simulable(),
             "[Test] Collection region should be valid" );
         auto overlapping = problem.materials()[1];
         overlapping.regions = { block_id };
         builder.set_material( 1, overlapping );
-        const auto overlap_issues =
-            geode::validate_physical_problem_regions( problem, model );
+        const auto overlap_report = region_report( problem, model );
+        const auto* overlap = find_issue( overlap_report,
+            geode::SIMULATION_ISSUE_SEVERITY::error, "cover the same 1 block" );
         Exception::test(
-            overlap_issues.size() == 1
-                && absl::StrContains( overlap_issues.front(), "is covered by" ),
+            overlap_report.nb_errors() == 1 && overlap != nullptr
+                && overlap->stage == geode::SIMULATION_CHECK_STAGE::regions
+                && overlap->locations.size() == 1
+                && overlap->locations.front().component.id == block_id,
             "[Test] Block covered by a collection and by another material "
-            "should be reported" );
+            "should be reported: ",
+            overlap_report.string() );
+
+        // Without default material, the second Block has none
+        const auto& other_block = model_builder.add_block();
+        overlapping.regions = { collection_id };
+        builder.set_material( 1, overlapping );
+        const auto uncovered_report = region_report( problem, model );
+        const auto* uncovered = find_issue( uncovered_report,
+            geode::SIMULATION_ISSUE_SEVERITY::error,
+            "1 block has no material" );
+        Exception::test(
+            uncovered != nullptr && !uncovered->fix.empty()
+                && uncovered->locations.size() == 1
+                && uncovered->locations.front().component.id == other_block,
+            "[Test] Block without material should be reported: ",
+            uncovered_report.string() );
+        geode::BRepBuilder{ model }.remove_block( model.block( other_block ) );
+
         overlapping.regions.clear();
         builder.set_material( 1, overlapping );
         material.regions = { model_builder.add_surface() };
         builder.set_material( 0, material );
-        Exception::test(
-            geode::validate_physical_problem_regions( problem, model ).size()
-                == 1,
+        Exception::test( region_report( problem, model ).nb_errors() == 1,
             "[Test] Surface region should be reported" );
         material.regions = { geode::uuid{} };
         builder.set_material( 0, material );
-        Exception::test(
-            geode::validate_physical_problem_regions( problem, model ).size()
-                == 1,
+        Exception::test( region_report( problem, model ).nb_errors() == 1,
             "[Test] Unknown region should be reported" );
         builder.set_model_id( geode::uuid{} );
-        Exception::test(
-            geode::validate_physical_problem_regions( problem, model ).size()
-                == 2,
+        Exception::test( region_report( problem, model ).nb_errors() == 2,
             "[Test] Wrong model id should be reported" );
     }
 

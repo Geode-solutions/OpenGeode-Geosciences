@@ -207,12 +207,6 @@ def check_dead_oil_problem(problem, block_id):
     check_solver_settings(problem)
 
 
-def check_valid_problem(problem):
-    issues = simulation.validate_physical_problem(problem)
-    if issues:
-        raise ValueError("[Test] Problem should be valid: " + " ".join(issues))
-
-
 def save_and_reload(problem, filename):
     if not simulation.is_physical_problem_saveable(problem, filename):
         raise ValueError("[Test] Problem should be saveable")
@@ -231,7 +225,6 @@ def test_dead_oil_roundtrip():
     model_id = opengeode.uuid()
     block_id = opengeode.uuid()
     problem = dead_oil_problem(model_id, block_id)
-    check_valid_problem(problem)
     check_dead_oil_problem(problem, block_id)
     # Reading Span getters twice checks that they copy the C++ elements
     check_dead_oil_problem(problem, block_id)
@@ -298,21 +291,10 @@ def check_zero_gravity(problem):
         raise ValueError("[Test] Wrong gravity")
 
 
-def check_porosity_issue(problem):
-    builder = simulation.PhysicalProblemBuilder(problem)
-    material = problem.materials()[0]
-    material.porosity = 1.5
-    builder.set_material(0, material)
-    if "porosity" not in " ".join(simulation.validate_physical_problem(problem)):
-        raise ValueError("[Test] Porosity out of range should be reported")
-
-
 def test_single_phase_problem():
     problem = thermal_single_phase_problem()
-    check_valid_problem(problem)
     check_thermal_properties(problem)
     check_zero_gravity(problem)
-    check_porosity_issue(problem)
 
 
 def co2_brine_fluid():
@@ -347,38 +329,6 @@ def test_co2_brine_fluid():
     check_co2_brine_phases(fluid)
 
 
-def block_in_collection_model():
-    model = opengeode.BRep()
-    model_builder = opengeode.BRepBuilder(model)
-    block_id = model_builder.add_block()
-    collection_id = model_builder.add_block_collection()
-    model_builder.add_block_in_block_collection(
-        model.block(block_id), model.block_collection(collection_id)
-    )
-    return model, block_id, collection_id
-
-
-def set_first_material_regions(problem, regions):
-    material = problem.materials()[0]
-    material.regions = regions
-    simulation.PhysicalProblemBuilder(problem).set_material(0, material)
-
-
-def check_region_issues(problem, model, nb_issues, message):
-    if len(simulation.validate_physical_problem_regions(problem, model)) != nb_issues:
-        raise ValueError("[Test] " + message)
-
-
-def test_region_validation():
-    model, block_id, collection_id = block_in_collection_model()
-    problem = dead_oil_problem(model.id(), block_id)
-    check_region_issues(problem, model, 0, "Block region should be valid")
-    set_first_material_regions(problem, [collection_id])
-    check_region_issues(problem, model, 0, "Collection region should be valid")
-    set_first_material_regions(problem, [opengeode.uuid()])
-    check_region_issues(problem, model, 1, "Unknown region should be reported")
-
-
 def mechanics_problem():
     problem = simulation.PhysicalProblem()
     builder = simulation.PhysicalProblemBuilder(problem)
@@ -390,7 +340,6 @@ def mechanics_problem():
 
 def test_solid_mechanics():
     problem = mechanics_problem()
-    check_valid_problem(problem)
     reloaded = save_and_reload(problem, "gravity." + problem.native_extension())
     mechanics = reloaded.solid_mechanics()
     if reloaded.has_flow() or mechanics is None:
@@ -408,19 +357,6 @@ def test_solid_mechanics():
     )
     if tension.sign_convention != simulation.STRESS_SIGN_CONVENTION.tension_positive:
         raise ValueError("[Test] Wrong sign convention")
-    if simulation.physical_problem_warnings(problem, opengeode.BRep()):
-        raise ValueError("[Test] A model without initial stress has no warning")
-    if "along z" not in " ".join(
-        simulation.validate_physical_problem_properties(problem, opengeode.BRep())
-    ):
-        raise ValueError("[Test] A model without displacement should be reported")
-    simulation.PhysicalProblemBuilder(problem).set_thermal(
-        simulation.ThermalParameters(300.0)
-    )
-    if "Thermal parameters require" not in " ".join(
-        simulation.validate_physical_problem(problem)
-    ):
-        raise ValueError("[Test] Thermal mechanics should be reported")
 
 
 def test_poromechanics():
@@ -428,16 +364,8 @@ def test_poromechanics():
     simulation.PhysicalProblemBuilder(problem).set_solid_mechanics(
         simulation.SolidMechanics()
     )
-    check_valid_problem(problem)
-    issues = " ".join(
-        simulation.validate_physical_problem_properties(problem, opengeode.BRep())
-    )
-    if "needs a biot_coefficient" not in issues:
-        raise ValueError("[Test] Poromechanics without Biot should be reported")
-    if "needs a thermal_expansion_coefficient" not in issues:
-        raise ValueError(
-            "[Test] Thermal poromechanics without expansion should be reported"
-        )
+    if not problem.has_flow() or problem.solid_mechanics() is None:
+        raise ValueError("[Test] Problem should couple flow and mechanics")
 
 
 def block_location(model, block_id):
@@ -477,7 +405,6 @@ if __name__ == "__main__":
     test_dead_oil_roundtrip()
     test_single_phase_problem()
     test_co2_brine_fluid()
-    test_region_validation()
     test_solid_mechanics()
     test_poromechanics()
     test_simulation_report()
