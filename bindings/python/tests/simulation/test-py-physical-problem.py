@@ -440,6 +440,38 @@ def test_poromechanics():
         )
 
 
+def block_location(model, block_id):
+    location = simulation.SimulationIssueLocation()
+    location.component = model.block(block_id).component_id()
+    location.element_type = simulation.SIMULATION_ELEMENT_TYPE.polyhedron
+    location.elements = [0, 2]
+    location.nb_elements = 3
+    return location
+
+
+def test_simulation_report():
+    model = opengeode.BRep()
+    block_id = opengeode.BRepBuilder(model).add_block()
+    report = simulation.SimulationReport()
+    report.set_simulator("Python")
+    report.set_model_name("model")
+    report.add_warning(simulation.SIMULATION_CHECK_STAGE.problem, "Schedule", "is long")
+    report.add_error(
+        simulation.SIMULATION_CHECK_STAGE.properties,
+        "porosity",
+        "out of (0, 1]",
+        fix="Set a porosity in (0, 1]",
+        locations=[block_location(model, block_id)],
+    )
+    if report.is_simulable() or report.nb_errors() != 1 or report.nb_warnings() != 1:
+        raise ValueError("[Test] Wrong report verdict: " + str(report))
+    if report.simulator() != "Python" or report.model_name() != "model":
+        raise ValueError("[Test] Wrong report names")
+    error = report.stage_issues(simulation.SIMULATION_CHECK_STAGE.properties)[0]
+    if error.fix != "Set a porosity in (0, 1]" or error.locations[0].elements != [0, 2]:
+        raise ValueError("[Test] Wrong report error: " + str(error))
+
+
 if __name__ == "__main__":
     simulation.OpenGeodeGeosciencesSimulationLibrary.initialize()
     test_dead_oil_roundtrip()
@@ -448,3 +480,4 @@ if __name__ == "__main__":
     test_region_validation()
     test_solid_mechanics()
     test_poromechanics()
+    test_simulation_report()
