@@ -25,6 +25,7 @@
 
 #include <array>
 #include <cmath>
+#include <functional>
 #include <memory>
 #include <string>
 #include <string_view>
@@ -63,10 +64,8 @@ namespace
     using geode::internal::component_location;
     using geode::internal::count_string;
 
-    using PropertyCheck = geode::PhysicalPropertyCoverage ( * )(
-        const geode::BRep&,
-        const geode::PhysicalPropertyRequirement&,
-        geode::SimulationReport& );
+    using PropertyCheck = std::function< geode::PhysicalPropertyCoverage(
+        const geode::PhysicalPropertyRequirement& ) >;
 
     bool is_flow_boundary_condition(
         const geode::internal::PhysicalPropertyDescription& description )
@@ -155,7 +154,7 @@ namespace
             geode::SimulationReport& report )
             : problem_( problem ),
               model_( model ),
-              check_physical_property_( check_physical_property ),
+              check_physical_property_( std::move( check_physical_property ) ),
               report_( report )
         {
         }
@@ -192,7 +191,7 @@ namespace
             {
                 requirement.required_by = std::string{ process() };
             }
-            return check_physical_property_( model_, requirement, report_ );
+            return check_physical_property_( requirement );
         }
 
         // Boundary conditions of a missing process are errors: the problem
@@ -566,17 +565,17 @@ namespace
 
 namespace geode
 {
-    void SimulationChecker::check_physical_problem_properties(
-        const PhysicalProblem& problem,
-        const BRep& model,
-        SimulationReport& report )
+    void SimulationChecker::check_physical_problem_properties()
     {
-        PhysicalPropertyChecker{ problem, model,
-            &SimulationChecker::check_physical_property, report }
+        PhysicalPropertyChecker{ problem(), model(),
+            [this]( const PhysicalPropertyRequirement& requirement ) {
+                return check_physical_property( requirement );
+            },
+            report() }
             .run();
-        if( problem.solid_mechanics() )
+        if( problem().solid_mechanics() )
         {
-            warn_stress_sign_convention( problem, model, report );
+            warn_stress_sign_convention( problem(), model(), report() );
         }
     }
 } // namespace geode

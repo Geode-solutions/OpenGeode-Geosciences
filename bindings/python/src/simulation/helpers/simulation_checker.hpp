@@ -38,8 +38,14 @@ namespace geode
             .def_static(
                 "list_creators", &SimulationCheckerFactory::list_creators )
             .def_static( "has_creator", &SimulationCheckerFactory::has_creator )
-            .def_static( "create", []( const std::string& key ) {
-                return SimulationCheckerFactory::create( key );
-            } );
+            .def_static(
+                "create",
+                []( const std::string& key, const PhysicalProblem& problem,
+                    const BRep& model ) {
+                    return SimulationCheckerFactory::create(
+                        key, problem, model );
+                },
+                pybind11::keep_alive< 0, 2 >(),
+                pybind11::keep_alive< 0, 3 >() );
     }
 } // namespace geode

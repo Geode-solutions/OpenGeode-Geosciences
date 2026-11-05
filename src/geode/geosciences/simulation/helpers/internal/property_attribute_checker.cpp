@@ -433,10 +433,8 @@ namespace
 namespace geode
 {
     PhysicalPropertyCoverage SimulationChecker::check_physical_property(
-        const BRep& model,
-        const PhysicalPropertyRequirement& requirement,
-        SimulationReport& report )
+        const PhysicalPropertyRequirement& requirement )
     {
-        return PropertyAttributeChecker{ model, requirement, report }.run();
+        return PropertyAttributeChecker{ model(), requirement, report() }.run();
     }
 } // namespace geode

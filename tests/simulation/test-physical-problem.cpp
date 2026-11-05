@@ -83,16 +83,19 @@ namespace
     class GenericChecker final : public geode::SimulationChecker
     {
     public:
+        GenericChecker(
+            const geode::PhysicalProblem& problem, const geode::BRep& model )
+            : geode::SimulationChecker( problem, model )
+        {
+        }
+
         using geode::SimulationChecker::check_physical_problem_definition;
         using geode::SimulationChecker::check_physical_problem_properties;
         using geode::SimulationChecker::check_physical_problem_regions;
+        using geode::SimulationChecker::report;
 
     private:
-        void check_simulator( const geode::PhysicalProblem& /*unused*/,
-            const geode::BRep& /*unused*/,
-            geode::SimulationReport& /*unused*/ ) const final
-        {
-        }
+        void check_simulator() final {}
     };
 
     // Constructor arguments of a DeadOilFluid, modified by validation tests
@@ -199,9 +202,10 @@ namespace
     geode::SimulationReport definition_report(
         const geode::PhysicalProblem& problem )
     {
-        geode::SimulationReport report;
-        GenericChecker::check_physical_problem_definition( problem, report );
-        return report;
+        const geode::BRep model;
+        GenericChecker checker{ problem, model };
+        checker.check_physical_problem_definition();
+        return std::move( checker.report() );
     }
 
     // Subject and message, lower case
@@ -819,10 +823,9 @@ namespace
     geode::SimulationReport properties_report(
         const geode::PhysicalProblem& problem, const geode::BRep& model )
     {
-        geode::SimulationReport report;
-        GenericChecker::check_physical_problem_properties(
-            problem, model, report );
-        return report;
+        GenericChecker checker{ problem, model };
+        checker.check_physical_problem_properties();
+        return std::move( checker.report() );
     }
 
     // Warnings are copied: the report is a temporary
@@ -1190,10 +1193,9 @@ namespace
     geode::SimulationReport region_report(
         const geode::PhysicalProblem& problem, const geode::BRep& model )
     {
-        geode::SimulationReport report;
-        GenericChecker::check_physical_problem_regions(
-            problem, model, report );
-        return report;
+        GenericChecker checker{ problem, model };
+        checker.check_physical_problem_regions();
+        return std::move( checker.report() );
     }
 
     void test_region_validation()

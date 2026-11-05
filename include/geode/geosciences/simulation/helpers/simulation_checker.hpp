@@ -130,7 +130,8 @@ namespace geode
      * on a model. The problem type (flow, solid mechanics or both, single
      * phase or multiphase, isothermal or thermal) is inferred from the
      * problem. Implementations are registered in SimulationCheckerFactory
-     * under the simulator name in lower case (e.g. "geos").
+     * under the simulator name in lower case (e.g. "geos"). The checker
+     * keeps references to the problem and the model: they must outlive it.
      */
     class opengeode_geosciences_simulation_api SimulationChecker
     {
@@ -143,12 +144,28 @@ namespace geode
          * Report every issue at once: the simulator independent checks
          * (check_physical_problem_definition, check_physical_problem_regions
          * and check_physical_problem_properties), then the simulator ones.
+         * The report is moved out of the checker: each call starts a new one.
          */
-        [[nodiscard]] SimulationReport check(
-            const PhysicalProblem& problem, const BRep& model ) const;
+        [[nodiscard]] SimulationReport check();
 
     protected:
-        SimulationChecker() = default;
+        SimulationChecker( const PhysicalProblem& problem, const BRep& model );
+
+        [[nodiscard]] const PhysicalProblem& problem() const
+        {
+            return problem_;
+        }
+
+        [[nodiscard]] const BRep& model() const
+        {
+            return model_;
+        }
+
+        /// The report the checks add their issues to
+        [[nodiscard]] SimulationReport& report()
+        {
+            return report_;
+        }
 
         /*!
          * Check the problem consistency, independently of any simulator and
@@ -160,8 +177,7 @@ namespace geode
          * leaf classes registered by other libraries are accepted as is.
          * Materials of solid mechanics without flow are reported as ignored.
          */
-        static void check_physical_problem_definition(
-            const PhysicalProblem& problem, SimulationReport& report );
+        void check_physical_problem_definition();
 
         /*!
          * Check, in the regions stage, that the recorded model id, if any,
@@ -173,10 +189,7 @@ namespace geode
          * check_physical_problem_definition reports it. Materials and initial
          * conditions covering no Block are warnings.
          */
-        static void check_physical_problem_regions(
-            const PhysicalProblem& problem,
-            const BRep& model,
-            SimulationReport& report );
+        void check_physical_problem_regions();
 
         /*!
          * Check, in the properties stage, the model physical properties that
@@ -193,21 +206,17 @@ namespace geode
          * tension in most cells, which suggests the opposite sign convention
          * than the one declared by the problem.
          */
-        static void check_physical_problem_properties(
-            const PhysicalProblem& problem,
-            const BRep& model,
-            SimulationReport& report );
+        void check_physical_problem_properties();
 
         /*!
          * Every Block is meshed and its polyhedron vertices are unique
          * vertices. Issues are in the mesh stage.
          */
-        static void check_blocks( const BRep& model, SimulationReport& report );
+        void check_blocks();
 
         /// Every unique vertex is a Block vertex, as convert_brep_into_solid
         /// needs
-        static void check_unique_vertices_in_blocks(
-            const BRep& model, SimulationReport& report );
+        void check_unique_vertices_in_blocks();
 
         /*!
          * Check the property attribute on every component of the expected
@@ -217,45 +226,43 @@ namespace geode
          * and pressures, fractions in [0, 1]). An unregistered property is
          * an issue only if required. Issues are in the properties stage.
          */
-        static PhysicalPropertyCoverage check_physical_property(
-            const BRep& model,
-            const PhysicalPropertyRequirement& requirement,
-            SimulationReport& report );
+        PhysicalPropertyCoverage check_physical_property(
+            const PhysicalPropertyRequirement& requirement );
 
         /*!
          * Error for each material lacking the porosity or permeability value
          * of each coverage property on a meshed Block the model does not
          * cover. The coverage properties must be porosity or permeability.
          */
-        static void check_rock_property_availability(
-            const PhysicalProblem& problem,
-            const BRep& model,
-            absl::Span< const PhysicalPropertyCoverage > coverages,
-            SimulationReport& report );
+        void check_rock_property_availability(
+            absl::Span< const PhysicalPropertyCoverage > coverages );
 
         /// Warning, followed by the consequence, if no component carries it
-        static void check_physical_property_presence( const BRep& model,
+        void check_physical_property_presence(
             const PhysicalPropertyCoverage& coverage,
-            std::string_view consequence,
-            SimulationReport& report );
+            std::string_view consequence );
 
         /*!
          * Warning, in the simulator stage, for each registered property the
          * report simulator ignores although the problem reads it
          */
-        static void warn_ignored_physical_properties( const BRep& model,
-            absl::Span< const PHYSICAL_PROPERTY_NAME > properties,
-            SimulationReport& report );
+        void warn_ignored_physical_properties(
+            absl::Span< const PHYSICAL_PROPERTY_NAME > properties );
 
     private:
         /*!
          * Set the report simulator name, then add the simulator issues,
          * without throwing on data issues
          */
-        virtual void check_simulator( const PhysicalProblem& problem,
-            const BRep& model,
-            SimulationReport& report ) const = 0;
+        virtual void check_simulator() = 0;
+
+        const PhysicalProblem& problem_;
+        const BRep& model_;
+        SimulationReport report_;
     };
 
-    using SimulationCheckerFactory = Factory< std::string, SimulationChecker >;
+    using SimulationCheckerFactory = Factory< std::string,
+        SimulationChecker,
+        const PhysicalProblem&,
+        const BRep& >;
 } // namespace geode

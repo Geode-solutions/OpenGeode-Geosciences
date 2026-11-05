@@ -228,11 +228,11 @@ namespace
 
 namespace geode
 {
-    void SimulationChecker::check_physical_problem_regions(
-        const PhysicalProblem& problem,
-        const BRep& model,
-        SimulationReport& report )
+    void SimulationChecker::check_physical_problem_regions()
     {
+        const auto& problem = this->problem();
+        const auto& model = this->model();
+        auto& report = this->report();
         if( problem.model_id() && problem.model_id().value() != model.id() )
         {
             report.add_error( SIMULATION_CHECK_STAGE::regions, "Problem",

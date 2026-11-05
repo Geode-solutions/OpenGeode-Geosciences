@@ -222,32 +222,36 @@ namespace
 
 namespace geode
 {
-    SimulationChecker::~SimulationChecker() = default;
-
-    SimulationReport SimulationChecker::check(
-        const PhysicalProblem& problem, const BRep& model ) const
+    SimulationChecker::SimulationChecker(
+        const PhysicalProblem& problem, const BRep& model )
+        : problem_( problem ), model_( model )
     {
-        SimulationReport report;
-        report.set_model_name( model_name( model ) );
-        check_physical_problem_definition( problem, report );
-        check_physical_problem_regions( problem, model, report );
-        check_physical_problem_properties( problem, model, report );
-        check_simulator( problem, model, report );
-        return report;
     }
 
-    void SimulationChecker::check_blocks(
-        const BRep& model, SimulationReport& report )
+    SimulationChecker::~SimulationChecker() = default;
+
+    SimulationReport SimulationChecker::check()
     {
-        if( model.nb_blocks() == 0 )
+        report_ = SimulationReport{};
+        report_.set_model_name( model_name( model() ) );
+        check_physical_problem_definition();
+        check_physical_problem_regions();
+        check_physical_problem_properties();
+        check_simulator();
+        return std::move( report_ );
+    }
+
+    void SimulationChecker::check_blocks()
+    {
+        if( model().nb_blocks() == 0 )
         {
-            report.add_error(
+            report_.add_error(
                 SIMULATION_CHECK_STAGE::mesh, "Model", "has no Block" );
             return;
         }
         std::vector< SimulationIssueLocation > unmeshed;
         std::vector< SimulationIssueLocation > unidentified;
-        for( const auto& block : model.blocks() )
+        for( const auto& block : model().blocks() )
         {
             const auto& mesh = block.mesh();
             if( mesh.nb_polyhedra() == 0 )
@@ -255,7 +259,7 @@ namespace geode
                 unmeshed.push_back( component_location( block ) );
                 continue;
             }
-            auto missing = vertices_without_unique_vertex( model, block );
+            auto missing = vertices_without_unique_vertex( model(), block );
             if( !missing.empty() )
             {
                 auto& location =
@@ -274,7 +278,7 @@ namespace geode
                     " without polyhedron" ) };
             issue.locations = std::move( unmeshed );
             issue.fix = "mesh them or remove them from the model";
-            report.add_issue( std::move( issue ) );
+            report_.add_issue( std::move( issue ) );
         }
         if( !unidentified.empty() )
         {
@@ -284,14 +288,13 @@ namespace geode
                     count_string( unidentified.size(), block_type.get() ) ) };
             issue.locations = std::move( unidentified );
             issue.fix = "compute the model unique vertices";
-            report.add_issue( std::move( issue ) );
+            report_.add_issue( std::move( issue ) );
         }
     }
 
-    void SimulationChecker::check_unique_vertices_in_blocks(
-        const BRep& model, SimulationReport& report )
+    void SimulationChecker::check_unique_vertices_in_blocks()
     {
-        auto outside = unique_vertices_outside_blocks( model );
+        auto outside = unique_vertices_outside_blocks( model() );
         if( outside.nb_isolated != 0 )
         {
             SimulationIssue issue{ SIMULATION_ISSUE_SEVERITY::error,
@@ -301,7 +304,7 @@ namespace geode
                                             : " unique vertex is",
                     " not a vertex of any component mesh" ) };
             issue.fix = "remove the isolated unique vertices";
-            report.add_issue( std::move( issue ) );
+            report_.add_issue( std::move( issue ) );
         }
         if( outside.components.empty() )
         {
@@ -317,13 +320,13 @@ namespace geode
         for( const auto& component_id : outside.components )
         {
             auto& location =
-                issue.add_location( model.component( component_id ) );
+                issue.add_location( model().component( component_id ) );
             location.element_type = SIMULATION_ELEMENT_TYPE::vertex;
             location.elements =
                 std::move( outside.vertices.at( component_id ) );
             absl::c_sort( location.elements );
         }
-        report.add_issue( std::move( issue ) );
+        report_.add_issue( std::move( issue ) );
     }
 
     std::string_view physical_property_string( PHYSICAL_PROPERTY_NAME property )
@@ -393,55 +396,49 @@ namespace geode
     }
 
     void SimulationChecker::check_rock_property_availability(
-        const PhysicalProblem& problem,
-        const BRep& model,
-        absl::Span< const PhysicalPropertyCoverage > coverages,
-        SimulationReport& report )
+        absl::Span< const PhysicalPropertyCoverage > coverages )
     {
         const auto block_materials =
-            internal::physical_problem_block_materials( problem, model );
+            internal::physical_problem_block_materials( problem(), model() );
         for( const auto& coverage : coverages )
         {
             check_material_rock_property(
-                problem, model, block_materials, coverage, report );
+                problem(), model(), block_materials, coverage, report_ );
         }
     }
 
-    void SimulationChecker::check_physical_property_presence( const BRep& model,
-        const PhysicalPropertyCoverage& coverage,
-        std::string_view consequence,
-        SimulationReport& report )
+    void SimulationChecker::check_physical_property_presence(
+        const PhysicalPropertyCoverage& coverage, std::string_view consequence )
     {
         if( coverage.is_carried() )
         {
             return;
         }
         const auto name = physical_property_string( coverage.property );
-        if( !model.has_physical_property( coverage.property ) )
+        if( !model().has_physical_property( coverage.property ) )
         {
-            report.add_warning( SIMULATION_CHECK_STAGE::properties,
+            report_.add_warning( SIMULATION_CHECK_STAGE::properties,
                 std::string{ name }, "not in the model: ", consequence );
         }
         else if( coverage.is_registered )
         {
-            report.add_warning( SIMULATION_CHECK_STAGE::properties,
+            report_.add_warning( SIMULATION_CHECK_STAGE::properties,
                 std::string{ name }, "no ",
                 physical_property_component_type( coverage.property ).get(),
                 " carries a value: ", consequence );
         }
     }
 
-    void SimulationChecker::warn_ignored_physical_properties( const BRep& model,
-        absl::Span< const PHYSICAL_PROPERTY_NAME > properties,
-        SimulationReport& report )
+    void SimulationChecker::warn_ignored_physical_properties(
+        absl::Span< const PHYSICAL_PROPERTY_NAME > properties )
     {
         for( const auto property : properties )
         {
-            if( model.has_physical_property( property ) )
+            if( model().has_physical_property( property ) )
             {
-                report.add_warning( SIMULATION_CHECK_STAGE::simulator,
+                report_.add_warning( SIMULATION_CHECK_STAGE::simulator,
                     std::string{ physical_property_string( property ) },
-                    "ignored by ", report.simulator() );
+                    "ignored by ", report_.simulator() );
             }
         }
     }

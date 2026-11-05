@@ -1082,13 +1082,12 @@ namespace
 
 namespace geode
 {
-    void SimulationChecker::check_physical_problem_definition(
-        const PhysicalProblem& problem, SimulationReport& report )
+    void SimulationChecker::check_physical_problem_definition()
     {
-        ProblemDefinitionChecker{ problem, report }.run();
-        if( problem.solid_mechanics() )
+        ProblemDefinitionChecker{ problem(), report() }.run();
+        if( problem().solid_mechanics() )
         {
-            warn_unused_materials( problem, report );
+            warn_unused_materials( problem(), report() );
         }
     }
 } // namespace geode
