@@ -42,7 +42,8 @@
 
 #include "builder/physical_problem_builder.hpp"
 
-#include "helpers/physical_problem_validation.hpp"
+#include "helpers/simulation_checker.hpp"
+#include "helpers/simulation_report.hpp"
 
 #include "io/physical_problem.hpp"
 
@@ -69,7 +70,8 @@ PYBIND11_MODULE( opengeode_geosciences_py_simulation, module )
     geode::define_physical_problem( module );
     geode::define_physical_problem_builder( module );
 
-    geode::define_physical_problem_validation( module );
+    geode::define_simulation_report( module );
+    geode::define_simulation_checker( module );
 
     geode::define_physical_problem_io( module );
 }

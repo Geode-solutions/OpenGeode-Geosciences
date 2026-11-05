@@ -24,17 +24,28 @@
 #include <geode/model/representation/core/brep.hpp>
 
 #include <geode/geosciences/simulation/core/physical_problem.hpp>
-#include <geode/geosciences/simulation/helpers/physical_problem_validation.hpp>
+#include <geode/geosciences/simulation/helpers/simulation_checker.hpp>
 
 namespace geode
 {
-    void define_physical_problem_validation( pybind11::module& module )
+    void define_simulation_checker( pybind11::module& module )
     {
-        module.def( "validate_physical_problem", &validate_physical_problem );
-        module.def( "validate_physical_problem_regions",
-            &validate_physical_problem_regions );
-        module.def( "validate_physical_problem_properties",
-            &validate_physical_problem_properties );
-        module.def( "physical_problem_warnings", &physical_problem_warnings );
+        pybind11::class_< SimulationChecker >( module, "SimulationChecker" )
+            .def( "check", &SimulationChecker::check );
+
+        pybind11::class_< SimulationCheckerFactory >(
+            module, "SimulationCheckerFactory" )
+            .def_static(
+                "list_creators", &SimulationCheckerFactory::list_creators )
+            .def_static( "has_creator", &SimulationCheckerFactory::has_creator )
+            .def_static(
+                "create",
+                []( const std::string& key, const PhysicalProblem& problem,
+                    const BRep& model ) {
+                    return SimulationCheckerFactory::create(
+                        key, problem, model );
+                },
+                pybind11::keep_alive< 0, 2 >(),
+                pybind11::keep_alive< 0, 3 >() );
     }
 } // namespace geode
