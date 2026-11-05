@@ -207,7 +207,7 @@ namespace geode
 
     std::string SimulationIssue::string() const
     {
-        auto text = absl::StrCat( is_error() ? "✗ " : "! ", subject,
+        auto text = absl::StrCat( is_error() ? "error: " : "warning: ", subject,
             subject.empty() ? "" : ": ", message );
         const auto nb_listed = std::min(
             static_cast< index_t >( locations.size() ), MAX_LISTED_LOCATIONS );

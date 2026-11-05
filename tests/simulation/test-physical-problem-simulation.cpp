@@ -288,17 +288,17 @@ namespace
             "Test cannot simulate this problem on model \"model\": 3 errors, "
             "1 warning\n\n"
             "Problem definition\n"
-            "  \u2717 Schedule: end time must be after start time\n"
+            "  error: Schedule: end time must be after start time\n"
             "    fix: swap them\n\n"
             "Model mesh\n"
-            "  \u2717 Blocks: 1 Block without polyhedron\n"
+            "  error: Blocks: 1 Block without polyhedron\n"
             "    Block \"Unit\"\n\n"
             "Physical properties\n"
-            "  \u2717 porosity: values outside (0, 1] on 1 Block\n"
+            "  error: porosity: values outside (0, 1] on 1 Block\n"
             "    Block ",
             block_id.string(),
             ": 7 of 10 polyhedra (0, 1, 2, 3, 4, ...), first value 2\n"
-            "  ! density: ignored, only read by solid mechanics" );
+            "  warning: density: ignored, only read by solid mechanics" );
         Exception::test( !report.is_simulable() && report.nb_errors() == 3
                              && report.string() == expected,
             "[Test] Full report:\n", report.string(), "\nexpected:\n",
