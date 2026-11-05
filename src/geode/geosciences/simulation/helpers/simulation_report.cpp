@@ -143,7 +143,7 @@ namespace
             report.simulator().empty()
                 ? absl::StrCat( "This problem ", ability, " be simulated" )
                 : absl::StrCat( report.simulator(), " ", ability,
-                    " simulate this problem" );
+                      " simulate this problem" );
         if( !report.model_name().empty() )
         {
             absl::StrAppend( &message, " on model ", report.model_name() );
@@ -163,7 +163,7 @@ namespace geode
     {
         auto message = name.empty() ? component.string()
                                     : absl::StrCat( component.type.get(), " \"",
-                                        name, "\"" );
+                                          name, "\"" );
         std::vector< std::string > precisions;
         if( element_type != SIMULATION_ELEMENT_TYPE::none
             && ( all_elements || !elements.empty() ) )

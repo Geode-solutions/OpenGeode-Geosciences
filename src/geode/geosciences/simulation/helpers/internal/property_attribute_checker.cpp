@@ -123,7 +123,7 @@ namespace
                   requirement.property ) ),
               valid_range_( geode::internal::physical_property_description(
                   requirement.property )
-                                .valid_range )
+                      .valid_range )
         {
         }
 
@@ -405,7 +405,7 @@ namespace
                 requirement_.required_by.empty()
                     ? std::string{}
                     : absl::StrCat( requirement_.required_by, " needs ", name_,
-                        " on every ", component_type_.get() ) );
+                          " on every ", component_type_.get() ) );
             message = on_components( valid_range_.invalid_values, invalid_ );
             add_issue( message, std::move( invalid_ ) );
         }

@@ -195,9 +195,9 @@ namespace
                         geode::Block3D::component_type_static().get() ),
                     coverage.is_registered
                         ? absl::StrCat( ": the model ", name,
-                            " does not cover every polyhedron" )
+                              " does not cover every polyhedron" )
                         : absl::StrCat( ": the model has no ", name,
-                            " physical property on Blocks" ) )
+                              " physical property on Blocks" ) )
             };
             issue.fix = absl::StrCat( "give the material a ", name,
                 " or a value to every polyhedron of the model ", name );
