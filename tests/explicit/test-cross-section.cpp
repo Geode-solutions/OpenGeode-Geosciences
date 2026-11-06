@@ -380,7 +380,8 @@ void test_io( const geode::CrossSection& model )
     const auto file_io = absl::StrCat( "test.", model.native_extension() );
     geode::save_cross_section( model, file_io );
 
-    geode::CrossSection reloaded_model = geode::load_cross_section( file_io );
+    geode::CrossSection reloaded_model =
+        geode::load_one( geode::load_cross_section( file_io ), file_io );
     check_reloaded_model( reloaded_model );
 }
 

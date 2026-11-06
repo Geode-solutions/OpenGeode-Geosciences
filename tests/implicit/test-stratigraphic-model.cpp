@@ -333,9 +333,8 @@ void test_io(
     geode::Logger::info( "Testing IO" );
     const auto filename = "test_implicit_model_io.og_istrm";
     geode::save_implicit_structural_model( model, filename );
-    geode::StratigraphicModel model_reload{
-        geode::load_implicit_structural_model( filename )
-    };
+    geode::StratigraphicModel model_reload{ geode::load_one(
+        geode::load_implicit_structural_model( filename ), filename ) };
     geode::StratigraphicModelBuilder builder{ model_reload };
     builder.reinitialize_stratigraphic_query_trees();
     builder.import_old_stratigraphic_attribute_values_from_attribute_name(
@@ -428,8 +427,9 @@ void test_copy_stratigraphic_values_with_non_tetrahedral_block(
     const geode::StratigraphicModel& model,
     const geode::uuid& polyhedral_block_id )
 {
-    auto other_structural_model = geode::load_structural_model(
-        absl::StrCat( geode::DATA_PATH, "vri2.og_strm" ) );
+    const auto data_file = absl::StrCat( geode::DATA_PATH, "vri2.og_strm" );
+    auto other_structural_model =
+        geode::load_one( geode::load_structural_model( data_file ), data_file );
     geode::StructuralModelBuilder other_structural_builder{
         other_structural_model
     };
@@ -476,8 +476,9 @@ void test_copy_stratigraphic_values_with_non_tetrahedral_block(
 void test_non_tetrahedral_block()
 {
     geode::Logger::info( "Testing non tetrahedral block" );
-    auto structural_model = geode::load_structural_model(
-        absl::StrCat( geode::DATA_PATH, "vri2.og_strm" ) );
+    const auto data_file = absl::StrCat( geode::DATA_PATH, "vri2.og_strm" );
+    auto structural_model =
+        geode::load_one( geode::load_structural_model( data_file ), data_file );
     geode::StructuralModelBuilder structural_builder{ structural_model };
     const auto polyhedral_block_id = structural_builder.add_block(
         geode::OpenGeodePolyhedralSolid3D::impl_name_static() );
@@ -535,8 +536,9 @@ void test_non_tetrahedral_block()
 void test_empty_block()
 {
     geode::Logger::info( "Testing empty block" );
-    auto structural_model = geode::load_structural_model(
-        absl::StrCat( geode::DATA_PATH, "vri2.og_strm" ) );
+    const auto data_file = absl::StrCat( geode::DATA_PATH, "vri2.og_strm" );
+    auto structural_model =
+        geode::load_one( geode::load_structural_model( data_file ), data_file );
     geode::StructuralModelBuilder structural_builder{ structural_model };
     const auto empty_block_id = structural_builder.add_block(
         geode::OpenGeodeTetrahedralSolid3D::impl_name_static() );
@@ -558,8 +560,9 @@ void test_empty_block()
 void test_reinitialize_after_modification( const geode::uuid& block1_id )
 {
     geode::Logger::info( "Testing reinitialization after modification" );
-    geode::StratigraphicModel model{ geode::load_structural_model(
-        absl::StrCat( geode::DATA_PATH, "vri2.og_strm" ) ) };
+    const auto data_file = absl::StrCat( geode::DATA_PATH, "vri2.og_strm" );
+    geode::StratigraphicModel model{ geode::load_one(
+        geode::load_structural_model( data_file ), data_file ) };
     geode::StratigraphicModelBuilder builder{ model };
     builder.import_old_implicit_attribute_values_from_attribute_name(
         geode::ImplicitStructuralModel::IMPLICIT_ATTRIBUTE_NAME );
@@ -594,8 +597,9 @@ void test_reinitialize_after_modification( const geode::uuid& block1_id )
 void test_stratigraphic_model_from_coords()
 {
     geode::Logger::info( "Testing stratigraphic model from coordinates" );
-    geode::ImplicitStructuralModel implicit_model{ geode::load_structural_model(
-        absl::StrCat( geode::DATA_PATH, "vri2.og_strm" ) ) };
+    const auto data_file = absl::StrCat( geode::DATA_PATH, "vri2.og_strm" );
+    geode::ImplicitStructuralModel implicit_model{ geode::load_one(
+        geode::load_structural_model( data_file ), data_file ) };
     const auto model =
         geode::detail::stratigraphic_model_from_implicit_model_and_coords(
             std::move( implicit_model ), 2 );
@@ -685,8 +689,9 @@ int main()
         geode::Logger::info( "Starting test" );
         geode::OpenGeodeGeosciencesImplicitLibrary::initialize();
         geode::Logger::set_level( geode::Logger::LEVEL::debug );
-        geode::StratigraphicModel model{ geode::load_structural_model(
-            absl::StrCat( geode::DATA_PATH, "vri2.og_strm" ) ) };
+        const auto data_file = absl::StrCat( geode::DATA_PATH, "vri2.og_strm" );
+        geode::StratigraphicModel model{ geode::load_one(
+            geode::load_structural_model( data_file ), data_file ) };
         geode::StratigraphicModelBuilder builder{ model };
         builder.import_old_implicit_attribute_values_from_attribute_name(
             geode::ImplicitStructuralModel::IMPLICIT_ATTRIBUTE_NAME );

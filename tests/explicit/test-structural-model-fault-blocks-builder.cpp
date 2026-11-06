@@ -107,8 +107,9 @@ void check_fault_blocks( const geode::StructuralModel& model,
 
 void test_structural_model_fault_blocks_builder()
 {
-    auto model_A2 = geode::load_structural_model(
-        absl::StrCat( geode::DATA_PATH, "modelA2.og_strm" ) );
+    const auto data_file = absl::StrCat( geode::DATA_PATH, "modelA2.og_strm" );
+    auto model_A2 =
+        geode::load_one( geode::load_structural_model( data_file ), data_file );
     geode::build_structural_model_fault_blocks( model_A2 );
     geode::OpenGeodeGeosciencesExplicitException::test(
         model_A2.nb_fault_blocks() == 3,
@@ -120,8 +121,9 @@ void test_structural_model_fault_blocks_builder()
 
 void test_structural_model_without_faults_fault_blocks_builder()
 {
-    auto model = geode::load_structural_model(
-        absl::StrCat( geode::DATA_PATH, "vri2.og_strm" ) );
+    const auto data_file = absl::StrCat( geode::DATA_PATH, "vri2.og_strm" );
+    auto model =
+        geode::load_one( geode::load_structural_model( data_file ), data_file );
     geode::build_structural_model_fault_blocks( model );
     geode::OpenGeodeGeosciencesExplicitException::test(
         model.nb_fault_blocks() == 1,
@@ -131,8 +133,9 @@ void test_structural_model_without_faults_fault_blocks_builder()
 
 void test_fault_blocks_rebuild_next_to_existing_ones()
 {
-    auto model = geode::load_structural_model(
-        absl::StrCat( geode::DATA_PATH, "modelA2.og_strm" ) );
+    const auto data_file = absl::StrCat( geode::DATA_PATH, "modelA2.og_strm" );
+    auto model =
+        geode::load_one( geode::load_structural_model( data_file ), data_file );
     geode::build_structural_model_fault_blocks( model );
     std::vector< geode::uuid > old_fault_blocks;
     for( const auto& fault_block : model.fault_blocks() )

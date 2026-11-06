@@ -43,8 +43,9 @@ namespace geode
      * The adequate loader is called depending on the filename extension.
      * @param[in] filename Path to the file to load.
      */
-    [[nodiscard]] PhysicalProblem opengeode_geosciences_simulation_api
-        load_physical_problem( std::string_view filename );
+    [[nodiscard]] std::vector< PhysicalProblem >
+        opengeode_geosciences_simulation_api load_physical_problem(
+            std::string_view filename );
 
     class opengeode_geosciences_simulation_api PhysicalProblemInput
         : public Input< PhysicalProblem >

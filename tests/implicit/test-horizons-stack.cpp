@@ -129,9 +129,12 @@ void test_horizons_stack()
     const auto stack_path = absl::StrCat( "test_HorizonStack.",
         geode::HorizonsStack3D::native_extension_static() );
     geode::save_horizons_stack( horizons_stack, stack_path );
-    auto reloaded_stack = geode::load_horizons_stack< 3 >( stack_path );
-    auto reloaded_stack_v0 = geode::load_horizons_stack< 3 >(
-        absl::StrCat( geode::DATA_PATH, "test_HorizonStack_v0.og_hst3d" ) );
+    auto reloaded_stack = geode::load_one(
+        geode::load_horizons_stack< 3 >( stack_path ), stack_path );
+    const auto data_file =
+        absl::StrCat( geode::DATA_PATH, "test_HorizonStack_v0.og_hst3d" );
+    auto reloaded_stack_v0 = geode::load_one(
+        geode::load_horizons_stack< 3 >( data_file ), data_file );
     geode::index_t nb_v0_horizons{ 0 };
     for( const auto& horizon : reloaded_stack_v0.bottom_to_top_horizons() )
     {
@@ -289,9 +292,11 @@ void test_cycle_rejection()
 
 void test_load_cyclic_stack()
 {
+    const auto data_file =
+        absl::StrCat( geode::DATA_PATH, "test_HorizonStack_cycle.og_hst3d" );
     // File saved with a cycle h0 > u0 > h1 > u1 > h0 in above relations
-    const auto stack = geode::load_horizons_stack< 3 >(
-        absl::StrCat( geode::DATA_PATH, "test_HorizonStack_cycle.og_hst3d" ) );
+    const auto stack = geode::load_one(
+        geode::load_horizons_stack< 3 >( data_file ), data_file );
     for( const auto& horizon : stack.horizons() )
     {
         geode::OpenGeodeGeosciencesImplicitException::test(

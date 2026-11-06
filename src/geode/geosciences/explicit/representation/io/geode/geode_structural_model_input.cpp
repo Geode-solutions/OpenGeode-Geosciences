@@ -52,14 +52,16 @@ namespace geode
     {
     }
 
-    StructuralModel OpenGeodeStructuralModelInput::read()
+    std::vector< StructuralModel > OpenGeodeStructuralModelInput::read()
     {
         const UnzipFile zip_reader{ filename(), uuid{}.string() };
         zip_reader.extract_all();
         StructuralModel structural_model{ BITSERY::constructor };
         detail::load_structural_model_files(
             structural_model, zip_reader.directory() );
-        return structural_model;
+        std::vector< StructuralModel > results;
+        results.push_back( std::move( structural_model ) );
+        return results;
     }
 
     namespace detail

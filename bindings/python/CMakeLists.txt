@@ -20,10 +20,6 @@
 
 add_subdirectory(src)
 
-if(OPENGEODE_GEOSCIENCES_WITH_TESTS)
-    add_subdirectory(tests)
-endif()
-
 add_geode_python_wheel(
     NAME "OpenGeode-Geosciences"
     DESCRIPTION 
@@ -34,3 +30,7 @@ add_geode_python_wheel(
         "simulation.py"
     LICENSE "MIT"
 )
+
+if(OPENGEODE_GEOSCIENCES_WITH_TESTS)
+    add_subdirectory(tests)
+endif()

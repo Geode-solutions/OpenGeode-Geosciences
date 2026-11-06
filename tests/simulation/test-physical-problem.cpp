@@ -362,7 +362,8 @@ namespace
         const auto filename = absl::StrCat(
             "dead_oil.", geode::PhysicalProblem::native_extension_static() );
         geode::save_physical_problem( problem, filename );
-        const auto reloaded = geode::load_physical_problem( filename );
+        const auto reloaded = geode::load_one(
+            geode::load_physical_problem( filename ), filename );
         Exception::test( reloaded.id() == problem.id(), "[Test] Wrong id" );
         check_dead_oil_problem( reloaded, model_id, block_id );
         check_no_issue( reloaded );
@@ -408,7 +409,8 @@ namespace
         const auto filename = absl::StrCat(
             "thermal.", geode::PhysicalProblem::native_extension_static() );
         geode::save_physical_problem( problem, filename );
-        const auto reloaded = geode::load_physical_problem( filename );
+        const auto reloaded = geode::load_one(
+            geode::load_physical_problem( filename ), filename );
         check_no_issue( reloaded );
         const auto* fluid =
             dynamic_cast< const geode::SinglePhaseFluid* >( &reloaded.fluid() );
@@ -479,7 +481,8 @@ namespace
         const auto filename = absl::StrCat(
             "co2_brine.", geode::PhysicalProblem::native_extension_static() );
         geode::save_physical_problem( problem, filename );
-        const auto reloaded = geode::load_physical_problem( filename );
+        const auto reloaded = geode::load_one(
+            geode::load_physical_problem( filename ), filename );
         check_no_issue( reloaded );
         const auto* fluid =
             dynamic_cast< const geode::Co2BrineFluid* >( &reloaded.fluid() );
@@ -710,7 +713,8 @@ namespace
         const auto filename = absl::StrCat(
             "gravity.", geode::PhysicalProblem::native_extension_static() );
         geode::save_physical_problem( problem, filename );
-        const auto reloaded = geode::load_physical_problem( filename );
+        const auto reloaded = geode::load_one(
+            geode::load_physical_problem( filename ), filename );
         Exception::test(
             !reloaded.has_flow() && reloaded.solid_mechanics()
                 && reloaded.solid_mechanics()->law
@@ -724,10 +728,12 @@ namespace
             { geode::SOLID_MECHANICS_LAW::linear_elastic_isotropic,
                 geode::STRESS_SIGN_CONVENTION::tension_positive } );
         geode::save_physical_problem( tension_problem, filename );
-        Exception::test( geode::load_physical_problem( filename )
-                                 .solid_mechanics()
-                                 ->sign_convention
-                             == geode::STRESS_SIGN_CONVENTION::tension_positive,
+        Exception::test(
+            geode::load_one(
+                geode::load_physical_problem( filename ), filename )
+                    .solid_mechanics()
+                    ->sign_convention
+                == geode::STRESS_SIGN_CONVENTION::tension_positive,
             "[Test] Wrong reloaded sign convention" );
         Exception::test(
             !dead_oil_problem( geode::uuid{}, geode::uuid{} ).solid_mechanics(),

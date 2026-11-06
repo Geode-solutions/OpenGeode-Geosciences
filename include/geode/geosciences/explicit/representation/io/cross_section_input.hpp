@@ -44,7 +44,7 @@ namespace geode
      * The adequate loader is called depending on the filename extension.
      * @param[in] filename Path to the file to load.
      */
-    [[nodiscard]] CrossSection opengeode_geosciences_explicit_api
+    [[nodiscard]] std::vector< CrossSection > opengeode_geosciences_explicit_api
         load_cross_section( std::string_view filename );
 
     class CrossSectionInput : public Input< CrossSection >

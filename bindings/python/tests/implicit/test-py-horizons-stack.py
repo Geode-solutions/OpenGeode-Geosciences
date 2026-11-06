@@ -79,7 +79,9 @@ def test_horizons_stack():
 
     stack_path = "test_HorizonStack." + horizons_stack.native_extension()
     geode_imp.save_horizons_stack3D(horizons_stack, stack_path)
-    reloaded_stack = geode_imp.load_horizons_stack3D(stack_path)
+    reloaded_stack = geode.load_one(
+        geode_imp.load_horizons_stack3D(stack_path), stack_path
+    )
 
     stack_from_name_lists = geode_imp.horizons_stack_from_bottom_to_top_names_3d(
         ["hor1", "hor2"], ["su1", "su2", "su3"]

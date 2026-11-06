@@ -39,7 +39,7 @@ namespace geode
             return StructuralModel::native_extension_static();
         }
 
-        [[nodiscard]] StructuralModel read() final;
+        [[nodiscard]] std::vector< StructuralModel > read() final;
 
         [[nodiscard]] AdditionalFiles additional_files() const final
         {
