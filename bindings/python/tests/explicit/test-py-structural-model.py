@@ -167,7 +167,9 @@ def check_reloaded_model(reloaded_model):
 def test_io(model):
     geosciences.save_structural_model(model, "test.og_strm")
 
-    reloaded_model = geosciences.load_structural_model("test.og_strm")
+    reloaded_model = opengeode.load_one(
+        geosciences.load_structural_model("test.og_strm"), "test.og_strm"
+    )
     check_reloaded_model(reloaded_model)
 
 

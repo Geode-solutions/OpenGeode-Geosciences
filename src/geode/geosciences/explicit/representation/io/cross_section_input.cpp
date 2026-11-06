@@ -37,33 +37,37 @@
 
 namespace geode
 {
-    CrossSection load_cross_section( std::string_view filename )
+    std::vector< CrossSection > load_cross_section( std::string_view filename )
     {
         constexpr auto TYPE = "CrossSection";
         try
         {
-            auto cross_section =
+            auto cross_sections =
                 detail::geode_object_input_impl< CrossSectionInputFactory >(
                     TYPE, filename );
-            auto message = absl::StrCat( TYPE, " has: " );
-            detail::add_to_message(
-                message, cross_section.nb_surfaces(), " Surfaces, " );
-            detail::add_to_message(
-                message, cross_section.nb_lines(), " Lines, " );
-            detail::add_to_message(
-                message, cross_section.nb_corners(), " Corners, " );
-            detail::add_to_message( message,
-                cross_section.nb_model_boundaries(), " ModelBoundaries, " );
-            detail::add_to_message(
-                message, cross_section.nb_faults(), " Faults, " );
-            detail::add_to_message(
-                message, cross_section.nb_horizons(), " Horizons, " );
-            detail::add_to_message(
-                message, cross_section.nb_fault_blocks(), " FaultBlocks, " );
-            detail::add_to_message( message,
-                cross_section.nb_stratigraphic_units(), " StratigraphicUnits" );
-            Logger::info( message );
-            return cross_section;
+            for( const auto& cross_section : cross_sections )
+            {
+                auto message = absl::StrCat( TYPE, " has: " );
+                detail::add_to_message(
+                    message, cross_section.nb_surfaces(), " Surfaces, " );
+                detail::add_to_message(
+                    message, cross_section.nb_lines(), " Lines, " );
+                detail::add_to_message(
+                    message, cross_section.nb_corners(), " Corners, " );
+                detail::add_to_message( message,
+                    cross_section.nb_model_boundaries(), " ModelBoundaries, " );
+                detail::add_to_message(
+                    message, cross_section.nb_faults(), " Faults, " );
+                detail::add_to_message(
+                    message, cross_section.nb_horizons(), " Horizons, " );
+                detail::add_to_message( message,
+                    cross_section.nb_fault_blocks(), " FaultBlocks, " );
+                detail::add_to_message( message,
+                    cross_section.nb_stratigraphic_units(),
+                    " StratigraphicUnits" );
+                Logger::info( message );
+            }
+            return cross_sections;
         }
         catch( const OpenGeodeException& e )
         {

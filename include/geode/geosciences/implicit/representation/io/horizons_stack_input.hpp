@@ -45,7 +45,7 @@ namespace geode
      * @return Loaded HorizonsStack.
      */
     template < index_t dimension >
-    [[nodiscard]] HorizonsStack< dimension > load_horizons_stack(
+    [[nodiscard]] std::vector< HorizonsStack< dimension > > load_horizons_stack(
         std::string_view filename );
 
     template < index_t dimension >

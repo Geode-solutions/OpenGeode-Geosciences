@@ -52,9 +52,10 @@
 
 geode::StratigraphicSection import_section_with_stratigraphy()
 {
+    const auto data_file =
+        absl::StrCat( geode::DATA_PATH, "test_section.og_sctn" );
     geode::StratigraphicSection implicit_model{ geode::CrossSection(
-        geode::load_section(
-            absl::StrCat( geode::DATA_PATH, "test_section.og_sctn" ) ) ) };
+        geode::load_one( geode::load_section( data_file ), data_file ) ) };
     geode::StratigraphicSectionBuilder model_builder{ implicit_model };
     for( const auto& surface : implicit_model.surfaces() )
     {
@@ -241,8 +242,8 @@ void test_copy( const geode::StratigraphicSection& section )
 
 void test_backward_io( std::string filename )
 {
-    const auto implicit_cross_section =
-        geode::load_implicit_cross_section( filename );
+    const auto implicit_cross_section = geode::load_one(
+        geode::load_implicit_cross_section( filename ), filename );
     geode::save_implicit_cross_section(
         implicit_cross_section, "test_backward_io.og_ixsctn" );
 }
@@ -253,9 +254,8 @@ void test_io( const geode::StratigraphicSection& implicit_model )
     const auto filename = "test_implicit_section_io.og_ixsctn";
     geode::save_implicit_cross_section( implicit_model, filename );
     DEBUG( "reloaded" );
-    geode::StratigraphicSection model_reload{
-        geode::load_implicit_cross_section( filename )
-    };
+    geode::StratigraphicSection model_reload{ geode::load_one(
+        geode::load_implicit_cross_section( filename ), filename ) };
     geode::StratigraphicSectionBuilder builder{ model_reload };
     builder.reinitialize_stratigraphic_query_trees();
     builder.import_old_stratigraphic_attribute_values_from_attribute_id(
@@ -347,8 +347,10 @@ void test_move( geode::StratigraphicSection& implicit_model )
 void test_empty_surface()
 {
     geode::Logger::info( "Testing empty surface" );
-    geode::CrossSection cross_section{ geode::load_section(
-        absl::StrCat( geode::DATA_PATH, "test_section.og_sctn" ) ) };
+    const auto data_file =
+        absl::StrCat( geode::DATA_PATH, "test_section.og_sctn" );
+    geode::CrossSection cross_section{ geode::load_one(
+        geode::load_section( data_file ), data_file ) };
     geode::CrossSectionBuilder cross_section_builder{ cross_section };
     const auto empty_surface_id = cross_section_builder.add_surface(
         geode::OpenGeodeTriangulatedSurface2D::impl_name_static() );

@@ -47,7 +47,7 @@ namespace geode
             HorizonsStack< dimension >& horizons_stack,
             std::string_view directory );
 
-        [[nodiscard]] HorizonsStack< dimension > read() final;
+        [[nodiscard]] std::vector< HorizonsStack< dimension > > read() final;
 
         [[nodiscard]] AdditionalFiles additional_files() const final
         {

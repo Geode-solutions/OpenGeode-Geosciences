@@ -38,36 +38,40 @@
 
 namespace geode
 {
-    ImplicitStructuralModel load_implicit_structural_model(
+    std::vector< ImplicitStructuralModel > load_implicit_structural_model(
         std::string_view filename )
     {
         constexpr auto TYPE = "ImplicitStructuralModel";
         try
         {
-            auto implicit_model = detail::geode_object_input_impl<
+            auto implicit_models = detail::geode_object_input_impl<
                 ImplicitStructuralModelInputFactory >( TYPE, filename );
-            auto message = absl::StrCat( TYPE, " has: " );
-            detail::add_to_message(
-                message, implicit_model.nb_blocks(), " Blocks, " );
-            detail::add_to_message(
-                message, implicit_model.nb_surfaces(), " Surfaces, " );
-            detail::add_to_message(
-                message, implicit_model.nb_lines(), " Lines, " );
-            detail::add_to_message(
-                message, implicit_model.nb_corners(), " Corners, " );
-            detail::add_to_message( message,
-                implicit_model.nb_model_boundaries(), " ModelBoundaries, " );
-            detail::add_to_message(
-                message, implicit_model.nb_faults(), " Faults, " );
-            detail::add_to_message(
-                message, implicit_model.nb_horizons(), " Horizons, " );
-            detail::add_to_message(
-                message, implicit_model.nb_fault_blocks(), " FaultBlocks, " );
-            detail::add_to_message( message,
-                implicit_model.nb_stratigraphic_units(),
-                " StratigraphicUnits" );
-            Logger::info( message );
-            return implicit_model;
+            for( const auto& implicit_model : implicit_models )
+            {
+                auto message = absl::StrCat( TYPE, " has: " );
+                detail::add_to_message(
+                    message, implicit_model.nb_blocks(), " Blocks, " );
+                detail::add_to_message(
+                    message, implicit_model.nb_surfaces(), " Surfaces, " );
+                detail::add_to_message(
+                    message, implicit_model.nb_lines(), " Lines, " );
+                detail::add_to_message(
+                    message, implicit_model.nb_corners(), " Corners, " );
+                detail::add_to_message( message,
+                    implicit_model.nb_model_boundaries(),
+                    " ModelBoundaries, " );
+                detail::add_to_message(
+                    message, implicit_model.nb_faults(), " Faults, " );
+                detail::add_to_message(
+                    message, implicit_model.nb_horizons(), " Horizons, " );
+                detail::add_to_message( message,
+                    implicit_model.nb_fault_blocks(), " FaultBlocks, " );
+                detail::add_to_message( message,
+                    implicit_model.nb_stratigraphic_units(),
+                    " StratigraphicUnits" );
+                Logger::info( message );
+            }
+            return implicit_models;
         }
         catch( const OpenGeodeException& e )
         {

@@ -39,36 +39,40 @@
 
 namespace geode
 {
-    StratigraphicModel load_stratigraphic_model( std::string_view filename )
+    std::vector< StratigraphicModel > load_stratigraphic_model(
+        std::string_view filename )
     {
         constexpr auto TYPE = "StratigraphicModel";
         try
         {
-            auto stratigraphic_model = detail::geode_object_input_impl<
+            auto stratigraphic_models = detail::geode_object_input_impl<
                 StratigraphicModelInputFactory >( TYPE, filename );
-            auto message = absl::StrCat( TYPE, " has: " );
-            detail::add_to_message(
-                message, stratigraphic_model.nb_blocks(), " Blocks, " );
-            detail::add_to_message(
-                message, stratigraphic_model.nb_surfaces(), " Surfaces, " );
-            detail::add_to_message(
-                message, stratigraphic_model.nb_lines(), " Lines, " );
-            detail::add_to_message(
-                message, stratigraphic_model.nb_corners(), " Corners, " );
-            detail::add_to_message( message,
-                stratigraphic_model.nb_model_boundaries(),
-                " ModelBoundaries, " );
-            detail::add_to_message(
-                message, stratigraphic_model.nb_faults(), " Faults, " );
-            detail::add_to_message(
-                message, stratigraphic_model.nb_horizons(), " Horizons, " );
-            detail::add_to_message( message,
-                stratigraphic_model.nb_fault_blocks(), " FaultBlocks, " );
-            detail::add_to_message( message,
-                stratigraphic_model.nb_stratigraphic_units(),
-                " StratigraphicUnits" );
-            Logger::info( message );
-            return stratigraphic_model;
+            for( const auto& stratigraphic_model : stratigraphic_models )
+            {
+                auto message = absl::StrCat( TYPE, " has: " );
+                detail::add_to_message(
+                    message, stratigraphic_model.nb_blocks(), " Blocks, " );
+                detail::add_to_message(
+                    message, stratigraphic_model.nb_surfaces(), " Surfaces, " );
+                detail::add_to_message(
+                    message, stratigraphic_model.nb_lines(), " Lines, " );
+                detail::add_to_message(
+                    message, stratigraphic_model.nb_corners(), " Corners, " );
+                detail::add_to_message( message,
+                    stratigraphic_model.nb_model_boundaries(),
+                    " ModelBoundaries, " );
+                detail::add_to_message(
+                    message, stratigraphic_model.nb_faults(), " Faults, " );
+                detail::add_to_message(
+                    message, stratigraphic_model.nb_horizons(), " Horizons, " );
+                detail::add_to_message( message,
+                    stratigraphic_model.nb_fault_blocks(), " FaultBlocks, " );
+                detail::add_to_message( message,
+                    stratigraphic_model.nb_stratigraphic_units(),
+                    " StratigraphicUnits" );
+                Logger::info( message );
+            }
+            return stratigraphic_models;
         }
         catch( const OpenGeodeException& e )
         {

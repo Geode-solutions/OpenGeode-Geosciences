@@ -213,7 +213,7 @@ def save_and_reload(problem, filename):
     simulation.save_physical_problem(problem, filename)
     if simulation.is_physical_problem_loadable(filename).value() != 1:
         raise ValueError("[Test] Problem should be loadable")
-    return simulation.load_physical_problem(filename)
+    return opengeode.load_one(simulation.load_physical_problem(filename), filename)
 
 
 def check_model_id(problem, model_id):

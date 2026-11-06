@@ -62,8 +62,10 @@
 
 void test_bitsery()
 {
-    auto surf = geode::load_triangulated_surface< 2 >(
-        absl::StrCat( geode::DATA_PATH, "3patches.og_tsf2d" ) );
+    const auto data_file =
+        absl::StrCat( geode::DATA_PATH, "3patches.og_tsf2d" );
+    auto surf = geode::load_one(
+        geode::load_triangulated_surface< 2 >( data_file ), data_file );
     auto builder = geode::TriangulatedSurfaceBuilder2D::create( *surf );
     geode::assign_surface_mesh_geographic_coordinate_system_info(
         *surf, *builder, "test", { "EPSG", "2005", "test" } );
@@ -84,8 +86,9 @@ void test_bitsery()
     builder->main_coordinate_reference_system_manager_builder()
         .set_active_coordinate_reference_system( "test2" );
 
-    const auto reloaded =
-        geode::load_triangulated_surface< 2 >( "crs.og_tsf2d" );
+    const auto reloaded = geode::load_one(
+        geode::load_triangulated_surface< 2 >( "crs.og_tsf2d" ),
+        "crs.og_tsf2d" );
     const auto& crs_manager =
         reloaded->main_coordinate_reference_system_manager();
     geode::OpenGeodeGeosciencesExplicitException::test(
@@ -127,8 +130,9 @@ void test_corrupted_info_size()
     }
     try
     {
-        const auto mesh =
-            geode::load_triangulated_surface< 2 >( "corrupted_crs.og_tsf2d" );
+        const auto mesh = geode::load_one(
+            geode::load_triangulated_surface< 2 >( "corrupted_crs.og_tsf2d" ),
+            "corrupted_crs.og_tsf2d" );
     }
     catch( const geode::OpenGeodeException& exception )
     {
@@ -161,8 +165,10 @@ void check_throws( const Function& function, std::string_view message )
 
 void test_failed_mesh_conversion_leaves_no_attribute()
 {
-    auto surf = geode::load_triangulated_surface< 2 >(
-        absl::StrCat( geode::DATA_PATH, "3patches.og_tsf2d" ) );
+    const auto data_file =
+        absl::StrCat( geode::DATA_PATH, "3patches.og_tsf2d" );
+    auto surf = geode::load_one(
+        geode::load_triangulated_surface< 2 >( data_file ), data_file );
     auto builder = geode::TriangulatedSurfaceBuilder2D::create( *surf );
     const auto nb_attributes =
         surf->vertex_attribute_manager().attribute_ids().size();
@@ -196,8 +202,10 @@ void test_failed_mesh_conversion_leaves_no_attribute()
 
 void test_assign_validation()
 {
-    auto surf = geode::load_triangulated_surface< 2 >(
-        absl::StrCat( geode::DATA_PATH, "3patches.og_tsf2d" ) );
+    const auto data_file =
+        absl::StrCat( geode::DATA_PATH, "3patches.og_tsf2d" );
+    auto surf = geode::load_one(
+        geode::load_triangulated_surface< 2 >( data_file ), data_file );
     auto builder = geode::TriangulatedSurfaceBuilder2D::create( *surf );
     geode::assign_surface_mesh_geographic_coordinate_system_info(
         *surf, *builder, "first", { "EPSG", "2005", "first" } );
@@ -597,7 +605,8 @@ void test_light_regular_grid_crs()
 
     const auto filename = absl::StrCat( "crs.", grid.native_extension() );
     geode::save_light_regular_grid( grid.clone(), filename );
-    auto reloaded = geode::load_light_regular_grid< 2 >( filename );
+    auto reloaded = geode::load_one(
+        geode::load_light_regular_grid< 2 >( filename ), filename );
     const auto& reloaded_crs =
         dynamic_cast< const geode::GeographicGridCoordinateSystem2D& >(
             reloaded.grid_coordinate_reference_system_manager()

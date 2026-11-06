@@ -316,8 +316,13 @@ void test_io( const geode::StructuralModel& model )
     const auto file_io = absl::StrCat( "test.", model.native_extension() );
     geode::save_structural_model( model, file_io );
 
+    auto reloaded_models = geode::load_structural_model( file_io );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        reloaded_models.size() == 1,
+        "[Test] Loading a native StructuralModel file should return exactly "
+        "one model" );
     geode::StructuralModel reloaded_model =
-        geode::load_structural_model( file_io );
+        std::move( reloaded_models.front() );
     check_reloaded_model( reloaded_model );
     check_physical_properties( reloaded_model, model, "[Test] reload" );
 }
@@ -771,9 +776,10 @@ void test_copy_in_non_empty_model( const geode::StructuralModel& model )
 void test_load_without_fault_blocks_and_stratigraphic_units()
 {
     nb_warnings = 0;
+    const auto data_file = absl::StrCat( geode::DATA_PATH,
+        "structural_model_without_fault_blocks_and_units.og_strm" );
     const auto model =
-        geode::load_structural_model( absl::StrCat( geode::DATA_PATH,
-            "structural_model_without_fault_blocks_and_units.og_strm" ) );
+        geode::load_one( geode::load_structural_model( data_file ), data_file );
     geode::OpenGeodeGeosciencesExplicitException::test( nb_warnings == 0,
         "Loading a StructuralModel saved before FaultBlocks and "
         "StratigraphicUnits existed should not warn" );

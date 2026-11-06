@@ -37,21 +37,25 @@
 namespace geode
 {
     template < index_t dimension >
-    HorizonsStack< dimension > load_horizons_stack( std::string_view filename )
+    std::vector< HorizonsStack< dimension > > load_horizons_stack(
+        std::string_view filename )
     {
         constexpr auto TYPE = "HorizonsStack";
         try
         {
-            auto horizons_stack = detail::geode_object_input_impl<
+            auto horizons_stacks = detail::geode_object_input_impl<
                 HorizonsStackInputFactory< dimension > >( TYPE, filename );
-            auto message = absl::StrCat( TYPE, " has: " );
-            detail::add_to_message(
-                message, horizons_stack.nb_horizons(), " Horizons, " );
-            detail::add_to_message( message,
-                horizons_stack.nb_stratigraphic_units(),
-                " Stratigraphic Units" );
-            Logger::info( message );
-            return horizons_stack;
+            for( const auto& horizons_stack : horizons_stacks )
+            {
+                auto message = absl::StrCat( TYPE, " has: " );
+                detail::add_to_message(
+                    message, horizons_stack.nb_horizons(), " Horizons, " );
+                detail::add_to_message( message,
+                    horizons_stack.nb_stratigraphic_units(),
+                    " Stratigraphic Units" );
+                Logger::info( message );
+            }
+            return horizons_stacks;
         }
         catch( const OpenGeodeException& e )
         {
@@ -96,10 +100,12 @@ namespace geode
         return input->object_priority();
     }
 
-    template HorizonsStack< 2 > opengeode_geosciences_implicit_api
-        load_horizons_stack( std::string_view );
-    template HorizonsStack< 3 > opengeode_geosciences_implicit_api
-        load_horizons_stack( std::string_view );
+    template std::vector< HorizonsStack< 2 > >
+        opengeode_geosciences_implicit_api load_horizons_stack< 2 >(
+            std::string_view );
+    template std::vector< HorizonsStack< 3 > >
+        opengeode_geosciences_implicit_api load_horizons_stack< 3 >(
+            std::string_view );
 
     template AdditionalFiles opengeode_geosciences_implicit_api
         horizons_stack_additional_files< 2 >( std::string_view );

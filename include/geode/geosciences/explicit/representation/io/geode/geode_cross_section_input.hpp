@@ -39,7 +39,7 @@ namespace geode
             return CrossSection::native_extension_static();
         }
 
-        [[nodiscard]] CrossSection read() final;
+        [[nodiscard]] std::vector< CrossSection > read() final;
 
         [[nodiscard]] AdditionalFiles additional_files() const final
         {

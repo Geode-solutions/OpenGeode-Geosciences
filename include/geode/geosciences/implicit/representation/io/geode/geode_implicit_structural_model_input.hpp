@@ -44,7 +44,7 @@ namespace geode
             return ImplicitStructuralModel::native_extension_static();
         }
 
-        [[nodiscard]] ImplicitStructuralModel read() final;
+        [[nodiscard]] std::vector< ImplicitStructuralModel > read() final;
 
         [[nodiscard]] AdditionalFiles additional_files() const final
         {

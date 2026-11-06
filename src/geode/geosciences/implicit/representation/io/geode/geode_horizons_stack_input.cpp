@@ -53,13 +53,16 @@ namespace geode
     }
 
     template < index_t dimension >
-    HorizonsStack< dimension > OpenGeodeHorizonsStackInput< dimension >::read()
+    std::vector< HorizonsStack< dimension > >
+        OpenGeodeHorizonsStackInput< dimension >::read()
     {
         const UnzipFile zip_reader{ this->filename(), uuid{}.string() };
         zip_reader.extract_all();
         HorizonsStack< dimension > horizons_stack{ BITSERY::constructor };
         load_horizons_stack_files( horizons_stack, zip_reader.directory() );
-        return horizons_stack;
+        std::vector< HorizonsStack< dimension > > results;
+        results.push_back( std::move( horizons_stack ) );
+        return results;
     }
 
     template class opengeode_geosciences_implicit_api
