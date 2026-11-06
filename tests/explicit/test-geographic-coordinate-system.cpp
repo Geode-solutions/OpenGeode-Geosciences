@@ -30,16 +30,23 @@
 #include <geode/basic/logger.hpp>
 #include <geode/basic/range.hpp>
 
+#include <geode/geometry/coordinate_system.hpp>
 #include <geode/geometry/point.hpp>
+#include <geode/geometry/vector.hpp>
 
 #include <geode/mesh/builder/coordinate_reference_system_manager_builder.hpp>
 #include <geode/mesh/builder/edged_curve_builder.hpp>
+#include <geode/mesh/builder/grid_coordinate_reference_system_manager_builder.hpp>
 #include <geode/mesh/builder/point_set_builder.hpp>
 #include <geode/mesh/builder/triangulated_surface_builder.hpp>
 #include <geode/mesh/core/coordinate_reference_system_manager.hpp>
 #include <geode/mesh/core/edged_curve.hpp>
+#include <geode/mesh/core/grid_coordinate_reference_system_manager.hpp>
+#include <geode/mesh/core/light_regular_grid.hpp>
 #include <geode/mesh/core/point_set.hpp>
 #include <geode/mesh/core/triangulated_surface.hpp>
+#include <geode/mesh/io/light_regular_grid_input.hpp>
+#include <geode/mesh/io/light_regular_grid_output.hpp>
 #include <geode/mesh/io/triangulated_surface_input.hpp>
 #include <geode/mesh/io/triangulated_surface_output.hpp>
 
@@ -511,6 +518,104 @@ void test_failed_point_conversion()
         "[Test] Conversion of an invalid point should throw" };
 }
 
+void test_info_from_authority_code()
+{
+    const auto wgs84 =
+        geode::GeographicCoordinateSystemInfo::from_authority_code(
+            "EPSG:4326" );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        wgs84.authority == "EPSG" && wgs84.code == "4326"
+            && wgs84.name == "WGS 84",
+        "Wrong info from authority code: ", wgs84.string() );
+    const auto lambert =
+        geode::GeographicCoordinateSystemInfo::from_authority_code( "3949" );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        lambert.authority_code() == "EPSG:3949" && !lambert.name.empty(),
+        "Wrong info from code without authority: ", lambert.string() );
+    check_throws(
+        [] {
+            static_cast< void >(
+                geode::GeographicCoordinateSystemInfo::from_authority_code(
+                    "EPSG:99999" ) );
+        },
+        "Unknown authority code" );
+}
+
+void test_light_regular_grid_crs()
+{
+    constexpr std::array< geode::index_t, 2 > CELLS_NUMBER{ 4, 3 };
+    const geode::Point2D origin{ { 600000, 2400000 } };
+    const std::array< geode::Vector2D, 2 > directions{
+        geode::Vector2D{ { 1000, 200 } }, geode::Vector2D{ { -100, 2000 } }
+    };
+    geode::LightRegularGrid2D grid{ origin, CELLS_NUMBER, directions };
+    check_throws(
+        [&grid] {
+            geode::convert_light_regular_grid_coordinate_reference_system(
+                grid, "lambert2", { "EPSG", "27572", "II" } );
+        },
+        "Grid conversion from a non geographic CRS" );
+
+    geode::assign_light_regular_grid_geographic_coordinate_system_info(
+        grid, "lambert1", { "EPSG", "27571", "I" } );
+    const auto& crs_manager = grid.grid_coordinate_reference_system_manager();
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        crs_manager.nb_coordinate_reference_systems() == 1
+            && crs_manager.active_coordinate_reference_system_name()
+                   == "lambert1",
+        "Assigned grid CRS should replace the default one" );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        grid.grid_coordinate_system().origin() == origin,
+        "Assigning a grid CRS should not move the grid" );
+
+    geode::convert_light_regular_grid_coordinate_reference_system(
+        grid, "lambert2", { "EPSG", "27572", "II" } );
+    const auto& active_crs =
+        dynamic_cast< const geode::GeographicGridCoordinateSystem2D& >(
+            crs_manager.active_coordinate_reference_system() );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        active_crs.info().authority_code() == "EPSG:27572",
+        "Wrong converted grid CRS info" );
+
+    geode::AttributeManager manager;
+    manager.resize( 3 );
+    geode::GeographicCoordinateSystem2D lambert1{ manager,
+        { "EPSG", "27571", "I" } };
+    lambert1.set_point( 0, origin );
+    lambert1.set_point( 1, origin + directions[0] * CELLS_NUMBER[0] );
+    lambert1.set_point( 2, origin + directions[1] * CELLS_NUMBER[1] );
+    geode::GeographicCoordinateSystem2D lambert2{ manager,
+        { "EPSG", "27572", "II" } };
+    lambert2.import_coordinates( lambert1 );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        grid.grid_point( { 0, 0 } ).inexact_equal( lambert2.point( 0 ) )
+            && grid.grid_point( { CELLS_NUMBER[0], 0 } )
+                .inexact_equal( lambert2.point( 1 ) )
+            && grid.grid_point( { 0, CELLS_NUMBER[1] } )
+                .inexact_equal( lambert2.point( 2 ) ),
+        "Wrong converted grid geometry" );
+
+    const auto filename = absl::StrCat( "crs.", grid.native_extension() );
+    geode::save_light_regular_grid( grid.clone(), filename );
+    auto reloaded = geode::load_light_regular_grid< 2 >( filename );
+    const auto& reloaded_crs =
+        dynamic_cast< const geode::GeographicGridCoordinateSystem2D& >(
+            reloaded.grid_coordinate_reference_system_manager()
+                .active_coordinate_reference_system() );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        reloaded_crs.info().authority_code() == "EPSG:27572"
+            && reloaded.grid_point( { 1, 1 } ) == grid.grid_point( { 1, 1 } ),
+        "Wrong reloaded grid CRS" );
+
+    geode::GridCoordinateReferenceSystemManagerBuilder2D{ reloaded }
+        .set_active_coordinate_reference_system( "lambert1" );
+    geode::OpenGeodeGeosciencesExplicitException::test(
+        reloaded.grid_coordinate_system().origin() == origin
+            && reloaded.grid_coordinate_system().direction( 0 )
+                   == directions[0],
+        "Switching back to the original grid CRS should restore the grid" );
+}
+
 int main()
 {
     try
@@ -526,6 +631,8 @@ int main()
         test_assign_validation();
         test_brep_conversion_atomicity();
         test_brep_conversion();
+        test_info_from_authority_code();
+        test_light_regular_grid_crs();
 
         geode::Logger::info( "TEST SUCCESS" );
         return 0;

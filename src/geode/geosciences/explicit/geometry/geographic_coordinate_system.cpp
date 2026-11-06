@@ -52,6 +52,31 @@ namespace geode
 
     GeographicCoordinateSystemInfo::~GeographicCoordinateSystemInfo() = default;
 
+    GeographicCoordinateSystemInfo
+        GeographicCoordinateSystemInfo::from_authority_code(
+            std::string_view authority_code )
+    {
+        std::string authority{ "EPSG" };
+        auto code = to_string( authority_code );
+        if( const auto separator = authority_code.find( ':' );
+            separator != std::string_view::npos )
+        {
+            authority = to_string( authority_code.substr( 0, separator ) );
+            code = to_string( authority_code.substr( separator + 1 ) );
+        }
+        const auto full_code = absl::StrCat( authority, ":", code );
+        OGRSpatialReference reference;
+        OpenGeodeGeosciencesExplicitException::check_exception(
+            reference.SetFromUserInput( full_code.c_str() ) == OGRERR_NONE,
+            nullptr, OpenGeodeException::TYPE::data,
+            "[GeographicCoordinateSystemInfo::from_authority_code] Unknown "
+            "coordinate system ",
+            full_code );
+        const auto* name = reference.GetName();
+        return { std::move( authority ), std::move( code ),
+            name != nullptr ? name : "" };
+    }
+
     template < index_t dimension >
     class GeographicCoordinateSystem< dimension >::Impl
     {
@@ -182,11 +207,10 @@ namespace geode
                 from.authority_code(), " to ", to.authority_code() );
         }
 
-        template < index_t dimension >
+        template < index_t dimension, typename GetPoint >
         std::vector< Point< dimension > > transform(
-            const GeographicCoordinateSystem< dimension >& from ) const
+            index_t nb_points, const GetPoint& get_point ) const
         {
-            const auto nb_points = from.nb_points();
             std::array< std::vector< double >, 3 > values{
                 std::vector< double >( nb_points, 0 ),
                 std::vector< double >( nb_points, 0 ),
@@ -194,7 +218,7 @@ namespace geode
             };
             for( const auto p : Range{ nb_points } )
             {
-                const auto& point = from.point( p );
+                const auto& point = get_point( p );
                 for( const auto d : LRange{ dimension } )
                 {
                     values[d][p] = point.value( d );
@@ -267,7 +291,22 @@ namespace geode
         internal::GeographicCoordinateTransformation::transform(
             const GeographicCoordinateSystem< dimension >& from ) const
     {
-        return impl_->transform( from );
+        return impl_->transform< dimension >(
+            from.nb_points(), [&from]( index_t point_id ) -> decltype( auto ) {
+                return from.point( point_id );
+            } );
+    }
+
+    template < index_t dimension >
+    std::vector< Point< dimension > >
+        internal::GeographicCoordinateTransformation::transform(
+            absl::Span< const Point< dimension > > points ) const
+    {
+        return impl_->transform< dimension >(
+            static_cast< index_t >( points.size() ),
+            [&points]( index_t point_id ) -> const Point< dimension >& {
+                return points[point_id];
+            } );
     }
 
     template std::vector< Point< 2 > > opengeode_geosciences_explicit_api
@@ -276,6 +315,71 @@ namespace geode
     template std::vector< Point< 3 > > opengeode_geosciences_explicit_api
         internal::GeographicCoordinateTransformation::transform(
             const GeographicCoordinateSystem< 3 >& ) const;
+    template std::vector< Point< 2 > > opengeode_geosciences_explicit_api
+        internal::GeographicCoordinateTransformation::transform(
+            absl::Span< const Point< 2 > > ) const;
+    template std::vector< Point< 3 > > opengeode_geosciences_explicit_api
+        internal::GeographicCoordinateTransformation::transform(
+            absl::Span< const Point< 3 > > ) const;
+
+    template < index_t dimension >
+    GeographicGridCoordinateSystem<
+        dimension >::GeographicGridCoordinateSystem() = default;
+
+    template < index_t dimension >
+    GeographicGridCoordinateSystem< dimension >::GeographicGridCoordinateSystem(
+        CoordinateSystem< dimension > coordinate_system,
+        GeographicCoordinateSystemInfo info )
+        : GridCoordinateReferenceSystem< dimension >{ std::move(
+              coordinate_system ) },
+          info_{ std::move( info ) }
+    {
+    }
+
+    template < index_t dimension >
+    GeographicGridCoordinateSystem<
+        dimension >::~GeographicGridCoordinateSystem() = default;
+
+    template < index_t dimension >
+    std::unique_ptr< GridCoordinateReferenceSystem< dimension > >
+        GeographicGridCoordinateSystem< dimension >::clone() const
+    {
+        return std::unique_ptr< GridCoordinateReferenceSystem< dimension > >{
+            new GeographicGridCoordinateSystem< dimension >{ *this }
+        };
+    }
+
+    template < index_t dimension >
+    const GeographicCoordinateSystemInfo&
+        GeographicGridCoordinateSystem< dimension >::info() const
+    {
+        return info_;
+    }
+
+    template < index_t dimension >
+    template < typename Archive >
+    void GeographicGridCoordinateSystem< dimension >::serialize(
+        Archive& archive )
+    {
+        archive.ext( *this,
+            Growable< Archive, GeographicGridCoordinateSystem >{
+                { []( Archive& a, GeographicGridCoordinateSystem& crs ) {
+                    a.ext( crs,
+                        bitsery::ext::BaseClass<
+                            GridCoordinateReferenceSystem< dimension > >{} );
+                    a.object( crs.info_ );
+                } } } );
+    }
+
+    template class opengeode_geosciences_explicit_api
+        GeographicGridCoordinateSystem< 2 >;
+    template class opengeode_geosciences_explicit_api
+        GeographicGridCoordinateSystem< 3 >;
+
+    SERIALIZE_BITSERY_ARCHIVE( opengeode_geosciences_explicit_api,
+        GeographicGridCoordinateSystem< 2 > );
+    SERIALIZE_BITSERY_ARCHIVE( opengeode_geosciences_explicit_api,
+        GeographicGridCoordinateSystem< 3 > );
 
     template class opengeode_geosciences_explicit_api
         GeographicCoordinateSystem< 2 >;

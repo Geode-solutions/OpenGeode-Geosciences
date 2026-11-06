@@ -23,6 +23,8 @@
 
 #include <geode/basic/attribute_manager.hpp>
 
+#include <geode/geometry/coordinate_system.hpp>
+
 #include <geode/geosciences/explicit/geometry/geographic_coordinate_system.hpp>
 
 #define PYTHON_CRS( dimension )                                                \
@@ -42,6 +44,18 @@
         .def( "import_coordinates",                                            \
             &GeographicCoordinateSystem##dimension##D::import_coordinates )
 
+#define PYTHON_GRID_CRS( dimension )                                           \
+    const auto grid_name##dimension =                                          \
+        "GeographicGridCoordinateSystem" + std::to_string( dimension ) + "D";  \
+    pybind11::class_< GeographicGridCoordinateSystem##dimension##D,            \
+        GridCoordinateReferenceSystem##dimension##D, pybind11::smart_holder >( \
+        module, grid_name##dimension.c_str() )                                 \
+        .def( pybind11::init< CoordinateSystem< dimension >,                   \
+            GeographicCoordinateSystemInfo >() )                               \
+        .def( "type_name_static",                                              \
+            &GeographicGridCoordinateSystem##dimension##D::type_name_static )  \
+        .def( "info", &GeographicGridCoordinateSystem##dimension##D::info )
+
 namespace geode
 {
     void define_crs( pybind11::module& module )
@@ -57,8 +71,12 @@ namespace geode
             .def_readwrite(
                 "authority", &GeographicCoordinateSystemInfo::authority )
             .def_readwrite( "code", &GeographicCoordinateSystemInfo::code )
-            .def_readwrite( "name", &GeographicCoordinateSystemInfo::name );
+            .def_readwrite( "name", &GeographicCoordinateSystemInfo::name )
+            .def_static( "from_authority_code",
+                &GeographicCoordinateSystemInfo::from_authority_code );
         PYTHON_CRS( 2 );
         PYTHON_CRS( 3 );
+        PYTHON_GRID_CRS( 2 );
+        PYTHON_GRID_CRS( 3 );
     }
 } // namespace geode

@@ -25,9 +25,12 @@
 
 #include <vector>
 
+#include <absl/types/span.h>
+
 #include <geode/basic/pimpl.hpp>
 
 #include <geode/mesh/core/attribute_coordinate_reference_system.hpp>
+#include <geode/mesh/core/grid_coordinate_reference_system.hpp>
 
 #include <geode/geosciences/explicit/common.hpp>
 
@@ -45,6 +48,14 @@ namespace geode
             std::string name_in );
         GeographicCoordinateSystemInfo();
         ~GeographicCoordinateSystemInfo();
+
+        /*!
+         * Create the info from an authority code like "EPSG:4326". A code
+         * without authority (e.g. "4326") is considered as an EPSG code.
+         * @exception OpenGeodeException if the code is unknown.
+         */
+        [[nodiscard]] static GeographicCoordinateSystemInfo from_authority_code(
+            std::string_view authority_code );
 
         [[nodiscard]] std::string authority_code() const
         {
@@ -118,6 +129,45 @@ namespace geode
     };
     ALIAS_2D_AND_3D( GeographicCoordinateSystem );
 
+    template < index_t dimension >
+    class GeographicGridCoordinateSystem
+        : public GridCoordinateReferenceSystem< dimension >
+    {
+        friend class bitsery::Access;
+
+    public:
+        GeographicGridCoordinateSystem(
+            CoordinateSystem< dimension > coordinate_system,
+            GeographicCoordinateSystemInfo info );
+        ~GeographicGridCoordinateSystem();
+
+        [[nodiscard]] static CRSType type_name_static()
+        {
+            return CRSType{ "GeographicGridCoordinateSystem" };
+        }
+
+        [[nodiscard]] CRSType type_name() const override
+        {
+            return type_name_static();
+        }
+
+        [[nodiscard]] std::unique_ptr<
+            GridCoordinateReferenceSystem< dimension > >
+            clone() const override;
+
+        [[nodiscard]] const GeographicCoordinateSystemInfo& info() const;
+
+    private:
+        GeographicGridCoordinateSystem();
+
+        template < typename Archive >
+        void serialize( Archive& archive );
+
+    private:
+        GeographicCoordinateSystemInfo info_;
+    };
+    ALIAS_2D_AND_3D( GeographicGridCoordinateSystem );
+
     namespace internal
     {
         /*!
@@ -144,6 +194,14 @@ namespace geode
             template < index_t dimension >
             [[nodiscard]] std::vector< Point< dimension > > transform(
                 const GeographicCoordinateSystem< dimension >& from ) const;
+
+            /*!
+             * Return the transformed coordinates of the given points.
+             * @exception OpenGeodeException if a point cannot be transformed.
+             */
+            template < index_t dimension >
+            [[nodiscard]] std::vector< Point< dimension > > transform(
+                absl::Span< const Point< dimension > > points ) const;
 
         private:
             IMPLEMENTATION_MEMBER( impl_ );

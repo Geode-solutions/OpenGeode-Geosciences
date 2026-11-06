@@ -31,6 +31,7 @@
 #include <geode/mesh/core/attribute_coordinate_reference_system.hpp>
 #include <geode/mesh/core/coordinate_reference_system_manager.hpp>
 #include <geode/mesh/core/edged_curve.hpp>
+#include <geode/mesh/core/light_regular_grid.hpp>
 #include <geode/mesh/core/point_set.hpp>
 #include <geode/mesh/core/solid_mesh.hpp>
 #include <geode/mesh/core/surface_mesh.hpp>
@@ -54,6 +55,8 @@ namespace geode
     {
         PYTHON_MESH_CRS_HELPER( edged_curve, 2 );
         PYTHON_MESH_CRS_HELPER( edged_curve, 3 );
+        PYTHON_MESH_CRS_HELPER( light_regular_grid, 2 );
+        PYTHON_MESH_CRS_HELPER( light_regular_grid, 3 );
         PYTHON_MESH_CRS_HELPER( point_set, 2 );
         PYTHON_MESH_CRS_HELPER( point_set, 3 );
         PYTHON_MESH_CRS_HELPER( solid_mesh, 3 );

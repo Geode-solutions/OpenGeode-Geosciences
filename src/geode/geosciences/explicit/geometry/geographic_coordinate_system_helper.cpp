@@ -27,14 +27,20 @@
 
 #include <geode/basic/attribute_manager.hpp>
 
+#include <geode/geometry/coordinate_system.hpp>
+#include <geode/geometry/vector.hpp>
+
 #include <geode/mesh/builder/coordinate_reference_system_manager_builder.hpp>
 #include <geode/mesh/builder/edged_curve_builder.hpp>
+#include <geode/mesh/builder/grid_coordinate_reference_system_manager_builder.hpp>
 #include <geode/mesh/builder/point_set_builder.hpp>
 #include <geode/mesh/builder/solid_mesh_builder.hpp>
 #include <geode/mesh/builder/surface_mesh_builder.hpp>
 #include <geode/mesh/core/attribute_coordinate_reference_system.hpp>
 #include <geode/mesh/core/coordinate_reference_system_manager.hpp>
 #include <geode/mesh/core/edged_curve.hpp>
+#include <geode/mesh/core/grid_coordinate_reference_system_manager.hpp>
+#include <geode/mesh/core/light_regular_grid.hpp>
 #include <geode/mesh/core/point_set.hpp>
 #include <geode/mesh/core/solid_mesh.hpp>
 #include <geode/mesh/core/surface_mesh.hpp>
@@ -589,6 +595,107 @@ namespace geode
         convert_surface_mesh_coordinate_reference_system(
             const SurfaceMesh< 3 >&,
             SurfaceMeshBuilder< 3 >&,
+            std::string_view,
+            GeographicCoordinateSystemInfo );
+
+    template < index_t dimension >
+    void assign_light_regular_grid_geographic_coordinate_system_info(
+        LightRegularGrid< dimension >& grid,
+        std::string_view crs_name,
+        GeographicCoordinateSystemInfo info )
+    {
+        const auto& crs_manager =
+            grid.grid_coordinate_reference_system_manager();
+        const auto old_crs_name =
+            to_string( crs_manager.active_coordinate_reference_system_name() );
+        OpenGeodeGeosciencesExplicitException::check_exception(
+            crs_name == old_crs_name
+                || !crs_manager.coordinate_reference_system_exists( crs_name ),
+            nullptr, OpenGeodeException::TYPE::data,
+            "[assign_light_regular_grid_geographic_coordinate_system_info] "
+            "CRS named ",
+            crs_name, " already exists" );
+        auto crs =
+            std::make_shared< GeographicGridCoordinateSystem< dimension > >(
+                grid.grid_coordinate_system(), std::move( info ) );
+        GridCoordinateReferenceSystemManagerBuilder< dimension > crs_builder{
+            grid
+        };
+        crs_builder.delete_coordinate_reference_system( old_crs_name );
+        crs_builder.register_coordinate_reference_system(
+            crs_name, std::move( crs ) );
+        crs_builder.set_active_coordinate_reference_system( crs_name );
+    }
+
+    template < index_t dimension >
+    void convert_light_regular_grid_coordinate_reference_system(
+        LightRegularGrid< dimension >& grid,
+        std::string_view crs_name,
+        GeographicCoordinateSystemInfo info )
+    {
+        const auto& crs_manager =
+            grid.grid_coordinate_reference_system_manager();
+        OpenGeodeGeosciencesExplicitException::check_exception(
+            !crs_manager.coordinate_reference_system_exists( crs_name ),
+            nullptr, OpenGeodeException::TYPE::data,
+            "[convert_light_regular_grid_coordinate_reference_system] New CRS "
+            "name already exists" );
+        const auto* active_crs =
+            dynamic_cast< const GeographicGridCoordinateSystem< dimension >* >(
+                &crs_manager.active_coordinate_reference_system() );
+        OpenGeodeGeosciencesExplicitException::check_exception(
+            active_crs != nullptr, nullptr, OpenGeodeException::TYPE::data,
+            "[convert_light_regular_grid_coordinate_reference_system] Only "
+            "GeographicGridCoordinateSystem conversion is supported" );
+        const auto& coordinate_system = grid.grid_coordinate_system();
+        std::array< Point< dimension >, dimension + 1 > points;
+        points[0] = coordinate_system.origin();
+        for( const auto d : LRange{ dimension } )
+        {
+            points[d + 1] = coordinate_system.origin()
+                            + coordinate_system.direction( d )
+                                  * grid.nb_cells_in_direction( d );
+        }
+        const internal::GeographicCoordinateTransformation transformation{
+            active_crs->info(), info
+        };
+        const auto converted = transformation.transform(
+            absl::Span< const Point< dimension > >{ points } );
+        std::array< Vector< dimension >, dimension > directions;
+        for( const auto d : LRange{ dimension } )
+        {
+            directions[d] =
+                Vector< dimension >{ converted[0], converted[d + 1] }
+                / grid.nb_cells_in_direction( d );
+        }
+        GridCoordinateReferenceSystemManagerBuilder< dimension > crs_builder{
+            grid
+        };
+        crs_builder.register_coordinate_reference_system( crs_name,
+            std::make_shared< GeographicGridCoordinateSystem< dimension > >(
+                CoordinateSystem< dimension >{ directions, converted[0] },
+                std::move( info ) ) );
+        crs_builder.set_active_coordinate_reference_system( crs_name );
+    }
+
+    template void opengeode_geosciences_explicit_api
+        assign_light_regular_grid_geographic_coordinate_system_info(
+            LightRegularGrid< 2 >&,
+            std::string_view,
+            GeographicCoordinateSystemInfo );
+    template void opengeode_geosciences_explicit_api
+        assign_light_regular_grid_geographic_coordinate_system_info(
+            LightRegularGrid< 3 >&,
+            std::string_view,
+            GeographicCoordinateSystemInfo );
+    template void opengeode_geosciences_explicit_api
+        convert_light_regular_grid_coordinate_reference_system(
+            LightRegularGrid< 2 >&,
+            std::string_view,
+            GeographicCoordinateSystemInfo );
+    template void opengeode_geosciences_explicit_api
+        convert_light_regular_grid_coordinate_reference_system(
+            LightRegularGrid< 3 >&,
             std::string_view,
             GeographicCoordinateSystemInfo );
 } // namespace geode
