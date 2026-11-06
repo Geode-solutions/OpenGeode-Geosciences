@@ -89,6 +89,14 @@ namespace
             register_coordinate_reference_system_type<
                 geode::GeographicCoordinateSystem3D, Serializer >(
                 context, "GeographicCoordinateSystem3D" );
+        geode::GridCoordinateReferenceSystem2D::
+            register_grid_coordinate_reference_system_type<
+                geode::GeographicGridCoordinateSystem2D, Serializer >(
+                context, "GeographicGridCoordinateSystem2D" );
+        geode::GridCoordinateReferenceSystem3D::
+            register_grid_coordinate_reference_system_type<
+                geode::GeographicGridCoordinateSystem3D, Serializer >(
+                context, "GeographicGridCoordinateSystem3D" );
     }
 } // namespace
 

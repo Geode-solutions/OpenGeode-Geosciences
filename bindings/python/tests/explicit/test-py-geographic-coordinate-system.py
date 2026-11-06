@@ -54,3 +54,24 @@ if __name__ == "__main__":
     for p in range(nb_points):
         if not lambert2.point(p).inexact_equal(answers[p]):
             raise ValueError("[Test] Wrong coordinate conversion")
+
+    wgs84 = geosciences.GeographicCoordinateSystemInfo.from_authority_code("4326")
+    if wgs84.authority_code() != "EPSG:4326" or wgs84.name != "WGS 84":
+        raise ValueError("[Test] Wrong info from authority code")
+
+    grid = opengeode.LightRegularGrid2D(
+        opengeode.Point2D([600000, 2400000]), [4, 3], [1000.0, 2000.0]
+    )
+    lambert1_info = geosciences.GeographicCoordinateSystemInfo("EPSG", "27571", "I")
+    geosciences.assign_light_regular_grid_geographic_coordinate_system_info2D(
+        grid, "lambert1", lambert1_info
+    )
+    lambert2_info = geosciences.GeographicCoordinateSystemInfo("EPSG", "27572", "II")
+    geosciences.convert_light_regular_grid_coordinate_reference_system2D(
+        grid, "lambert2", lambert2_info
+    )
+    crs_manager = grid.grid_coordinate_reference_system_manager()
+    if crs_manager.active_coordinate_reference_system_name() != "lambert2":
+        raise ValueError("[Test] Wrong active grid CRS")
+    if crs_manager.active_coordinate_reference_system().info().code != "27572":
+        raise ValueError("[Test] Wrong active grid CRS info")

@@ -30,6 +30,7 @@ namespace geode
 {
     FORWARD_DECLARATION_DIMENSION_CLASS( EdgedCurve );
     FORWARD_DECLARATION_DIMENSION_CLASS( EdgedCurveBuilder );
+    FORWARD_DECLARATION_DIMENSION_CLASS( LightRegularGrid );
     FORWARD_DECLARATION_DIMENSION_CLASS( PointSet );
     FORWARD_DECLARATION_DIMENSION_CLASS( PointSetBuilder );
     FORWARD_DECLARATION_DIMENSION_CLASS( SolidMesh );
@@ -124,4 +125,26 @@ namespace geode
             SectionBuilder& builder,
             std::string_view crs_name,
             const GeographicCoordinateSystemInfo& info );
+
+    /*!
+     * Replace the active CRS of the grid by a geographic one with the same
+     * coordinate system.
+     */
+    template < index_t dimension >
+    void assign_light_regular_grid_geographic_coordinate_system_info(
+        LightRegularGrid< dimension >& grid,
+        std::string_view crs_name,
+        GeographicCoordinateSystemInfo info );
+
+    /*!
+     * Register and activate a new geographic CRS on the grid, converted
+     * from the active geographic CRS.
+     * The grid remains regular: its origin and the far end of each axis are
+     * converted, which is exact only for affine conversions.
+     */
+    template < index_t dimension >
+    void convert_light_regular_grid_coordinate_reference_system(
+        LightRegularGrid< dimension >& grid,
+        std::string_view crs_name,
+        GeographicCoordinateSystemInfo info );
 } // namespace geode
