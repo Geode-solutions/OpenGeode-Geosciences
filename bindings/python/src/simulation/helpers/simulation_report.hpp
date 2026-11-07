@@ -50,8 +50,9 @@ namespace geode
             .value( "polyhedron", SIMULATION_ELEMENT_TYPE::polyhedron )
             .export_values();
 
-        pybind11::class_< SimulationIssueLocation >(
-            module, "SimulationIssueLocation" )
+        define_string_representation(
+            pybind11::class_< SimulationIssueLocation >(
+                module, "SimulationIssueLocation" ) )
             .def( pybind11::init<>() )
             .def_readwrite( "component", &SimulationIssueLocation::component )
             .def_readwrite( "name", &SimulationIssueLocation::name )
@@ -62,20 +63,17 @@ namespace geode
                 "all_elements", &SimulationIssueLocation::all_elements )
             .def_readwrite(
                 "nb_elements", &SimulationIssueLocation::nb_elements )
-            .def_readwrite( "detail", &SimulationIssueLocation::detail )
-            .def( "string", &SimulationIssueLocation::string )
-            .def( "__str__", &SimulationIssueLocation::string );
+            .def_readwrite( "detail", &SimulationIssueLocation::detail );
 
-        pybind11::class_< SimulationIssue >( module, "SimulationIssue" )
+        define_string_representation(
+            pybind11::class_< SimulationIssue >( module, "SimulationIssue" ) )
             .def_readonly( "severity", &SimulationIssue::severity )
             .def_readonly( "stage", &SimulationIssue::stage )
             .def_readonly( "subject", &SimulationIssue::subject )
             .def_readonly( "message", &SimulationIssue::message )
             .def_readonly( "fix", &SimulationIssue::fix )
             .def_readonly( "locations", &SimulationIssue::locations )
-            .def( "is_error", &SimulationIssue::is_error )
-            .def( "string", &SimulationIssue::string )
-            .def( "__str__", &SimulationIssue::string );
+            .def( "is_error", &SimulationIssue::is_error );
 
         const auto add_issue =
             []( SimulationReport& report, SIMULATION_ISSUE_SEVERITY severity,
@@ -88,7 +86,8 @@ namespace geode
                 issue.locations = std::move( locations );
                 report.add_issue( std::move( issue ) );
             };
-        pybind11::class_< SimulationReport >( module, "SimulationReport" )
+        define_string_representation(
+            pybind11::class_< SimulationReport >( module, "SimulationReport" ) )
             .def( pybind11::init<>() )
             .def( "simulator", &SimulationReport::simulator )
             .def( "set_simulator", &SimulationReport::set_simulator )
@@ -134,17 +133,14 @@ namespace geode
                 []( const SimulationReport& report ) {
                     return report.issues();
                 } )
-            .def( "stage_issues",
-                []( const SimulationReport& report,
-                    SIMULATION_CHECK_STAGE stage ) {
-                    std::vector< SimulationIssue > issues;
-                    for( const auto* issue : report.issues( stage ) )
-                    {
-                        issues.push_back( *issue );
-                    }
-                    return issues;
-                } )
-            .def( "string", &SimulationReport::string )
-            .def( "__str__", &SimulationReport::string );
+            .def( "stage_issues", []( const SimulationReport& report,
+                                      SIMULATION_CHECK_STAGE stage ) {
+                std::vector< SimulationIssue > issues;
+                for( const auto* issue : report.issues( stage ) )
+                {
+                    issues.push_back( *issue );
+                }
+                return issues;
+            } );
     }
 } // namespace geode
