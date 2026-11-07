@@ -60,14 +60,12 @@ namespace geode
 {
     void define_crs( pybind11::module& module )
     {
-        pybind11::class_< GeographicCoordinateSystemInfo >(
-            module, "GeographicCoordinateSystemInfo" )
+        define_string_representation(
+            pybind11::class_< GeographicCoordinateSystemInfo >(
+                module, "GeographicCoordinateSystemInfo" ) )
             .def( pybind11::init< std::string, std::string, std::string >() )
             .def( "authority_code",
                 &GeographicCoordinateSystemInfo::authority_code )
-            .def( "string", &GeographicCoordinateSystemInfo::string )
-            .def( "__str__", &GeographicCoordinateSystemInfo::string )
-            .def( "__repr__", &GeographicCoordinateSystemInfo::string )
             .def_readwrite(
                 "authority", &GeographicCoordinateSystemInfo::authority )
             .def_readwrite( "code", &GeographicCoordinateSystemInfo::code )

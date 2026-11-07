@@ -398,6 +398,9 @@ def test_simulation_report():
     error = report.stage_issues(simulation.SIMULATION_CHECK_STAGE.properties)[0]
     if error.fix != "Set a porosity in (0, 1]" or error.locations[0].elements != [0, 2]:
         raise ValueError("[Test] Wrong report error: " + str(error))
+    for item in (report, error, error.locations[0]):
+        if str(item) != item.string() or repr(item) != item.string():
+            raise ValueError("[Test] Wrong report representation: " + repr(item))
 
 
 if __name__ == "__main__":

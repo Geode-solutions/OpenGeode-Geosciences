@@ -26,8 +26,9 @@
 #define PYTHON_STRATIGRAPHIC_POINT( dimension )                                \
     const auto name##dimension =                                               \
         "StratigraphicPoint" + std::to_string( dimension ) + "D";              \
-    pybind11::class_< StratigraphicPoint##dimension##D >(                      \
-        module, name##dimension.c_str() )                                      \
+    define_string_representation(                                              \
+        pybind11::class_< StratigraphicPoint##dimension##D >(                  \
+            module, name##dimension.c_str() ) )                                \
         .def( pybind11::init<>() )                                             \
         .def( pybind11::init< Point< dimension - 1 >, double >() )             \
         .def( pybind11::init< std::array< double, dimension > >() )            \
@@ -41,10 +42,7 @@
         .def( "set_stratigraphic_location",                                    \
             &StratigraphicPoint##dimension##D::set_stratigraphic_location )    \
         .def( "set_implicit_value",                                            \
-            &StratigraphicPoint##dimension##D::set_implicit_value )            \
-        .def( "string", &StratigraphicPoint##dimension##D::string )            \
-        .def( "__str__", &StratigraphicPoint##dimension##D::string )           \
-        .def( "__repr__", &StratigraphicPoint##dimension##D::string )
+            &StratigraphicPoint##dimension##D::set_implicit_value )
 
 namespace geode
 {
