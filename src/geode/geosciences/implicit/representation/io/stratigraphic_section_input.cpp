@@ -28,7 +28,6 @@
 #include <absl/strings/str_cat.h>
 
 #include <geode/basic/detail/geode_input_impl.hpp>
-#include <geode/basic/io.hpp>
 #include <geode/basic/logger.hpp>
 
 #include <geode/model/representation/io/section_input.hpp>
@@ -68,21 +67,14 @@ namespace geode
             Logger::info( message );
             return stratigraphic_section;
         }
-        catch( const OpenGeodeException& e )
+        catch( const std::exception& exception )
         {
-            Logger::error( e.what() );
-            print_available_extensions< StratigraphicSectionInputFactory >(
-                TYPE );
-            Logger::info( "Other extensions are available in parent classes." );
-            print_available_extensions< ImplicitCrossSectionInputFactory >(
-                "ImplicitCrossSection" );
-            print_available_extensions< CrossSectionInputFactory >(
-                "CrossSection" );
-            print_available_extensions< SectionInputFactory >( "Section" );
-            throw OpenGeodeGeosciencesImplicitException{ nullptr,
-                OpenGeodeException::TYPE::internal,
-                "Cannot load StratigraphicSection from file: ", filename, ": ",
-                e.what() };
+            detail::throw_geode_object_input_exception<
+                OpenGeodeGeosciencesImplicitException,
+                StratigraphicSectionInputFactory,
+                ImplicitCrossSectionInputFactory, CrossSectionInputFactory,
+                SectionInputFactory >( TYPE, filename, exception,
+                "ImplicitCrossSection", "CrossSection", "Section" );
         }
     }
 

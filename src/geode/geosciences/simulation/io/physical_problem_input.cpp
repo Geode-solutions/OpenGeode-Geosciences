@@ -24,7 +24,6 @@
 #include <geode/geosciences/simulation/io/physical_problem_input.hpp>
 
 #include <geode/basic/detail/geode_input_impl.hpp>
-#include <geode/basic/io.hpp>
 #include <geode/basic/logger.hpp>
 
 #include <geode/geosciences/simulation/core/physical_problem.hpp>
@@ -44,13 +43,11 @@ namespace geode
                 " InitialConditions" );
             return problem;
         }
-        catch( const OpenGeodeException& e )
+        catch( const std::exception& exception )
         {
-            Logger::error( e.what() );
-            print_available_extensions< PhysicalProblemInputFactory >( TYPE );
-            throw OpenGeodeGeosciencesSimulationException{ nullptr,
-                OpenGeodeException::TYPE::internal,
-                "Cannot load PhysicalProblem from file: ", filename };
+            detail::throw_geode_object_input_exception<
+                OpenGeodeGeosciencesSimulationException,
+                PhysicalProblemInputFactory >( TYPE, filename, exception );
         }
     }
 

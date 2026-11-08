@@ -24,8 +24,6 @@
 #include <geode/geosciences/simulation/io/physical_problem_output.hpp>
 
 #include <geode/basic/detail/geode_output_impl.hpp>
-#include <geode/basic/io.hpp>
-#include <geode/basic/logger.hpp>
 
 #include <geode/geosciences/simulation/core/physical_problem.hpp>
 
@@ -40,13 +38,11 @@ namespace geode
             return detail::geode_object_output_impl<
                 PhysicalProblemOutputFactory >( TYPE, problem, filename );
         }
-        catch( const OpenGeodeException& e )
+        catch( const std::exception& exception )
         {
-            Logger::error( e.what() );
-            print_available_extensions< PhysicalProblemOutputFactory >( TYPE );
-            throw OpenGeodeGeosciencesSimulationException{ nullptr,
-                OpenGeodeException::TYPE::internal,
-                "Cannot save PhysicalProblem in file: ", filename };
+            detail::throw_geode_object_output_exception<
+                OpenGeodeGeosciencesSimulationException,
+                PhysicalProblemOutputFactory >( TYPE, filename, exception );
         }
     }
 

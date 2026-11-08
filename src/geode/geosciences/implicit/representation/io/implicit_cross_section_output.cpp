@@ -28,8 +28,6 @@
 #include <vector>
 
 #include <geode/basic/detail/geode_output_impl.hpp>
-#include <geode/basic/io.hpp>
-#include <geode/basic/logger.hpp>
 
 #include <geode/model/representation/io/section_output.hpp>
 
@@ -47,19 +45,13 @@ namespace geode
             return detail::geode_object_output_impl<
                 ImplicitCrossSectionOutputFactory >( TYPE, section, filename );
         }
-        catch( const OpenGeodeException& e )
+        catch( const std::exception& exception )
         {
-            Logger::error( e.what() );
-            print_available_extensions< ImplicitCrossSectionOutputFactory >(
-                TYPE );
-            Logger::info( "Other extensions are available in parent classes." );
-            print_available_extensions< CrossSectionOutputFactory >(
-                "CrossSection" );
-            print_available_extensions< SectionOutputFactory >( "Section" );
-            throw OpenGeodeGeosciencesImplicitException{ nullptr,
-                OpenGeodeException::TYPE::internal,
-                "Cannot save ImplicitCrossSection in file: ", filename, ": ",
-                e.what() };
+            detail::throw_geode_object_output_exception<
+                OpenGeodeGeosciencesImplicitException,
+                ImplicitCrossSectionOutputFactory, CrossSectionOutputFactory,
+                SectionOutputFactory >(
+                TYPE, filename, exception, "CrossSection", "Section" );
         }
     }
 

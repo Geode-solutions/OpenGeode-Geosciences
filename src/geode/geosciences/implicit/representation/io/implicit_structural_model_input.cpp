@@ -28,7 +28,6 @@
 #include <absl/strings/str_cat.h>
 
 #include <geode/basic/detail/geode_input_impl.hpp>
-#include <geode/basic/io.hpp>
 #include <geode/basic/logger.hpp>
 
 #include <geode/model/representation/io/brep_input.hpp>
@@ -69,19 +68,13 @@ namespace geode
             Logger::info( message );
             return implicit_model;
         }
-        catch( const OpenGeodeException& e )
+        catch( const std::exception& exception )
         {
-            Logger::error( e.what() );
-            print_available_extensions< ImplicitStructuralModelInputFactory >(
-                TYPE );
-            Logger::info( "Other extensions are available in parent classes." );
-            print_available_extensions< StructuralModelInputFactory >(
-                "StructuralModel" );
-            print_available_extensions< BRepInputFactory >( "BRep" );
-            throw OpenGeodeGeosciencesImplicitException{ nullptr,
-                OpenGeodeException::TYPE::internal,
-                "Cannot load ImplicitStructuralModel from file: ", filename,
-                ": ", e.what() };
+            detail::throw_geode_object_input_exception<
+                OpenGeodeGeosciencesImplicitException,
+                ImplicitStructuralModelInputFactory,
+                StructuralModelInputFactory, BRepInputFactory >(
+                TYPE, filename, exception, "StructuralModel", "BRep" );
         }
     }
 
