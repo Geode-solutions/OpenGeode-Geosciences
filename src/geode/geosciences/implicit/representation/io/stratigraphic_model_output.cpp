@@ -28,8 +28,6 @@
 #include <vector>
 
 #include <geode/basic/detail/geode_output_impl.hpp>
-#include <geode/basic/io.hpp>
-#include <geode/basic/logger.hpp>
 
 #include <geode/model/representation/io/brep_output.hpp>
 
@@ -50,21 +48,15 @@ namespace geode
                 StratigraphicModelOutputFactory >(
                 TYPE, stratigraphic_model, filename );
         }
-        catch( const OpenGeodeException& e )
+        catch( const std::exception& exception )
         {
-            Logger::error( e.what() );
-            print_available_extensions< StratigraphicModelOutputFactory >(
-                TYPE );
-            Logger::info( "Other extensions are available in parent classes." );
-            print_available_extensions< ImplicitStructuralModelOutputFactory >(
-                "ImplicitStructuralModel" );
-            print_available_extensions< StructuralModelOutputFactory >(
-                "StructuralModel" );
-            print_available_extensions< BRepOutputFactory >( "BRep" );
-            throw OpenGeodeGeosciencesImplicitException{ nullptr,
-                OpenGeodeException::TYPE::internal,
-                "Cannot save StratigraphicModel in file: ", filename, ": ",
-                e.what() };
+            detail::throw_geode_object_output_exception<
+                OpenGeodeGeosciencesImplicitException,
+                StratigraphicModelOutputFactory,
+                ImplicitStructuralModelOutputFactory,
+                StructuralModelOutputFactory, BRepOutputFactory >( TYPE,
+                filename, exception, "ImplicitStructuralModel",
+                "StructuralModel", "BRep" );
         }
     }
 

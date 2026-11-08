@@ -28,7 +28,6 @@
 #include <absl/strings/str_cat.h>
 
 #include <geode/basic/detail/geode_input_impl.hpp>
-#include <geode/basic/io.hpp>
 #include <geode/basic/logger.hpp>
 
 #include <geode/geosciences/implicit/representation/builder/horizons_stack_builder.hpp>
@@ -53,15 +52,12 @@ namespace geode
             Logger::info( message );
             return horizons_stack;
         }
-        catch( const OpenGeodeException& e )
+        catch( const std::exception& exception )
         {
-            Logger::error( e.what() );
-            print_available_extensions<
-                HorizonsStackInputFactory< dimension > >( TYPE );
-            throw OpenGeodeGeosciencesImplicitException{ nullptr,
-                OpenGeodeException::TYPE::internal,
-                "Cannot load HorizonsStack from file: ", filename, ": ",
-                e.what() };
+            detail::throw_geode_object_input_exception<
+                OpenGeodeGeosciencesImplicitException,
+                HorizonsStackInputFactory< dimension > >(
+                TYPE, filename, exception );
         }
     }
 

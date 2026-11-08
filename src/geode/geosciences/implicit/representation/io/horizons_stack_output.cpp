@@ -28,8 +28,6 @@
 #include <vector>
 
 #include <geode/basic/detail/geode_output_impl.hpp>
-#include <geode/basic/io.hpp>
-#include <geode/basic/logger.hpp>
 
 #include <geode/geosciences/implicit/representation/core/horizons_stack.hpp>
 
@@ -47,15 +45,12 @@ namespace geode
                 HorizonsStackOutputFactory< dimension > >(
                 TYPE, horizons_stack, filename );
         }
-        catch( const OpenGeodeException& e )
+        catch( const std::exception& exception )
         {
-            Logger::error( e.what() );
-            print_available_extensions<
-                HorizonsStackOutputFactory< dimension > >( TYPE );
-            throw OpenGeodeGeosciencesImplicitException{ nullptr,
-                OpenGeodeException::TYPE::internal,
-                "Cannot save HorizonsStack in file: ", filename, ": ",
-                e.what() };
+            detail::throw_geode_object_output_exception<
+                OpenGeodeGeosciencesImplicitException,
+                HorizonsStackOutputFactory< dimension > >(
+                TYPE, filename, exception );
         }
     }
 
