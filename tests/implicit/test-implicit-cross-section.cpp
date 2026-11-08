@@ -21,11 +21,23 @@
  *
  */
 
+#include <memory>
+#include <mutex>
+#include <string>
+#include <string_view>
+#include <tuple>
+#include <vector>
+
+#include <absl/algorithm/container.h>
+#include <absl/strings/match.h>
+
 #include <geode/tests_config.hpp>
 
 #include <geode/basic/assert.hpp>
 #include <geode/basic/attribute_manager.hpp>
 #include <geode/basic/logger.hpp>
+#include <geode/basic/logger_client.hpp>
+#include <geode/basic/logger_manager.hpp>
 
 #include <geode/geometry/point.hpp>
 
@@ -153,6 +165,54 @@ namespace
             unit.value() == expected,
             "[containing_stratigraphic_unit] Wrong unit for value ", value );
     }
+
+    class InfoRecorder : public geode::LoggerClient
+    {
+    public:
+        static void start()
+        {
+            static const auto registered = [] {
+                geode::LoggerManager::register_client(
+                    std::make_unique< InfoRecorder >() );
+                return true;
+            }();
+            geode_unused( registered );
+            const std::lock_guard< std::mutex > lock{ mutex() };
+            infos().clear();
+        }
+
+        static bool has_info( std::string_view text )
+        {
+            const std::lock_guard< std::mutex > lock{ mutex() };
+            return absl::c_any_of( infos(), [&text]( const auto& info ) {
+                return absl::StrContains( info, text );
+            } );
+        }
+
+        void trace( const std::string& /*message*/ ) override {}
+        void debug( const std::string& /*message*/ ) override {}
+        void info( const std::string& message ) override
+        {
+            const std::lock_guard< std::mutex > lock{ mutex() };
+            infos().push_back( message );
+        }
+        void warning( const std::string& /*message*/ ) override {}
+        void error( const std::string& /*message*/ ) override {}
+        void critical( const std::string& /*message*/ ) override {}
+
+    private:
+        static std::mutex& mutex()
+        {
+            static std::mutex mutex;
+            return mutex;
+        }
+
+        static std::vector< std::string >& infos()
+        {
+            static std::vector< std::string > infos;
+            return infos;
+        }
+    };
 } // namespace
 
 void test_containing_stratigraphic_unit()
@@ -618,6 +678,21 @@ void test_construction_from_remeshed_model()
     }
 }
 
+void test_save_does_not_log_horizons_stack()
+{
+    geode::Logger::info( "Testing save logs" );
+    auto model = create_model();
+    std::ignore = add_horizons_stack( model, { 0., 1., 2. } );
+    InfoRecorder::start();
+    geode::save_implicit_cross_section( model, "test_save_logs.og_ixsctn" );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        InfoRecorder::has_info( "ImplicitCrossSection saved in" ),
+        "[save logs] The ImplicitCrossSection save should be logged" );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        !InfoRecorder::has_info( "HorizonsStack" ),
+        "[save logs] The HorizonsStack save should not be logged" );
+}
+
 int main()
 {
     try
@@ -641,6 +716,7 @@ int main()
         test_import_old_attribute(
             geode::ImplicitCrossSection::IMPLICIT_ATTRIBUTE_NAME );
         test_legacy_load();
+        test_save_does_not_log_horizons_stack();
 
         geode::Logger::info( "TEST SUCCESS" );
         return 0;

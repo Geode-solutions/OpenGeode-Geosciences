@@ -31,6 +31,7 @@
 #include <async++.h>
 
 #include <geode/basic/bitsery_archive.hpp>
+#include <geode/basic/logger.hpp>
 #include <geode/basic/uuid.hpp>
 #include <geode/basic/zip_file.hpp>
 
@@ -56,6 +57,7 @@ namespace geode
         const ImplicitCrossSection& implicit_section,
         std::string_view directory ) const
     {
+        const detail::ScopedLoggerLevel scoped_level{ Logger::LEVEL::warning };
         async::parallel_invoke(
             [&directory, &implicit_section] {
                 OpenGeodeCrossSectionOutput cross_section_output{ "" };

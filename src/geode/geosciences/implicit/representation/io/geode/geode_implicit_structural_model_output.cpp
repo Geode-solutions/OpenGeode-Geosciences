@@ -30,6 +30,7 @@
 
 #include <async++.h>
 
+#include <geode/basic/logger.hpp>
 #include <geode/basic/uuid.hpp>
 #include <geode/basic/zip_file.hpp>
 
@@ -55,6 +56,7 @@ namespace geode
         const ImplicitStructuralModel& implicit_model,
         std::string_view directory ) const
     {
+        const detail::ScopedLoggerLevel scoped_level{ Logger::LEVEL::warning };
         async::parallel_invoke(
             [&directory, &implicit_model] {
                 OpenGeodeStructuralModelOutput structural_model_output{ "" };
