@@ -29,6 +29,7 @@
 #include <async++.h>
 
 #include <geode/basic/bitsery_archive.hpp>
+#include <geode/basic/logger.hpp>
 #include <geode/basic/uuid.hpp>
 #include <geode/basic/zip_file.hpp>
 
@@ -80,6 +81,7 @@ namespace geode
         void load_implicit_cross_section_files(
             ImplicitCrossSection& section, std::string_view directory )
         {
+            const ScopedLoggerLevel scoped_level{ Logger::LEVEL::warning };
             ImplicitCrossSectionBuilder builder{ section };
             builder.set_horizons_stack( load_horizons_stack< 2 >(
                 absl::StrCat( directory, "/horizons_stack.",

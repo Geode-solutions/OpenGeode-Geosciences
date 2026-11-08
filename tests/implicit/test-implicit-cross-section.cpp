@@ -678,19 +678,28 @@ void test_construction_from_remeshed_model()
     }
 }
 
-void test_save_does_not_log_horizons_stack()
+void test_save_and_load_do_not_log_horizons_stack()
 {
-    geode::Logger::info( "Testing save logs" );
+    geode::Logger::info( "Testing save and load logs" );
     auto model = create_model();
     std::ignore = add_horizons_stack( model, { 0., 1., 2. } );
     InfoRecorder::start();
-    geode::save_implicit_cross_section( model, "test_save_logs.og_ixsctn" );
+    const auto filename = "test_save_logs.og_ixsctn";
+    geode::save_implicit_cross_section( model, filename );
     geode::OpenGeodeGeosciencesImplicitException::test(
         InfoRecorder::has_info( "ImplicitCrossSection saved in" ),
         "[save logs] The ImplicitCrossSection save should be logged" );
     geode::OpenGeodeGeosciencesImplicitException::test(
         !InfoRecorder::has_info( "HorizonsStack" ),
         "[save logs] The HorizonsStack save should not be logged" );
+    InfoRecorder::start();
+    std::ignore = geode::load_implicit_cross_section( filename );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        InfoRecorder::has_info( "ImplicitCrossSection loaded from" ),
+        "[load logs] The ImplicitCrossSection load should be logged" );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        !InfoRecorder::has_info( "HorizonsStack" ),
+        "[load logs] The HorizonsStack load should not be logged" );
 }
 
 int main()
@@ -716,7 +725,7 @@ int main()
         test_import_old_attribute(
             geode::ImplicitCrossSection::IMPLICIT_ATTRIBUTE_NAME );
         test_legacy_load();
-        test_save_does_not_log_horizons_stack();
+        test_save_and_load_do_not_log_horizons_stack();
 
         geode::Logger::info( "TEST SUCCESS" );
         return 0;

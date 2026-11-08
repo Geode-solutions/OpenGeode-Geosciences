@@ -29,6 +29,7 @@
 #include <async++.h>
 
 #include <geode/basic/bitsery_archive.hpp>
+#include <geode/basic/logger.hpp>
 #include <geode/basic/uuid.hpp>
 #include <geode/basic/zip_file.hpp>
 
@@ -79,6 +80,7 @@ namespace geode
         void load_implicit_structural_model_files(
             ImplicitStructuralModel& model, std::string_view directory )
         {
+            const ScopedLoggerLevel scoped_level{ Logger::LEVEL::warning };
             ImplicitStructuralModelBuilder builder{ model };
             builder.set_horizons_stack( load_horizons_stack< 3 >(
                 absl::StrCat( directory, "/horizons_stack.",

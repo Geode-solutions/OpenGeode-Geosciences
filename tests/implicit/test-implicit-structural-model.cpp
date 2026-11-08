@@ -712,19 +712,28 @@ void test_construction_from_remeshed_model()
     }
 }
 
-void test_save_does_not_log_horizons_stack()
+void test_save_and_load_do_not_log_horizons_stack()
 {
-    geode::Logger::info( "Testing save logs" );
+    geode::Logger::info( "Testing save and load logs" );
     auto model = create_model();
     std::ignore = add_horizons_stack( model, { 0., 1., 2. } );
     InfoRecorder::start();
-    geode::save_implicit_structural_model( model, "test_save_logs.og_istrm" );
+    const auto filename = "test_save_logs.og_istrm";
+    geode::save_implicit_structural_model( model, filename );
     geode::OpenGeodeGeosciencesImplicitException::test(
         InfoRecorder::has_info( "ImplicitStructuralModel saved in" ),
         "[save logs] The ImplicitStructuralModel save should be logged" );
     geode::OpenGeodeGeosciencesImplicitException::test(
         !InfoRecorder::has_info( "HorizonsStack" ),
         "[save logs] The HorizonsStack save should not be logged" );
+    InfoRecorder::start();
+    std::ignore = geode::load_implicit_structural_model( filename );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        InfoRecorder::has_info( "ImplicitStructuralModel loaded from" ),
+        "[load logs] The ImplicitStructuralModel load should be logged" );
+    geode::OpenGeodeGeosciencesImplicitException::test(
+        !InfoRecorder::has_info( "HorizonsStack" ),
+        "[load logs] The HorizonsStack load should not be logged" );
 }
 
 int main()
@@ -750,7 +759,7 @@ int main()
         test_import_old_attribute(
             geode::ImplicitStructuralModel::IMPLICIT_ATTRIBUTE_NAME );
         test_load_duplicated_implicit_attribute();
-        test_save_does_not_log_horizons_stack();
+        test_save_and_load_do_not_log_horizons_stack();
 
         geode::Logger::info( "TEST SUCCESS" );
         return 0;
