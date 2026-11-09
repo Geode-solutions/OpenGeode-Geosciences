@@ -32,7 +32,10 @@ def import_section_with_stratigraphy():
     test_dir = os.path.dirname(__file__)
     data_dir = os.path.abspath(os.path.join(test_dir, "../../../../tests/data"))
     cross_section = geode_exp.CrossSection(
-        geode.load_section(data_dir + "/test_section.og_sctn")
+        geode.load_one(
+            geode.load_section(data_dir + "/test_section.og_sctn"),
+            data_dir + "/test_section.og_sctn",
+        )
     )
     stratigraphic_section = geode_imp.StratigraphicSection(cross_section)
     model_builder = geode_imp.StratigraphicSectionBuilder(stratigraphic_section)

@@ -39,7 +39,7 @@ namespace geode
         {
         }
 
-        [[nodiscard]] PhysicalProblem read() final;
+        [[nodiscard]] std::vector< PhysicalProblem > read() final;
 
         [[nodiscard]] AdditionalFiles additional_files() const final
         {

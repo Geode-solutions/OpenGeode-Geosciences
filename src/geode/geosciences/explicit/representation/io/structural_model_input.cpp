@@ -36,36 +36,41 @@
 
 namespace geode
 {
-    StructuralModel load_structural_model( std::string_view filename )
+    std::vector< StructuralModel > load_structural_model(
+        std::string_view filename )
     {
         constexpr auto TYPE = "StructuralModel";
         try
         {
-            auto structural_model =
+            auto structural_models =
                 detail::geode_object_input_impl< StructuralModelInputFactory >(
                     TYPE, filename );
-            auto message = absl::StrCat( TYPE, " has: " );
-            detail::add_to_message(
-                message, structural_model.nb_blocks(), " Blocks, " );
-            detail::add_to_message(
-                message, structural_model.nb_surfaces(), " Surfaces, " );
-            detail::add_to_message(
-                message, structural_model.nb_lines(), " Lines, " );
-            detail::add_to_message(
-                message, structural_model.nb_corners(), " Corners, " );
-            detail::add_to_message( message,
-                structural_model.nb_model_boundaries(), " ModelBoundaries, " );
-            detail::add_to_message(
-                message, structural_model.nb_faults(), " Faults, " );
-            detail::add_to_message(
-                message, structural_model.nb_horizons(), " Horizons, " );
-            detail::add_to_message(
-                message, structural_model.nb_fault_blocks(), " FaultBlocks, " );
-            detail::add_to_message( message,
-                structural_model.nb_stratigraphic_units(),
-                " StratigraphicUnits" );
-            Logger::info( message );
-            return structural_model;
+            for( const auto& structural_model : structural_models )
+            {
+                auto message = absl::StrCat( TYPE, " has: " );
+                detail::add_to_message(
+                    message, structural_model.nb_blocks(), " Blocks, " );
+                detail::add_to_message(
+                    message, structural_model.nb_surfaces(), " Surfaces, " );
+                detail::add_to_message(
+                    message, structural_model.nb_lines(), " Lines, " );
+                detail::add_to_message(
+                    message, structural_model.nb_corners(), " Corners, " );
+                detail::add_to_message( message,
+                    structural_model.nb_model_boundaries(),
+                    " ModelBoundaries, " );
+                detail::add_to_message(
+                    message, structural_model.nb_faults(), " Faults, " );
+                detail::add_to_message(
+                    message, structural_model.nb_horizons(), " Horizons, " );
+                detail::add_to_message( message,
+                    structural_model.nb_fault_blocks(), " FaultBlocks, " );
+                detail::add_to_message( message,
+                    structural_model.nb_stratigraphic_units(),
+                    " StratigraphicUnits" );
+                Logger::info( message );
+            }
+            return structural_models;
         }
         catch( const std::exception& exception )
         {

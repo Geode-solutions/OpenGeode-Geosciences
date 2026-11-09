@@ -613,8 +613,10 @@ void test_import_old_attribute( std::string_view old_name )
 void test_legacy_load()
 {
     geode::Logger::info( "Testing legacy file load" );
-    const auto model = geode::load_implicit_cross_section( absl::StrCat(
-        geode::DATA_PATH, "test_old_implicit_crossection.og_ixsctn" ) );
+    const auto data_file = absl::StrCat(
+        geode::DATA_PATH, "test_old_implicit_crossection.og_ixsctn" );
+    const auto model = geode::load_one(
+        geode::load_implicit_cross_section( data_file ), data_file );
     for( const auto& surface : model.surfaces() )
     {
         geode::OpenGeodeGeosciencesImplicitException::test(
@@ -636,7 +638,8 @@ void test_load_stale_horizon_isovalue()
     }
     const auto filename = "test_stale_horizon_isovalue.og_ixsctn";
     geode::save_implicit_cross_section( model, filename );
-    auto reloaded = geode::load_implicit_cross_section( filename );
+    auto reloaded = geode::load_one(
+        geode::load_implicit_cross_section( filename ), filename );
     check_unit( reloaded, 3., ids.units[2] );
     geode::ImplicitCrossSectionBuilder builder{ reloaded };
     builder.horizons_stack_builder().add_horizon( ids.horizons[2] );

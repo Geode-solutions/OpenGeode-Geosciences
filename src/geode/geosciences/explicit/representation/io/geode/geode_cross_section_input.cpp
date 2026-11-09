@@ -50,14 +50,16 @@ namespace geode
     {
     }
 
-    CrossSection OpenGeodeCrossSectionInput::read()
+    std::vector< CrossSection > OpenGeodeCrossSectionInput::read()
     {
         const UnzipFile zip_reader{ filename(), uuid{}.string() };
         zip_reader.extract_all();
         CrossSection cross_section{ BITSERY::constructor };
         detail::load_cross_section_files(
             cross_section, zip_reader.directory() );
-        return cross_section;
+        std::vector< CrossSection > results;
+        results.push_back( std::move( cross_section ) );
+        return results;
     }
 
     namespace detail

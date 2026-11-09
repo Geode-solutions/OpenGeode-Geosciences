@@ -30,18 +30,22 @@
 
 namespace geode
 {
-    PhysicalProblem load_physical_problem( std::string_view filename )
+    std::vector< PhysicalProblem > load_physical_problem(
+        std::string_view filename )
     {
         constexpr auto TYPE = "PhysicalProblem";
         try
         {
-            auto problem =
+            auto problems =
                 detail::geode_object_input_impl< PhysicalProblemInputFactory >(
                     TYPE, filename );
-            Logger::info( TYPE, " has: ", problem.materials().size(),
-                " Materials, ", problem.nb_initial_conditions(),
-                " InitialConditions" );
-            return problem;
+            for( const auto& problem : problems )
+            {
+                Logger::info( TYPE, " has: ", problem.materials().size(),
+                    " Materials, ", problem.nb_initial_conditions(),
+                    " InitialConditions" );
+            }
+            return problems;
         }
         catch( const std::exception& exception )
         {

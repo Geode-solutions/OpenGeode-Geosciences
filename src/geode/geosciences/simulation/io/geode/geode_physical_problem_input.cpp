@@ -31,7 +31,7 @@
 
 namespace geode
 {
-    PhysicalProblem OpenGeodePhysicalProblemInput::read()
+    std::vector< PhysicalProblem > OpenGeodePhysicalProblemInput::read()
     {
         std::ifstream file{ to_string( this->filename() ),
             std::ifstream::binary };
@@ -51,6 +51,8 @@ namespace geode
                 && std::get< 1 >( context ).isValid(),
             nullptr, OpenGeodeException::TYPE::internal,
             "[Bitsery::read] Error while reading file: ", this->filename() );
-        return problem;
+        std::vector< PhysicalProblem > results;
+        results.push_back( std::move( problem ) );
+        return results;
     }
 } // namespace geode

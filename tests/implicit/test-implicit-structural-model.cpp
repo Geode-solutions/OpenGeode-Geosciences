@@ -641,7 +641,8 @@ void test_load_duplicated_implicit_attribute()
                 == 2,
             "[duplicated load] Saved model should not be modified" );
     }
-    const auto reloaded = geode::load_implicit_structural_model( filename );
+    const auto reloaded = geode::load_one(
+        geode::load_implicit_structural_model( filename ), filename );
     for( const auto& block : reloaded.blocks() )
     {
         geode::OpenGeodeGeosciencesImplicitException::test(
@@ -670,7 +671,8 @@ void test_load_stale_horizon_isovalue()
     }
     const auto filename = "test_stale_horizon_isovalue.og_istrm";
     geode::save_implicit_structural_model( model, filename );
-    auto reloaded = geode::load_implicit_structural_model( filename );
+    auto reloaded = geode::load_one(
+        geode::load_implicit_structural_model( filename ), filename );
     check_unit( reloaded, 3., ids.units[2] );
     geode::ImplicitStructuralModelBuilder builder{ reloaded };
     builder.horizons_stack_builder().add_horizon( ids.horizons[2] );

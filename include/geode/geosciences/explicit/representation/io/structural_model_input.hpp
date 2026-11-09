@@ -44,8 +44,9 @@ namespace geode
      * The adequate loader is called depending on the filename extension.
      * @param[in] filename Path to the file to load.
      */
-    [[nodiscard]] StructuralModel opengeode_geosciences_explicit_api
-        load_structural_model( std::string_view filename );
+    [[nodiscard]] std::vector< StructuralModel >
+        opengeode_geosciences_explicit_api load_structural_model(
+            std::string_view filename );
 
     class StructuralModelInput : public Input< StructuralModel >
     {

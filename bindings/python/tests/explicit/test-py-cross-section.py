@@ -272,7 +272,9 @@ def check_reloaded_model(reloaded_model):
 def test_io(model):
     geosciences.save_cross_section(model, "test.og_xsctn")
 
-    reloaded_model = geosciences.load_cross_section("test.og_xsctn")
+    reloaded_model = opengeode.load_one(
+        geosciences.load_cross_section("test.og_xsctn"), "test.og_xsctn"
+    )
     check_reloaded_model(reloaded_model)
 
 

@@ -38,34 +38,38 @@
 
 namespace geode
 {
-    StratigraphicSection load_stratigraphic_section( std::string_view filename )
+    std::vector< StratigraphicSection > load_stratigraphic_section(
+        std::string_view filename )
     {
         constexpr auto TYPE = "StratigraphicSection";
         try
         {
-            auto stratigraphic_section = detail::geode_object_input_impl<
+            auto stratigraphic_sections = detail::geode_object_input_impl<
                 StratigraphicSectionInputFactory >( TYPE, filename );
-            auto message = absl::StrCat( TYPE, " has: " );
-            detail::add_to_message(
-                message, stratigraphic_section.nb_surfaces(), " Surfaces, " );
-            detail::add_to_message(
-                message, stratigraphic_section.nb_lines(), " Lines, " );
-            detail::add_to_message(
-                message, stratigraphic_section.nb_corners(), " Corners, " );
-            detail::add_to_message( message,
-                stratigraphic_section.nb_model_boundaries(),
-                " ModelBoundaries, " );
-            detail::add_to_message(
-                message, stratigraphic_section.nb_faults(), " Faults, " );
-            detail::add_to_message(
-                message, stratigraphic_section.nb_horizons(), " Horizons, " );
-            detail::add_to_message( message,
-                stratigraphic_section.nb_fault_blocks(), " FaultBlocks, " );
-            detail::add_to_message( message,
-                stratigraphic_section.nb_stratigraphic_units(),
-                " StratigraphicUnits" );
-            Logger::info( message );
-            return stratigraphic_section;
+            for( const auto& stratigraphic_section : stratigraphic_sections )
+            {
+                auto message = absl::StrCat( TYPE, " has: " );
+                detail::add_to_message( message,
+                    stratigraphic_section.nb_surfaces(), " Surfaces, " );
+                detail::add_to_message(
+                    message, stratigraphic_section.nb_lines(), " Lines, " );
+                detail::add_to_message(
+                    message, stratigraphic_section.nb_corners(), " Corners, " );
+                detail::add_to_message( message,
+                    stratigraphic_section.nb_model_boundaries(),
+                    " ModelBoundaries, " );
+                detail::add_to_message(
+                    message, stratigraphic_section.nb_faults(), " Faults, " );
+                detail::add_to_message( message,
+                    stratigraphic_section.nb_horizons(), " Horizons, " );
+                detail::add_to_message( message,
+                    stratigraphic_section.nb_fault_blocks(), " FaultBlocks, " );
+                detail::add_to_message( message,
+                    stratigraphic_section.nb_stratigraphic_units(),
+                    " StratigraphicUnits" );
+                Logger::info( message );
+            }
+            return stratigraphic_sections;
         }
         catch( const std::exception& exception )
         {

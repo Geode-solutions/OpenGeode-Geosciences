@@ -43,7 +43,8 @@
 
 namespace geode
 {
-    ImplicitCrossSection OpenGeodeImplicitCrossSectionInput::read()
+    std::vector< ImplicitCrossSection >
+        OpenGeodeImplicitCrossSectionInput::read()
     {
         const UnzipFile zip_reader{ this->filename(), uuid{}.string() };
         zip_reader.extract_all();
@@ -72,8 +73,9 @@ namespace geode
             "[OpenGeodeImplicitCrossSectionOutput::load_section_impl] "
             "Error while reading file: ",
             impl_filename );
-
-        return section;
+        std::vector< ImplicitCrossSection > results;
+        results.push_back( std::move( section ) );
+        return results;
     }
 
     namespace detail
@@ -83,9 +85,10 @@ namespace geode
         {
             const ScopedLoggerLevel scoped_level{ Logger::LEVEL::warning };
             ImplicitCrossSectionBuilder builder{ section };
-            builder.set_horizons_stack( load_horizons_stack< 2 >(
-                absl::StrCat( directory, "/horizons_stack.",
-                    HorizonsStack2D::native_extension_static() ) ) );
+            const auto stack_file = absl::StrCat( directory, "/horizons_stack.",
+                HorizonsStack2D::native_extension_static() );
+            builder.set_horizons_stack( load_one(
+                load_horizons_stack< 2 >( stack_file ), stack_file ) );
             // builder.reinitialize_implicit_query_trees();
             load_cross_section_files( section, directory );
         }

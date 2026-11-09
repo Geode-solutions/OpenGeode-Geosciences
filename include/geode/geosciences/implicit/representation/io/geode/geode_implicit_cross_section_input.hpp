@@ -42,7 +42,7 @@ namespace geode
             return ImplicitCrossSection::native_extension_static();
         }
 
-        [[nodiscard]] ImplicitCrossSection read() final;
+        [[nodiscard]] std::vector< ImplicitCrossSection > read() final;
 
         [[nodiscard]] AdditionalFiles additional_files() const final
         {

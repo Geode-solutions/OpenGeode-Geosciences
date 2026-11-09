@@ -43,7 +43,8 @@
 
 namespace geode
 {
-    ImplicitStructuralModel OpenGeodeImplicitStructuralModelInput::read()
+    std::vector< ImplicitStructuralModel >
+        OpenGeodeImplicitStructuralModelInput::read()
     {
         const UnzipFile zip_reader{ this->filename(), uuid{}.string() };
         zip_reader.extract_all();
@@ -72,7 +73,9 @@ namespace geode
             "[OpenGeodeImplicitStructuralModelOutput::load_model_impl] "
             "Error while reading file: ",
             impl_filename );
-        return model;
+        std::vector< ImplicitStructuralModel > results;
+        results.push_back( std::move( model ) );
+        return results;
     }
 
     namespace detail
@@ -82,9 +85,10 @@ namespace geode
         {
             const ScopedLoggerLevel scoped_level{ Logger::LEVEL::warning };
             ImplicitStructuralModelBuilder builder{ model };
-            builder.set_horizons_stack( load_horizons_stack< 3 >(
-                absl::StrCat( directory, "/horizons_stack.",
-                    HorizonsStack3D::native_extension_static() ) ) );
+            const auto stack_file = absl::StrCat( directory, "/horizons_stack.",
+                HorizonsStack3D::native_extension_static() );
+            builder.set_horizons_stack( load_one(
+                load_horizons_stack< 3 >( stack_file ), stack_file ) );
             load_structural_model_files( model, directory );
             // builder.reinitialize_implicit_query_trees();
         }
