@@ -21,6 +21,8 @@
  *
  */
 
+#pragma once
+
 #include <geode/geosciences/explicit/mixin/core/fault.hpp>
 
 #include <geode/geosciences/explicit/mixin/builder/faults_builder.hpp>
@@ -28,15 +30,21 @@
 #define PYTHON_FAULTS_BUILDER( dimension )                                     \
     const auto name##dimension =                                               \
         "FaultsBuilder" + std::to_string( dimension ) + "D";                   \
-    pybind11::class_< FaultsBuilder##dimension##D >(                           \
-        module, name##dimension.c_str() )                                      \
+    pybind11::class_< FaultsBuilder##dimension##D >( module,                   \
+        name##dimension.c_str(),                                               \
+        "Builder of the Fault components of a model, inherited by the "        \
+        "model builders" )                                                     \
         .def( "set_fault_type", &FaultsBuilder##dimension##D::set_fault_type,  \
-            pybind11::arg( "fault" ), pybind11::arg( "type" ) )                \
+            pybind11::arg( "fault" ), pybind11::arg( "type" ),                 \
+            "Set the FaultType of the Fault" )                                 \
         .def( "set_fault_name", &FaultsBuilder##dimension##D::set_fault_name,  \
-            pybind11::arg( "fault" ), pybind11::arg( "name" ) )                \
+            pybind11::arg( "fault" ), pybind11::arg( "name" ),                 \
+            "Set the name of the Fault" )                                      \
         .def( "set_fault_active",                                              \
             &FaultsBuilder##dimension##D::set_fault_active,                    \
-            pybind11::arg( "fault" ), pybind11::arg( "active" ) )
+            pybind11::arg( "fault" ), pybind11::arg( "active" ),               \
+            "Activate or deactivate the Fault; inactive Faults are not "       \
+            "returned by active_faults" )
 
 namespace geode
 {

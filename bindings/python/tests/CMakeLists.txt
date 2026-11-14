@@ -21,3 +21,19 @@
 add_subdirectory(explicit)
 add_subdirectory(implicit)
 add_subdirectory(simulation)
+
+add_geode_python_test(
+    SOURCE "test-py-naming.py"
+    DEPENDENCIES
+        ${PROJECT_NAME}::py_explicit
+)
+add_geode_python_test(
+    SOURCE "test-py-signatures.py"
+    DEPENDENCIES
+        ${PROJECT_NAME}::py_explicit
+)
+add_geode_python_test(
+    SOURCE "test-py-invalidation-docs.py"
+    DEPENDENCIES
+        ${PROJECT_NAME}::py_explicit
+)

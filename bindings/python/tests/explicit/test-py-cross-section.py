@@ -43,7 +43,7 @@ def add_horizons(model, builder):
     horizon0 = builder.add_horizon()
     if (
         model.horizon(horizon0).contact_type()
-        != geosciences.Horizon2D.CONTACT_TYPE.CONFORMAL
+        != geosciences.Horizon2D.ContactType.conformal
     ):
         raise ValueError("[Test] Addition of a Horizon in CrossSection is not correct")
 
@@ -344,14 +344,14 @@ def modify_model(model, builder):
     for horizon in model.horizons():
         horizons_ids.append(horizon.id())
         builder.set_horizon_contact_type(
-            horizon, geosciences.Horizon2D.CONTACT_TYPE.TOPOGRAPHY
+            horizon, geosciences.Horizon2D.ContactType.topography
         )
 
     for horizon_id in horizons_ids:
         builder.remove_horizon(model.horizon(horizon_id))
 
     for fault in model.faults():
-        builder.set_fault_type(fault, geosciences.Fault2D.FAULT_TYPE.LISTRIC)
+        builder.set_fault_type(fault, geosciences.Fault2D.FaultType.listric)
         if fault.has_type() == False:
             raise ValueError("[Test] All faults should have a type")
 
@@ -366,15 +366,15 @@ def modify_model(model, builder):
 def test_typed_creation():
     model = geosciences.CrossSection()
     builder = geosciences.CrossSectionBuilder(model)
-    fault = builder.add_fault(geosciences.Fault2D.FAULT_TYPE.NORMAL)
-    if model.fault(fault).type() != geosciences.Fault2D.FAULT_TYPE.NORMAL:
+    fault = builder.add_fault(geosciences.Fault2D.FaultType.normal)
+    if model.fault(fault).type() != geosciences.Fault2D.FaultType.normal:
         raise ValueError("[Test] Fault should be created with its type")
     horizon = builder.add_horizon(
-        contact_type=geosciences.Horizon2D.CONTACT_TYPE.EROSION
+        contact_type=geosciences.Horizon2D.ContactType.erosion
     )
     if (
         model.horizon(horizon).contact_type()
-        != geosciences.Horizon2D.CONTACT_TYPE.EROSION
+        != geosciences.Horizon2D.ContactType.erosion
     ):
         raise ValueError("[Test] Horizon should be created with its contact type")
 

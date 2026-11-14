@@ -21,6 +21,8 @@
  *
  */
 
+#pragma once
+
 #include "../../../factory.hpp"
 
 #include <geode/geosciences/explicit/representation/io/cross_section_input.hpp>
@@ -30,14 +32,42 @@ namespace geode
 {
     void define_cross_section_io( pybind11::module& module )
     {
-        module.def( "save_cross_section", &save_cross_section );
-        module.def( "load_cross_section", &load_cross_section );
-        module.def(
-            "cross_section_object_priority", &cross_section_object_priority );
-        module.def( "is_cross_section_loadable", &is_cross_section_loadable );
-        module.def( "is_cross_section_saveable", &is_cross_section_saveable );
-        module.def(
-            "cross_section_additional_files", &cross_section_additional_files );
+        module.def( "save_cross_section", &save_cross_section,
+            pybind11::arg( "cross_section" ), pybind11::arg( "filename" ),
+            pybind11::call_guard< pybind11::gil_scoped_release >(),
+            "Save the CrossSection in the file, whose extension selects the "
+            "format, "
+            "and return the list of the written files; raise an error if the "
+            "format is not supported" );
+        module.def( "load_cross_section", &load_cross_section,
+            pybind11::arg( "filename" ),
+            pybind11::call_guard< pybind11::gil_scoped_release >(),
+            "Load the CrossSection objects of the file, with the default data "
+            "structure, and return them as a list; raise an error if the file "
+            "cannot be read" );
+        module.def( "cross_section_object_priority",
+            &cross_section_object_priority, pybind11::arg( "filename" ),
+            pybind11::call_guard< pybind11::gil_scoped_release >(),
+            "Return the object priority of the input selected from the "
+            "extension of the file; raise an error if no input handles the "
+            "file" );
+        module.def( "is_cross_section_loadable", &is_cross_section_loadable,
+            pybind11::arg( "filename" ),
+            pybind11::call_guard< pybind11::gil_scoped_release >(),
+            "Return a Percentage of how well the file can be loaded as a "
+            "CrossSection, "
+            "0 if it cannot" );
+        module.def( "is_cross_section_saveable", &is_cross_section_saveable,
+            pybind11::arg( "cross_section" ), pybind11::arg( "filename" ),
+            pybind11::call_guard< pybind11::gil_scoped_release >(),
+            "Return True if the CrossSection can be saved in the file format "
+            "given by "
+            "the filename" );
+        module.def( "cross_section_additional_files",
+            &cross_section_additional_files, pybind11::arg( "filename" ),
+            pybind11::call_guard< pybind11::gil_scoped_release >(),
+            "Return the AdditionalFiles (mandatory and optional) used when "
+            "loading the file; raise an error if no loader handles the file" );
         PYTHON_FACTORY_CLASS( CrossSectionInputFactory );
         PYTHON_FACTORY_CLASS( CrossSectionOutputFactory );
     }

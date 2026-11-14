@@ -21,6 +21,8 @@
  *
  */
 
+#pragma once
+
 #include <geode/geosciences/explicit/mixin/core/fault_block.hpp>
 
 #include <geode/geosciences/explicit/mixin/builder/fault_blocks_builder.hpp>
@@ -28,14 +30,19 @@
 #define PYTHON_FAULT_BLOCKS_BUILDER( dimension )                               \
     const auto name##dimension =                                               \
         "FaultBlocksBuilder" + std::to_string( dimension ) + "D";              \
-    pybind11::class_< FaultBlocksBuilder##dimension##D >(                      \
-        module, name##dimension.c_str() )                                      \
+    pybind11::class_< FaultBlocksBuilder##dimension##D >( module,              \
+        name##dimension.c_str(),                                               \
+        "Builder of the FaultBlock components of a model, inherited by the "   \
+        "model builders" )                                                     \
         .def( "set_fault_block_name",                                          \
             &FaultBlocksBuilder##dimension##D::set_fault_block_name,           \
-            pybind11::arg( "fault_block" ), pybind11::arg( "name" ) )          \
+            pybind11::arg( "fault_block" ), pybind11::arg( "name" ),           \
+            "Set the name of the FaultBlock" )                                 \
         .def( "set_fault_block_active",                                        \
             &FaultBlocksBuilder##dimension##D::set_fault_block_active,         \
-            pybind11::arg( "fault_block" ), pybind11::arg( "active" ) )
+            pybind11::arg( "fault_block" ), pybind11::arg( "active" ),         \
+            "Activate or deactivate the FaultBlock; inactive FaultBlocks "     \
+            "are not returned by active_fault_blocks" )
 
 namespace geode
 {

@@ -21,13 +21,31 @@
  *
  */
 
+#pragma once
+
+#include <cmath>
+#include <string>
+#include <string_view>
+#include <tuple>
+#include <utility>
+
+#include <pybind11/native_enum.h>
 #include <pybind11/operators.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
 #include <absl/container/fixed_array.h>
+#include <absl/container/flat_hash_map.h>
 #include <absl/container/inlined_vector.h>
+#include <absl/hash/hash.h>
+#include <absl/strings/str_cat.h>
 #include <absl/types/span.h>
+
+#include <geode/basic/identifier.hpp>
+#include <geode/basic/range.hpp>
+#include <geode/basic/types.hpp>
+#include <geode/basic/uuid.hpp>
+#include <geode/geometry/point.hpp>
 
 namespace pybind11
 {
@@ -69,26 +87,314 @@ namespace pybind11
 
             std::vector< typename std::remove_const< Type >::type > cpp_;
         };
+
+        template < typename Key, typename Value >
+        struct type_caster< absl::flat_hash_map< Key, Value > >
+            : map_caster< absl::flat_hash_map< Key, Value >, Key, Value >
+        {
+        };
     } // namespace detail
 } // namespace pybind11
 
 namespace geode
 {
-    template < typename Class, typename Getter, typename... Options >
-    pybind11::class_< Class, Options... > define_string_representation(
-        pybind11::class_< Class, Options... > python_class, Getter&& getter )
+    /*!
+     * Import the extension module defining the types used by a binding module.
+     * In the build tree the modules are top-level modules; in the wheel they
+     * live at the root of a package (opengeode.opengeode_py_basic...): when the
+     * top-level module does not exist, the module of the same name in the
+     * package of the module being initialized is imported. Only the
+     * dependencies of the same package are resolved this way: a module of
+     * another package (an upstream project) must be imported by its package
+     * (pybind11::module_::import( "opengeode" )). Any other error (the
+     * dependency is found but fails to import) is not masked.
+     */
+    inline void import_binding_dependency(
+        const pybind11::module_& module, const std::string& name )
     {
-        python_class.def( "__str__", getter )
-            .def( "__repr__", std::forward< Getter >( getter ) );
+        try
+        {
+            pybind11::module_::import( name.c_str() );
+        }
+        catch( pybind11::error_already_set& error )
+        {
+            const auto package =
+                module.attr( "__name__" ).cast< std::string >();
+            const auto dot = package.rfind( '.' );
+            if( dot == std::string::npos
+                || !error.matches( PyExc_ModuleNotFoundError ) )
+            {
+                throw;
+            }
+            // The name of the missing module is None for an error raised by
+            // hand
+            const auto missing = error.value().attr( "name" );
+            if( !pybind11::isinstance< pybind11::str >( missing )
+                || missing.cast< std::string >() != name )
+            {
+                throw;
+            }
+            pybind11::module_::import(
+                ( package.substr( 0, dot + 1 ) + name ).c_str() );
+        }
+    }
+} // namespace geode
+
+namespace geode
+{
+    template < typename Type >
+    class TypedObject;
+}
+
+namespace pybind11
+{
+    namespace detail
+    {
+        // Use the Python name of Type in the signatures
+        template < typename Type >
+        struct handle_type_name< geode::TypedObject< Type > >
+        {
+            static constexpr auto name = make_caster< Type >::name;
+        };
+    } // namespace detail
+} // namespace pybind11
+
+namespace geode
+{
+    /*!
+     * Return the Python expression of a double: its repr, except for the
+     * values that have no literal, which are given by float(...)
+     */
+    inline std::string python_repr( double value )
+    {
+        if( std::isnan( value ) )
+        {
+            return "float('nan')";
+        }
+        if( std::isinf( value ) )
+        {
+            return value > 0 ? "float('inf')" : "float('-inf')";
+        }
+        return pybind11::repr( pybind11::float_( value ) )
+            .template cast< std::string >();
+    }
+
+    /*!
+     * Return the Python repr of the value, e.g. 1.0 for a double, 'text' for
+     * a string or Point3D([1.0, 2.0, 3.0]) for a Point3D.
+     */
+    template < typename Type >
+    std::string python_repr( const Type& value )
+    {
+        return pybind11::repr( pybind11::cast( value ) )
+            .template cast< std::string >();
+    }
+
+    /*!
+     * Return the repr of the coordinates of a point or vector, as a list
+     */
+    template < index_t dimension >
+    std::string coordinates_repr( const Point< dimension >& point )
+    {
+        std::string result{ "[" };
+        for( const auto i : LRange{ dimension } )
+        {
+            if( i != 0 )
+            {
+                result += ", ";
+            }
+            result += python_repr( point.value( i ) );
+        }
+        return result + "]";
+    }
+
+    /*!
+     * Return the name of the Python class of the object, which is the name
+     * of its most derived bound class (e.g. TriangulatedSurface3D for an
+     * object seen as a VertexSet)
+     */
+    template < typename Type >
+    std::string python_type_name( const Type& object )
+    {
+        return pybind11::type::of(
+            pybind11::cast(
+                &object, pybind11::return_value_policy::reference ) )
+            .attr( "__name__" )
+            .template cast< std::string >();
+    }
+
+    /*!
+     * Return name(arguments...), where each argument is already a Python
+     * expression (a positional value or keyword=value).
+     */
+    inline std::string python_call_repr(
+        std::string_view name, std::initializer_list< std::string > arguments )
+    {
+        std::string result{ name };
+        result += '(';
+        auto first = true;
+        for( const auto& argument : arguments )
+        {
+            if( !first )
+            {
+                result += ", ";
+            }
+            first = false;
+            result += argument;
+        }
+        result += ')';
+        return result;
+    }
+
+    /*!
+     * Return the repr of an object identified by an Identifier:
+     * ClassName(id='...', name='...', fields...). The name is only given when
+     * the object has one. Each field is a pair (keyword, Python expression).
+     */
+    inline std::string identifier_repr( const Identifier& object,
+        std::string_view type_name,
+        std::initializer_list< std::pair< std::string_view, std::string > >
+            fields )
+    {
+        std::string result{ type_name };
+        result += "(id=" + python_repr( object.id().string() );
+        if( object.name() )
+        {
+            result += ", name=" + python_repr( object.name().value() );
+        }
+        for( const auto& field : fields )
+        {
+            result += ", ";
+            result += field.first;
+            result += '=';
+            result += field.second;
+        }
+        result += ')';
+        return result;
+    }
+
+    /*!
+     * Define __repr__ with the repr_getter, and __str__ and string() with the
+     * string() method of the class, which gives a readable description. The
+     * repr must be unambiguous: the type and the value for the value types
+     * (eval-able when possible), the type, the id and key counts for the meshes
+     * and models.
+     */
+    template < typename Class, typename Repr, typename... Options >
+    pybind11::class_< Class, Options... > define_string_representation(
+        pybind11::class_< Class, Options... > python_class, Repr&& repr_getter )
+    {
+        python_class.def( "string", &Class::string,
+            "Return a readable description of the object" );
+        return define_string_representation( std::move( python_class ),
+            &Class::string, std::forward< Repr >( repr_getter ) );
+    }
+
+    /*!
+     * Same as above with a custom getter for __str__, and without string().
+     */
+    template < typename Class,
+        typename Getter,
+        typename Repr,
+        typename... Options >
+    pybind11::class_< Class, Options... > define_string_representation(
+        pybind11::class_< Class, Options... > python_class,
+        Getter&& getter,
+        Repr&& repr_getter )
+    {
+        python_class
+            .def( "__str__", std::forward< Getter >( getter ),
+                "Return a readable description of the object" )
+            .def( "__repr__", std::forward< Repr >( repr_getter ),
+                "Return an unambiguous description of the object: its type "
+                "and its value, or its id and main counts for the meshes and "
+                "models" );
         return python_class;
     }
 
+    /*!
+     * Temporary: string() for __str__ and __repr__, for the modules whose
+     * bindings are not converted yet (see the overload with a repr getter)
+     */
     template < typename Class, typename... Options >
     pybind11::class_< Class, Options... > define_string_representation(
         pybind11::class_< Class, Options... > python_class )
     {
         python_class.def( "string", &Class::string );
-        return define_string_representation(
-            std::move( python_class ), &Class::string );
+        python_class.def( "__str__", &Class::string )
+            .def( "__repr__", &Class::string );
+        return python_class;
     }
+
+    /*!
+     * Same as pybind11::class_::def_readwrite, but the setter argument is
+     * called "value" instead of "arg0" in the Python signatures.
+     */
+    template < typename Class,
+        typename Member,
+        typename Owner,
+        typename... Options >
+    void def_readwrite_named(
+        pybind11::class_< Class, Options... >& python_class,
+        const char* name,
+        Member Owner::* member,
+        const char* doc )
+    {
+        const pybind11::cpp_function getter(
+            [member]( const Class& object ) -> const Member& {
+                return object.*member;
+            },
+            pybind11::is_method( python_class ) );
+        const pybind11::cpp_function setter(
+            [member]( Class& object, const Member& value ) {
+                object.*member = value;
+            },
+            pybind11::is_method( python_class ), pybind11::arg( "value" ) );
+        python_class.def_property( name, getter, setter,
+            pybind11::return_value_policy::reference_internal, doc );
+    }
+
+    /*!
+     * Raise a Python IndexError if @a index is not in [0, size[.
+     * @param[in] context Name of the Python function being called.
+     * @param[in] what Kind of the checked index (vertex, polygon...).
+     */
+    inline void check_index( std::string_view context,
+        std::string_view what,
+        index_t index,
+        index_t size )
+    {
+        if( index >= size )
+        {
+            throw pybind11::index_error( absl::StrCat( "[", context, "] ", what,
+                " ", index, " out of range [0, ", size, ")" ) );
+        }
+    }
+
+    /*!
+     * Call policy of the constructor of a builder of a model deriving from
+     * BRep or Section (copied from OpenGeode, whose model_vertex_check.hpp is
+     * not installed): the builder gets the `_model` attribute, the model it
+     * modifies, which OpenGeode uses to check the arguments of the functions
+     * of its VertexIdentifierBuilder. The class needs a base with
+     * dynamic_attr (BRepBuilder, SectionBuilder).
+     */
+    struct remember_model
+    {
+    };
 } // namespace geode
+
+namespace pybind11::detail
+{
+    template <>
+    struct process_attribute< geode::remember_model >
+        : process_attribute_default< geode::remember_model >
+    {
+        static void postcall( function_call& call, handle /*unused*/ )
+        {
+            // The constructor is called with (self, model), and self is not
+            // in the arguments of a new-style constructor
+            call.init_self.attr( "_model" ) = call.args[1];
+        }
+    };
+} // namespace pybind11::detail

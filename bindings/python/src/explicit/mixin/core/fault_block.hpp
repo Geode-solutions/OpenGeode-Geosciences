@@ -21,14 +21,19 @@
  *
  */
 
+#pragma once
+
 #include <geode/geosciences/explicit/mixin/core/fault_block.hpp>
 
 #define PYTHON_FAULT_BLOCK( dimension )                                        \
     const auto name##dimension =                                               \
         "FaultBlock" + std::to_string( dimension ) + "D";                      \
     pybind11::class_< FaultBlock##dimension##D, Component##dimension##D,       \
-        pybind11::smart_holder >( module, name##dimension.c_str() )            \
-        .def( "component_id", &FaultBlock##dimension##D::component_id )
+        pybind11::smart_holder >( module, name##dimension.c_str(),             \
+        "Geological component describing a Fault Block" )                      \
+        .def( "component_id", &FaultBlock##dimension##D::component_id,         \
+            "Return the ComponentID of the FaultBlock (its type and its "      \
+            "uuid)" )
 
 namespace geode
 {

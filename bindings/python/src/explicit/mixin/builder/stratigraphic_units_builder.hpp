@@ -21,6 +21,8 @@
  *
  */
 
+#pragma once
+
 #include <geode/geosciences/explicit/mixin/core/stratigraphic_unit.hpp>
 
 #include <geode/geosciences/explicit/mixin/builder/stratigraphic_units_builder.hpp>
@@ -28,16 +30,22 @@
 #define PYTHON_STRATIGRAPHIC_UNITS_BUILDER( dimension )                        \
     const auto name##dimension =                                               \
         "StratigraphicUnitsBuilder" + std::to_string( dimension ) + "D";       \
-    pybind11::class_< StratigraphicUnitsBuilder##dimension##D >(               \
-        module, name##dimension.c_str() )                                      \
+    pybind11::class_< StratigraphicUnitsBuilder##dimension##D >( module,       \
+        name##dimension.c_str(),                                               \
+        "Builder of the StratigraphicUnit components of a model, inherited "   \
+        "by the model builders" )                                              \
         .def( "set_stratigraphic_unit_name",                                   \
             &StratigraphicUnitsBuilder##dimension##D::                         \
                 set_stratigraphic_unit_name,                                   \
-            pybind11::arg( "stratigraphic_unit" ), pybind11::arg( "name" ) )   \
+            pybind11::arg( "stratigraphic_unit" ), pybind11::arg( "name" ),    \
+            "Set the name of the StratigraphicUnit" )                          \
         .def( "set_stratigraphic_unit_active",                                 \
             &StratigraphicUnitsBuilder##dimension##D::                         \
                 set_stratigraphic_unit_active,                                 \
-            pybind11::arg( "stratigraphic_unit" ), pybind11::arg( "active" ) )
+            pybind11::arg( "stratigraphic_unit" ), pybind11::arg( "active" ),  \
+            "Activate or deactivate the StratigraphicUnit; inactive "          \
+            "StratigraphicUnits are not returned by "                          \
+            "active_stratigraphic_units" )
 
 namespace geode
 {

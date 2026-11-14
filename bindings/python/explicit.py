@@ -18,6 +18,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+"""OpenGeode-Geosciences explicit models: StructuralModel and CrossSection (a BRep and a Section with Faults, Horizons, FaultBlocks and StratigraphicUnits), their builders and file formats, and the geographic coordinate systems. Importing this module initializes the library."""
+
 import opengeode
 
 from opengeode_geosciences_py_explicit import *
