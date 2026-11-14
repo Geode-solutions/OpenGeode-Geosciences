@@ -25,3 +25,28 @@ import opengeode
 from opengeode_geosciences_py_explicit import *
 
 OpenGeodeGeosciencesExplicitLibrary.initialize()
+
+# The generic functions of opengeode (load, save, builder...) use the types
+# registered here
+opengeode.register_type(
+    StructuralModel,
+    load=load_structural_model,
+    save=save_structural_model,
+    is_loadable=is_structural_model_loadable,
+    is_saveable=is_structural_model_saveable,
+    input_extensions=StructuralModelInputFactory.list_creators,
+    output_extensions=StructuralModelOutputFactory.list_creators,
+    additional_files=structural_model_additional_files,
+    builder=StructuralModelBuilder,
+)
+opengeode.register_type(
+    CrossSection,
+    load=load_cross_section,
+    save=save_cross_section,
+    is_loadable=is_cross_section_loadable,
+    is_saveable=is_cross_section_saveable,
+    input_extensions=CrossSectionInputFactory.list_creators,
+    output_extensions=CrossSectionOutputFactory.list_creators,
+    additional_files=cross_section_additional_files,
+    builder=CrossSectionBuilder,
+)

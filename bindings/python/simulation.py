@@ -25,3 +25,17 @@ import opengeode
 from opengeode_geosciences_py_simulation import *
 
 OpenGeodeGeosciencesSimulationLibrary.initialize()
+
+# The generic functions of opengeode (load, save, builder...) use the types
+# registered here
+opengeode.register_type(
+    PhysicalProblem,
+    load=load_physical_problem,
+    save=save_physical_problem,
+    is_loadable=is_physical_problem_loadable,
+    is_saveable=is_physical_problem_saveable,
+    input_extensions=PhysicalProblemInputFactory.list_creators,
+    output_extensions=PhysicalProblemOutputFactory.list_creators,
+    additional_files=physical_problem_additional_files,
+    builder=PhysicalProblemBuilder,
+)

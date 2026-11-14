@@ -44,6 +44,20 @@ add_geode_python_test(
         ${PROJECT_NAME}::py_simulation
 )
 add_geode_python_test(
+    SOURCE "test-py-generic-api.py"
+    DEPENDENCIES
+        ${PROJECT_NAME}::py_explicit
+        ${PROJECT_NAME}::py_implicit
+        ${PROJECT_NAME}::py_simulation
+)
+add_geode_python_test(
+    SOURCE "test-py-exception.py"
+    DEPENDENCIES
+        ${PROJECT_NAME}::py_explicit
+        ${PROJECT_NAME}::py_implicit
+        ${PROJECT_NAME}::py_simulation
+)
+add_geode_python_test(
     SOURCE "test-py-invalidation-docs.py"
     DEPENDENCIES
         ${PROJECT_NAME}::py_explicit
