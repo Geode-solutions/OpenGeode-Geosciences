@@ -18,6 +18,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+"""OpenGeode-Geosciences simulation: PhysicalProblem, the simulator independent description of a flow, solid mechanics or poromechanics simulation, its builder and file format, and the checks that a simulator can simulate it on a model. Importing this module initializes the library."""
+
 import opengeode
 
 from opengeode_geosciences_py_simulation import *

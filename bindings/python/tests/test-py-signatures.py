@@ -33,6 +33,7 @@ import geode_test_env
 MODULES = [
     "opengeode_geosciences_py_explicit",
     "opengeode_geosciences_py_implicit",
+    "opengeode_geosciences_py_simulation",
 ]
 # Python wrappers defined in the .py files shipped next to the extensions
 PYTHON_MODULES = []
@@ -265,7 +266,7 @@ if __name__ == "__main__":
     for module_name in PYTHON_MODULES:
         check_python_module(importlib.import_module(module_name), problems)
     # The walker must really visit the bindings, not silently skip them
-    assert len(CHECKED) > 150, f"only {len(CHECKED)} callables were checked"
+    assert len(CHECKED) > 300, f"only {len(CHECKED)} callables were checked"
     if problems:
         print(f"{len(problems)} documentation problem(s):")
         for problem in sorted(set(problems)):

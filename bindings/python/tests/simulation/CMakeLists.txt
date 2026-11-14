@@ -23,3 +23,15 @@ add_geode_python_test(
     DEPENDENCIES
         ${PROJECT_NAME}::py_simulation
 )
+
+add_geode_python_test(
+    SOURCE "test-py-simulation-conventions.py"
+    DEPENDENCIES
+        ${PROJECT_NAME}::py_simulation
+)
+
+add_geode_python_test(
+    SOURCE "test-py-optional-fields.py"
+    DEPENDENCIES
+        ${PROJECT_NAME}::py_simulation
+)

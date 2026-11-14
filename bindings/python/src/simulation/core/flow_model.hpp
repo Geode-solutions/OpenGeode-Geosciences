@@ -21,6 +21,10 @@
  *
  */
 
+#pragma once
+
+#include <pybind11/native_enum.h>
+
 #include <geode/geosciences/simulation/core/flow_model.hpp>
 #include <geode/geosciences/simulation/core/fluid.hpp>
 
@@ -28,30 +32,49 @@ namespace geode
 {
     void define_flow_model( pybind11::module& module )
     {
-        pybind11::enum_< COMPOSITION_BASIS >( module, "COMPOSITION_BASIS" )
+        pybind11::native_enum< COMPOSITION_BASIS >( module, "CompositionBasis",
+            "enum.Enum",
+            "Basis of the compositions and rates of a multiphase flow: mole "
+            "fractions (mol) or mass fractions (kg)" )
             .value( "mole", COMPOSITION_BASIS::mole )
-            .value( "mass", COMPOSITION_BASIS::mass );
-
-        pybind11::class_< FlowModel, pybind11::smart_holder >(
-            module, "FlowModel" )
-            .def( "type_name", &FlowModel::type_name )
-            .def( "has_fluid", &FlowModel::has_fluid )
+            .value( "mass", COMPOSITION_BASIS::mass )
+            .finalize();
+        pybind11::class_< FlowModel, pybind11::smart_holder >( module,
+            "FlowModel",
+            "Flow process of a PhysicalProblem, with its fluid. The leaf "
+            "classes are SinglePhaseFlow and MultiphaseFlow" )
+            .def( "type_name", &FlowModel::type_name,
+                "Return the name of the type of the flow model, written in "
+                "the saved files" )
+            .def( "has_fluid", &FlowModel::has_fluid,
+                "Return True if the fluid of the flow model is set" )
             .def( "fluid", &FlowModel::fluid,
-                pybind11::return_value_policy::reference_internal )
-            .def( "set_fluid", &FlowModel::set_fluid );
-
+                pybind11::return_value_policy::reference_internal,
+                "Return the FluidModel of the flow model; raise an error if "
+                "it has none" )
+            .def( "set_fluid", &FlowModel::set_fluid, pybind11::arg( "fluid" ),
+                "Set the FluidModel of the flow model, which is shared: do "
+                "not modify it afterwards. Raise an error if the fluid is "
+                "None" );
         pybind11::class_< SinglePhaseFlow, FlowModel, pybind11::smart_holder >(
-            module, "SinglePhaseFlow" )
-            .def( pybind11::init<>() )
-            .def_static(
-                "type_name_static", &SinglePhaseFlow::type_name_static );
-
+            module, "SinglePhaseFlow", "Flow of a single fluid phase" )
+            .def(
+                pybind11::init<>(), "Build a single phase flow, without fluid" )
+            .def_static( "type_name_static", &SinglePhaseFlow::type_name_static,
+                "Return the name of the type (SinglePhaseFlow)" );
         pybind11::class_< MultiphaseFlow, FlowModel, pybind11::smart_holder >(
-            module, "MultiphaseFlow" )
-            .def( pybind11::init<>() )
+            module, "MultiphaseFlow",
+            "Flow of several fluid phases and components" )
+            .def( pybind11::init<>(),
+                "Build a multiphase flow with a mole based composition, "
+                "without fluid" )
             .def( pybind11::init< COMPOSITION_BASIS >(),
-                pybind11::arg( "basis" ) )
-            .def_static( "type_name_static", &MultiphaseFlow::type_name_static )
-            .def( "basis", &MultiphaseFlow::basis );
+                pybind11::arg( "basis" ),
+                "Build a multiphase flow, without fluid, whose compositions "
+                "and rates use the CompositionBasis" )
+            .def_static( "type_name_static", &MultiphaseFlow::type_name_static,
+                "Return the name of the type (MultiphaseFlow)" )
+            .def( "basis", &MultiphaseFlow::basis,
+                "Return the CompositionBasis of the flow" );
     }
 } // namespace geode

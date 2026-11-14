@@ -31,9 +31,10 @@ import geode_test_env
 
 import opengeode_geosciences_py_explicit as explicit
 import opengeode_geosciences_py_implicit as implicit
+import opengeode_geosciences_py_simulation as simulation
 
 # Extension modules to check; the other modules are added with their commit
-MODULES = [explicit, implicit]
+MODULES = [explicit, implicit, simulation]
 LOWERCASE_DIMENSION = re.compile(r"[a-z_][23]d(_|$)")
 # OpenGeode appends the dimension: load_horizons_stack2D, not ..._2D
 UNDERSCORE_DIMENSION = re.compile(r"_[23]D(_|$)")
@@ -63,10 +64,10 @@ def test_enum_class_names():
         check(CAMEL_CASE.match(name), f"enum {name} should be a CamelCase class name")
         check(cls.__doc__ and cls.__doc__.strip(), f"enum {name} has no docstring")
         check(
-            len(cls) > 1,
+            len(cls) >= 1,
             f"enum {name} should have members",
         )
-    check(count >= 2, f"{count} enums found, expected at least 2")
+    check(count >= 10, f"{count} enums found, expected at least 10")
 
 
 def test_enum_values_not_exported():

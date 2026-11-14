@@ -313,20 +313,6 @@ namespace geode
     }
 
     /*!
-     * Temporary: string() for __str__ and __repr__, for the modules whose
-     * bindings are not converted yet (see the overload with a repr getter)
-     */
-    template < typename Class, typename... Options >
-    pybind11::class_< Class, Options... > define_string_representation(
-        pybind11::class_< Class, Options... > python_class )
-    {
-        python_class.def( "string", &Class::string );
-        python_class.def( "__str__", &Class::string )
-            .def( "__repr__", &Class::string );
-        return python_class;
-    }
-
-    /*!
      * Same as pybind11::class_::def_readwrite, but the setter argument is
      * called "value" instead of "arg0" in the Python signatures.
      */

@@ -30,6 +30,7 @@ import geode_test_env
 MODULES = [
     "opengeode_geosciences_py_explicit",
     "opengeode_geosciences_py_implicit",
+    "opengeode_geosciences_py_simulation",
 ]
 
 

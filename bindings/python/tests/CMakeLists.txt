@@ -27,22 +27,32 @@ add_geode_python_test(
     DEPENDENCIES
         ${PROJECT_NAME}::py_explicit
         ${PROJECT_NAME}::py_implicit
+        ${PROJECT_NAME}::py_simulation
 )
 add_geode_python_test(
     SOURCE "test-py-signatures.py"
     DEPENDENCIES
         ${PROJECT_NAME}::py_explicit
         ${PROJECT_NAME}::py_implicit
+        ${PROJECT_NAME}::py_simulation
 )
 add_geode_python_test(
     SOURCE "test-py-module-import.py"
     DEPENDENCIES
         ${PROJECT_NAME}::py_explicit
         ${PROJECT_NAME}::py_implicit
+        ${PROJECT_NAME}::py_simulation
 )
 add_geode_python_test(
     SOURCE "test-py-invalidation-docs.py"
     DEPENDENCIES
         ${PROJECT_NAME}::py_explicit
         ${PROJECT_NAME}::py_implicit
+)
+add_geode_python_test(
+    SOURCE "test-py-gil-release.py"
+    DEPENDENCIES
+        ${PROJECT_NAME}::py_explicit
+        ${PROJECT_NAME}::py_implicit
+        ${PROJECT_NAME}::py_simulation
 )
