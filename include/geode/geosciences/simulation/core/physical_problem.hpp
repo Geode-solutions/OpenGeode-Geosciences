@@ -102,7 +102,15 @@ namespace geode
 
         [[nodiscard]] const FlowModel& flow() const;
 
+        /// Same flow as flow(), shared: it stays valid after the problem
+        /// changes or is destroyed
+        [[nodiscard]] std::shared_ptr< const FlowModel > shared_flow() const;
+
         [[nodiscard]] const FluidModel& fluid() const;
+
+        /// Same fluid as fluid(), shared: it stays valid after the problem
+        /// changes or is destroyed
+        [[nodiscard]] std::shared_ptr< const FluidModel > shared_fluid() const;
 
         [[nodiscard]] const std::optional< ThermalParameters >& thermal() const;
 
@@ -115,6 +123,11 @@ namespace geode
 
         [[nodiscard]] const InitialCondition& initial_condition(
             index_t initial_condition_id ) const;
+
+        /// Same initial condition as initial_condition(), shared: it stays
+        /// valid after the problem changes or is destroyed
+        [[nodiscard]] std::shared_ptr< const InitialCondition >
+            shared_initial_condition( index_t initial_condition_id ) const;
 
         [[nodiscard]] absl::Span< const SourceTerm > source_terms() const;
 

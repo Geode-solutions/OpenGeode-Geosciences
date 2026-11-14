@@ -57,6 +57,14 @@ namespace geode
         return *fluid_;
     }
 
+    std::shared_ptr< const FluidModel > FlowModel::shared_fluid() const
+    {
+        OpenGeodeGeosciencesSimulationException::check_exception( has_fluid(),
+            nullptr, OpenGeodeException::TYPE::data,
+            "[FlowModel::shared_fluid] No fluid model is defined" );
+        return fluid_;
+    }
+
     void FlowModel::set_fluid( std::shared_ptr< FluidModel > fluid )
     {
         OpenGeodeGeosciencesSimulationException::check_exception(

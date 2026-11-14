@@ -20,6 +20,10 @@
 # SOFTWARE.
 
 
+import gc
+import os
+import tempfile
+
 import geode_test_env
 
 import opengeode
@@ -405,6 +409,92 @@ def test_simulation_report():
             raise ValueError("[Test] Wrong report representation: " + repr(item))
 
 
+def water_fluid(density):
+    return simulation.SinglePhaseFluid(
+        [simulation.Phase.water],
+        [simulation.FluidComponent("water", 0.018)],
+        reference_density=density,
+        reference_viscosity=1e-3,
+        compressibility=1e-9,
+        viscosibility=0.0,
+        reference_pressure=1e5,
+    )
+
+
+def water_flow(density):
+    flow = simulation.SinglePhaseFlow()
+    flow.set_fluid(water_fluid(density))
+    return flow
+
+
+def churn_memory():
+    # Reuse the freed memory so that a dangling object would read garbage
+    gc.collect()
+    return [bytearray(64) for _ in range(100000)]
+
+
+def check_shared_parts_outlive_changes(problem):
+    """The flow, fluid and initial condition returned by a problem created in
+    C++ (loaded or cloned) stay valid after the builder replaces or removes
+    them, and keep their values"""
+    builder = simulation.PhysicalProblemBuilder(problem)
+    flow = problem.flow()
+    fluid = problem.fluid()
+    flow_fluid = flow.fluid()
+    condition = problem.initial_condition(0)
+    for density in range(50):
+        builder.set_flow(water_flow(float(density)))
+    builder.remove_initial_condition(0)
+    junk = churn_memory()
+    if not flow.has_fluid() or flow.type_name() != "SinglePhaseFlow":
+        raise ValueError("[Test] The flow should outlive set_flow")
+    for item in (fluid, flow_fluid, flow.fluid()):
+        if item.reference_density() != 1000.0 or item.phases() != [
+            simulation.Phase.water
+        ]:
+            raise ValueError("[Test] The fluid should outlive set_flow")
+    if condition.pressure() != 1.5e7 or condition.temperature() != 320.0:
+        raise ValueError("[Test] The initial condition should outlive its removal")
+    if problem.fluid().reference_density() != 49.0:
+        raise ValueError("[Test] The problem should return its new fluid")
+    if problem.nb_initial_conditions() != 0:
+        raise ValueError("[Test] The initial condition should be removed")
+    del junk
+
+
+def test_shared_parts_lifetime():
+    problem = simulation.PhysicalProblem()
+    builder = simulation.PhysicalProblemBuilder(problem)
+    builder.set_flow(water_flow(1000.0))
+    builder.add_initial_condition(
+        simulation.UniformInitialCondition([], 1.5e7, temperature=320.0)
+    )
+    with tempfile.TemporaryDirectory() as directory:
+        filename = os.path.join(directory, "shared." + problem.native_extension())
+        loaded = save_and_reload(problem, filename)
+    check_shared_parts_outlive_changes(loaded)
+    check_shared_parts_outlive_changes(problem.clone())
+    check_shared_parts_outlive_changes(problem)
+
+    flow = water_flow(800.0)
+    fluid = flow.fluid()
+    flow.set_fluid(water_fluid(700.0))
+    junk = churn_memory()
+    if fluid.reference_density() != 800.0 or flow.fluid().reference_density() != 700.0:
+        raise ValueError("[Test] The fluid of a flow should outlive set_fluid")
+    del junk
+    for method in (
+        simulation.PhysicalProblem.flow,
+        simulation.PhysicalProblem.fluid,
+        simulation.PhysicalProblem.initial_condition,
+        simulation.FlowModel.fluid,
+    ):
+        if "shared" not in method.__doc__:
+            raise ValueError("[Test] " + method.__name__ + " should say it is shared")
+    if "PhysicalProblemBuilder.set_flow" not in simulation.PhysicalProblem.flow.__doc__:
+        raise ValueError("[Test] flow should say how to change the flow")
+
+
 if __name__ == "__main__":
     simulation.OpenGeodeGeosciencesSimulationLibrary.initialize()
     test_dead_oil_roundtrip()
@@ -413,3 +503,4 @@ if __name__ == "__main__":
     test_solid_mechanics()
     test_poromechanics()
     test_simulation_report()
+    test_shared_parts_lifetime()

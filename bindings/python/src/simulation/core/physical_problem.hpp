@@ -82,14 +82,18 @@ namespace geode
                 "None if it was not recorded" )
             .def( "has_flow", &PhysicalProblem::has_flow,
                 "Return True if the problem has a flow model" )
-            .def( "flow", &PhysicalProblem::flow,
-                pybind11::return_value_policy::reference_internal,
-                "Return the FlowModel; raise an error if the problem has "
-                "none" )
-            .def( "fluid", &PhysicalProblem::fluid,
-                pybind11::return_value_policy::reference_internal,
-                "Return the FluidModel of the flow model; raise an error if "
-                "there is no flow model or it has no fluid" )
+            .def( "flow", &PhysicalProblem::shared_flow,
+                "Return the FlowModel, shared with the problem: it stays "
+                "valid after the problem changes or is destroyed. Do not "
+                "modify it (set_fluid would change the fluid of the problem "
+                "and of every problem sharing it): replace it with "
+                "PhysicalProblemBuilder.set_flow. Raise an error if the "
+                "problem has none" )
+            .def( "fluid", &PhysicalProblem::shared_fluid,
+                "Return the FluidModel of the flow model, shared with the "
+                "problem: it stays valid after the problem changes or is "
+                "destroyed. Raise an error if there is no flow model or it "
+                "has no fluid" )
             .def( "thermal", &PhysicalProblem::thermal,
                 "Return the ThermalParameters if the problem solves the "
                 "energy equation, else None (isothermal)" )
@@ -108,11 +112,12 @@ namespace geode
             .def( "nb_initial_conditions",
                 &PhysicalProblem::nb_initial_conditions,
                 "Return the number of initial conditions" )
-            .def( "initial_condition", &PhysicalProblem::initial_condition,
+            .def( "initial_condition",
+                &PhysicalProblem::shared_initial_condition,
                 pybind11::arg( "initial_condition_id" ),
-                pybind11::return_value_policy::reference_internal,
-                "Return the initial condition of the given index; raise an "
-                "error if there is none" )
+                "Return the initial condition of the given index, shared with "
+                "the problem: it stays valid after its removal or the "
+                "destruction of the problem. Raise an error if there is none" )
             .def(
                 "source_terms",
                 []( const PhysicalProblem& problem ) {

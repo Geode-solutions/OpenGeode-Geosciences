@@ -48,10 +48,10 @@ namespace geode
                 "the saved files" )
             .def( "has_fluid", &FlowModel::has_fluid,
                 "Return True if the fluid of the flow model is set" )
-            .def( "fluid", &FlowModel::fluid,
-                pybind11::return_value_policy::reference_internal,
-                "Return the FluidModel of the flow model; raise an error if "
-                "it has none" )
+            .def( "fluid", &FlowModel::shared_fluid,
+                "Return the FluidModel of the flow model, shared with it: it "
+                "stays valid after set_fluid or the destruction of the flow "
+                "model. Raise an error if it has none" )
             .def( "set_fluid", &FlowModel::set_fluid, pybind11::arg( "fluid" ),
                 "Set the FluidModel of the flow model, which is shared: do "
                 "not modify it afterwards. Raise an error if the fluid is "

@@ -79,9 +79,22 @@ namespace geode
             return *flow_;
         }
 
+        [[nodiscard]] std::shared_ptr< const FlowModel > shared_flow() const
+        {
+            OpenGeodeGeosciencesSimulationException::check_exception(
+                has_flow(), nullptr, OpenGeodeException::TYPE::data,
+                "[PhysicalProblem::shared_flow] No flow model is defined" );
+            return flow_;
+        }
+
         [[nodiscard]] const FluidModel& fluid() const
         {
             return flow().fluid();
+        }
+
+        [[nodiscard]] std::shared_ptr< const FluidModel > shared_fluid() const
+        {
+            return shared_flow()->shared_fluid();
         }
 
         void set_flow( std::shared_ptr< FlowModel > flow )
@@ -148,6 +161,13 @@ namespace geode
         {
             check_initial_condition_id( initial_condition_id );
             return *initial_conditions_[initial_condition_id];
+        }
+
+        [[nodiscard]] std::shared_ptr< const InitialCondition >
+            shared_initial_condition( index_t initial_condition_id ) const
+        {
+            check_initial_condition_id( initial_condition_id );
+            return initial_conditions_[initial_condition_id];
         }
 
         [[nodiscard]] index_t add_initial_condition(
@@ -344,9 +364,19 @@ namespace geode
         return impl_->flow();
     }
 
+    std::shared_ptr< const FlowModel > PhysicalProblem::shared_flow() const
+    {
+        return impl_->shared_flow();
+    }
+
     const FluidModel& PhysicalProblem::fluid() const
     {
         return impl_->fluid();
+    }
+
+    std::shared_ptr< const FluidModel > PhysicalProblem::shared_fluid() const
+    {
+        return impl_->shared_fluid();
     }
 
     const std::optional< ThermalParameters >& PhysicalProblem::thermal() const
@@ -374,6 +404,13 @@ namespace geode
         index_t initial_condition_id ) const
     {
         return impl_->initial_condition( initial_condition_id );
+    }
+
+    std::shared_ptr< const InitialCondition >
+        PhysicalProblem::shared_initial_condition(
+            index_t initial_condition_id ) const
+    {
+        return impl_->shared_initial_condition( initial_condition_id );
     }
 
     absl::Span< const SourceTerm > PhysicalProblem::source_terms() const
