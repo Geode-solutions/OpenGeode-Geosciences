@@ -20,10 +20,20 @@
 # SOFTWARE.
 
 
+import os
+import tempfile
+
 import geode_test_env
 
 import opengeode
 import opengeode_geosciences_py_explicit as geosciences
+
+# The files written by the test, removed at exit
+OUTPUT_DIRECTORY = tempfile.TemporaryDirectory()
+
+
+def output_path(name):
+    return os.path.join(OUTPUT_DIRECTORY.name, name)
 
 
 def add_faults(model, builder):
@@ -270,10 +280,11 @@ def check_reloaded_model(reloaded_model):
 
 
 def test_io(model):
-    geosciences.save_cross_section(model, "test.og_xsctn")
+    filename = output_path("test.og_xsctn")
+    geosciences.save_cross_section(model, filename)
 
     reloaded_model = opengeode.load_one(
-        geosciences.load_cross_section("test.og_xsctn"), "test.og_xsctn"
+        geosciences.load_cross_section(filename), filename
     )
     check_reloaded_model(reloaded_model)
 

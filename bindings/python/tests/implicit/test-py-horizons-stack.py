@@ -20,11 +20,21 @@
 # SOFTWARE.
 
 
+import os
+import tempfile
+
 import geode_test_env
 
 import opengeode as geode
 import opengeode_geosciences_py_explicit
 import opengeode_geosciences_py_implicit as geode_imp
+
+# The files written by the test, removed at exit
+OUTPUT_DIRECTORY = tempfile.TemporaryDirectory()
+
+
+def output_path(name):
+    return os.path.join(OUTPUT_DIRECTORY.name, name)
 
 
 def test_horizons_stack():
@@ -77,7 +87,9 @@ def test_horizons_stack():
     if horizons_stack.nb_horizons() != 4:
         raise ValueError("[TEST] Stack should have 4 horizons after insertion.")
 
-    stack_path = "test_HorizonStack." + horizons_stack.native_extension()
+    stack_path = output_path(
+        "test_HorizonStack." + horizons_stack.native_extension()
+    )
     geode_imp.save_horizons_stack3D(horizons_stack, stack_path)
     reloaded_stack = geode.load_one(
         geode_imp.load_horizons_stack3D(stack_path), stack_path

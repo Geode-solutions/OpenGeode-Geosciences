@@ -29,6 +29,14 @@ import geode_test_env
 import opengeode
 import opengeode_geosciences_py_simulation as simulation
 
+# The files written by the test, removed at exit
+OUTPUT_DIRECTORY = tempfile.TemporaryDirectory()
+
+
+def output_path(name):
+    return os.path.join(OUTPUT_DIRECTORY.name, name)
+
+
 PHASES = [simulation.Phase.oil, simulation.Phase.gas, simulation.Phase.water]
 
 
@@ -232,7 +240,9 @@ def test_dead_oil_roundtrip():
     check_dead_oil_problem(problem, block_id)
     # Reading Span getters twice checks that they copy the C++ elements
     check_dead_oil_problem(problem, block_id)
-    reloaded = save_and_reload(problem, "dead_oil." + problem.native_extension())
+    reloaded = save_and_reload(
+        problem, output_path("dead_oil." + problem.native_extension())
+    )
     check_dead_oil_problem(reloaded, block_id)
     check_model_id(reloaded, model_id)
     check_dead_oil_problem(reloaded.clone(), block_id)
@@ -344,7 +354,9 @@ def mechanics_problem():
 
 def test_solid_mechanics():
     problem = mechanics_problem()
-    reloaded = save_and_reload(problem, "gravity." + problem.native_extension())
+    reloaded = save_and_reload(
+        problem, output_path("gravity." + problem.native_extension())
+    )
     mechanics = reloaded.solid_mechanics()
     if reloaded.has_flow() or mechanics is None:
         raise ValueError("[Test] Reloaded problem should be mechanics only")

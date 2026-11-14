@@ -21,12 +21,21 @@
 
 
 import gc
+import os
+import tempfile
 import weakref
 
 import geode_test_env
 
 import opengeode
 import opengeode_geosciences_py_explicit as geosciences
+
+# The files written by the test, removed at exit
+OUTPUT_DIRECTORY = tempfile.TemporaryDirectory()
+
+
+def output_path(name):
+    return os.path.join(OUTPUT_DIRECTORY.name, name)
 
 
 def add_faults(model, builder):
@@ -165,10 +174,11 @@ def check_reloaded_model(reloaded_model):
 
 
 def test_io(model):
-    geosciences.save_structural_model(model, "test.og_strm")
+    filename = output_path("test.og_strm")
+    geosciences.save_structural_model(model, filename)
 
     reloaded_model = opengeode.load_one(
-        geosciences.load_structural_model("test.og_strm"), "test.og_strm"
+        geosciences.load_structural_model(filename), filename
     )
     check_reloaded_model(reloaded_model)
 
