@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include "../common.hpp"
+#include <geode/bindings/python/common.hpp>
 
 #include <geode/mesh/core/solid_mesh.hpp>
 #include <geode/mesh/core/surface_mesh.hpp>

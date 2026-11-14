@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include "../../../factory.hpp"
+#include <geode/bindings/python/basic/factory.hpp>
 
 #include <geode/geosciences/implicit/representation/io/horizons_stack_input.hpp>
 #include <geode/geosciences/implicit/representation/io/horizons_stack_output.hpp>

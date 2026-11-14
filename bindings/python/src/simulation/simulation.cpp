@@ -21,7 +21,7 @@
  *
  */
 
-#include "../common.hpp"
+#include <geode/bindings/python/common.hpp>
 
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
@@ -60,7 +60,7 @@ PYBIND11_MODULE( opengeode_geosciences_py_simulation, module )
         "SimulationReport). Call "
         "OpenGeodeGeosciencesSimulationLibrary.initialize() before using the "
         "module.";
-    pybind11::module::import( "opengeode" );
+    geode::import_binding_dependency( module, "opengeode" );
     pybind11::class_< geode::OpenGeodeGeosciencesSimulationLibrary >( module,
         "OpenGeodeGeosciencesSimulationLibrary",
         "Initialization of the simulation module" )
@@ -87,4 +87,5 @@ PYBIND11_MODULE( opengeode_geosciences_py_simulation, module )
     geode::define_simulation_checker( module );
 
     geode::define_physical_problem_io( module );
+    geode::document_missing_constructors( module );
 }

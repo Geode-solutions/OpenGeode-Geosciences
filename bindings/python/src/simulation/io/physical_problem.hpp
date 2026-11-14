@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include "../../factory.hpp"
+#include <geode/bindings/python/basic/factory.hpp>
 
 #include <geode/geosciences/simulation/io/physical_problem_input.hpp>
 #include <geode/geosciences/simulation/io/physical_problem_output.hpp>

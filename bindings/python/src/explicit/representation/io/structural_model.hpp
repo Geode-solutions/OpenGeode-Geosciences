@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include "../../../factory.hpp"
+#include <geode/bindings/python/basic/factory.hpp>
 
 #include <geode/geosciences/explicit/representation/io/structural_model_input.hpp>
 #include <geode/geosciences/explicit/representation/io/structural_model_output.hpp>

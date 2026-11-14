@@ -21,7 +21,7 @@
  *
  */
 
-#include "../common.hpp"
+#include <geode/bindings/python/common.hpp>
 
 #include <pybind11/iostream.h>
 #include <pybind11/pybind11.h>
@@ -49,7 +49,7 @@
 
 PYBIND11_MODULE( opengeode_geosciences_py_implicit, module )
 {
-    pybind11::module::import( "opengeode" );
+    geode::import_binding_dependency( module, "opengeode" );
     geode::import_binding_dependency(
         module, "opengeode_geosciences_py_explicit" );
     module.doc() =
@@ -96,4 +96,5 @@ PYBIND11_MODULE( opengeode_geosciences_py_implicit, module )
     geode::define_horizons_stack_io( module );
 
     geode::detail::define_implicit_model_helpers( module );
+    geode::document_missing_constructors( module );
 }

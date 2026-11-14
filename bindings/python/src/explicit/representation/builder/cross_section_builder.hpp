@@ -23,7 +23,7 @@
 
 #pragma once
 
-#include "../../../common.hpp"
+#include <geode/bindings/python/model/model_vertex_check.hpp>
 
 #include <geode/model/mixin/core/corner.hpp>
 #include <geode/model/mixin/core/line.hpp>

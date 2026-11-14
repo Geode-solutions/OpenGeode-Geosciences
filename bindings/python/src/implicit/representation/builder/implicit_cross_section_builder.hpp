@@ -25,6 +25,8 @@
 
 #include "../../index_check.hpp"
 
+#include <geode/bindings/python/model/model_vertex_check.hpp>
+
 #include <geode/geometry/point.hpp>
 
 #include <geode/geosciences/implicit/representation/builder/implicit_cross_section_builder.hpp>

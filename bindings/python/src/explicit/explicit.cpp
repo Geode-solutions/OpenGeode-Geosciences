@@ -21,7 +21,7 @@
  *
  */
 
-#include "../common.hpp"
+#include <geode/bindings/python/common.hpp>
 
 #include <pybind11/iostream.h>
 #include <pybind11/pybind11.h>
@@ -66,7 +66,7 @@ PYBIND11_MODULE( opengeode_geosciences_py_explicit, module )
         "converting them on meshes, models and grids). Call "
         "OpenGeodeGeosciencesExplicitLibrary.initialize() before using the "
         "module.";
-    pybind11::module::import( "opengeode" );
+    geode::import_binding_dependency( module, "opengeode" );
     pybind11::class_< geode::OpenGeodeGeosciencesExplicitLibrary >( module,
         "OpenGeodeGeosciencesExplicitLibrary",
         "Initialization of the explicit geosciences module" )
@@ -100,4 +100,5 @@ PYBIND11_MODULE( opengeode_geosciences_py_explicit, module )
 
     geode::define_crs( module );
     geode::define_crs_helper( module );
+    geode::document_missing_constructors( module );
 }
