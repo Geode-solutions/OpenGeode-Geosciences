@@ -45,3 +45,10 @@ add_geode_python_test(
         ${PROJECT_NAME}::py_explicit
         ${PROJECT_NAME}::py_implicit
 )
+
+add_geode_python_test(
+    SOURCE "test-py-stratigraphic-axis.py"
+    DEPENDENCIES
+        ${PROJECT_NAME}::py_explicit
+        ${PROJECT_NAME}::py_implicit
+)
