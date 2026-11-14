@@ -1,3 +1,4 @@
 build
 .settings
 bindings/python/requirements.txt
+__pycache__/
