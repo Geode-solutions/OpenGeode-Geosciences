@@ -58,6 +58,16 @@ add_geode_python_test(
         ${PROJECT_NAME}::py_simulation
 )
 add_geode_python_test(
+    SOURCE "test-py-package-docs.py"
+    ARGUMENTS
+        "${PROJECT_SOURCE_DIR}/bindings/python/opengeode_geosciences_doc.txt"
+        "${PROJECT_BINARY_DIR}/wheel/opengeode_geosciences"
+    DEPENDENCIES
+        ${PROJECT_NAME}::py_explicit
+        ${PROJECT_NAME}::py_implicit
+        ${PROJECT_NAME}::py_simulation
+)
+add_geode_python_test(
     SOURCE "test-py-invalidation-docs.py"
     DEPENDENCIES
         ${PROJECT_NAME}::py_explicit
