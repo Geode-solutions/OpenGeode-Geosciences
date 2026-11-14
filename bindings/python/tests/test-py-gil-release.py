@@ -19,7 +19,8 @@
 # SOFTWARE.
 
 """The long geosciences calls release the GIL: one sample per family (CRS,
-CRS helpers, builder copy, load and save of each module, implicit helpers).
+CRS helpers, builder copy, fault blocks builder, load and save of each module,
+implicit helpers).
 
 Each check uses geode_test_env.assert_gil_released: with a huge interpreter
 switch interval, a worker thread repeats the call until the main thread has
@@ -144,6 +145,19 @@ def check_builder_copy():
     check(copied.nb_blocks() == source.nb_blocks(), "copied model")
 
 
+def check_fault_blocks_builder():
+    models = [load_vri2() for _ in range(POOL_SIZE)]
+    to_build = iter(models)
+
+    def build():
+        model = next(to_build)
+        explicit.build_structural_model_fault_blocks(model)
+        return model
+
+    built = assert_gil_released("build_structural_model_fault_blocks", build)
+    check(built.nb_fault_blocks() == 1, "build_structural_model_fault_blocks result")
+
+
 def check_load_save(directory):
     path = os.path.join(DATA, "vri2.og_strm")
     loaded = assert_gil_released(
@@ -197,6 +211,7 @@ if __name__ == "__main__":
     check_crs()
     check_crs_helpers()
     check_builder_copy()
+    check_fault_blocks_builder()
     with tempfile.TemporaryDirectory() as directory:
         check_load_save(directory)
     check_implicit_helpers()

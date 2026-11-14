@@ -48,3 +48,8 @@ add_geode_python_test(
     DEPENDENCIES
         ${PROJECT_NAME}::py_explicit
 )
+add_geode_python_test(
+    SOURCE "test-py-structural-model-fault-blocks-builder.py"
+    DEPENDENCIES
+        ${PROJECT_NAME}::py_explicit
+)

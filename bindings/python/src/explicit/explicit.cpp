@@ -45,6 +45,7 @@
 #include "mixin/core/stratigraphic_units.hpp"
 
 #include "representation/builder/cross_section_builder.hpp"
+#include "representation/builder/helpers/structural_model_fault_blocks_builder.hpp"
 #include "representation/builder/structural_model_builder.hpp"
 
 #include "representation/core/cross_section.hpp"
@@ -59,7 +60,9 @@ PYBIND11_MODULE( opengeode_geosciences_py_explicit, module )
         "Explicit geosciences models of OpenGeode-Geosciences: StructuralModel "
         "(a BRep with Faults, Horizons, FaultBlocks and StratigraphicUnits) "
         "and CrossSection (the 2D equivalent on a Section), their builders "
-        "(StructuralModelBuilder, CrossSectionBuilder), the functions loading "
+        "(StructuralModelBuilder, CrossSectionBuilder, and "
+        "build_structural_model_fault_blocks grouping the Blocks into "
+        "FaultBlocks), the functions loading "
         "and saving them (load_structural_model, save_cross_section...) and "
         "the geographic coordinate systems (GeographicCoordinateSystemInfo, "
         "GeographicCoordinateSystem2D/3D, and the functions assigning or "
@@ -94,6 +97,7 @@ PYBIND11_MODULE( opengeode_geosciences_py_explicit, module )
 
     geode::define_structural_model_builder( module );
     geode::define_cross_section_builder( module );
+    geode::define_structural_model_fault_blocks_builder( module );
 
     geode::define_structural_model_io( module );
     geode::define_cross_section_io( module );

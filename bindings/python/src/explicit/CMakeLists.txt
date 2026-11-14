@@ -37,6 +37,7 @@ add_geode_python_binding(
         "mixin/core/stratigraphic_unit.hpp"
         "mixin/core/stratigraphic_units.hpp"
         "representation/builder/cross_section_builder.hpp"
+        "representation/builder/helpers/structural_model_fault_blocks_builder.hpp"
         "representation/builder/structural_model_builder.hpp"
         "representation/core/cross_section.hpp"
         "representation/core/structural_model.hpp"
