@@ -18,6 +18,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+"""OpenGeode-Geosciences implicit models: HorizonsStack, ImplicitStructuralModel, ImplicitCrossSection, StratigraphicModel and StratigraphicSection, their builders and file formats. Importing this module initializes the library and imports the explicit module."""
+
 import opengeode
 
 from opengeode_geosciences_py_implicit import *

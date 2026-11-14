@@ -83,32 +83,32 @@ def test_horizons_stack():
         geode_imp.load_horizons_stack3D(stack_path), stack_path
     )
 
-    stack_from_name_lists = geode_imp.horizons_stack_from_bottom_to_top_names_3d(
+    stack_from_name_lists = geode_imp.horizons_stack_from_bottom_to_top_names3D(
         ["hor1", "hor2"], ["su1", "su2", "su3"]
     )
 
 
 def test_named_arguments():
-    stack = geode_imp.horizons_stack_from_top_to_bottom_names_3d(
+    stack = geode_imp.horizons_stack_from_top_to_bottom_names3D(
         horizons_names=["H2", "H1"], units_names=["U2"]
     )
     names = [unit.name() for unit in stack.top_to_bottom_units()]
     if names != [None, "U2", None]:
         raise ValueError("[Test] Only the unit between horizons should be named")
-    if "top to bottom" not in geode_imp.horizons_stack_from_top_to_bottom_names_3d.__doc__:
+    if "top to bottom" not in geode_imp.horizons_stack_from_top_to_bottom_names3D.__doc__:
         raise ValueError("[Test] Helper should be documented")
 
 
 def test_ids_from_names():
-    stack = geode_imp.horizons_stack_from_top_to_bottom_names_3d(
+    stack = geode_imp.horizons_stack_from_top_to_bottom_names3D(
         ["H2", "H1"], ["U3", "U2", "U1"]
     )
-    unit_id = geode_imp.stratigraphic_unit_id_from_name_3d(stack, "U2")
+    unit_id = geode_imp.stratigraphic_unit_id_from_name3D(stack, "U2")
     if unit_id is None or stack.stratigraphic_unit(unit_id).name() != "U2":
         raise ValueError("[Test] Stratigraphic unit U2 should be found")
-    if geode_imp.stratigraphic_unit_id_from_name_3d(stack, "U4") is not None:
+    if geode_imp.stratigraphic_unit_id_from_name3D(stack, "U4") is not None:
         raise ValueError("[Test] Stratigraphic unit U4 should not be found")
-    horizon_id = geode_imp.horizon_id_from_name_3d(stack, "H1")
+    horizon_id = geode_imp.horizon_id_from_name3D(stack, "H1")
     if horizon_id is None or stack.horizon(horizon_id).name() != "H1":
         raise ValueError("[Test] Horizon H1 should be found")
 

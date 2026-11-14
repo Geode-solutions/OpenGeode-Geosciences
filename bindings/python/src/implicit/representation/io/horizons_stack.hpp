@@ -21,42 +21,96 @@
  *
  */
 
+#pragma once
+
 #include "../../../factory.hpp"
 
 #include <geode/geosciences/implicit/representation/io/horizons_stack_input.hpp>
 #include <geode/geosciences/implicit/representation/io/horizons_stack_output.hpp>
 
-#define PYTHON_HORIZONS_STACK_IO( dimension )                                  \
-    const auto save##dimension =                                               \
-        "save_horizons_stack" + std::to_string( dimension ) + "D";             \
-    module.def( save##dimension.c_str(), &save_horizons_stack< dimension > );  \
-    const auto load##dimension =                                               \
-        "load_horizons_stack" + std::to_string( dimension ) + "D";             \
-    module.def( load##dimension.c_str(), &load_horizons_stack< dimension > );  \
-    const auto priority##dimension =                                           \
-        "horizons_stack_object_priority" + std::to_string( dimension ) + "D";  \
-    module.def( priority##dimension.c_str(),                                   \
-        &horizons_stack_object_priority< dimension > );                        \
-    const auto loadable##dimension =                                           \
-        "is_horizons_stack_loadable" + std::to_string( dimension ) + "D";      \
-    module.def( loadable##dimension.c_str(),                                   \
-        &is_horizons_stack_loadable< dimension > );                            \
-    const auto saveable##dimension =                                           \
-        "is_horizons_stack_saveable" + std::to_string( dimension ) + "D";      \
-    module.def( saveable##dimension.c_str(),                                   \
-        &is_horizons_stack_saveable< dimension > );                            \
-    const auto check##dimension =                                              \
-        "horizons_stack_additional_files" + std::to_string( dimension ) + "D"; \
-    module.def( check##dimension.c_str(),                                      \
-        &horizons_stack_additional_files< dimension > );                       \
-    PYTHON_FACTORY_CLASS( HorizonsStackInputFactory##dimension##D );           \
-    PYTHON_FACTORY_CLASS( HorizonsStackOutputFactory##dimension##D )
-
 namespace geode
 {
     void define_horizons_stack_io( pybind11::module& module )
     {
-        PYTHON_HORIZONS_STACK_IO( 2 );
-        PYTHON_HORIZONS_STACK_IO( 3 );
+        module.def( "save_horizons_stack2D", &save_horizons_stack< 2 >,
+            pybind11::arg( "horizons_stack" ), pybind11::arg( "filename" ),
+            pybind11::call_guard< pybind11::gil_scoped_release >(),
+            "Save the HorizonsStack2D in the file, whose extension selects the "
+            "format, "
+            "and return the list of the written files; raise an error if the "
+            "format is not supported" );
+        module.def( "load_horizons_stack2D", &load_horizons_stack< 2 >,
+            pybind11::arg( "filename" ),
+            pybind11::call_guard< pybind11::gil_scoped_release >(),
+            "Load the HorizonsStack2D objects of the file, with the default "
+            "data "
+            "structure, and return them as a list; raise an error if the file "
+            "cannot be read" );
+        module.def( "horizons_stack_object_priority2D",
+            &horizons_stack_object_priority< 2 >, pybind11::arg( "filename" ),
+            pybind11::call_guard< pybind11::gil_scoped_release >(),
+            "Return the object priority of the input selected from the "
+            "extension of the file; raise an error if no input handles the "
+            "file" );
+        module.def( "is_horizons_stack_loadable2D",
+            &is_horizons_stack_loadable< 2 >, pybind11::arg( "filename" ),
+            pybind11::call_guard< pybind11::gil_scoped_release >(),
+            "Return a Percentage of how well the file can be loaded as a "
+            "HorizonsStack2D, "
+            "0 if it cannot" );
+        module.def( "is_horizons_stack_saveable2D",
+            &is_horizons_stack_saveable< 2 >, pybind11::arg( "horizons_stack" ),
+            pybind11::arg( "filename" ),
+            pybind11::call_guard< pybind11::gil_scoped_release >(),
+            "Return True if the HorizonsStack2D can be saved in the file "
+            "format given by "
+            "the filename" );
+        module.def( "horizons_stack_additional_files2D",
+            &horizons_stack_additional_files< 2 >, pybind11::arg( "filename" ),
+            pybind11::call_guard< pybind11::gil_scoped_release >(),
+            "Return the AdditionalFiles (mandatory and optional) used when "
+            "loading the file; raise an error if no loader handles the file" );
+        PYTHON_FACTORY_CLASS( HorizonsStackInputFactory2D );
+        PYTHON_FACTORY_CLASS( HorizonsStackOutputFactory2D );
+        module.def( "save_horizons_stack3D", &save_horizons_stack< 3 >,
+            pybind11::arg( "horizons_stack" ), pybind11::arg( "filename" ),
+            pybind11::call_guard< pybind11::gil_scoped_release >(),
+            "Save the HorizonsStack3D in the file, whose extension selects the "
+            "format, "
+            "and return the list of the written files; raise an error if the "
+            "format is not supported" );
+        module.def( "load_horizons_stack3D", &load_horizons_stack< 3 >,
+            pybind11::arg( "filename" ),
+            pybind11::call_guard< pybind11::gil_scoped_release >(),
+            "Load the HorizonsStack3D objects of the file, with the default "
+            "data "
+            "structure, and return them as a list; raise an error if the file "
+            "cannot be read" );
+        module.def( "horizons_stack_object_priority3D",
+            &horizons_stack_object_priority< 3 >, pybind11::arg( "filename" ),
+            pybind11::call_guard< pybind11::gil_scoped_release >(),
+            "Return the object priority of the input selected from the "
+            "extension of the file; raise an error if no input handles the "
+            "file" );
+        module.def( "is_horizons_stack_loadable3D",
+            &is_horizons_stack_loadable< 3 >, pybind11::arg( "filename" ),
+            pybind11::call_guard< pybind11::gil_scoped_release >(),
+            "Return a Percentage of how well the file can be loaded as a "
+            "HorizonsStack3D, "
+            "0 if it cannot" );
+        module.def( "is_horizons_stack_saveable3D",
+            &is_horizons_stack_saveable< 3 >, pybind11::arg( "horizons_stack" ),
+            pybind11::arg( "filename" ),
+            pybind11::call_guard< pybind11::gil_scoped_release >(),
+            "Return True if the HorizonsStack3D can be saved in the file "
+            "format given by "
+            "the filename" );
+        module.def( "horizons_stack_additional_files3D",
+            &horizons_stack_additional_files< 3 >, pybind11::arg( "filename" ),
+            pybind11::call_guard< pybind11::gil_scoped_release >(),
+            "Return the AdditionalFiles (mandatory and optional) used when "
+            "loading the file; raise an error if no loader handles the file" );
+        PYTHON_FACTORY_CLASS( HorizonsStackInputFactory3D );
+        PYTHON_FACTORY_CLASS( HorizonsStackOutputFactory3D );
     }
 } // namespace geode

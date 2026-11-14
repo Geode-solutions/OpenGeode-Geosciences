@@ -32,6 +32,7 @@ import geode_test_env
 # Extension modules to check; the other modules are added with their commit
 MODULES = [
     "opengeode_geosciences_py_explicit",
+    "opengeode_geosciences_py_implicit",
 ]
 # Python wrappers defined in the .py files shipped next to the extensions
 PYTHON_MODULES = []

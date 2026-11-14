@@ -21,6 +21,8 @@
  *
  */
 
+#pragma once
+
 #include "../../../factory.hpp"
 
 #include <geode/geosciences/implicit/representation/io/implicit_structural_model_input.hpp>
@@ -30,18 +32,49 @@ namespace geode
 {
     void define_implicit_structural_model_io( pybind11::module& module )
     {
-        module.def(
-            "save_implicit_structural_model", &save_implicit_structural_model );
-        module.def(
-            "load_implicit_structural_model", &load_implicit_structural_model );
+        module.def( "save_implicit_structural_model",
+            &save_implicit_structural_model,
+            pybind11::arg( "implicit_structural_model" ),
+            pybind11::arg( "filename" ),
+            pybind11::call_guard< pybind11::gil_scoped_release >(),
+            "Save the ImplicitStructuralModel in the file, whose extension "
+            "selects the format, "
+            "and return the list of the written files; raise an error if the "
+            "format is not supported" );
+        module.def( "load_implicit_structural_model",
+            &load_implicit_structural_model, pybind11::arg( "filename" ),
+            pybind11::call_guard< pybind11::gil_scoped_release >(),
+            "Load the ImplicitStructuralModel objects of the file, with the "
+            "default data "
+            "structure, and return them as a list; raise an error if the file "
+            "cannot be read" );
         module.def( "implicit_structural_model_object_priority",
-            &implicit_structural_model_object_priority );
+            &implicit_structural_model_object_priority,
+            pybind11::arg( "filename" ),
+            pybind11::call_guard< pybind11::gil_scoped_release >(),
+            "Return the object priority of the input selected from the "
+            "extension of the file; raise an error if no input handles the "
+            "file" );
         module.def( "is_implicit_structural_model_loadable",
-            &is_implicit_structural_model_loadable );
+            &is_implicit_structural_model_loadable, pybind11::arg( "filename" ),
+            pybind11::call_guard< pybind11::gil_scoped_release >(),
+            "Return a Percentage of how well the file can be loaded as a "
+            "ImplicitStructuralModel, "
+            "0 if it cannot" );
         module.def( "is_implicit_structural_model_saveable",
-            &is_implicit_structural_model_saveable );
+            &is_implicit_structural_model_saveable,
+            pybind11::arg( "implicit_structural_model" ),
+            pybind11::arg( "filename" ),
+            pybind11::call_guard< pybind11::gil_scoped_release >(),
+            "Return True if the ImplicitStructuralModel can be saved in the "
+            "file format given by "
+            "the filename" );
         module.def( "implicit_structural_model_additional_files",
-            &implicit_structural_model_additional_files );
+            &implicit_structural_model_additional_files,
+            pybind11::arg( "filename" ),
+            pybind11::call_guard< pybind11::gil_scoped_release >(),
+            "Return the AdditionalFiles (mandatory and optional) used when "
+            "loading the file; raise an error if no loader handles the file" );
         PYTHON_FACTORY_CLASS( ImplicitStructuralModelInputFactory );
         PYTHON_FACTORY_CLASS( ImplicitStructuralModelOutputFactory );
     }

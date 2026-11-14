@@ -30,10 +30,13 @@ import re
 import geode_test_env
 
 import opengeode_geosciences_py_explicit as explicit
+import opengeode_geosciences_py_implicit as implicit
 
 # Extension modules to check; the other modules are added with their commit
-MODULES = [explicit]
+MODULES = [explicit, implicit]
 LOWERCASE_DIMENSION = re.compile(r"[a-z_][23]d(_|$)")
+# OpenGeode appends the dimension: load_horizons_stack2D, not ..._2D
+UNDERSCORE_DIMENSION = re.compile(r"_[23]D(_|$)")
 CAMEL_CASE = re.compile(r"^[A-Z][A-Za-z0-9]*$")
 
 
@@ -85,6 +88,10 @@ def test_dimension_suffix():
             check(
                 not LOWERCASE_DIMENSION.search(name),
                 f"{module.__name__}.{name}: use 2D/3D, not 2d/3d",
+            )
+            check(
+                not UNDERSCORE_DIMENSION.search(name),
+                f"{module.__name__}.{name}: append the dimension (names2D)",
             )
             if inspect.isclass(member) and member.__module__ == module.__name__:
                 for member_name in vars(member):

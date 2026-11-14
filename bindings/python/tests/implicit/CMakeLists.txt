@@ -38,3 +38,10 @@ add_geode_python_test(
         ${PROJECT_NAME}::py_explicit
         ${PROJECT_NAME}::py_implicit
 )
+
+add_geode_python_test(
+    SOURCE "test-py-implicit-conventions.py"
+    DEPENDENCIES
+        ${PROJECT_NAME}::py_explicit
+        ${PROJECT_NAME}::py_implicit
+)
