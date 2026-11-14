@@ -20,12 +20,20 @@
 # SOFTWARE.
 
 import os
+import tempfile
 
 import geode_test_env
 
 import opengeode as geode
 import opengeode_geosciences_py_explicit as geode_exp
 import opengeode_geosciences_py_implicit as geode_imp
+
+# The files written by the test, removed at exit
+OUTPUT_DIRECTORY = tempfile.TemporaryDirectory()
+
+
+def output_path(name):
+    return os.path.join(OUTPUT_DIRECTORY.name, name)
 
 
 def import_section_with_stratigraphy():
@@ -117,27 +125,40 @@ def test_save_stratigraphic_lines(stratigraphic_section):
     for model_surface in stratigraphic_section.surfaces():
         for line in stratigraphic_section.boundary_lines(model_surface):
             geode.save_edged_curve2D(
-                line.mesh(), "test_section_geom_line_" + str(counter) + ".og_edc2d"
+                line.mesh(),
+                output_path(
+                    "test_section_geom_line_" + str(counter) + ".og_edc2d"
+                ),
             )
             strati_line = stratigraphic_section.stratigraphic_line(model_surface, line)
             geode.save_edged_curve2D(
-                strati_line[0], "test_section_strati_line_" + str(counter) + ".og_edc2d"
+                strati_line[0],
+                output_path(
+                    "test_section_strati_line_" + str(counter) + ".og_edc2d"
+                ),
             )
             counter += 1
     counter = 0
     for model_surface in stratigraphic_section.surfaces():
         for line in stratigraphic_section.internal_lines_of_surface(model_surface):
             geode.save_edged_curve2D(
-                line.mesh(), "test_section_geom_int_line_" + str(counter) + ".og_edc2d"
+                line.mesh(),
+                output_path(
+                    "test_section_geom_int_line_" + str(counter) + ".og_edc2d"
+                ),
             )
             strati_lines = stratigraphic_section.stratigraphic_line(model_surface, line)
             geode.save_edged_curve2D(
                 strati_lines[0],
-                "test_section_strati_int_surface_" + str(counter) + "_front.og_edc2d",
+                output_path(
+                    "test_section_strati_int_surface_" + str(counter) + "_front.og_edc2d"
+                ),
             )
             geode.save_edged_curve2D(
                 strati_lines[1],
-                "test_section_strati_int_surface_" + str(counter) + "_back.og_edc2d",
+                output_path(
+                    "test_section_strati_int_surface_" + str(counter) + "_back.og_edc2d"
+                ),
             )
             counter += 1
 

@@ -22,6 +22,7 @@ add_geode_python_binding(
     NAME "py_implicit"
     SOURCES
         "implicit.cpp"
+        "index_check.hpp"
         "geometry/stratigraphic_point.hpp"
         "mixin/builder/stratigraphic_relationships_builder.hpp"
         "mixin/core/stratigraphic_relationships.hpp"

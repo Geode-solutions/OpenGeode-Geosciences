@@ -21,12 +21,21 @@
 
 
 import gc
+import os
+import tempfile
 import weakref
 
 import geode_test_env
 
 import opengeode
 import opengeode_geosciences_py_explicit as geosciences
+
+# The files written by the test, removed at exit
+OUTPUT_DIRECTORY = tempfile.TemporaryDirectory()
+
+
+def output_path(name):
+    return os.path.join(OUTPUT_DIRECTORY.name, name)
 
 
 def add_faults(model, builder):
@@ -53,7 +62,7 @@ def add_horizons(model, builder):
     horizon0 = builder.add_horizon()
     if (
         model.horizon(horizon0).contact_type()
-        != geosciences.Horizon3D.CONTACT_TYPE.CONFORMAL
+        != geosciences.Horizon3D.ContactType.conformal
     ):
         raise ValueError(
             "[Test] Addition of a Horizon in StructuralModel is not correct"
@@ -165,10 +174,11 @@ def check_reloaded_model(reloaded_model):
 
 
 def test_io(model):
-    geosciences.save_structural_model(model, "test.og_strm")
+    filename = output_path("test.og_strm")
+    geosciences.save_structural_model(model, filename)
 
     reloaded_model = opengeode.load_one(
-        geosciences.load_structural_model("test.og_strm"), "test.og_strm"
+        geosciences.load_structural_model(filename), filename
     )
     check_reloaded_model(reloaded_model)
 
@@ -218,14 +228,14 @@ def modify_model(model, builder):
     for horizon in model.horizons():
         horizons_ids.append(horizon.id())
         builder.set_horizon_contact_type(
-            horizon, geosciences.Horizon3D.CONTACT_TYPE.TOPOGRAPHY
+            horizon, geosciences.Horizon3D.ContactType.topography
         )
 
     for horizon_id in horizons_ids:
         builder.remove_horizon(model.horizon(horizon_id))
 
     for fault in model.faults():
-        builder.set_fault_type(fault, geosciences.Fault3D.FAULT_TYPE.LISTRIC)
+        builder.set_fault_type(fault, geosciences.Fault3D.FaultType.listric)
         if fault.has_type() == False:
             raise ValueError("[Test] All faults should have a type")
 
@@ -240,15 +250,15 @@ def modify_model(model, builder):
 def test_typed_creation():
     model = geosciences.StructuralModel()
     builder = geosciences.StructuralModelBuilder(model)
-    fault = builder.add_fault(geosciences.Fault3D.FAULT_TYPE.NORMAL)
-    if model.fault(fault).type() != geosciences.Fault3D.FAULT_TYPE.NORMAL:
+    fault = builder.add_fault(geosciences.Fault3D.FaultType.normal)
+    if model.fault(fault).type() != geosciences.Fault3D.FaultType.normal:
         raise ValueError("[Test] Fault should be created with its type")
     horizon = builder.add_horizon(
-        contact_type=geosciences.Horizon3D.CONTACT_TYPE.EROSION
+        contact_type=geosciences.Horizon3D.ContactType.erosion
     )
     if (
         model.horizon(horizon).contact_type()
-        != geosciences.Horizon3D.CONTACT_TYPE.EROSION
+        != geosciences.Horizon3D.ContactType.erosion
     ):
         raise ValueError("[Test] Horizon should be created with its contact type")
 
@@ -259,20 +269,20 @@ def test_setters_with_keywords():
     horizon = model.horizon(builder.add_horizon())
     builder.set_horizon_name(horizon=horizon, name="H")
     builder.set_horizon_contact_type(
-        horizon=horizon, contact_type=geosciences.Horizon3D.CONTACT_TYPE.EROSION
+        horizon=horizon, contact_type=geosciences.Horizon3D.ContactType.erosion
     )
     fault = model.fault(builder.add_fault())
     builder.set_fault_name(fault=fault, name="F")
-    builder.set_fault_type(fault=fault, type=geosciences.Fault3D.FAULT_TYPE.REVERSE)
+    builder.set_fault_type(fault=fault, type=geosciences.Fault3D.FaultType.reverse)
     unit = model.stratigraphic_unit(builder.add_stratigraphic_unit())
     builder.set_stratigraphic_unit_name(stratigraphic_unit=unit, name="U")
     fault_block = model.fault_block(builder.add_fault_block())
     builder.set_fault_block_name(fault_block=fault_block, name="FB")
     if (
         horizon.name() != "H"
-        or horizon.contact_type() != geosciences.Horizon3D.CONTACT_TYPE.EROSION
+        or horizon.contact_type() != geosciences.Horizon3D.ContactType.erosion
         or fault.name() != "F"
-        or fault.type() != geosciences.Fault3D.FAULT_TYPE.REVERSE
+        or fault.type() != geosciences.Fault3D.FaultType.reverse
         or unit.name() != "U"
         or fault_block.name() != "FB"
     ):

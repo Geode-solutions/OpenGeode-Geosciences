@@ -20,12 +20,20 @@
 # SOFTWARE.
 
 import os
+import tempfile
 
 import geode_test_env
 
 import opengeode as geode
 import opengeode_geosciences_py_explicit as geode_exp
 import opengeode_geosciences_py_implicit as geode_imp
+
+# The files written by the test, removed at exit
+OUTPUT_DIRECTORY = tempfile.TemporaryDirectory()
+
+
+def output_path(name):
+    return os.path.join(OUTPUT_DIRECTORY.name, name)
 
 
 def test_model(model):
@@ -103,11 +111,14 @@ def test_save_stratigraphic_surfaces(model):
         for surface in model.boundary_surfaces(model_block):
             geode.save_triangulated_surface3D(
                 surface.triangulated_mesh(),
-                "mss_geom_surface_" + str(counter) + ".og_tsf3d",
+                output_path("mss_geom_surface_" + str(counter) + ".og_tsf3d"),
             )
             strati_surface = model.stratigraphic_surface(model_block, surface)
             geode.save_triangulated_surface3D(
-                strati_surface[0], "mss_strati_surface_" + str(counter) + ".og_tsf3d"
+                strati_surface[0],
+                output_path(
+                    "mss_strati_surface_" + str(counter) + ".og_tsf3d"
+                ),
             )
             counter += 1
     counter = 0
@@ -115,16 +126,20 @@ def test_save_stratigraphic_surfaces(model):
         for surface in model.internal_surfaces_of_block(model_block):
             geode.save_triangulated_surface3D(
                 surface.triangulated_mesh(),
-                "mss_geom_int_surface_" + str(counter) + ".og_tsf3d",
+                output_path("mss_geom_int_surface_" + str(counter) + ".og_tsf3d"),
             )
             strati_surface = model.stratigraphic_surface(model_block, surface)
             geode.save_triangulated_surface3D(
                 strati_surface[0],
-                "mss_strati_int_surface_" + str(counter) + "_front.og_tsf3d",
+                output_path(
+                    "mss_strati_int_surface_" + str(counter) + "_front.og_tsf3d"
+                ),
             )
             geode.save_triangulated_surface3D(
                 strati_surface[1],
-                "mss_strati_int_surface_" + str(counter) + "_back.og_tsf3d",
+                output_path(
+                    "mss_strati_int_surface_" + str(counter) + "_back.og_tsf3d"
+                ),
             )
             counter += 1
 

@@ -374,6 +374,111 @@ namespace
             "[Test] Clone should share the fluid" );
     }
 
+    std::shared_ptr< geode::SinglePhaseFluid > water_fluid( double density )
+    {
+        return std::make_shared< geode::SinglePhaseFluid >(
+            std::vector< geode::PHASE >{ geode::PHASE::water },
+            std::vector< geode::FluidComponent >{ { "water", 0.018 } }, density,
+            1e-3, 1e-9, 0., 1e5 );
+    }
+
+    std::shared_ptr< geode::SinglePhaseFlow > water_flow( double density )
+    {
+        auto flow = std::make_shared< geode::SinglePhaseFlow >();
+        flow->set_fluid( water_fluid( density ) );
+        return flow;
+    }
+
+    double fluid_density( const geode::FluidModel& fluid )
+    {
+        const auto* water =
+            dynamic_cast< const geode::SinglePhaseFluid* >( &fluid );
+        Exception::test( water != nullptr, "[Test] Wrong fluid type" );
+        return water->reference_density();
+    }
+
+    void test_shared_accessors()
+    {
+        geode::PhysicalProblem problem;
+        geode::PhysicalProblemBuilder builder{ problem };
+        builder.set_flow( water_flow( 1000. ) );
+        builder.add_initial_condition(
+            std::make_shared< geode::UniformInitialCondition >(
+                std::vector< geode::uuid >{}, 1.5e7, 320. ) );
+        const auto flow = problem.shared_flow();
+        const auto fluid = problem.shared_fluid();
+        const auto condition = problem.shared_initial_condition( 0 );
+        Exception::test(
+            flow.get() == &problem.flow() && fluid.get() == &problem.fluid()
+                && condition.get() == &problem.initial_condition( 0 ),
+            "[Test] Shared accessors should return the parts of the problem" );
+        Exception::test( flow->shared_fluid() == fluid,
+            "[Test] The flow should share its fluid" );
+        const auto clone = problem.clone();
+        Exception::test(
+            clone.shared_fluid() == fluid
+                && clone.shared_initial_condition( 0 ) == condition,
+            "[Test] The clone should share the parts" );
+
+        builder.set_flow( water_flow( 900. ) );
+        builder.remove_initial_condition( 0 );
+        Exception::test( fluid_density( *fluid ) == 1000.
+                             && fluid_density( flow->fluid() ) == 1000.,
+            "[Test] The shared flow and fluid should outlive set_flow" );
+        Exception::test( fluid_density( *problem.shared_fluid() ) == 900.,
+            "[Test] The problem should share its new fluid" );
+        const auto* uniform =
+            dynamic_cast< const geode::UniformInitialCondition* >(
+                condition.get() );
+        Exception::test( uniform != nullptr && uniform->pressure() == 1.5e7,
+            "[Test] The shared initial condition should outlive its removal" );
+        Exception::test( problem.nb_initial_conditions() == 0,
+            "[Test] The initial condition should be removed" );
+
+        auto own_flow = water_flow( 800. );
+        const auto own_fluid = own_flow->shared_fluid();
+        own_flow->set_fluid( water_fluid( 700. ) );
+        Exception::test(
+            fluid_density( *own_fluid ) == 800.
+                && fluid_density( *own_flow->shared_fluid() ) == 700.,
+            "[Test] The shared fluid should outlive set_fluid" );
+
+        geode::PhysicalProblem empty;
+        bool has_thrown{ false };
+        try
+        {
+            const auto none = empty.shared_flow();
+        }
+        catch( const geode::OpenGeodeException& )
+        {
+            has_thrown = true;
+        }
+        Exception::test(
+            has_thrown, "[Test] shared_flow without flow should throw" );
+        has_thrown = false;
+        try
+        {
+            const auto none = empty.shared_initial_condition( 0 );
+        }
+        catch( const geode::OpenGeodeException& )
+        {
+            has_thrown = true;
+        }
+        Exception::test( has_thrown,
+            "[Test] shared_initial_condition out of range should throw" );
+        has_thrown = false;
+        try
+        {
+            const auto none = geode::SinglePhaseFlow{}.shared_fluid();
+        }
+        catch( const geode::OpenGeodeException& )
+        {
+            has_thrown = true;
+        }
+        Exception::test(
+            has_thrown, "[Test] shared_fluid without fluid should throw" );
+    }
+
     geode::PhysicalProblem thermal_single_phase_problem()
     {
         geode::PhysicalProblem problem;
@@ -1308,6 +1413,7 @@ int main()
         geode::OpenGeodeGeosciencesSimulationLibrary::initialize();
         geode::OpenGeodeModelLibrary::initialize();
         test_dead_oil_roundtrip();
+        test_shared_accessors();
         test_thermal_single_phase_roundtrip();
         test_co2_brine_roundtrip();
         test_phase_component();

@@ -21,16 +21,28 @@
  *
  */
 
+#pragma once
+
 #include <geode/geosciences/explicit/mixin/core/fault.hpp>
 #include <geode/geosciences/explicit/mixin/core/faults.hpp>
 
 #define PYTHON_FAULTS( dimension )                                             \
     const auto name##dimension = "Faults" + std::to_string( dimension ) + "D"; \
-    pybind11::class_< Faults##dimension##D, pybind11::smart_holder >(          \
-        module, name##dimension.c_str() )                                      \
-        .def( "nb_faults", &Faults##dimension##D::nb_faults )                  \
-        .def( "fault", &Faults##dimension##D::fault,                           \
-            pybind11::return_value_policy::reference_internal )                \
+    pybind11::class_< Faults##dimension##D, pybind11::smart_holder >( module,  \
+        name##dimension.c_str(),                                               \
+        "Storage of the Fault components of a model, read through the "        \
+        "model class" )                                                        \
+        .def( "nb_faults", &Faults##dimension##D::nb_faults,                   \
+            "Return the number of Fault components of the model" )             \
+        .def( "nb_active_faults", &Faults##dimension##D::nb_active_faults,     \
+            "Return the number of active Fault components of the model" )      \
+        .def( "has_fault", &Faults##dimension##D::has_fault,                   \
+            pybind11::arg( "id" ),                                             \
+            "Return True if the model has a Fault with the given uuid" )       \
+        .def( "fault", &Faults##dimension##D::fault, pybind11::arg( "id" ),    \
+            pybind11::return_value_policy::reference_internal,                 \
+            "Return the Fault with the given uuid; raise an error if the "     \
+            "model has none" )                                                 \
         .def(                                                                  \
             "faults",                                                          \
             []( const Faults##dimension##D& self ) {                           \
@@ -41,7 +53,21 @@
                 }                                                              \
                 return components;                                             \
             },                                                                 \
-            pybind11::return_value_policy::reference_internal )
+            pybind11::return_value_policy::reference_internal,                 \
+            "Return the list of the Fault components of the model" )           \
+        .def(                                                                  \
+            "active_faults",                                                   \
+            []( const Faults##dimension##D& self ) {                           \
+                std::vector< const Fault##dimension##D* > components;          \
+                for( const auto& component : self.active_faults() )            \
+                {                                                              \
+                    components.push_back( &component );                        \
+                }                                                              \
+                return components;                                             \
+            },                                                                 \
+            pybind11::return_value_policy::reference_internal,                 \
+            "Return the list of the active Fault components of the "           \
+            "model" )
 
 namespace geode
 {

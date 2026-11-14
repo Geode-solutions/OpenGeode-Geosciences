@@ -28,6 +28,7 @@ add_geode_python_wheel(
         "explicit.py"
         "implicit.py"
         "simulation.py"
+    DOCUMENTATION "${CMAKE_CURRENT_SOURCE_DIR}/opengeode_geosciences_doc.txt"
     LICENSE "MIT"
 )
 

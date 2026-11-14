@@ -20,22 +20,34 @@
 # SOFTWARE.
 
 
+import gc
+import os
+import tempfile
+
 import geode_test_env
 
 import opengeode
 import opengeode_geosciences_py_simulation as simulation
 
-PHASES = [simulation.PHASE.oil, simulation.PHASE.gas, simulation.PHASE.water]
+# The files written by the test, removed at exit
+OUTPUT_DIRECTORY = tempfile.TemporaryDirectory()
+
+
+def output_path(name):
+    return os.path.join(OUTPUT_DIRECTORY.name, name)
+
+
+PHASES = [simulation.Phase.oil, simulation.Phase.gas, simulation.Phase.water]
 
 
 def spe10_dead_oil():
     oil_table = simulation.HydrocarbonPvtTable()
-    oil_table.phase = simulation.PHASE.oil
+    oil_table.phase = simulation.Phase.oil
     oil_table.pressures = [1e5, 1e7, 5e7]
     oil_table.formation_volume_factors = [1.02, 1.01, 0.99]
     oil_table.viscosities = [2.9e-3, 3e-3, 3.1e-3]
     gas_table = simulation.HydrocarbonPvtTable()
-    gas_table.phase = simulation.PHASE.gas
+    gas_table.phase = simulation.Phase.gas
     gas_table.pressures = [1e5, 1e7, 5e7]
     gas_table.formation_volume_factors = [0.9, 0.012, 0.003]
     gas_table.viscosities = [1e-5, 1.5e-5, 2.5e-5]
@@ -71,11 +83,11 @@ def reservoir_material(name, relperm, capillary_pressure=None):
 
 def table_capillary_pressure():
     table = simulation.TwoPhaseCapillaryPressureTable()
-    table.wetting_phase = simulation.PHASE.water
-    table.non_wetting_phase = simulation.PHASE.oil
+    table.wetting_phase = simulation.Phase.water
+    table.non_wetting_phase = simulation.Phase.oil
     table.pressure = simulation.SaturationTable([0.2, 0.6, 1.0], [1e5, 1e4, 0.0])
     return simulation.TableCapillaryPressure(
-        [simulation.PHASE.oil, simulation.PHASE.water], [table]
+        [simulation.Phase.oil, simulation.Phase.water], [table]
     )
 
 
@@ -84,7 +96,7 @@ def dead_oil_problem(model_id, block_id):
     builder = simulation.PhysicalProblemBuilder(problem)
     builder.set_name("spe10")
     builder.set_model_id(model_id)
-    flow = simulation.MultiphaseFlow(simulation.COMPOSITION_BASIS.mass)
+    flow = simulation.MultiphaseFlow(simulation.CompositionBasis.mass)
     flow.set_fluid(spe10_dead_oil())
     builder.set_flow(flow)
     relperm = simulation.BrooksCoreyRelativePermeability(
@@ -113,7 +125,7 @@ def check_multiphase_flow(problem):
         raise ValueError("[Test] Wrong problem name")
     if problem.flow().type_name() != simulation.MultiphaseFlow.type_name_static():
         raise ValueError("[Test] Wrong flow type")
-    if problem.flow().basis() != simulation.COMPOSITION_BASIS.mass:
+    if problem.flow().basis() != simulation.CompositionBasis.mass:
         raise ValueError("[Test] Wrong composition basis")
 
 
@@ -128,13 +140,13 @@ def check_dead_oil_fluid(problem):
     ]:
         raise ValueError("[Test] Wrong fluid components")
     if [table.phase for table in fluid.hydrocarbon_pvt()] != [
-        simulation.PHASE.oil,
-        simulation.PHASE.gas,
+        simulation.Phase.oil,
+        simulation.Phase.gas,
     ]:
         raise ValueError("[Test] Wrong hydrocarbon PVT tables")
     if fluid.water_pvt().formation_volume_factor != 1.03:
         raise ValueError("[Test] Wrong water PVT")
-    if simulation.phase_component(fluid, simulation.PHASE.water) != 2:
+    if simulation.phase_component(fluid, simulation.Phase.water) != 2:
         raise ValueError("[Test] Wrong water component")
 
 
@@ -228,7 +240,9 @@ def test_dead_oil_roundtrip():
     check_dead_oil_problem(problem, block_id)
     # Reading Span getters twice checks that they copy the C++ elements
     check_dead_oil_problem(problem, block_id)
-    reloaded = save_and_reload(problem, "dead_oil." + problem.native_extension())
+    reloaded = save_and_reload(
+        problem, output_path("dead_oil." + problem.native_extension())
+    )
     check_dead_oil_problem(reloaded, block_id)
     check_model_id(reloaded, model_id)
     check_dead_oil_problem(reloaded.clone(), block_id)
@@ -238,7 +252,7 @@ def thermal_water_fluid():
     thermal = simulation.FluidThermalProperties()
     thermal.specific_heat_capacity = 4180.0
     return simulation.SinglePhaseFluid(
-        [simulation.PHASE.water],
+        [simulation.Phase.water],
         [simulation.FluidComponent("water", 0.018)],
         reference_density=1000.0,
         reference_viscosity=1e-3,
@@ -299,12 +313,12 @@ def test_single_phase_problem():
 
 def co2_brine_fluid():
     return simulation.Co2BrineFluid(
-        [simulation.PHASE.gas, simulation.PHASE.water],
+        [simulation.Phase.gas, simulation.Phase.water],
         [
             simulation.FluidComponent("co2", 0.044),
             simulation.FluidComponent("water", 0.018),
         ],
-        simulation.CO2_BRINE_CORRELATION.phillips,
+        simulation.Co2BrineCorrelation.phillips,
         1.0,
         simulation.ValidityRange(1e6, 5e7, 1e6),
         simulation.ValidityRange(290.0, 400.0, 5.0),
@@ -317,9 +331,9 @@ def check_co2_brine_values(fluid):
 
 
 def check_co2_brine_phases(fluid):
-    if simulation.phase_component(fluid, simulation.PHASE.oil) is not None:
+    if simulation.phase_component(fluid, simulation.Phase.oil) is not None:
         raise ValueError("[Test] CO2-brine fluid should have no oil component")
-    if simulation.phase_name(simulation.PHASE.gas) != "gas":
+    if simulation.phase_name(simulation.Phase.gas) != "gas":
         raise ValueError("[Test] Wrong phase name")
 
 
@@ -332,7 +346,7 @@ def test_co2_brine_fluid():
 def mechanics_problem():
     problem = simulation.PhysicalProblem()
     builder = simulation.PhysicalProblemBuilder(problem)
-    law = simulation.SOLID_MECHANICS_LAW.linear_elastic_isotropic
+    law = simulation.SolidMechanicsLaw.linear_elastic_isotropic
     builder.set_solid_mechanics(simulation.SolidMechanics(law))
     builder.set_schedule(simulation.Schedule(0.0, 1.0, 1.0))
     return problem
@@ -340,22 +354,24 @@ def mechanics_problem():
 
 def test_solid_mechanics():
     problem = mechanics_problem()
-    reloaded = save_and_reload(problem, "gravity." + problem.native_extension())
+    reloaded = save_and_reload(
+        problem, output_path("gravity." + problem.native_extension())
+    )
     mechanics = reloaded.solid_mechanics()
     if reloaded.has_flow() or mechanics is None:
         raise ValueError("[Test] Reloaded problem should be mechanics only")
-    if mechanics.law != simulation.SOLID_MECHANICS_LAW.linear_elastic_isotropic:
+    if mechanics.law != simulation.SolidMechanicsLaw.linear_elastic_isotropic:
         raise ValueError("[Test] Wrong solid mechanics law")
     if (
         mechanics.sign_convention
-        != simulation.STRESS_SIGN_CONVENTION.compression_positive
+        != simulation.StressSignConvention.compression_positive
     ):
         raise ValueError("[Test] Wrong default sign convention")
     tension = simulation.SolidMechanics(
-        simulation.SOLID_MECHANICS_LAW.linear_elastic_isotropic,
-        simulation.STRESS_SIGN_CONVENTION.tension_positive,
+        simulation.SolidMechanicsLaw.linear_elastic_isotropic,
+        simulation.StressSignConvention.tension_positive,
     )
-    if tension.sign_convention != simulation.STRESS_SIGN_CONVENTION.tension_positive:
+    if tension.sign_convention != simulation.StressSignConvention.tension_positive:
         raise ValueError("[Test] Wrong sign convention")
 
 
@@ -371,7 +387,7 @@ def test_poromechanics():
 def block_location(model, block_id):
     location = simulation.SimulationIssueLocation()
     location.component = model.block(block_id).component_id()
-    location.element_type = simulation.SIMULATION_ELEMENT_TYPE.polyhedron
+    location.element_type = simulation.SimulationElementType.polyhedron
     location.elements = [0, 2]
     location.nb_elements = 3
     return location
@@ -383,9 +399,9 @@ def test_simulation_report():
     report = simulation.SimulationReport()
     report.set_simulator("Python")
     report.set_model_name("model")
-    report.add_warning(simulation.SIMULATION_CHECK_STAGE.problem, "Schedule", "is long")
+    report.add_warning(simulation.SimulationCheckStage.problem, "Schedule", "is long")
     report.add_error(
-        simulation.SIMULATION_CHECK_STAGE.properties,
+        simulation.SimulationCheckStage.properties,
         "porosity",
         "out of (0, 1]",
         fix="Set a porosity in (0, 1]",
@@ -395,12 +411,100 @@ def test_simulation_report():
         raise ValueError("[Test] Wrong report verdict: " + str(report))
     if report.simulator() != "Python" or report.model_name() != "model":
         raise ValueError("[Test] Wrong report names")
-    error = report.stage_issues(simulation.SIMULATION_CHECK_STAGE.properties)[0]
+    error = report.stage_issues(simulation.SimulationCheckStage.properties)[0]
     if error.fix != "Set a porosity in (0, 1]" or error.locations[0].elements != [0, 2]:
         raise ValueError("[Test] Wrong report error: " + str(error))
     for item in (report, error, error.locations[0]):
-        if str(item) != item.string() or repr(item) != item.string():
+        if str(item) != item.string():
+            raise ValueError("[Test] Wrong report string: " + str(item))
+        if repr(item) == item.string() or type(item).__name__ not in repr(item):
             raise ValueError("[Test] Wrong report representation: " + repr(item))
+
+
+def water_fluid(density):
+    return simulation.SinglePhaseFluid(
+        [simulation.Phase.water],
+        [simulation.FluidComponent("water", 0.018)],
+        reference_density=density,
+        reference_viscosity=1e-3,
+        compressibility=1e-9,
+        viscosibility=0.0,
+        reference_pressure=1e5,
+    )
+
+
+def water_flow(density):
+    flow = simulation.SinglePhaseFlow()
+    flow.set_fluid(water_fluid(density))
+    return flow
+
+
+def churn_memory():
+    # Reuse the freed memory so that a dangling object would read garbage
+    gc.collect()
+    return [bytearray(64) for _ in range(100000)]
+
+
+def check_shared_parts_outlive_changes(problem):
+    """The flow, fluid and initial condition returned by a problem created in
+    C++ (loaded or cloned) stay valid after the builder replaces or removes
+    them, and keep their values"""
+    builder = simulation.PhysicalProblemBuilder(problem)
+    flow = problem.flow()
+    fluid = problem.fluid()
+    flow_fluid = flow.fluid()
+    condition = problem.initial_condition(0)
+    for density in range(50):
+        builder.set_flow(water_flow(float(density)))
+    builder.remove_initial_condition(0)
+    junk = churn_memory()
+    if not flow.has_fluid() or flow.type_name() != "SinglePhaseFlow":
+        raise ValueError("[Test] The flow should outlive set_flow")
+    for item in (fluid, flow_fluid, flow.fluid()):
+        if item.reference_density() != 1000.0 or item.phases() != [
+            simulation.Phase.water
+        ]:
+            raise ValueError("[Test] The fluid should outlive set_flow")
+    if condition.pressure() != 1.5e7 or condition.temperature() != 320.0:
+        raise ValueError("[Test] The initial condition should outlive its removal")
+    if problem.fluid().reference_density() != 49.0:
+        raise ValueError("[Test] The problem should return its new fluid")
+    if problem.nb_initial_conditions() != 0:
+        raise ValueError("[Test] The initial condition should be removed")
+    del junk
+
+
+def test_shared_parts_lifetime():
+    problem = simulation.PhysicalProblem()
+    builder = simulation.PhysicalProblemBuilder(problem)
+    builder.set_flow(water_flow(1000.0))
+    builder.add_initial_condition(
+        simulation.UniformInitialCondition([], 1.5e7, temperature=320.0)
+    )
+    with tempfile.TemporaryDirectory() as directory:
+        filename = os.path.join(directory, "shared." + problem.native_extension())
+        loaded = save_and_reload(problem, filename)
+    check_shared_parts_outlive_changes(loaded)
+    check_shared_parts_outlive_changes(problem.clone())
+    check_shared_parts_outlive_changes(problem)
+
+    flow = water_flow(800.0)
+    fluid = flow.fluid()
+    flow.set_fluid(water_fluid(700.0))
+    junk = churn_memory()
+    if fluid.reference_density() != 800.0 or flow.fluid().reference_density() != 700.0:
+        raise ValueError("[Test] The fluid of a flow should outlive set_fluid")
+    del junk
+    for method in (
+        simulation.PhysicalProblem.flow,
+        simulation.PhysicalProblem.fluid,
+        simulation.PhysicalProblem.initial_condition,
+        simulation.FlowModel.fluid,
+    ):
+        if "shared" not in method.__doc__:
+            raise ValueError("[Test] " + method.__name__ + " should say it is shared")
+    if "PhysicalProblemBuilder.set_flow" not in simulation.PhysicalProblem.flow.__doc__:
+        raise ValueError("[Test] flow should say how to change the flow")
 
 
 if __name__ == "__main__":
@@ -411,3 +515,4 @@ if __name__ == "__main__":
     test_solid_mechanics()
     test_poromechanics()
     test_simulation_report()
+    test_shared_parts_lifetime()

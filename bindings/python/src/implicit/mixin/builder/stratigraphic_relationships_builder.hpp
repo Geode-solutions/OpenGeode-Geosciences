@@ -21,18 +21,35 @@
  *
  */
 
+#pragma once
+
 #include <geode/geosciences/implicit/mixin/builder/stratigraphic_relationships_builder.hpp>
 
 namespace geode
 {
     void define_stratigraphic_relationships_builder( pybind11::module& module )
     {
-        pybind11::class_< StratigraphicRelationshipsBuilder >(
-            module, "StratigraphicRelationshipsBuilder" )
-            .def( pybind11::init< StratigraphicRelationships& >() )
+        pybind11::class_< StratigraphicRelationshipsBuilder >( module,
+            "StratigraphicRelationshipsBuilder",
+            "Builder of the StratigraphicRelationships, inherited by the "
+            "builders of the stacks" )
+            .def( pybind11::init< StratigraphicRelationships& >(),
+                pybind11::arg( "relationships" ),
+                pybind11::keep_alive< 1, 2 >(),
+                "Build a builder of the relationships, which are kept alive "
+                "by the builder" )
             .def( "unregister_component",
-                &StratigraphicRelationshipsBuilder::unregister_component )
+                &StratigraphicRelationshipsBuilder::unregister_component,
+                pybind11::arg( "id" ),
+                "Remove the component from the registered ones, with its "
+                "above-under relations" )
             .def( "remove_relation",
-                &StratigraphicRelationshipsBuilder::remove_relation );
+                &StratigraphicRelationshipsBuilder::remove_relation,
+                pybind11::arg( "id1" ), pybind11::arg( "id2" ),
+                "Remove the relations between the two components" )
+            .def( "remove_above_relation",
+                &StratigraphicRelationshipsBuilder::remove_above_relation,
+                pybind11::arg( "id1" ), pybind11::arg( "id2" ),
+                "Remove the above-under relation between the two components" );
     }
 } // namespace geode

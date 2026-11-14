@@ -61,6 +61,10 @@ namespace geode
 
         [[nodiscard]] const FluidModel& fluid() const;
 
+        /// Same fluid as fluid(), shared: it stays valid after set_fluid or
+        /// the destruction of the flow model
+        [[nodiscard]] std::shared_ptr< const FluidModel > shared_fluid() const;
+
         /// The fluid is shared: do not modify it after this call
         void set_fluid( std::shared_ptr< FluidModel > fluid );
 

@@ -21,7 +21,7 @@
  *
  */
 
-#include "../common.hpp"
+#include <geode/bindings/python/common.hpp>
 
 #include <pybind11/iostream.h>
 #include <pybind11/pybind11.h>
@@ -45,6 +45,7 @@
 #include "mixin/core/stratigraphic_units.hpp"
 
 #include "representation/builder/cross_section_builder.hpp"
+#include "representation/builder/helpers/structural_model_fault_blocks_builder.hpp"
 #include "representation/builder/structural_model_builder.hpp"
 
 #include "representation/core/cross_section.hpp"
@@ -55,12 +56,28 @@
 
 PYBIND11_MODULE( opengeode_geosciences_py_explicit, module )
 {
-    module.doc() = "OpenGeode-Geosciences Python binding for explicit library";
-    pybind11::module::import( "opengeode" );
-    pybind11::class_< geode::OpenGeodeGeosciencesExplicitLibrary >(
-        module, "OpenGeodeGeosciencesExplicitLibrary" )
-        .def( "initialize",
-            &geode::OpenGeodeGeosciencesExplicitLibrary::initialize );
+    module.doc() =
+        "Explicit geosciences models of OpenGeode-Geosciences: StructuralModel "
+        "(a BRep with Faults, Horizons, FaultBlocks and StratigraphicUnits) "
+        "and CrossSection (the 2D equivalent on a Section), their builders "
+        "(StructuralModelBuilder, CrossSectionBuilder, and "
+        "build_structural_model_fault_blocks grouping the Blocks into "
+        "FaultBlocks), the functions loading "
+        "and saving them (load_structural_model, save_cross_section...) and "
+        "the geographic coordinate systems (GeographicCoordinateSystemInfo, "
+        "GeographicCoordinateSystem2D/3D, and the functions assigning or "
+        "converting them on meshes, models and grids). Call "
+        "OpenGeodeGeosciencesExplicitLibrary.initialize() before using the "
+        "module.";
+    geode::import_binding_dependency( module, "opengeode" );
+    pybind11::class_< geode::OpenGeodeGeosciencesExplicitLibrary >( module,
+        "OpenGeodeGeosciencesExplicitLibrary",
+        "Initialization of the explicit geosciences module" )
+        .def_static( "initialize",
+            &geode::OpenGeodeGeosciencesExplicitLibrary::initialize,
+            "Register the StructuralModel and CrossSection native formats "
+            "(og_strm, og_xsctn) in the factories; also initializes "
+            "OpenGeodeModelLibrary. Calling it again has no effect" );
     geode::define_fault_block( module );
     geode::define_fault( module );
     geode::define_horizon( module );
@@ -80,10 +97,12 @@ PYBIND11_MODULE( opengeode_geosciences_py_explicit, module )
 
     geode::define_structural_model_builder( module );
     geode::define_cross_section_builder( module );
+    geode::define_structural_model_fault_blocks_builder( module );
 
     geode::define_structural_model_io( module );
     geode::define_cross_section_io( module );
 
     geode::define_crs( module );
     geode::define_crs_helper( module );
+    geode::document_missing_constructors( module );
 }

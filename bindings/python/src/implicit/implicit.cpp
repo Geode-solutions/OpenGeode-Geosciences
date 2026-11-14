@@ -21,7 +21,7 @@
  *
  */
 
-#include "../common.hpp"
+#include <geode/bindings/python/common.hpp>
 
 #include <pybind11/iostream.h>
 #include <pybind11/pybind11.h>
@@ -49,12 +49,30 @@
 
 PYBIND11_MODULE( opengeode_geosciences_py_implicit, module )
 {
-    module.doc() = "OpenGeode-Geosciences Python binding for implicit";
-    pybind11::module::import( "opengeode" );
-    pybind11::class_< geode::OpenGeodeGeosciencesImplicitLibrary >(
-        module, "OpenGeodeGeosciencesImplicitLibrary" )
-        .def( "initialize",
-            &geode::OpenGeodeGeosciencesImplicitLibrary::initialize );
+    geode::import_binding_dependency( module, "opengeode" );
+    geode::import_binding_dependency(
+        module, "opengeode_geosciences_py_explicit" );
+    module.doc() =
+        "Implicit geosciences models of OpenGeode-Geosciences: HorizonsStack "
+        "(the stacking of Horizons and StratigraphicUnits), "
+        "ImplicitStructuralModel and ImplicitCrossSection (a StructuralModel "
+        "and a CrossSection with an implicit value on the vertices and a "
+        "HorizonsStack), StratigraphicModel and StratigraphicSection (which "
+        "also store a stratigraphic location), their builders, the "
+        "functions loading and saving them (load_implicit_structural_model, "
+        "save_horizons_stack3D...) and helpers (rescaling the implicit "
+        "values, building a HorizonsStack from names...). Call "
+        "OpenGeodeGeosciencesImplicitLibrary.initialize() before using the "
+        "module.";
+    pybind11::class_< geode::OpenGeodeGeosciencesImplicitLibrary >( module,
+        "OpenGeodeGeosciencesImplicitLibrary",
+        "Initialization of the implicit geosciences module" )
+        .def_static( "initialize",
+            &geode::OpenGeodeGeosciencesImplicitLibrary::initialize,
+            "Register the native formats of the HorizonsStack and of the "
+            "implicit models in the factories; also initializes "
+            "OpenGeodeGeosciencesExplicitLibrary. Calling it again has no "
+            "effect" );
     geode::define_stratigraphic_point( module );
 
     geode::define_stratigraphic_relationships( module );
@@ -78,4 +96,5 @@ PYBIND11_MODULE( opengeode_geosciences_py_implicit, module )
     geode::define_horizons_stack_io( module );
 
     geode::detail::define_implicit_model_helpers( module );
+    geode::document_missing_constructors( module );
 }
