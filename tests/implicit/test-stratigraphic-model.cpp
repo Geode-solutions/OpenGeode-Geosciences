@@ -598,30 +598,41 @@ void test_stratigraphic_model_from_coords()
 {
     geode::Logger::info( "Testing stratigraphic model from coordinates" );
     const auto data_file = absl::StrCat( geode::DATA_PATH, "vri2.og_strm" );
-    geode::ImplicitStructuralModel implicit_model{ geode::load_one(
-        geode::load_structural_model( data_file ), data_file ) };
-    const auto model =
-        geode::detail::stratigraphic_model_from_implicit_model_and_coords(
-            std::move( implicit_model ), 2 );
-    geode::index_t nb_checks{ 0 };
-    for( const auto& block : model.blocks() )
+    // The location keeps the two coordinates other than the implicit axis
+    const std::array< std::array< geode::local_index_t, 2 >, 3 > axes{ {
+        { 1, 2 },
+        { 0, 2 },
+        { 0, 1 },
+    } };
+    for( const auto implicit_axis : geode::LRange{ 3 } )
     {
-        for( const auto v : geode::Range{ block.mesh().nb_vertices() } )
+        geode::ImplicitStructuralModel implicit_model{ geode::load_one(
+            geode::load_structural_model( data_file ), data_file ) };
+        const auto model =
+            geode::detail::stratigraphic_model_from_implicit_model_and_coords(
+                std::move( implicit_model ), implicit_axis );
+        geode::index_t nb_checks{ 0 };
+        for( const auto& block : model.blocks() )
         {
-            const auto& point = block.mesh().point( v );
-            const auto strati_point =
-                model.stratigraphic_coordinates( block, v );
-            const auto& location = strati_point.stratigraphic_location();
-            geode::OpenGeodeGeosciencesImplicitException::test(
-                location.value( 0 ) == point.value( 0 )
-                    && location.value( 1 ) == point.value( 1 ),
-                "Wrong stratigraphic location from coordinates for vertex ", v,
-                ": ", location.string(), " instead of ", point.string() );
-            nb_checks++;
+            for( const auto v : geode::Range{ block.mesh().nb_vertices() } )
+            {
+                const auto& point = block.mesh().point( v );
+                const auto strati_point =
+                    model.stratigraphic_coordinates( block, v );
+                const auto& location = strati_point.stratigraphic_location();
+                geode::OpenGeodeGeosciencesImplicitException::test(
+                    location.value( 0 ) == point.value( axes[implicit_axis][0] )
+                        && location.value( 1 )
+                               == point.value( axes[implicit_axis][1] ),
+                    "Wrong stratigraphic location from coordinates for axis ",
+                    implicit_axis, " and vertex ", v, ": ", location.string(),
+                    " instead of ", point.string() );
+                nb_checks++;
+            }
         }
+        geode::OpenGeodeGeosciencesImplicitException::test(
+            nb_checks > 0, "No stratigraphic location checked." );
     }
-    geode::OpenGeodeGeosciencesImplicitException::test(
-        nb_checks > 0, "No stratigraphic location checked." );
 }
 
 void test_invalid_stratigraphic_tetrahedra( geode::StratigraphicModel& model )

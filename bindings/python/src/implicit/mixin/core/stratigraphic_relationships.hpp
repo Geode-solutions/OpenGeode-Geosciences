@@ -21,6 +21,8 @@
  *
  */
 
+#pragma once
+
 #include <geode/geosciences/implicit/mixin/core/stratigraphic_relationships.hpp>
 
 namespace geode
@@ -28,10 +30,26 @@ namespace geode
     void define_stratigraphic_relationships( pybind11::module& module )
     {
         pybind11::class_< StratigraphicRelationships, pybind11::smart_holder >(
-            module, "StratigraphicRelationships" )
-            .def( pybind11::init<>() )
-            .def( "is_above", &StratigraphicRelationships::is_above )
-            .def( "above", &StratigraphicRelationships::above )
-            .def( "under", &StratigraphicRelationships::under );
+            module, "StratigraphicRelationships",
+            "Above-under relations between geological components, identified "
+            "by their uuids, in the stratigraphy" )
+            .def( pybind11::init<>(), "Build an empty set of relations" )
+            .def( "is_above", &StratigraphicRelationships::is_above,
+                pybind11::arg( "above" ), pybind11::arg( "under" ),
+                "Return True if the component above is above the component "
+                "under, directly or through other components" )
+            .def( "is_directly_above",
+                &StratigraphicRelationships::is_directly_above,
+                pybind11::arg( "above" ), pybind11::arg( "under" ),
+                "Return True if the component above is directly above the "
+                "component under" )
+            .def( "above", &StratigraphicRelationships::above,
+                pybind11::arg( "element" ),
+                "Return the uuid of the component directly above the "
+                "element, or None if there is none" )
+            .def( "under", &StratigraphicRelationships::under,
+                pybind11::arg( "element" ),
+                "Return the uuid of the component directly under the "
+                "element, or None if there is none" );
     }
 } // namespace geode

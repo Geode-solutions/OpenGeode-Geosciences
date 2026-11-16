@@ -21,6 +21,8 @@
  *
  */
 
+#pragma once
+
 #include <geode/model/representation/core/brep.hpp>
 
 #include <geode/geosciences/simulation/core/physical_problem.hpp>
@@ -30,14 +32,28 @@ namespace geode
 {
     void define_simulation_checker( pybind11::module& module )
     {
-        pybind11::class_< SimulationChecker >( module, "SimulationChecker" )
-            .def( "check", &SimulationChecker::check );
-
-        pybind11::class_< SimulationCheckerFactory >(
-            module, "SimulationCheckerFactory" )
-            .def_static(
-                "list_creators", &SimulationCheckerFactory::list_creators )
-            .def_static( "has_creator", &SimulationCheckerFactory::has_creator )
+        pybind11::class_< SimulationChecker >( module, "SimulationChecker",
+            "Checks that a simulator has everything it needs to simulate a "
+            "PhysicalProblem on a BRep. The checkers are registered by the "
+            "simulator libraries in SimulationCheckerFactory, under the "
+            "simulator name in lower case" )
+            .def( "check", &SimulationChecker::check,
+                pybind11::call_guard< pybind11::gil_scoped_release >(),
+                "Check the problem and the model and return the "
+                "SimulationReport with every issue found: the simulator "
+                "independent checks, then the simulator ones. Each call "
+                "starts a new report" );
+        pybind11::class_< SimulationCheckerFactory >( module,
+            "SimulationCheckerFactory",
+            "Registry of the simulation checkers, identified by the "
+            "simulator name in lower case" )
+            .def_static( "list_creators",
+                &SimulationCheckerFactory::list_creators,
+                "Return the names of the registered simulators" )
+            .def_static( "has_creator", &SimulationCheckerFactory::has_creator,
+                pybind11::arg( "key" ),
+                "Return True if a checker is registered for this simulator "
+                "name" )
             .def_static(
                 "create",
                 []( const std::string& key, const PhysicalProblem& problem,
@@ -45,7 +61,11 @@ namespace geode
                     return SimulationCheckerFactory::create(
                         key, problem, model );
                 },
-                pybind11::keep_alive< 0, 2 >(),
-                pybind11::keep_alive< 0, 3 >() );
+                pybind11::arg( "key" ), pybind11::arg( "problem" ),
+                pybind11::arg( "model" ), pybind11::keep_alive< 0, 2 >(),
+                pybind11::keep_alive< 0, 3 >(),
+                "Return the checker of the simulator for the problem and the "
+                "model, which it keeps alive; raise an error if no checker is "
+                "registered for the simulator name" );
     }
 } // namespace geode

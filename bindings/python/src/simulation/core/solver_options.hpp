@@ -21,16 +21,29 @@
  *
  */
 
+#pragma once
+
 #include <geode/geosciences/simulation/core/solver_options.hpp>
 
 namespace geode
 {
     void define_solver_options( pybind11::module& module )
     {
-        pybind11::class_< SolverOptions >( module, "SolverOptions" )
-            .def( pybind11::init<>() )
-            .def( "set", &SolverOptions::set )
-            .def( "get", &SolverOptions::get )
-            .def( "options", &SolverOptions::options );
+        pybind11::class_< SolverOptions >( module, "SolverOptions",
+            "Simulator specific numerical settings, stored as text for each "
+            "simulator (e.g. simulator geos, key nonlinear/newtonTol, value "
+            "1e-6). Each simulator writer documents its keys" )
+            .def( pybind11::init<>(), "Build empty options" )
+            .def( "set", &SolverOptions::set, pybind11::arg( "simulator" ),
+                pybind11::arg( "key" ), pybind11::arg( "value" ),
+                "Set the value of the key of the simulator" )
+            .def( "get", &SolverOptions::get, pybind11::arg( "simulator" ),
+                pybind11::arg( "key" ),
+                "Return the value of the key of the simulator, or None if it "
+                "has none" )
+            .def( "options", &SolverOptions::options,
+                pybind11::arg( "simulator" ),
+                "Return the options of the simulator as a dict sorted by "
+                "key, empty if there is none" );
     }
 } // namespace geode

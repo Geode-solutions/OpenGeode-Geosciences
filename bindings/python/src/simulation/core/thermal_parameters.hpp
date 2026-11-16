@@ -21,19 +21,36 @@
  *
  */
 
+#pragma once
+
 #include <geode/geosciences/simulation/core/thermal_parameters.hpp>
 
 namespace geode
 {
     void define_thermal_parameters( pybind11::module& module )
     {
-        pybind11::class_< ThermalParameters >( module, "ThermalParameters" )
-            .def( pybind11::init<>() )
+        pybind11::class_< ThermalParameters > thermal_class( module,
+            "ThermalParameters",
+            "Set when a PhysicalProblem solves the energy equation" );
+        thermal_class
+            .def( pybind11::init<>(), "Build parameters with a null "
+                                      "reference temperature" )
             .def( pybind11::init( []( double reference_temperature ) {
                 return ThermalParameters{ reference_temperature };
             } ),
-                pybind11::arg( "reference_temperature" ) )
-            .def_readwrite( "reference_temperature",
-                &ThermalParameters::reference_temperature );
+                pybind11::arg( "reference_temperature" ),
+                "Build parameters from the reference temperature in K" )
+            .def(
+                "__repr__",
+                []( const ThermalParameters& thermal ) {
+                    return python_call_repr( "ThermalParameters",
+                        { "reference_temperature="
+                            + python_repr( thermal.reference_temperature ) } );
+                },
+                "Return an unambiguous description of the parameters, which "
+                "can be evaluated" );
+        def_readwrite_named( thermal_class, "reference_temperature",
+            &ThermalParameters::reference_temperature,
+            "Reference temperature in K" );
     }
 } // namespace geode

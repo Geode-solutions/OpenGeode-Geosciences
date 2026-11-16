@@ -21,6 +21,10 @@
  *
  */
 
+#pragma once
+
+#include <pybind11/native_enum.h>
+
 #include <geode/geosciences/explicit/mixin/core/horizon.hpp>
 
 #define PYTHON_HORIZON( dimension )                                            \
@@ -28,22 +32,29 @@
         "Horizon" + std::to_string( dimension ) + "D";                         \
     pybind11::class_< Horizon##dimension##D, Component##dimension##D,          \
         pybind11::smart_holder >                                               \
-        horizon##dimension##D( module, name##dimension.c_str() );              \
+        horizon##dimension##D( module, name##dimension.c_str(),                \
+            "Geological component describing a Horizon, described by a "       \
+            "ContactType" );                                                   \
                                                                                \
-    pybind11::enum_< Horizon##dimension##D::CONTACT_TYPE >(                    \
-        horizon##dimension##D, "CONTACT_TYPE" )                                \
-        .value( "CONFORMAL", Horizon##dimension##D::CONTACT_TYPE::conformal )  \
-        .value( "EROSION", Horizon##dimension##D::CONTACT_TYPE::erosion )      \
-        .value( "BASELAP", Horizon##dimension##D::CONTACT_TYPE::baselap )      \
-        .value( "DISCONTINUITY",                                               \
+    pybind11::native_enum< Horizon##dimension##D::CONTACT_TYPE >(              \
+        horizon##dimension##D, "ContactType", "enum.Enum",                     \
+        "Contact of a Horizon with the units around it; conformal is the "     \
+        "default" )                                                            \
+        .value( "conformal", Horizon##dimension##D::CONTACT_TYPE::conformal )  \
+        .value( "erosion", Horizon##dimension##D::CONTACT_TYPE::erosion )      \
+        .value( "baselap", Horizon##dimension##D::CONTACT_TYPE::baselap )      \
+        .value( "discontinuity",                                               \
             Horizon##dimension##D::CONTACT_TYPE::discontinuity )               \
         .value(                                                                \
-            "TOPOGRAPHY", Horizon##dimension##D::CONTACT_TYPE::topography )    \
-        .value( "INTRUSION", Horizon##dimension##D::CONTACT_TYPE::intrusion ); \
+            "topography", Horizon##dimension##D::CONTACT_TYPE::topography )    \
+        .value( "intrusion", Horizon##dimension##D::CONTACT_TYPE::intrusion )  \
+        .finalize();                                                           \
                                                                                \
     horizon##dimension##D                                                      \
-        .def( "contact_type", &Horizon##dimension##D::contact_type )           \
-        .def( "component_id", &Horizon##dimension##D::component_id )
+        .def( "contact_type", &Horizon##dimension##D::contact_type,            \
+            "Return the ContactType of the Horizon" )                          \
+        .def( "component_id", &Horizon##dimension##D::component_id,            \
+            "Return the ComponentID of the Horizon (its type and its uuid)" )
 
 namespace geode
 {

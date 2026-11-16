@@ -21,23 +21,45 @@
  *
  */
 
+#pragma once
+
 #include <geode/geosciences/simulation/core/source_term.hpp>
 
 namespace geode
 {
     void define_source_term( pybind11::module& module )
     {
-        pybind11::class_< SourceTerm >( module, "SourceTerm" )
-            .def( pybind11::init<>() )
+        pybind11::class_< SourceTerm > term_class( module, "SourceTerm",
+            "Constant rate of one fluid component, spread over the cells "
+            "perforated by a well. The wells are located by the simulator "
+            "exporter, which knows them by name" );
+        term_class
+            .def( pybind11::init<>(), "Build a source term with a null rate" )
             .def( pybind11::init( []( std::string well, std::string component,
                                       double rate ) {
                 return SourceTerm{ std::move( well ), std::move( component ),
                     rate };
             } ),
                 pybind11::arg( "well" ), pybind11::arg( "component" ),
-                pybind11::arg( "rate" ) )
-            .def_readwrite( "well", &SourceTerm::well )
-            .def_readwrite( "component", &SourceTerm::component )
-            .def_readwrite( "rate", &SourceTerm::rate );
+                pybind11::arg( "rate" ),
+                "Build a source term from the name of the well, the name of a "
+                "component of the fluid and the rate" )
+            .def(
+                "__repr__",
+                []( const SourceTerm& term ) {
+                    return python_call_repr( "SourceTerm",
+                        { "well=" + python_repr( term.well ),
+                            "component=" + python_repr( term.component ),
+                            "rate=" + python_repr( term.rate ) } );
+                },
+                "Return an unambiguous description of the source term, which "
+                "can be evaluated" );
+        def_readwrite_named( term_class, "well", &SourceTerm::well,
+            "Name of the well perforations receiving the source" );
+        def_readwrite_named( term_class, "component", &SourceTerm::component,
+            "Name of a component of the fluid of the problem" );
+        def_readwrite_named( term_class, "rate", &SourceTerm::rate,
+            "Rate in kg/s, or mol/s for a mole based multiphase flow; "
+            "positive injects, negative produces" );
     }
 } // namespace geode

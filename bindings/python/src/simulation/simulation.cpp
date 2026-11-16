@@ -21,7 +21,7 @@
  *
  */
 
-#include "../common.hpp"
+#include <geode/bindings/python/common.hpp>
 
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
@@ -49,13 +49,26 @@
 
 PYBIND11_MODULE( opengeode_geosciences_py_simulation, module )
 {
-    module.doc() = "OpenGeode-Geosciences Python binding for simulation";
-    pybind11::module::import( "opengeode" );
-    pybind11::class_< geode::OpenGeodeGeosciencesSimulationLibrary >(
-        module, "OpenGeodeGeosciencesSimulationLibrary" )
-        .def( "initialize",
-            &geode::OpenGeodeGeosciencesSimulationLibrary::initialize );
-
+    module.doc() =
+        "Simulation module of OpenGeode-Geosciences: PhysicalProblem, the "
+        "simulator independent description of a flow, solid mechanics or "
+        "poromechanics simulation on a model (fluid, flow, materials, "
+        "initial conditions, source terms, schedule, outputs, solver "
+        "options), its builder (PhysicalProblemBuilder), the functions "
+        "loading and saving it (load_physical_problem...) and the checks "
+        "that a simulator can simulate it on a model (SimulationChecker, "
+        "SimulationReport). Call "
+        "OpenGeodeGeosciencesSimulationLibrary.initialize() before using the "
+        "module.";
+    geode::import_binding_dependency( module, "opengeode" );
+    pybind11::class_< geode::OpenGeodeGeosciencesSimulationLibrary >( module,
+        "OpenGeodeGeosciencesSimulationLibrary",
+        "Initialization of the simulation module" )
+        .def_static( "initialize",
+            &geode::OpenGeodeGeosciencesSimulationLibrary::initialize,
+            "Register the native format of the PhysicalProblem (og_phpb) in "
+            "the factories; also initializes OpenGeodeModelLibrary. Calling "
+            "it again has no effect" );
     geode::define_fluid( module );
     geode::define_flow_model( module );
     geode::define_saturation_functions( module );
@@ -74,4 +87,5 @@ PYBIND11_MODULE( opengeode_geosciences_py_simulation, module )
     geode::define_simulation_checker( module );
 
     geode::define_physical_problem_io( module );
+    geode::document_missing_constructors( module );
 }

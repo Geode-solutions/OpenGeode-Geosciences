@@ -1,0 +1,102 @@
+OpenGeode-Geosciences: geological models for OpenGeode.
+
+The package adds to OpenGeode the geosciences models and their builders. The
+models are loaded, saved and modified with the generic functions of the
+opengeode package (load, save, builder...), after importing this package:
+
+    >>> import opengeode
+    >>> import opengeode_geosciences as geosciences
+    >>> opengeode.input_extensions(geosciences.StructuralModel)
+    ['og_strm']
+
+Modules
+=======
+
+- explicit: StructuralModel (a BRep with Faults, Horizons, FaultBlocks and
+  StratigraphicUnits) and CrossSection (the 2D equivalent on a Section),
+  build_structural_model_fault_blocks (grouping the Blocks of a StructuralModel
+  into new FaultBlocks), and the geographic coordinate systems (GeographicCoordinateSystemInfo, and the
+  functions assigning or converting them on meshes, models and grids).
+- implicit: HorizonsStack2D and HorizonsStack3D (the stacking of Horizons and
+  StratigraphicUnits), ImplicitStructuralModel and ImplicitCrossSection (with an
+  implicit value on the vertices), StratigraphicModel and StratigraphicSection
+  (with a stratigraphic location too).
+- simulation: PhysicalProblem, the simulator independent description of a flow,
+  solid mechanics or poromechanics simulation on a model, and the checks that a
+  simulator can simulate it.
+
+Building a model
+================
+
+A model is modified only through its builder. The components are given by
+their uuid, and geological components are added to the model with the builder
+(the geological enums are nested in their class):
+
+    >>> model = geosciences.StructuralModel()
+    >>> builder = geosciences.StructuralModelBuilder(model)
+    >>> fault_id = builder.add_fault(geosciences.Fault3D.FaultType.normal)
+    >>> horizon_id = builder.add_horizon()
+    >>> surface_id = builder.add_surface()
+    >>> builder.add_surface_in_fault(model.surface(surface_id), model.fault(fault_id))
+    0
+    >>> model.fault(fault_id).type()
+    <FaultType.normal: 1>
+    >>> model.horizon(horizon_id).contact_type()
+    <ContactType.conformal: 0>
+    >>> model.nb_faults(), model.nb_horizons(), model.nb_surfaces()
+    (1, 1, 1)
+
+The builder keeps its model alive and gives the model it modifies in the
+checks of the arguments of the unique vertices (as the builders of OpenGeode).
+
+Saving and loading
+==================
+
+    >>> import os, tempfile
+    >>> directory = tempfile.mkdtemp()
+    >>> filename = os.path.join(directory, "model.og_strm")
+    >>> opengeode.save(model, filename) == [filename]
+    True
+    >>> loaded = opengeode.load(geosciences.StructuralModel, filename)
+    >>> loaded.nb_faults(), loaded.nb_horizons()
+    (1, 1)
+
+A file that cannot be read raises opengeode.OpenGeodeDataError (an
+opengeode.OpenGeodeError, which is a RuntimeError) with the project
+OpenGeodeGeosciences:
+
+    >>> try:
+    ...     opengeode.load(geosciences.StructuralModel, "model.unknown")
+    ... except opengeode.OpenGeodeDataError as error:
+    ...     (error.project, error.library)
+    ('OpenGeodeGeosciences', 'Explicit')
+
+Formats (extensions) by type
+============================
+
+- StructuralModel og_strm, CrossSection og_xsctn.
+- ImplicitStructuralModel og_istrm, ImplicitCrossSection og_ixsctn.
+- HorizonsStack2D og_hst2d, HorizonsStack3D og_hst3d.
+- PhysicalProblem og_phpb.
+- StratigraphicModel and StratigraphicSection have no native format.
+
+Use opengeode.input_extensions(cls) and opengeode.output_extensions(cls) for the
+exact list of a type.
+
+Horizons stack
+==============
+
+    >>> stack = geosciences.horizons_stack_from_top_to_bottom_names3D(
+    ...     horizons_names=["top", "bottom"], units_names=["above", "between", "under"]
+    ... )
+    >>> stack.nb_horizons(), stack.nb_stratigraphic_units()
+    (2, 3)
+    >>> [unit.name() for unit in stack.top_to_bottom_units()]
+    ['above', 'between', 'under']
+
+Out of range indices
+====================
+
+The functions taking the index of a vertex or of a polygon of a component raise
+IndexError when it is out of range, with the name of the function and the
+range. The functions taking an unknown uuid raise opengeode.OpenGeodeError.

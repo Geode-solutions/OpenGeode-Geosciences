@@ -21,28 +21,84 @@
  *
  */
 
+#pragma once
+
 #include <geode/geosciences/implicit/geometry/stratigraphic_point.hpp>
 
 #define PYTHON_STRATIGRAPHIC_POINT( dimension )                                \
     const auto name##dimension =                                               \
         "StratigraphicPoint" + std::to_string( dimension ) + "D";              \
+    using StratigraphicPointType##dimension =                                  \
+        StratigraphicPoint##dimension##D;                                      \
     define_string_representation(                                              \
-        pybind11::class_< StratigraphicPoint##dimension##D >(                  \
-            module, name##dimension.c_str() ) )                                \
-        .def( pybind11::init<>() )                                             \
-        .def( pybind11::init< Point< dimension - 1 >, double >() )             \
-        .def( pybind11::init< std::array< double, dimension > >() )            \
-        .def( pybind11::init< Point< dimension > >() )                         \
+        pybind11::class_< StratigraphicPointType##dimension >( module,         \
+            name##dimension.c_str(),                                           \
+            "Point of the stratigraphic space: an implicit value and the "     \
+            "position of the point in the stratigraphic space, a point of "    \
+            "dimension - 1 (the stratigraphic location)" ),                    \
+        []( const StratigraphicPointType##dimension& point ) {                 \
+            return python_call_repr(                                           \
+                "StratigraphicPoint" + std::to_string( dimension ) + "D",      \
+                { python_repr( point.stratigraphic_location() ),               \
+                    python_repr( point.implicit_value() ) } );                 \
+        } )                                                                    \
+        .def( pybind11::init<>(),                                              \
+            "Build a point with a null location and a null implicit value" )   \
+        .def( pybind11::init< Point< dimension - 1 >, double >(),              \
+            pybind11::arg( "stratigraphic_location" ),                         \
+            pybind11::arg( "implicit_value" ),                                 \
+            "Build a point from its stratigraphic location and its implicit "  \
+            "value" )                                                          \
+        .def( pybind11::init< std::array< double, dimension > >(),             \
+            pybind11::arg( "values" ),                                         \
+            "Build a point from its coordinates: the stratigraphic location "  \
+            "then the implicit value as the last one" )                        \
+        .def( pybind11::init< Point< dimension > >(),                          \
+            pybind11::arg( "stratigraphic_coordinates" ),                      \
+            "Build a point from the stratigraphic coordinates: the "           \
+            "stratigraphic location then the implicit value as the last "      \
+            "coordinate" )                                                     \
+        .def(                                                                  \
+            "__eq__",                                                          \
+            []( const StratigraphicPointType##dimension& point,                \
+                const StratigraphicPointType##dimension& other ) {             \
+                return point.stratigraphic_location()                          \
+                           == other.stratigraphic_location()                   \
+                       && point.implicit_value() == other.implicit_value();    \
+            },                                                                 \
+            pybind11::arg( "other" ),                                          \
+            "Return True if the other point has the same stratigraphic "       \
+            "location and implicit value" )                                    \
+        .def(                                                                  \
+            "__hash__",                                                        \
+            []( const StratigraphicPointType##dimension& point ) {             \
+                return pybind11::hash(                                         \
+                    pybind11::make_tuple( point.stratigraphic_location(),      \
+                        point.implicit_value() ) );                            \
+            },                                                                 \
+            "Return a hash of the stratigraphic location and the implicit "    \
+            "value" )                                                          \
         .def( "stratigraphic_location",                                        \
-            &StratigraphicPoint##dimension##D::stratigraphic_location )        \
+            &StratigraphicPointType##dimension::stratigraphic_location,        \
+            pybind11::return_value_policy::reference_internal,                 \
+            "Return the stratigraphic location of the point (a point of "      \
+            "dimension - 1)" )                                                 \
         .def( "implicit_value",                                                \
-            &StratigraphicPoint##dimension##D::implicit_value )                \
+            &StratigraphicPointType##dimension::implicit_value,                \
+            "Return the implicit value of the point" )                         \
         .def( "stratigraphic_coordinates",                                     \
-            &StratigraphicPoint##dimension##D::stratigraphic_coordinates )     \
+            &StratigraphicPointType##dimension::stratigraphic_coordinates,     \
+            "Return the stratigraphic coordinates of the point: the "          \
+            "stratigraphic location then the implicit value as the last "      \
+            "coordinate" )                                                     \
         .def( "set_stratigraphic_location",                                    \
-            &StratigraphicPoint##dimension##D::set_stratigraphic_location )    \
+            &StratigraphicPointType##dimension::set_stratigraphic_location,    \
+            pybind11::arg( "stratigraphic_location" ),                         \
+            "Set the stratigraphic location of the point" )                    \
         .def( "set_implicit_value",                                            \
-            &StratigraphicPoint##dimension##D::set_implicit_value )
+            &StratigraphicPointType##dimension::set_implicit_value,            \
+            pybind11::arg( "implicit_value" ),                                 \
+            "Set the implicit value of the point" )
 
 namespace geode
 {

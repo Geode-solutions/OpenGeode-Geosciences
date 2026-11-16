@@ -21,9 +21,25 @@
  *
  */
 
-#include <geode/basic/factory.hpp>
+#pragma once
 
-#define PYTHON_FACTORY_CLASS( type )                                           \
-    pybind11::class_< type >( module, #type )                                  \
-        .def( "list_creators", &type::list_creators )                          \
-        .def( "has_creator", &type::has_creator )
+#include <geode/geosciences/explicit/representation/builder/helpers/structural_model_fault_blocks_builder.hpp>
+#include <geode/geosciences/explicit/representation/core/structural_model.hpp>
+
+namespace geode
+{
+    void define_structural_model_fault_blocks_builder(
+        pybind11::module& module )
+    {
+        module.def( "build_structural_model_fault_blocks",
+            &build_structural_model_fault_blocks,
+            pybind11::arg( "structural_model" ),
+            pybind11::call_guard< pybind11::gil_scoped_release >(),
+            "Group the Blocks of the StructuralModel into new FaultBlocks: "
+            "Blocks sharing a Surface which is not a Fault are in the same "
+            "FaultBlock. If the model has no Fault, all the Blocks are put in "
+            "a single FaultBlock. Existing FaultBlocks are kept: a full new "
+            "set is created next to them, so callers can compare both sets "
+            "(e.g. to detect splits and merges)" );
+    }
+} // namespace geode

@@ -21,6 +21,8 @@
  *
  */
 
+#pragma once
+
 #include <geode/geosciences/explicit/mixin/core/stratigraphic_unit.hpp>
 #include <geode/geosciences/explicit/mixin/core/stratigraphic_units.hpp>
 
@@ -28,12 +30,29 @@
     const auto name##dimension =                                               \
         "StratigraphicUnits" + std::to_string( dimension ) + "D";              \
     pybind11::class_< StratigraphicUnits##dimension##D,                        \
-        pybind11::smart_holder >( module, name##dimension.c_str() )            \
+        pybind11::smart_holder >( module, name##dimension.c_str(),             \
+        "Storage of the StratigraphicUnit components of a model, read "        \
+        "through the "                                                         \
+        "model class" )                                                        \
         .def( "nb_stratigraphic_units",                                        \
-            &StratigraphicUnits##dimension##D::nb_stratigraphic_units )        \
+            &StratigraphicUnits##dimension##D::nb_stratigraphic_units,         \
+            "Return the number of StratigraphicUnit components of the model" ) \
+        .def( "nb_active_stratigraphic_units",                                 \
+            &StratigraphicUnits##dimension##D::nb_active_stratigraphic_units,  \
+            "Return the number of active StratigraphicUnit components of the " \
+            "model" )                                                          \
+        .def( "has_stratigraphic_unit",                                        \
+            &StratigraphicUnits##dimension##D::has_stratigraphic_unit,         \
+            pybind11::arg( "id" ),                                             \
+            "Return True if the model has a StratigraphicUnit with the given " \
+            "uuid" )                                                           \
         .def( "stratigraphic_unit",                                            \
             &StratigraphicUnits##dimension##D::stratigraphic_unit,             \
-            pybind11::return_value_policy::reference_internal )                \
+            pybind11::arg( "id" ),                                             \
+            pybind11::return_value_policy::reference_internal,                 \
+            "Return the StratigraphicUnit with the given uuid; raise an "      \
+            "error if the "                                                    \
+            "model has none" )                                                 \
         .def(                                                                  \
             "stratigraphic_units",                                             \
             []( const StratigraphicUnits##dimension##D& self ) {               \
@@ -45,7 +64,25 @@
                 }                                                              \
                 return components;                                             \
             },                                                                 \
-            pybind11::return_value_policy::reference_internal )
+            pybind11::return_value_policy::reference_internal,                 \
+            "Return the list of the StratigraphicUnit components of the "      \
+            "model" )                                                          \
+        .def(                                                                  \
+            "active_stratigraphic_units",                                      \
+            []( const StratigraphicUnits##dimension##D& self ) {               \
+                std::vector< const StratigraphicUnit##dimension##D* >          \
+                    components;                                                \
+                for( const auto& component :                                   \
+                    self.active_stratigraphic_units() )                        \
+                {                                                              \
+                    components.push_back( &component );                        \
+                }                                                              \
+                return components;                                             \
+            },                                                                 \
+            pybind11::return_value_policy::reference_internal,                 \
+            "Return the list of the active StratigraphicUnit components of "   \
+            "the "                                                             \
+            "model" )
 
 namespace geode
 {

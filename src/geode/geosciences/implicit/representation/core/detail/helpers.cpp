@@ -318,7 +318,7 @@ namespace geode
                 "Give a valid axis (0, 1, or 2)." );
 
             const local_index_t first_axis = implicit_axis == 0 ? 1 : 0;
-            const local_index_t second_axis = implicit_axis == 1 ? 2 : 1;
+            const local_index_t second_axis = implicit_axis == 2 ? 1 : 2;
             StratigraphicModel model{ std::move( implicit_model ) };
             StratigraphicModelBuilder builder{ model };
             for( const auto& block : model.blocks() )

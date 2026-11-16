@@ -21,6 +21,8 @@
  *
  */
 
+#pragma once
+
 #include <geode/geosciences/simulation/core/material.hpp>
 #include <geode/geosciences/simulation/core/saturation_functions.hpp>
 
@@ -28,28 +30,65 @@ namespace geode
 {
     void define_material( pybind11::module& module )
     {
-        pybind11::class_< RockThermalProperties >(
-            module, "RockThermalProperties" )
-            .def( pybind11::init<>() )
-            .def_readwrite( "volumetric_heat_capacity",
-                &RockThermalProperties::volumetric_heat_capacity )
-            .def_readwrite( "thermal_conductivity",
-                &RockThermalProperties::thermal_conductivity );
+        pybind11::class_< RockThermalProperties > thermal_class(
+            module, "RockThermalProperties", "Thermal properties of a rock" );
+        thermal_class
+            .def( pybind11::init<>(), "Build properties with null values" )
+            .def(
+                "__repr__",
+                []( const RockThermalProperties& thermal ) {
+                    return "RockThermalProperties(volumetric_heat_capacity="
+                           + python_repr( thermal.volumetric_heat_capacity )
+                           + ", thermal_conductivity="
+                           + python_repr( thermal.thermal_conductivity ) + ")";
+                },
+                "Return an unambiguous description of the properties" );
+        def_readwrite_named( thermal_class, "volumetric_heat_capacity",
+            &RockThermalProperties::volumetric_heat_capacity,
+            "Volumetric heat capacity in J/(m3.K)" );
+        def_readwrite_named( thermal_class, "thermal_conductivity",
+            &RockThermalProperties::thermal_conductivity,
+            "Thermal conductivity in W/(m.K) along x, y and z" );
 
-        pybind11::class_< Material >( module, "Material" )
-            .def( pybind11::init<>() )
-            .def_readwrite( "name", &Material::name )
-            .def_readwrite( "regions", &Material::regions )
-            .def_readwrite(
-                "pore_compressibility", &Material::pore_compressibility )
-            .def_readwrite(
-                "reference_pressure", &Material::reference_pressure )
-            .def_readwrite( "porosity", &Material::porosity )
-            .def_readwrite( "permeability", &Material::permeability )
-            .def_readwrite(
-                "relative_permeability", &Material::relative_permeability )
-            .def_readwrite(
-                "capillary_pressure", &Material::capillary_pressure )
-            .def_readwrite( "thermal", &Material::thermal );
+        pybind11::class_< Material > material_class( module, "Material",
+            "Rock constants of model regions. The porosity and the "
+            "permeability varying in space are read from the "
+            "PhysicalProperties of the model; the constants of the Material "
+            "are used where there is none" );
+        material_class.def( pybind11::init<>(), "Build an empty material" )
+            .def(
+                "__repr__",
+                []( const Material& material ) {
+                    return "Material(name=" + python_repr( material.name )
+                           + ", nb_regions="
+                           + python_repr( material.regions.size() ) + ")";
+                },
+                "Return an unambiguous description of the material: its name "
+                "and its number of regions" );
+        def_readwrite_named(
+            material_class, "name", &Material::name, "Name of the material" );
+        def_readwrite_named( material_class, "regions", &Material::regions,
+            "Uuids of the model components or collections (Blocks, "
+            "StratigraphicUnits...) of the material; empty means every "
+            "region without another material" );
+        def_readwrite_named( material_class, "pore_compressibility",
+            &Material::pore_compressibility, "Pore compressibility in 1/Pa" );
+        def_readwrite_named( material_class, "reference_pressure",
+            &Material::reference_pressure, "Reference pressure in Pa" );
+        def_readwrite_named( material_class, "porosity", &Material::porosity,
+            "Constant porosity, or None" );
+        def_readwrite_named( material_class, "permeability",
+            &Material::permeability,
+            "Constant permeability in m2 along x, y and z, or None" );
+        def_readwrite_named( material_class, "relative_permeability",
+            &Material::relative_permeability,
+            "RelativePermeability law, shared: do not modify it once given to "
+            "a PhysicalProblem" );
+        def_readwrite_named( material_class, "capillary_pressure",
+            &Material::capillary_pressure,
+            "Optional CapillaryPressure law, shared: do not modify it once "
+            "given to a PhysicalProblem" );
+        def_readwrite_named( material_class, "thermal", &Material::thermal,
+            "RockThermalProperties, None until properties are assigned" );
     }
 } // namespace geode

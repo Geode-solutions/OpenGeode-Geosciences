@@ -21,15 +21,20 @@
  *
  */
 
+#pragma once
+
 #include <geode/geosciences/explicit/mixin/core/stratigraphic_unit.hpp>
 
 #define PYTHON_STRATIGRAPHIC_UNIT( dimension )                                 \
     const auto name##dimension =                                               \
         "StratigraphicUnit" + std::to_string( dimension ) + "D";               \
     pybind11::class_< StratigraphicUnit##dimension##D,                         \
-        Component##dimension##D, pybind11::smart_holder >(                     \
-        module, name##dimension.c_str() )                                      \
-        .def( "component_id", &StratigraphicUnit##dimension##D::component_id )
+        Component##dimension##D, pybind11::smart_holder >( module,             \
+        name##dimension.c_str(),                                               \
+        "Geological component describing a StratigraphicUnit" )                \
+        .def( "component_id", &StratigraphicUnit##dimension##D::component_id,  \
+            "Return the ComponentID of the StratigraphicUnit (its type and "   \
+            "its uuid)" )
 
 namespace geode
 {

@@ -21,6 +21,8 @@
  *
  */
 
+#pragma once
+
 #include <geode/geosciences/explicit/mixin/core/horizon.hpp>
 #include <geode/geosciences/explicit/mixin/core/horizons.hpp>
 
@@ -28,10 +30,22 @@
     const auto name##dimension =                                               \
         "Horizons" + std::to_string( dimension ) + "D";                        \
     pybind11::class_< Horizons##dimension##D, pybind11::smart_holder >(        \
-        module, name##dimension.c_str() )                                      \
-        .def( "nb_horizons", &Horizons##dimension##D::nb_horizons )            \
+        module, name##dimension.c_str(),                                       \
+        "Storage of the Horizon components of a model, read through the "      \
+        "model class" )                                                        \
+        .def( "nb_horizons", &Horizons##dimension##D::nb_horizons,             \
+            "Return the number of Horizon components of the model" )           \
+        .def( "nb_active_horizons",                                            \
+            &Horizons##dimension##D::nb_active_horizons,                       \
+            "Return the number of active Horizon components of the model" )    \
+        .def( "has_horizon", &Horizons##dimension##D::has_horizon,             \
+            pybind11::arg( "id" ),                                             \
+            "Return True if the model has a Horizon with the given uuid" )     \
         .def( "horizon", &Horizons##dimension##D::horizon,                     \
-            pybind11::return_value_policy::reference_internal )                \
+            pybind11::arg( "id" ),                                             \
+            pybind11::return_value_policy::reference_internal,                 \
+            "Return the Horizon with the given uuid; raise an error if the "   \
+            "model has none" )                                                 \
         .def(                                                                  \
             "horizons",                                                        \
             []( const Horizons##dimension##D& self ) {                         \
@@ -42,7 +56,21 @@
                 }                                                              \
                 return components;                                             \
             },                                                                 \
-            pybind11::return_value_policy::reference_internal )
+            pybind11::return_value_policy::reference_internal,                 \
+            "Return the list of the Horizon components of the model" )         \
+        .def(                                                                  \
+            "active_horizons",                                                 \
+            []( const Horizons##dimension##D& self ) {                         \
+                std::vector< const Horizon##dimension##D* > components;        \
+                for( const auto& component : self.active_horizons() )          \
+                {                                                              \
+                    components.push_back( &component );                        \
+                }                                                              \
+                return components;                                             \
+            },                                                                 \
+            pybind11::return_value_policy::reference_internal,                 \
+            "Return the list of the active Horizon components of the "         \
+            "model" )
 
 namespace geode
 {

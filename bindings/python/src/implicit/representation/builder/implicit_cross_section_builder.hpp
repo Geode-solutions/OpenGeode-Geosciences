@@ -21,35 +21,101 @@
  *
  */
 
-#include <geode/geosciences/implicit/representation/builder/implicit_cross_section_builder.hpp>
+#pragma once
+
+#include "../../index_check.hpp"
+
+#include <geode/bindings/python/model/model_vertex_check.hpp>
 
 #include <geode/geometry/point.hpp>
+
+#include <geode/geosciences/implicit/representation/builder/implicit_cross_section_builder.hpp>
 
 namespace geode
 {
     void define_implicit_cross_section_builder( pybind11::module& module )
     {
         pybind11::class_< ImplicitCrossSectionBuilder, CrossSectionBuilder >(
-            module, "ImplicitCrossSectionBuilder" )
-            .def( pybind11::init< ImplicitCrossSection& >() )
-            .def( "copy",
-                []( ImplicitCrossSectionBuilder& builder,
-                    const ImplicitCrossSection& other_model ) {
-                    builder.copy( other_model );
-                } )
+            module, "ImplicitCrossSectionBuilder",
+            "Builder of an ImplicitCrossSection: the only way to modify it. It "
+            "also inherits "
+            "the methods of CrossSectionBuilder" )
+            .def( pybind11::init< ImplicitCrossSection& >(),
+                pybind11::arg( "implicit_section" ),
+                pybind11::keep_alive< 1, 2 >(), remember_model(),
+                "Build a builder of the cross section, which is kept alive by "
+                "the builder" )
+            .def( "copy", &ImplicitCrossSectionBuilder::copy,
+                pybind11::arg( "implicit_section" ),
+                pybind11::call_guard< pybind11::gil_scoped_release >(),
+                "Copy the name, components, relationships, unique vertices, "
+                "geometry and geological components of implicit_section, its "
+                "implicit "
+                "information and values into the empty cross section, and "
+                "return the ModelCopyMapping from its uuids to the new ones. "
+                "Raise an error if the cross section is not empty" )
             .def( "instantiate_implicit_attribute_on_surfaces",
                 &ImplicitCrossSectionBuilder::
-                    instantiate_implicit_attribute_on_surfaces )
-            .def( "set_implicit_value",
-                &ImplicitCrossSectionBuilder::set_implicit_value )
-            .def( "set_horizons_stack",
+                    instantiate_implicit_attribute_on_surfaces,
+                "Create the implicit attribute, if it does not exist, on the "
+                "vertices of the meshes of the triangulated Surfaces; the "
+                "other Surfaces are "
+                "ignored" )
+            .def(
+                "set_implicit_value",
+                []( ImplicitCrossSectionBuilder& builder,
+                    const Surface2D& surface, index_t vertex_id,
+                    double value ) {
+                    check_component_vertex(
+                        "set_implicit_value", surface, vertex_id );
+                    builder.set_implicit_value( surface, vertex_id, value );
+                },
+                pybind11::arg( "surface" ), pybind11::arg( "vertex_id" ),
+                pybind11::arg( "value" ),
+                "Set the implicit value of the vertex of the Surface; "
+                "raise IndexError if the vertex is not in its mesh" )
+            .def(
+                "set_horizons_stack",
                 []( ImplicitCrossSectionBuilder& builder,
                     HorizonsStack2D& horizons_stack ) {
                     builder.set_horizons_stack( horizons_stack.clone() );
-                } )
+                },
+                pybind11::arg( "horizons_stack" ),
+                "Set a clone of the HorizonsStack associated with the cross "
+                "section"
+                ". The previous HorizonsStack is destroyed: the objects "
+                "returned before by horizons_stack() and "
+                "horizons_stack_builder(), and every Python object of its "
+                "Horizons and StratigraphicUnits, refer to freed memory "
+                "afterwards and must not be used: get them again" )
             .def( "set_horizon_implicit_value",
-                &ImplicitCrossSectionBuilder::set_horizon_implicit_value )
+                &ImplicitCrossSectionBuilder::set_horizon_implicit_value,
+                pybind11::arg( "horizon" ), pybind11::arg( "isovalue" ),
+                "Set the implicit value (isovalue) of the Horizon; raise an "
+                "error if the Horizon is not in the HorizonsStack" )
             .def( "horizons_stack_builder",
-                &ImplicitCrossSectionBuilder::horizons_stack_builder );
+                &ImplicitCrossSectionBuilder::horizons_stack_builder,
+                pybind11::keep_alive< 0, 1 >(),
+                "Return the builder of the HorizonsStack of the cross section, "
+                "which keeps this builder alive" )
+            .def( "reinitialize_implicit_query_trees",
+                &ImplicitCrossSectionBuilder::reinitialize_implicit_query_trees,
+                "Rebuild the query trees on the implicit values" )
+            .def( "import_old_implicit_attribute_values_from_attribute_name",
+                &ImplicitCrossSectionBuilder::
+                    import_old_implicit_attribute_values_from_attribute_name,
+                pybind11::arg( "old_implicit_attribute_name" ),
+                "In each Surface having the implicit attribute, copy the "
+                "values of "
+                "the first attribute whose name matches into the implicit "
+                "attribute, then delete the old attribute" )
+            .def( "import_old_implicit_attribute_values_from_attribute_id",
+                &ImplicitCrossSectionBuilder::
+                    import_old_implicit_attribute_values_from_attribute_id,
+                pybind11::arg( "old_implicit_attribute_id" ),
+                "In each Surface having the implicit attribute and the old "
+                "one, "
+                "copy the values of the attribute with this uuid into the "
+                "implicit attribute, then delete the old attribute" );
     }
 } // namespace geode

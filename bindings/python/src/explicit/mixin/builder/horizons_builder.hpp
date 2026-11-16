@@ -21,6 +21,8 @@
  *
  */
 
+#pragma once
+
 #include <geode/geosciences/explicit/mixin/core/horizon.hpp>
 
 #include <geode/geosciences/explicit/mixin/builder/horizons_builder.hpp>
@@ -28,17 +30,23 @@
 #define PYTHON_HORIZONS_BUILDER( dimension )                                   \
     const auto name##dimension =                                               \
         "HorizonsBuilder" + std::to_string( dimension ) + "D";                 \
-    pybind11::class_< HorizonsBuilder##dimension##D >(                         \
-        module, name##dimension.c_str() )                                      \
+    pybind11::class_< HorizonsBuilder##dimension##D >( module,                 \
+        name##dimension.c_str(),                                               \
+        "Builder of the Horizon components of a model, inherited by the "      \
+        "model builders" )                                                     \
         .def( "set_horizon_contact_type",                                      \
             &HorizonsBuilder##dimension##D::set_horizon_contact_type,          \
-            pybind11::arg( "horizon" ), pybind11::arg( "contact_type" ) )      \
+            pybind11::arg( "horizon" ), pybind11::arg( "contact_type" ),       \
+            "Set the ContactType of the Horizon" )                             \
         .def( "set_horizon_name",                                              \
             &HorizonsBuilder##dimension##D::set_horizon_name,                  \
-            pybind11::arg( "horizon" ), pybind11::arg( "name" ) )              \
+            pybind11::arg( "horizon" ), pybind11::arg( "name" ),               \
+            "Set the name of the Horizon" )                                    \
         .def( "set_horizon_active",                                            \
             &HorizonsBuilder##dimension##D::set_horizon_active,                \
-            pybind11::arg( "horizon" ), pybind11::arg( "active" ) )
+            pybind11::arg( "horizon" ), pybind11::arg( "active" ),             \
+            "Activate or deactivate the Horizon; inactive Horizons are not "   \
+            "returned by active_horizons" )
 
 namespace geode
 {
