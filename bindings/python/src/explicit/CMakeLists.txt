@@ -23,6 +23,7 @@ add_geode_python_binding(
     SOURCES
         "explicit.cpp"
         "geometry/crs.hpp"
+        "geometry/dip_and_azimuth.hpp"
         "geometry/crs_helper.hpp"
         "mixin/builder/fault_blocks_builder.hpp"
         "mixin/builder/faults_builder.hpp"

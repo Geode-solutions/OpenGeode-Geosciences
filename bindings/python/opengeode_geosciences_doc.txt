@@ -15,8 +15,10 @@ Modules
 - explicit: StructuralModel (a BRep with Faults, Horizons, FaultBlocks and
   StratigraphicUnits) and CrossSection (the 2D equivalent on a Section),
   build_structural_model_fault_blocks (grouping the Blocks of a StructuralModel
-  into new FaultBlocks), and the geographic coordinate systems (GeographicCoordinateSystemInfo, and the
-  functions assigning or converting them on meshes, models and grids).
+  into new FaultBlocks), the geographic coordinate systems (GeographicCoordinateSystemInfo, and the
+  functions assigning or converting them on meshes, models and grids), and the
+  conversion of a dip and a dip azimuth into vectors (dip_vector, strike_vector,
+  upward_plane_normal).
 - implicit: HorizonsStack2D and HorizonsStack3D (the stacking of Horizons and
   StratigraphicUnits), ImplicitStructuralModel and ImplicitCrossSection (with an
   implicit value on the vertices), StratigraphicModel and StratigraphicSection
