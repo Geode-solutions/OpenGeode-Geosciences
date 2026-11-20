@@ -29,6 +29,7 @@
 
 #include "geometry/crs.hpp"
 #include "geometry/crs_helper.hpp"
+#include "geometry/dip_and_azimuth.hpp"
 
 #include "mixin/builder/fault_blocks_builder.hpp"
 #include "mixin/builder/faults_builder.hpp"
@@ -66,7 +67,9 @@ PYBIND11_MODULE( opengeode_geosciences_py_explicit, module )
         "and saving them (load_structural_model, save_cross_section...) and "
         "the geographic coordinate systems (GeographicCoordinateSystemInfo, "
         "GeographicCoordinateSystem2D/3D, and the functions assigning or "
-        "converting them on meshes, models and grids). Call "
+        "converting them on meshes, models and grids), and the conversion "
+        "of a dip and a dip azimuth into vectors (dip_vector, strike_vector, "
+        "upward_plane_normal). Call "
         "OpenGeodeGeosciencesExplicitLibrary.initialize() before using the "
         "module.";
     geode::import_binding_dependency( module, "opengeode" );
@@ -104,5 +107,6 @@ PYBIND11_MODULE( opengeode_geosciences_py_explicit, module )
 
     geode::define_crs( module );
     geode::define_crs_helper( module );
+    geode::define_dip_and_azimuth( module );
     geode::document_missing_constructors( module );
 }

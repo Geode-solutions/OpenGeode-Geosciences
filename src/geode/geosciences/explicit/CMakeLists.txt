@@ -23,6 +23,7 @@ add_geode_library(
     FOLDER "geode/geosciences/explicit"
     SOURCES
         "common.cpp"
+        "geometry/dip_and_azimuth.cpp"
         "geometry/geographic_coordinate_system.cpp"
         "geometry/geographic_coordinate_system_helper.cpp"
         "mixin/builder/faults_builder.cpp"
@@ -55,6 +56,7 @@ add_geode_library(
         "representation/io/geode/geode_structural_model_output.cpp"
     PUBLIC_HEADERS
         "common.hpp"
+        "geometry/dip_and_azimuth.hpp"
         "geometry/geographic_coordinate_system.hpp"
         "geometry/geographic_coordinate_system_helper.hpp"
         "mixin/builder/faults_builder.hpp"

@@ -27,6 +27,14 @@ add_geode_test(
 )
 
 add_geode_test(
+    SOURCE "test-dip-and-azimuth.cpp"
+    DEPENDENCIES
+        OpenGeode::basic
+        OpenGeode::geometry
+        ${PROJECT_NAME}::explicit
+)
+
+add_geode_test(
     SOURCE "test-geographic-coordinate-system.cpp"
     DEPENDENCIES
         OpenGeode::basic

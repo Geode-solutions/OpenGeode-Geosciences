@@ -24,6 +24,11 @@ add_geode_python_test(
         ${PROJECT_NAME}::py_explicit
 )
 add_geode_python_test(
+    SOURCE "test-py-dip-and-azimuth.py"
+    DEPENDENCIES
+        ${PROJECT_NAME}::py_explicit
+)
+add_geode_python_test(
     SOURCE "test-py-geographic-coordinate-system.py"
     DEPENDENCIES
         ${PROJECT_NAME}::py_explicit
