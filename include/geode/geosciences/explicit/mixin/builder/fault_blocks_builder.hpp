@@ -33,6 +33,11 @@ namespace geode
     struct uuid;
 } // namespace geode
 
+namespace geode::detail
+{
+    class InputFiles;
+} // namespace geode::detail
+
 namespace geode
 {
     template < index_t dimension >
@@ -40,6 +45,8 @@ namespace geode
     {
     public:
         void load_fault_blocks( std::string_view directory );
+
+        void load_fault_blocks( const detail::InputFiles& files );
 
         void set_fault_block_name(
             const FaultBlock< dimension >& fault_block, std::string_view name );

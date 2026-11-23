@@ -23,6 +23,8 @@
 
 #include <geode/geosciences/explicit/mixin/builder/horizons_builder.hpp>
 
+#include <geode/basic/detail/input_files.hpp>
+
 #include <geode/geosciences/explicit/mixin/core/horizon.hpp>
 #include <geode/geosciences/explicit/mixin/core/horizons.hpp>
 
@@ -70,8 +72,15 @@ namespace geode
     void HorizonsBuilder< dimension >::load_horizons(
         std::string_view directory )
     {
-        return horizons_.load_horizons(
-            directory, typename Horizon< dimension >::HorizonsBuilderKey{} );
+        load_horizons( detail::DirectoryInputFiles{ directory } );
+    }
+
+    template < index_t dimension >
+    void HorizonsBuilder< dimension >::load_horizons(
+        const detail::InputFiles& files )
+    {
+        horizons_.load_horizons(
+            files, typename Horizon< dimension >::HorizonsBuilderKey{} );
     }
 
     template < index_t dimension >

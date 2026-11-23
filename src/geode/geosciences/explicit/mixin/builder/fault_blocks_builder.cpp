@@ -23,6 +23,8 @@
 
 #include <geode/geosciences/explicit/mixin/builder/fault_blocks_builder.hpp>
 
+#include <geode/basic/detail/input_files.hpp>
+
 #include <geode/geosciences/explicit/mixin/core/fault_block.hpp>
 #include <geode/geosciences/explicit/mixin/core/fault_blocks.hpp>
 
@@ -55,8 +57,15 @@ namespace geode
     void FaultBlocksBuilder< dimension >::load_fault_blocks(
         std::string_view directory )
     {
-        return fault_blocks_.load_fault_blocks( directory,
-            typename FaultBlock< dimension >::FaultBlocksBuilderKey{} );
+        load_fault_blocks( detail::DirectoryInputFiles{ directory } );
+    }
+
+    template < index_t dimension >
+    void FaultBlocksBuilder< dimension >::load_fault_blocks(
+        const detail::InputFiles& files )
+    {
+        fault_blocks_.load_fault_blocks(
+            files, typename FaultBlock< dimension >::FaultBlocksBuilderKey{} );
     }
 
     template < index_t dimension >

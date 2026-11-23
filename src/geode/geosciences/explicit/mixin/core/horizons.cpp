@@ -24,6 +24,7 @@
 #include <geode/geosciences/explicit/mixin/core/horizons.hpp>
 
 #include <geode/basic/detail/count_range_elements.hpp>
+#include <geode/basic/detail/input_files.hpp>
 #include <geode/basic/identifier_builder.hpp>
 #include <geode/basic/pimpl_impl.hpp>
 #include <geode/basic/range.hpp>
@@ -94,9 +95,9 @@ namespace geode
 
     template < index_t dimension >
     void Horizons< dimension >::load_horizons(
-        std::string_view directory, HorizonsBuilderKey /*unused*/ )
+        const detail::InputFiles& files, HorizonsBuilderKey /*unused*/ )
     {
-        impl_->load_components( absl::StrCat( directory, "/horizons" ) );
+        impl_->load_components( files, "horizons", true );
     }
 
     template < index_t dimension >

@@ -24,6 +24,7 @@
 #include <geode/geosciences/explicit/mixin/core/fault_blocks.hpp>
 
 #include <geode/basic/detail/count_range_elements.hpp>
+#include <geode/basic/detail/input_files.hpp>
 #include <geode/basic/identifier_builder.hpp>
 #include <geode/basic/pimpl_impl.hpp>
 #include <geode/basic/range.hpp>
@@ -94,10 +95,9 @@ namespace geode
 
     template < index_t dimension >
     void FaultBlocks< dimension >::load_fault_blocks(
-        std::string_view directory, FaultBlocksBuilderKey /*unused*/ )
+        const detail::InputFiles& files, FaultBlocksBuilderKey /*unused*/ )
     {
-        impl_->load_components(
-            absl::StrCat( directory, "/fault_blocks" ), false );
+        impl_->load_components( files, "fault_blocks", false );
     }
 
     template < index_t dimension >

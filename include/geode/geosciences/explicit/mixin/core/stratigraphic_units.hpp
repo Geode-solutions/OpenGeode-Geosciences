@@ -36,6 +36,11 @@ namespace geode
     struct uuid;
 } // namespace geode
 
+namespace geode::detail
+{
+    class InputFiles;
+} // namespace geode::detail
+
 namespace geode
 {
     template < index_t dimension >
@@ -168,7 +173,7 @@ namespace geode
             StratigraphicUnitsBuilderKey key );
 
         void load_stratigraphic_units(
-            std::string_view directory, StratigraphicUnitsBuilderKey key );
+            const detail::InputFiles& files, StratigraphicUnitsBuilderKey key );
 
         [[nodiscard]] ModifiableStratigraphicUnitRange
             modifiable_stratigraphic_units( StratigraphicUnitsBuilderKey key );

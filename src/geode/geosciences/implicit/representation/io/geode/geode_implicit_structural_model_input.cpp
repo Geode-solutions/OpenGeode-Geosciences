@@ -23,15 +23,12 @@
 
 #include <geode/geosciences/implicit/representation/io/geode/geode_implicit_structural_model_input.hpp>
 
-#include <filesystem>
-#include <fstream>
-
-#include <async++.h>
+#include <absl/strings/str_cat.h>
 
 #include <geode/basic/bitsery_archive.hpp>
+#include <geode/basic/detail/geode_input_impl.hpp>
+#include <geode/basic/detail/input_files.hpp>
 #include <geode/basic/logger.hpp>
-#include <geode/basic/uuid.hpp>
-#include <geode/basic/zip_file.hpp>
 
 #include <geode/model/representation/io/geode/geode_brep_input.hpp>
 
@@ -46,33 +43,21 @@ namespace geode
     std::vector< ImplicitStructuralModel >
         OpenGeodeImplicitStructuralModelInput::read()
     {
-        const UnzipFile zip_reader{ this->filename(), uuid{}.string() };
-        zip_reader.extract_all();
+        const detail::ArchiveInputFiles files{ this->filename() };
         ImplicitStructuralModel model{ BITSERY::constructor };
-        detail::load_implicit_structural_model_files(
-            model, zip_reader.directory() );
-        const auto impl_filename = absl::StrCat(
-            zip_reader.directory(), "/implicit_model_impl.og_istrm" );
+        detail::load_implicit_structural_model_files( model, files );
+        static constexpr auto IMPL_FILENAME = "implicit_model_impl.og_istrm";
         OpenGeodeGeosciencesImplicitException::check_exception(
-            std::filesystem::exists( to_string( impl_filename ) ), nullptr,
-            OpenGeodeException::TYPE::data,
+            files.has( IMPL_FILENAME ), nullptr, OpenGeodeException::TYPE::data,
             "[OpenGeodeImplicitStructuralModelInput::read] Error in reading "
             "files: Could not find stored impl." );
-        std::ifstream file{ impl_filename, std::ifstream::binary };
-        TContext context{};
-        BitseryExtensions::register_deserialize_pcontext(
-            std::get< 0 >( context ) );
-        Deserializer archive{ context, file };
-        archive.object( model );
-        const auto& adapter = archive.adapter();
+        const auto content = files.content( IMPL_FILENAME );
         OpenGeodeGeosciencesImplicitException::check_exception(
-            adapter.error() == bitsery::ReaderError::NoError
-                && adapter.isCompletedSuccessfully()
-                && std::get< 1 >( context ).isValid(),
-            nullptr, OpenGeodeException::TYPE::internal,
+            detail::deserialize_bytes( content.span(), model ), nullptr,
+            OpenGeodeException::TYPE::internal,
             "[OpenGeodeImplicitStructuralModelOutput::load_model_impl] "
             "Error while reading file: ",
-            impl_filename );
+            files.location( IMPL_FILENAME ) );
         std::vector< ImplicitStructuralModel > results;
         results.push_back( std::move( model ) );
         return results;
@@ -81,16 +66,17 @@ namespace geode
     namespace detail
     {
         void load_implicit_structural_model_files(
-            ImplicitStructuralModel& model, std::string_view directory )
+            ImplicitStructuralModel& model, const InputFiles& files )
         {
             const ScopedLoggerLevel scoped_level{ Logger::LEVEL::warning };
             ImplicitStructuralModelBuilder builder{ model };
-            const auto stack_file = absl::StrCat( directory, "/horizons_stack.",
-                HorizonsStack3D::native_extension_static() );
+            const auto stack_file = absl::StrCat(
+                "horizons_stack.", HorizonsStack3D::native_extension_static() );
             builder.set_horizons_stack( load_one(
-                load_horizons_stack< 3 >( stack_file ), stack_file ) );
-            load_structural_model_files( model, directory );
-            // builder.reinitialize_implicit_query_trees();
+                geode_object_input_from_files< HorizonsStackInputFactory3D >(
+                    "HorizonsStack", files, stack_file ),
+                files.location( stack_file ) ) );
+            load_structural_model_files( model, files );
         }
     } // namespace detail
 } // namespace geode

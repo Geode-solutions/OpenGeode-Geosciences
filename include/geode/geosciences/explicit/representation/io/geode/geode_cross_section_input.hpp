@@ -23,6 +23,8 @@
 
 #pragma once
 
+#include <geode/basic/detail/input_files.hpp>
+
 #include <geode/geosciences/explicit/representation/core/cross_section.hpp>
 #include <geode/geosciences/explicit/representation/io/cross_section_input.hpp>
 
@@ -59,7 +61,11 @@ namespace geode
 
     namespace detail
     {
+        /*!
+         * Load the files of a CrossSection (geological components and
+         * Section files) into an empty model.
+         */
         void opengeode_geosciences_explicit_api load_cross_section_files(
-            CrossSection& cross_section, std::string_view directory );
+            CrossSection& cross_section, const InputFiles& files );
     } // namespace detail
 } // namespace geode

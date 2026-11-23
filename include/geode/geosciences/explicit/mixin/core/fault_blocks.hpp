@@ -36,6 +36,11 @@ namespace geode
     struct uuid;
 } // namespace geode
 
+namespace geode::detail
+{
+    class InputFiles;
+} // namespace geode::detail
+
 namespace geode
 {
     template < index_t dimension >
@@ -159,7 +164,7 @@ namespace geode
             FaultBlocksBuilderKey key );
 
         void load_fault_blocks(
-            std::string_view directory, FaultBlocksBuilderKey key );
+            const detail::InputFiles& files, FaultBlocksBuilderKey key );
 
         [[nodiscard]] ModifiableFaultBlockRange modifiable_fault_blocks(
             FaultBlocksBuilderKey key );

@@ -25,8 +25,7 @@
 
 #include <async++.h>
 
-#include <geode/basic/uuid.hpp>
-#include <geode/basic/zip_file.hpp>
+#include <geode/basic/detail/input_files.hpp>
 
 #include <geode/geosciences/implicit/representation/builder/horizons_stack_builder.hpp>
 #include <geode/geosciences/implicit/representation/core/horizons_stack.hpp>
@@ -35,19 +34,20 @@ namespace geode
 {
     template < index_t dimension >
     void OpenGeodeHorizonsStackInput< dimension >::load_horizons_stack_files(
-        HorizonsStack< dimension >& horizons_stack, std::string_view directory )
+        HorizonsStack< dimension >& horizons_stack,
+        const detail::InputFiles& files )
     {
         HorizonsStackBuilder< dimension > builder{ horizons_stack };
         async::parallel_invoke(
-            [&builder, &directory] {
-                builder.load_identifier( directory );
+            [&builder, &files] {
+                builder.load_identifier( files );
             },
-            [&builder, &directory] {
-                builder.load_horizons( directory );
-                builder.load_stratigraphic_units( directory );
+            [&builder, &files] {
+                builder.load_horizons( files );
+                builder.load_stratigraphic_units( files );
             },
-            [&builder, &directory] {
-                builder.load_stratigraphic_relationships( directory );
+            [&builder, &files] {
+                builder.load_stratigraphic_relationships( files );
             } );
         builder.compute_top_and_bottom_horizons();
     }
@@ -56,10 +56,9 @@ namespace geode
     std::vector< HorizonsStack< dimension > >
         OpenGeodeHorizonsStackInput< dimension >::read()
     {
-        const UnzipFile zip_reader{ this->filename(), uuid{}.string() };
-        zip_reader.extract_all();
+        const detail::ArchiveInputFiles files{ this->filename() };
         HorizonsStack< dimension > horizons_stack{ BITSERY::constructor };
-        load_horizons_stack_files( horizons_stack, zip_reader.directory() );
+        load_horizons_stack_files( horizons_stack, files );
         std::vector< HorizonsStack< dimension > > results;
         results.push_back( std::move( horizons_stack ) );
         return results;

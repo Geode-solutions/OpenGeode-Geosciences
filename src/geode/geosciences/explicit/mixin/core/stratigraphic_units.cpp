@@ -24,6 +24,7 @@
 #include <geode/geosciences/explicit/mixin/core/stratigraphic_units.hpp>
 
 #include <geode/basic/detail/count_range_elements.hpp>
+#include <geode/basic/detail/input_files.hpp>
 #include <geode/basic/identifier_builder.hpp>
 #include <geode/basic/pimpl_impl.hpp>
 #include <geode/basic/range.hpp>
@@ -100,10 +101,10 @@ namespace geode
 
     template < index_t dimension >
     void StratigraphicUnits< dimension >::load_stratigraphic_units(
-        std::string_view directory, StratigraphicUnitsBuilderKey /*unused*/ )
+        const detail::InputFiles& files,
+        StratigraphicUnitsBuilderKey /*unused*/ )
     {
-        impl_->load_components(
-            absl::StrCat( directory, "/stratigraphic_units" ), false );
+        impl_->load_components( files, "stratigraphic_units", false );
     }
 
     template < index_t dimension >

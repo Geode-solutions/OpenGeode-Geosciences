@@ -23,6 +23,8 @@
 
 #include <geode/geosciences/implicit/mixin/builder/stratigraphic_relationships_builder.hpp>
 
+#include <geode/basic/detail/input_files.hpp>
+
 namespace geode
 {
     StratigraphicRelationshipsBuilder::StratigraphicRelationshipsBuilder(
@@ -75,7 +77,14 @@ namespace geode
     void StratigraphicRelationshipsBuilder::load_stratigraphic_relationships(
         std::string_view directory )
     {
-        relationships_.load_stratigraphic_relationships( directory,
+        load_stratigraphic_relationships(
+            detail::DirectoryInputFiles{ directory } );
+    }
+
+    void StratigraphicRelationshipsBuilder::load_stratigraphic_relationships(
+        const detail::InputFiles& files )
+    {
+        relationships_.load_stratigraphic_relationships( files,
             StratigraphicRelationships::
                 StratigraphicRelationshipsBuilderKey{} );
     }

@@ -23,6 +23,8 @@
 
 #pragma once
 
+#include <geode/basic/detail/input_files.hpp>
+
 #include <geode/geosciences/implicit/representation/core/implicit_structural_model.hpp>
 #include <geode/geosciences/implicit/representation/io/implicit_structural_model_input.hpp>
 
@@ -66,6 +68,6 @@ namespace geode
     {
         void opengeode_geosciences_implicit_api
             load_implicit_structural_model_files(
-                ImplicitStructuralModel& model, std::string_view directory );
+                ImplicitStructuralModel& model, const InputFiles& files );
     } // namespace detail
 } // namespace geode

@@ -33,6 +33,11 @@ namespace geode
     struct uuid;
 } // namespace geode
 
+namespace geode::detail
+{
+    class InputFiles;
+} // namespace geode::detail
+
 namespace geode
 {
     template < index_t dimension >
@@ -40,6 +45,8 @@ namespace geode
     {
     public:
         void load_stratigraphic_units( std::string_view directory );
+
+        void load_stratigraphic_units( const detail::InputFiles& files );
 
         void set_stratigraphic_unit_name(
             const StratigraphicUnit< dimension >& stratigraphic_unit,

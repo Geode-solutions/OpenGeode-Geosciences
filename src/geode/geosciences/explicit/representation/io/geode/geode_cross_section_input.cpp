@@ -25,10 +25,7 @@
 
 #include <async++.h>
 
-#include <fstream>
-
-#include <geode/basic/uuid.hpp>
-#include <geode/basic/zip_file.hpp>
+#include <geode/basic/detail/input_files.hpp>
 
 #include <geode/model/mixin/core/corner.hpp>
 #include <geode/model/mixin/core/corner_collection.hpp>
@@ -52,11 +49,9 @@ namespace geode
 
     std::vector< CrossSection > OpenGeodeCrossSectionInput::read()
     {
-        const UnzipFile zip_reader{ filename(), uuid{}.string() };
-        zip_reader.extract_all();
+        const detail::ArchiveInputFiles files{ filename() };
         CrossSection cross_section{ BITSERY::constructor };
-        detail::load_cross_section_files(
-            cross_section, zip_reader.directory() );
+        detail::load_cross_section_files( cross_section, files );
         std::vector< CrossSection > results;
         results.push_back( std::move( cross_section ) );
         return results;
@@ -65,23 +60,23 @@ namespace geode
     namespace detail
     {
         void load_cross_section_files(
-            CrossSection& cross_section, std::string_view directory )
+            CrossSection& cross_section, const InputFiles& files )
         {
             CrossSectionBuilder builder{ cross_section };
             async::parallel_invoke(
-                [&builder, &directory] {
-                    builder.load_faults( directory );
+                [&builder, &files] {
+                    builder.load_faults( files );
                 },
-                [&builder, &directory] {
-                    builder.load_horizons( directory );
+                [&builder, &files] {
+                    builder.load_horizons( files );
                 },
-                [&builder, &directory] {
-                    builder.load_fault_blocks( directory );
+                [&builder, &files] {
+                    builder.load_fault_blocks( files );
                 },
-                [&builder, &directory] {
-                    builder.load_stratigraphic_units( directory );
+                [&builder, &files] {
+                    builder.load_stratigraphic_units( files );
                 } );
-            load_section_files( cross_section, directory );
+            load_section_files( cross_section, files );
         }
     } // namespace detail
 } // namespace geode

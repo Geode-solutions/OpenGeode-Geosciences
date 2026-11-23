@@ -57,3 +57,12 @@ add_geode_test(
         OpenGeode::model
         ${PROJECT_NAME}::explicit
 )
+
+add_geode_test(
+    SOURCE "test-geological-model-archive-input.cpp"
+    DEPENDENCIES
+        OpenGeode::basic
+        OpenGeode::mesh
+        OpenGeode::model
+        ${PROJECT_NAME}::explicit
+)

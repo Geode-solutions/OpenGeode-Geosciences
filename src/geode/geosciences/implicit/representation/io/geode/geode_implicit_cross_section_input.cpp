@@ -23,15 +23,12 @@
 
 #include <geode/geosciences/implicit/representation/io/geode/geode_implicit_cross_section_input.hpp>
 
-#include <filesystem>
-#include <fstream>
-
-#include <async++.h>
+#include <absl/strings/str_cat.h>
 
 #include <geode/basic/bitsery_archive.hpp>
+#include <geode/basic/detail/geode_input_impl.hpp>
+#include <geode/basic/detail/input_files.hpp>
 #include <geode/basic/logger.hpp>
-#include <geode/basic/uuid.hpp>
-#include <geode/basic/zip_file.hpp>
 
 #include <geode/model/representation/io/geode/geode_section_input.hpp>
 
@@ -46,33 +43,21 @@ namespace geode
     std::vector< ImplicitCrossSection >
         OpenGeodeImplicitCrossSectionInput::read()
     {
-        const UnzipFile zip_reader{ this->filename(), uuid{}.string() };
-        zip_reader.extract_all();
+        const detail::ArchiveInputFiles files{ this->filename() };
         ImplicitCrossSection section{ BITSERY::constructor };
-        detail::load_implicit_cross_section_files(
-            section, zip_reader.directory() );
-        const auto impl_filename = absl::StrCat(
-            zip_reader.directory(), "/implicit_section_impl.og_ixsctn" );
+        detail::load_implicit_cross_section_files( section, files );
+        static constexpr auto IMPL_FILENAME = "implicit_section_impl.og_ixsctn";
         OpenGeodeGeosciencesImplicitException::check_exception(
-            std::filesystem::exists( to_string( impl_filename ) ), nullptr,
-            OpenGeodeException::TYPE::data,
+            files.has( IMPL_FILENAME ), nullptr, OpenGeodeException::TYPE::data,
             "[OpenGeodeImplicitCrossSectionInput::read] Error in reading "
             "files: Could not find stored impl." );
-        std::ifstream file{ impl_filename, std::ifstream::binary };
-        TContext context{};
-        BitseryExtensions::register_deserialize_pcontext(
-            std::get< 0 >( context ) );
-        Deserializer archive{ context, file };
-        archive.object( section );
-        const auto& adapter = archive.adapter();
+        const auto content = files.content( IMPL_FILENAME );
         OpenGeodeGeosciencesImplicitException::check_exception(
-            adapter.error() == bitsery::ReaderError::NoError
-                && adapter.isCompletedSuccessfully()
-                && std::get< 1 >( context ).isValid(),
-            nullptr, OpenGeodeException::TYPE::internal,
+            detail::deserialize_bytes( content.span(), section ), nullptr,
+            OpenGeodeException::TYPE::internal,
             "[OpenGeodeImplicitCrossSectionOutput::load_section_impl] "
             "Error while reading file: ",
-            impl_filename );
+            files.location( IMPL_FILENAME ) );
         std::vector< ImplicitCrossSection > results;
         results.push_back( std::move( section ) );
         return results;
@@ -81,16 +66,17 @@ namespace geode
     namespace detail
     {
         void load_implicit_cross_section_files(
-            ImplicitCrossSection& section, std::string_view directory )
+            ImplicitCrossSection& section, const InputFiles& files )
         {
             const ScopedLoggerLevel scoped_level{ Logger::LEVEL::warning };
             ImplicitCrossSectionBuilder builder{ section };
-            const auto stack_file = absl::StrCat( directory, "/horizons_stack.",
-                HorizonsStack2D::native_extension_static() );
+            const auto stack_file = absl::StrCat(
+                "horizons_stack.", HorizonsStack2D::native_extension_static() );
             builder.set_horizons_stack( load_one(
-                load_horizons_stack< 2 >( stack_file ), stack_file ) );
-            // builder.reinitialize_implicit_query_trees();
-            load_cross_section_files( section, directory );
+                geode_object_input_from_files< HorizonsStackInputFactory2D >(
+                    "HorizonsStack", files, stack_file ),
+                files.location( stack_file ) ) );
+            load_cross_section_files( section, files );
         }
     } // namespace detail
 } // namespace geode

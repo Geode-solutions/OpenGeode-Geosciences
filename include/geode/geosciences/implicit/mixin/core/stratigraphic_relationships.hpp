@@ -40,6 +40,11 @@ namespace geode
     struct uuid;
 } // namespace geode
 
+namespace geode::detail
+{
+    class InputFiles;
+} // namespace geode::detail
+
 namespace geode
 {
     /*!
@@ -105,8 +110,8 @@ namespace geode
             const StratigraphicRelationships& relationships,
             StratigraphicRelationshipsBuilderKey );
 
-        void load_stratigraphic_relationships(
-            std::string_view directory, StratigraphicRelationshipsBuilderKey );
+        void load_stratigraphic_relationships( const detail::InputFiles& files,
+            StratigraphicRelationshipsBuilderKey );
 
     protected:
         StratigraphicRelationships(
