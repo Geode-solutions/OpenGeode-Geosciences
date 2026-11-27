@@ -36,6 +36,11 @@ namespace geode
     struct uuid;
 } // namespace geode
 
+namespace geode::detail
+{
+    class InputFiles;
+} // namespace geode::detail
+
 namespace geode
 {
     template < index_t dimension >
@@ -165,7 +170,7 @@ namespace geode
             const Horizon< dimension >& horizon, HorizonsBuilderKey key );
 
         void load_horizons(
-            std::string_view directory, HorizonsBuilderKey key );
+            const detail::InputFiles& files, HorizonsBuilderKey key );
 
         [[nodiscard]] ModifiableHorizonRange modifiable_horizons(
             HorizonsBuilderKey key );

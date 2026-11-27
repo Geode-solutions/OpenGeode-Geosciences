@@ -23,6 +23,8 @@
 
 #pragma once
 
+#include <geode/basic/detail/input_files.hpp>
+
 #include <geode/geosciences/explicit/representation/core/structural_model.hpp>
 #include <geode/geosciences/explicit/representation/io/structural_model_input.hpp>
 
@@ -59,7 +61,11 @@ namespace geode
 
     namespace detail
     {
+        /*!
+         * Load the files of a StructuralModel (geological components and
+         * BRep files) into an empty model.
+         */
         void opengeode_geosciences_explicit_api load_structural_model_files(
-            StructuralModel& structural_model, std::string_view directory );
+            StructuralModel& structural_model, const InputFiles& files );
     } // namespace detail
 } // namespace geode

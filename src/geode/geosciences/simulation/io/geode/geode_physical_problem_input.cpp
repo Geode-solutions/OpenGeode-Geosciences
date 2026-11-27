@@ -23,9 +23,8 @@
 
 #include <geode/geosciences/simulation/io/geode/geode_physical_problem_input.hpp>
 
-#include <fstream>
-
 #include <geode/basic/bitsery_archive.hpp>
+#include <geode/basic/detail/file_content.hpp>
 
 #include <geode/geosciences/simulation/core/physical_problem.hpp>
 
@@ -33,23 +32,14 @@ namespace geode
 {
     std::vector< PhysicalProblem > OpenGeodePhysicalProblemInput::read()
     {
-        std::ifstream file{ to_string( this->filename() ),
-            std::ifstream::binary };
-        OpenGeodeGeosciencesSimulationException::check_exception( !file.fail(),
-            nullptr, OpenGeodeException::TYPE::data,
-            "[PhysicalProblemInput] Failed to open file: ", this->filename() );
-        TContext context{};
-        BitseryExtensions::register_deserialize_pcontext(
-            std::get< 0 >( context ) );
-        Deserializer archive{ context, file };
-        PhysicalProblem problem;
-        archive.object( problem );
-        const auto& adapter = archive.adapter();
+        const auto content = detail::map_file_content( this->filename() );
         OpenGeodeGeosciencesSimulationException::check_exception(
-            adapter.error() == bitsery::ReaderError::NoError
-                && adapter.isCompletedSuccessfully()
-                && std::get< 1 >( context ).isValid(),
-            nullptr, OpenGeodeException::TYPE::internal,
+            content.has_value(), nullptr, OpenGeodeException::TYPE::data,
+            "[PhysicalProblemInput] Failed to open file: ", this->filename() );
+        PhysicalProblem problem;
+        OpenGeodeGeosciencesSimulationException::check_exception(
+            detail::deserialize_bytes( content->span(), problem ), nullptr,
+            OpenGeodeException::TYPE::internal,
             "[Bitsery::read] Error while reading file: ", this->filename() );
         std::vector< PhysicalProblem > results;
         results.push_back( std::move( problem ) );

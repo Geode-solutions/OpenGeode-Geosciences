@@ -23,6 +23,8 @@
 
 #include <geode/geosciences/explicit/mixin/builder/stratigraphic_units_builder.hpp>
 
+#include <geode/basic/detail/input_files.hpp>
+
 #include <geode/geosciences/explicit/mixin/core/stratigraphic_unit.hpp>
 #include <geode/geosciences/explicit/mixin/core/stratigraphic_units.hpp>
 
@@ -59,9 +61,16 @@ namespace geode
     void StratigraphicUnitsBuilder< dimension >::load_stratigraphic_units(
         std::string_view directory )
     {
-        return stratigraphic_units_.load_stratigraphic_units(
-            directory, typename StratigraphicUnit<
-                           dimension >::StratigraphicUnitsBuilderKey{} );
+        load_stratigraphic_units( detail::DirectoryInputFiles{ directory } );
+    }
+
+    template < index_t dimension >
+    void StratigraphicUnitsBuilder< dimension >::load_stratigraphic_units(
+        const detail::InputFiles& files )
+    {
+        stratigraphic_units_.load_stratigraphic_units(
+            files, typename StratigraphicUnit<
+                       dimension >::StratigraphicUnitsBuilderKey{} );
     }
 
     template < index_t dimension >

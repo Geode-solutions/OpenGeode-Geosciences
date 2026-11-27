@@ -23,6 +23,8 @@
 
 #pragma once
 
+#include <geode/basic/detail/input_files.hpp>
+
 #include <geode/geosciences/implicit/representation/core/horizons_stack.hpp>
 #include <geode/geosciences/implicit/representation/io/horizons_stack_input.hpp>
 
@@ -45,7 +47,7 @@ namespace geode
 
         void load_horizons_stack_files(
             HorizonsStack< dimension >& horizons_stack,
-            std::string_view directory );
+            const detail::InputFiles& files );
 
         [[nodiscard]] std::vector< HorizonsStack< dimension > > read() final;
 

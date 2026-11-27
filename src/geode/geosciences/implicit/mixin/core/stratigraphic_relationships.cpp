@@ -27,6 +27,7 @@
 
 #include <geode/basic/attribute_manager.hpp>
 #include <geode/basic/bitsery_archive.hpp>
+#include <geode/basic/detail/input_files.hpp>
 #include <geode/basic/logger.hpp>
 #include <geode/basic/pimpl_impl.hpp>
 #include <geode/basic/range.hpp>
@@ -204,23 +205,15 @@ namespace geode
                 "[Relationships::save] Error while writing file: ", filename );
         }
 
-        void load( std::string_view directory )
+        void load( const detail::InputFiles& files )
         {
-            const auto filename =
-                absl::StrCat( directory, "/stratigraphic_relationships" );
-            std::ifstream file{ filename, std::ifstream::binary };
-            TContext context{};
-            BitseryExtensions::register_deserialize_pcontext(
-                std::get< 0 >( context ) );
-            Deserializer archive{ context, file };
-            archive.object( *this );
-            const auto& adapter = archive.adapter();
+            static constexpr auto FILENAME = "stratigraphic_relationships";
+            const auto content = files.content( FILENAME );
             OpenGeodeGeosciencesImplicitException::check_exception(
-                adapter.error() == bitsery::ReaderError::NoError
-                    && adapter.isCompletedSuccessfully()
-                    && std::get< 1 >( context ).isValid(),
-                nullptr, OpenGeodeException::TYPE::internal,
-                "[Relationships::load] Error while reading file: ", filename );
+                detail::deserialize_bytes( content.span(), *this ), nullptr,
+                OpenGeodeException::TYPE::internal,
+                "[Relationships::load] Error while reading file: ",
+                files.location( FILENAME ) );
             remove_cycles();
         }
 
@@ -508,8 +501,8 @@ namespace geode
     }
 
     void StratigraphicRelationships::load_stratigraphic_relationships(
-        std::string_view directory, StratigraphicRelationshipsBuilderKey )
+        const detail::InputFiles& files, StratigraphicRelationshipsBuilderKey )
     {
-        return impl_->load( directory );
+        impl_->load( files );
     }
 } // namespace geode

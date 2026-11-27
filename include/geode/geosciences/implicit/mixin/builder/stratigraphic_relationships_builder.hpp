@@ -61,6 +61,9 @@ namespace geode
 
         void load_stratigraphic_relationships( std::string_view directory );
 
+        void load_stratigraphic_relationships(
+            const detail::InputFiles& files );
+
     protected:
         /*!
          * Adds a new relationship of type above-under between two

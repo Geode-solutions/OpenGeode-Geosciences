@@ -23,6 +23,8 @@
 
 #pragma once
 
+#include <geode/basic/detail/input_files.hpp>
+
 #include <geode/geosciences/implicit/representation/core/implicit_cross_section.hpp>
 #include <geode/geosciences/implicit/representation/io/implicit_cross_section_input.hpp>
 
@@ -64,6 +66,6 @@ namespace geode
     {
         void opengeode_geosciences_implicit_api
             load_implicit_cross_section_files(
-                ImplicitCrossSection& section, std::string_view directory );
+                ImplicitCrossSection& section, const InputFiles& files );
     } // namespace detail
 } // namespace geode
