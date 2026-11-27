@@ -92,6 +92,10 @@ def test_evaluable_representations():
             start_time=0.0, end_time=10.0, initial_time_step=1.0, max_time_step=2.0
         ),
         simulation.SourceTerm(well="W1", component="oil", rate=-1.5),
+        simulation.HeatSource(name="canister", block=None, times=[], powers=[150.0]),
+        simulation.HeatSource(
+            name="decay", block=None, times=[0.0, 1e7], powers=[1837.0, 1545.0]
+        ),
         simulation.ThermalParameters(reference_temperature=300.0),
         simulation.SaturationTable(saturations=[0.0, 1.0], values=[0.0, 0.5]),
     ]
@@ -102,6 +106,11 @@ def test_evaluable_representations():
     check(
         repr(values[0]) == "FluidComponent(name='CO2', molar_weight=0.044)",
         repr(values[0]),
+    )
+    check(
+        repr(values[5])
+        == "HeatSource(name='canister', block=None, times=[], powers=[150.0])",
+        repr(values[5]),
     )
     check(
         repr(values[2])
@@ -130,14 +139,20 @@ def test_descriptive_representations():
     check(
         text.startswith("PhysicalProblem(id='")
         and "has_flow=False" in text
-        and "nb_materials=0" in text,
+        and "nb_materials=0" in text
+        and "nb_heat_sources=0" in text,
         text,
     )
 
 
 def test_fields_have_named_setters():
     # def_readwrite exposes the setter argument as arg0
-    for cls in [simulation.FluidComponent, simulation.Schedule, simulation.Material]:
+    for cls in [
+        simulation.FluidComponent,
+        simulation.Schedule,
+        simulation.Material,
+        simulation.HeatSource,
+    ]:
         for name, member in vars(cls).items():
             if isinstance(member, property) and member.fset is not None:
                 check("arg0" not in (member.fset.__doc__ or ""), f"{cls.__name__}.{name}")
@@ -195,6 +210,7 @@ def test_builder_arguments_and_indices():
         lambda: builder.remove_material(5),
         lambda: builder.remove_initial_condition(5),
         lambda: builder.remove_source_term(5),
+        lambda: builder.remove_heat_source(5),
     ]:
         check_raises(call, opengeode.OpenGeodeDataError, "an index out of range")
     check_raises(

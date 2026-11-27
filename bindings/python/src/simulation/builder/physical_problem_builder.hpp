@@ -29,6 +29,7 @@
 
 #include <geode/geosciences/simulation/builder/physical_problem_builder.hpp>
 #include <geode/geosciences/simulation/core/flow_model.hpp>
+#include <geode/geosciences/simulation/core/heat_source.hpp>
 #include <geode/geosciences/simulation/core/initial_condition.hpp>
 #include <geode/geosciences/simulation/core/material.hpp>
 #include <geode/geosciences/simulation/core/physical_problem.hpp>
@@ -103,6 +104,14 @@ namespace geode
                 pybind11::arg( "source_term_id" ),
                 "Remove the SourceTerm of the given index; raise an error if "
                 "there is none" )
+            .def( "add_heat_source", &PhysicalProblemBuilder::add_heat_source,
+                pybind11::arg( "heat_source" ),
+                "Add the HeatSource and return its index" )
+            .def( "remove_heat_source",
+                &PhysicalProblemBuilder::remove_heat_source,
+                pybind11::arg( "heat_source_id" ),
+                "Remove the HeatSource of the given index, shifting the next "
+                "ones down by one index; raise an error if there is none" )
             .def( "set_schedule", &PhysicalProblemBuilder::set_schedule,
                 pybind11::arg( "schedule" ), "Set the Schedule" )
             .def( "set_output", &PhysicalProblemBuilder::set_output,

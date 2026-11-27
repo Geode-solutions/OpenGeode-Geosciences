@@ -507,8 +507,60 @@ def test_shared_parts_lifetime():
         raise ValueError("[Test] flow should say how to change the flow")
 
 
+def test_heat_sources():
+    block_id = opengeode.uuid()
+    source = simulation.HeatSource(
+        name="canister", block=block_id, times=[0.0, 3.15e7], powers=[1837.0, 1545.0]
+    )
+    if source.block != block_id or source.times != [0.0, 3.15e7]:
+        raise ValueError("[Test] Wrong HeatSource fields")
+    # Vector fields are copies: changing the returned list does not change the
+    # source, assigning the field does
+    source.powers.append(1.0)
+    if source.powers != [1837.0, 1545.0]:
+        raise ValueError("[Test] HeatSource.powers should be a copy")
+    source.powers = [1000.0, 900.0]
+    if source.powers != [1000.0, 900.0]:
+        raise ValueError("[Test] HeatSource.powers should be assignable")
+    source.block = None
+    if source.block is not None:
+        raise ValueError("[Test] HeatSource.block should accept None")
+    source.block = block_id
+    problem = simulation.PhysicalProblem()
+    builder = simulation.PhysicalProblemBuilder(problem)
+    point = simulation.HeatSource("probe", None, [], [150.0])
+    if builder.add_heat_source(heat_source=point) != 0:
+        raise ValueError("[Test] Wrong heat source index")
+    if builder.add_heat_source(heat_source=source) != 1:
+        raise ValueError("[Test] Wrong heat source index")
+    copies = problem.heat_sources()
+    copies[0].name = "changed"
+    if [s.name for s in problem.heat_sources()] != ["probe", "canister"]:
+        raise ValueError("[Test] heat_sources should return copies")
+    if "nb_heat_sources=2" not in repr(problem):
+        raise ValueError("[Test] PhysicalProblem repr should count heat sources")
+    reloaded = save_and_reload(problem, "heat_sources.og_phpb")
+    sources = reloaded.heat_sources()
+    if (
+        len(sources) != 2
+        or sources[1].block != block_id
+        or sources[1].powers != [1000.0, 900.0]
+        or sources[0].block is not None
+    ):
+        raise ValueError("[Test] Heat sources should round-trip")
+    builder.remove_heat_source(heat_source_id=0)
+    if [s.name for s in problem.heat_sources()] != ["canister"]:
+        raise ValueError("[Test] remove_heat_source should shift the next ones")
+    try:
+        builder.remove_heat_source(heat_source_id=1)
+        raise ValueError("[Test] remove_heat_source out of range should raise")
+    except opengeode.OpenGeodeDataError:
+        pass
+
+
 if __name__ == "__main__":
     simulation.OpenGeodeGeosciencesSimulationLibrary.initialize()
+    test_heat_sources()
     test_dead_oil_roundtrip()
     test_single_phase_problem()
     test_co2_brine_fluid()

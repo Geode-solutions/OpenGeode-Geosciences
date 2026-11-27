@@ -30,6 +30,7 @@
 
 #include "core/flow_model.hpp"
 #include "core/fluid.hpp"
+#include "core/heat_source.hpp"
 #include "core/initial_condition.hpp"
 #include "core/material.hpp"
 #include "core/physical_problem.hpp"
@@ -76,6 +77,7 @@ PYBIND11_MODULE( opengeode_geosciences_py_simulation, module )
     geode::define_initial_condition( module );
     geode::define_schedule( module );
     geode::define_source_term( module );
+    geode::define_heat_source( module );
     geode::define_thermal_parameters( module );
     geode::define_solid_mechanics( module );
     geode::define_solver_options( module );

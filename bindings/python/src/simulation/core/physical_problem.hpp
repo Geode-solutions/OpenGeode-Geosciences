@@ -29,6 +29,7 @@
 
 #include <geode/geosciences/simulation/core/flow_model.hpp>
 #include <geode/geosciences/simulation/core/fluid.hpp>
+#include <geode/geosciences/simulation/core/heat_source.hpp>
 #include <geode/geosciences/simulation/core/initial_condition.hpp>
 #include <geode/geosciences/simulation/core/material.hpp>
 #include <geode/geosciences/simulation/core/physical_problem.hpp>
@@ -61,12 +62,15 @@ namespace geode
                                 python_repr(
                                     problem.nb_initial_conditions() ) },
                             { "nb_source_terms",
+                                python_repr( problem.source_terms().size() ) },
+                            { "nb_heat_sources",
                                 python_repr(
-                                    problem.source_terms().size() ) } } );
+                                    problem.heat_sources().size() ) } } );
                 },
                 "Return an unambiguous description of the problem: its id, "
                 "its name if it has one, whether it has a flow and its "
-                "numbers of materials, initial conditions and source terms" )
+                "numbers of materials, initial conditions, source terms and "
+                "heat sources" )
             .def( "clone", &PhysicalProblem::clone,
                 "Return a copy of the problem; the flow, fluid, laws and "
                 "initial conditions are shared with the copy" )
@@ -126,6 +130,14 @@ namespace geode
                         source_terms.end() };
                 },
                 "Return a list of copies of the SourceTerms" )
+            .def(
+                "heat_sources",
+                []( const PhysicalProblem& problem ) {
+                    const auto heat_sources = problem.heat_sources();
+                    return std::vector< HeatSource >{ heat_sources.begin(),
+                        heat_sources.end() };
+                },
+                "Return a list of copies of the HeatSources" )
             .def( "schedule", &PhysicalProblem::schedule,
                 "Return a copy of the Schedule" )
             .def( "output", &PhysicalProblem::output,
