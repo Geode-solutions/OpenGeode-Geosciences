@@ -61,6 +61,7 @@
 #include <geode/geosciences/simulation/builder/physical_problem_builder.hpp>
 #include <geode/geosciences/simulation/core/flow_model.hpp>
 #include <geode/geosciences/simulation/core/fluid.hpp>
+#include <geode/geosciences/simulation/core/heat_source.hpp>
 #include <geode/geosciences/simulation/core/initial_condition.hpp>
 #include <geode/geosciences/simulation/core/material.hpp>
 #include <geode/geosciences/simulation/core/physical_problem.hpp>
@@ -1309,6 +1310,163 @@ namespace
         return std::move( checker.report() );
     }
 
+    geode::PhysicalProblem heat_source_problem( const geode::uuid& block_id )
+    {
+        auto problem = thermal_single_phase_problem();
+        geode::PhysicalProblemBuilder builder{ problem };
+        builder.add_heat_source( { "probe", std::nullopt, {}, { 150. } } );
+        builder.add_heat_source(
+            { "canister", block_id, { 0., 3.15e7 }, { 1837., 1545. } } );
+        return problem;
+    }
+
+    void test_heat_source_serialization()
+    {
+        const auto old_file =
+            absl::StrCat( geode::DATA_PATH, "physical_problem_v2.og_phpb" );
+        const auto old_problem = geode::load_one(
+            geode::load_physical_problem( old_file ), old_file );
+        Exception::test( old_problem.name() == "heat_v2"
+                             && old_problem.heat_sources().empty()
+                             && old_problem.source_terms().size() == 1
+                             && old_problem.thermal(),
+            "[Test] Version 2 problem should load without heat source" );
+
+        const geode::uuid block_id;
+        const auto problem = heat_source_problem( block_id );
+        check_no_issue( problem );
+        const auto filename = absl::StrCat(
+            "heat.", geode::PhysicalProblem::native_extension_static() );
+        geode::save_physical_problem( problem, filename );
+        const auto reloaded = geode::load_one(
+            geode::load_physical_problem( filename ), filename );
+        const auto sources = reloaded.heat_sources();
+        Exception::test( sources.size() == 2, "[Test] Wrong nb heat sources" );
+        Exception::test(
+            sources[0].name == "probe" && !sources[0].block
+                && sources[0].times.empty()
+                && sources[0].powers == std::vector< double >{ 150. },
+            "[Test] Wrong point heat source" );
+        Exception::test(
+            sources[1].name == "canister" && sources[1].block == block_id
+                && sources[1].times == std::vector< double >{ 0., 3.15e7 }
+                && sources[1].powers == std::vector< double >{ 1837., 1545. },
+            "[Test] Wrong Block heat source" );
+        Exception::test( reloaded.clone().heat_sources().size() == 2,
+            "[Test] Clone should copy the heat sources" );
+
+        auto removed = problem.clone();
+        geode::PhysicalProblemBuilder{ removed }.remove_heat_source( 0 );
+        Exception::test( removed.heat_sources().size() == 1
+                             && removed.heat_sources()[0].name == "canister",
+            "[Test] Removing a heat source should shift the next ones" );
+        bool has_thrown{ false };
+        try
+        {
+            geode::PhysicalProblemBuilder{ removed }.remove_heat_source( 1 );
+        }
+        catch( const geode::OpenGeodeException& )
+        {
+            has_thrown = true;
+        }
+        Exception::test(
+            has_thrown, "[Test] Removing an unknown heat source should throw" );
+    }
+
+    template < typename Modifier >
+    void check_broken_heat_source( Modifier modifier, std::string_view keyword )
+    {
+        auto problem = thermal_single_phase_problem();
+        geode::HeatSource source{ "probe", std::nullopt, {}, { 150. } };
+        geode::PhysicalProblemBuilder builder{ problem };
+        modifier( problem, builder, source );
+        builder.add_heat_source( source );
+        const auto report = definition_report( problem );
+        const auto* issue = find_issue(
+            report, geode::SIMULATION_ISSUE_SEVERITY::error, keyword );
+        Exception::test( issue != nullptr && report.nb_errors() == 1,
+            "[Test] Heat source: exactly one issue containing \"", keyword,
+            "\" expected in: ", report.string() );
+    }
+
+    void test_heat_source_checks()
+    {
+        auto valid = thermal_single_phase_problem();
+        geode::PhysicalProblemBuilder{ valid }.add_heat_source(
+            { "sink", std::nullopt, { 0., 10. }, { -5., -1. } } );
+        check_no_issue( valid );
+
+        check_broken_heat_source(
+            []( auto& problem, auto&, auto& ) {
+                problem = dead_oil_problem( geode::uuid{}, geode::uuid{} );
+            },
+            "heat sources require thermal parameters" );
+        check_broken_heat_source(
+            []( auto&, auto&, auto& source ) {
+                source.name.clear();
+            },
+            "a heat source has no name" );
+        check_broken_heat_source(
+            []( auto&, auto& builder, auto& source ) {
+                builder.add_heat_source( source );
+            },
+            "several heat sources are named probe" );
+        check_broken_heat_source(
+            []( auto&, auto&, auto& source ) {
+                source.powers.clear();
+            },
+            "needs one power, or one power per time" );
+        check_broken_heat_source(
+            []( auto&, auto&, auto& source ) {
+                source.times = { 0., 1. };
+            },
+            "needs one power, or one power per time" );
+        check_broken_heat_source(
+            []( auto&, auto&, auto& source ) {
+                source.times = { 1., 1. };
+                source.powers = { 1., 2. };
+            },
+            "times must be strictly increasing" );
+        check_broken_heat_source(
+            []( auto&, auto&, auto& source ) {
+                source.times = { 0.,
+                    std::numeric_limits< double >::infinity() };
+                source.powers = { 1., 2. };
+            },
+            "times and powers must be finite" );
+        check_broken_heat_source(
+            []( auto&, auto&, auto& source ) {
+                source.powers = { std::numeric_limits< double >::quiet_NaN() };
+            },
+            "times and powers must be finite" );
+    }
+
+    void test_heat_source_block_region()
+    {
+        geode::BRep model;
+        geode::BRepBuilder model_builder{ model };
+        const auto& block_id = model_builder.add_block();
+        const auto& surface_id = model_builder.add_surface();
+        auto problem = heat_source_problem( block_id );
+        Exception::test( region_report( problem, model ).is_simulable(),
+            "[Test] Heat source in a Block should be valid: ",
+            region_report( problem, model ).string() );
+        auto source = problem.heat_sources()[1];
+        geode::PhysicalProblemBuilder builder{ problem };
+        builder.remove_heat_source( 1 );
+        source.block = surface_id;
+        builder.add_heat_source( source );
+        const auto report = region_report( problem, model );
+        const auto* issue =
+            find_issue( report, geode::SIMULATION_ISSUE_SEVERITY::error,
+                "is not a block of the model" );
+        Exception::test(
+            report.nb_errors() == 1 && issue != nullptr
+                && issue->stage == geode::SIMULATION_CHECK_STAGE::regions,
+            "[Test] Heat source in a Surface should be reported: ",
+            report.string() );
+    }
+
     void test_region_validation()
     {
         geode::BRep model;
@@ -1429,6 +1587,9 @@ int main()
         test_poromechanics_properties_validation();
         test_ignored_coupling_properties_warning();
         test_unregistered_type();
+        test_heat_source_serialization();
+        test_heat_source_checks();
+        test_heat_source_block_region();
 
         geode::Logger::info( "TEST SUCCESS" );
         return 0;

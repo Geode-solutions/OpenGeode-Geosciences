@@ -46,6 +46,7 @@ namespace geode
     class FluidModel;
     class InitialCondition;
     class SolverOptions;
+    struct HeatSource;
     struct Material;
     struct OutputSettings;
     struct Schedule;
@@ -58,8 +59,8 @@ namespace geode
     /*!
      * Simulator-independent description of a flow, solid mechanics, or
      * coupled (poromechanics: both are set) simulation on a model: fluid,
-     * flow process, rock materials, initial state, well source terms, time
-     * schedule, outputs and simulator-specific options.
+     * flow process, rock materials, initial state, well source terms, heat
+     * sources, time schedule, outputs and simulator-specific options.
      * Model regions are referenced by component uuid. Spatially varying data
      * (porosity, permeability, elastic moduli, density, Biot coefficient,
      * initial stress, boundary conditions) stay in the model
@@ -131,6 +132,8 @@ namespace geode
 
         [[nodiscard]] absl::Span< const SourceTerm > source_terms() const;
 
+        [[nodiscard]] absl::Span< const HeatSource > heat_sources() const;
+
         [[nodiscard]] const Schedule& schedule() const;
 
         [[nodiscard]] const OutputSettings& output() const;
@@ -174,6 +177,12 @@ namespace geode
 
         void remove_source_term(
             index_t source_term_id, PhysicalProblemBuilderKey );
+
+        [[nodiscard]] index_t add_heat_source(
+            HeatSource heat_source, PhysicalProblemBuilderKey );
+
+        void remove_heat_source(
+            index_t heat_source_id, PhysicalProblemBuilderKey );
 
         void set_schedule(
             const Schedule& schedule, PhysicalProblemBuilderKey );

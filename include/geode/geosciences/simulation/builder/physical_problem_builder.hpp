@@ -35,6 +35,7 @@
 namespace geode
 {
     class FlowModel;
+    struct HeatSource;
     class InitialCondition;
     class PhysicalProblem;
     struct Material;
@@ -92,6 +93,11 @@ namespace geode
         index_t add_source_term( SourceTerm source_term );
 
         void remove_source_term( index_t source_term_id );
+
+        index_t add_heat_source( HeatSource heat_source );
+
+        /// Later heat sources are shifted down by one index
+        void remove_heat_source( index_t heat_source_id );
 
         void set_schedule( const Schedule& schedule );
 

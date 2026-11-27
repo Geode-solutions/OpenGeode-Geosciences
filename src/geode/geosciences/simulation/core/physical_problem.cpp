@@ -41,6 +41,7 @@
 #include <geode/geosciences/simulation/builder/physical_problem_builder.hpp>
 #include <geode/geosciences/simulation/core/flow_model.hpp>
 #include <geode/geosciences/simulation/core/fluid.hpp>
+#include <geode/geosciences/simulation/core/heat_source.hpp>
 #include <geode/geosciences/simulation/core/initial_condition.hpp>
 #include <geode/geosciences/simulation/core/material.hpp>
 #include <geode/geosciences/simulation/core/saturation_functions.hpp>
@@ -205,6 +206,27 @@ namespace geode
             source_terms_.erase( source_terms_.begin() + source_term_id );
         }
 
+        [[nodiscard]] absl::Span< const HeatSource > heat_sources() const
+        {
+            return heat_sources_;
+        }
+
+        [[nodiscard]] index_t add_heat_source( HeatSource heat_source )
+        {
+            heat_sources_.emplace_back( std::move( heat_source ) );
+            return static_cast< index_t >( heat_sources_.size() - 1 );
+        }
+
+        void remove_heat_source( index_t heat_source_id )
+        {
+            OpenGeodeGeosciencesSimulationException::check_exception(
+                heat_source_id < heat_sources_.size(), nullptr,
+                OpenGeodeException::TYPE::data,
+                "[PhysicalProblem] Heat source index ", heat_source_id,
+                " is out of range" );
+            heat_sources_.erase( heat_sources_.begin() + heat_source_id );
+        }
+
         [[nodiscard]] const Schedule& schedule() const
         {
             return schedule_;
@@ -276,13 +298,27 @@ namespace geode
                      },
                         []( Archive& local_archive, Impl& impl ) {
                             impl.serialize_members( local_archive );
-                            local_archive.ext( impl.solid_mechanics_,
-                                bitsery::ext::StdOptional{},
-                                []( Archive& mechanics_archive,
-                                    SolidMechanics& mechanics ) {
-                                    mechanics_archive.object( mechanics );
+                            impl.serialize_solid_mechanics( local_archive );
+                        },
+                        []( Archive& local_archive, Impl& impl ) {
+                            impl.serialize_members( local_archive );
+                            impl.serialize_solid_mechanics( local_archive );
+                            local_archive.container( impl.heat_sources_,
+                                impl.heat_sources_.max_size(),
+                                []( Archive& source_archive,
+                                    HeatSource& heat_source ) {
+                                    source_archive.object( heat_source );
                                 } );
                         } } } );
+        }
+
+        template < typename Archive >
+        void serialize_solid_mechanics( Archive& local_archive )
+        {
+            local_archive.ext( solid_mechanics_, bitsery::ext::StdOptional{},
+                []( Archive& mechanics_archive, SolidMechanics& mechanics ) {
+                    mechanics_archive.object( mechanics );
+                } );
         }
 
         template < typename Archive >
@@ -330,6 +366,7 @@ namespace geode
         std::vector< Material > materials_;
         std::vector< std::shared_ptr< InitialCondition > > initial_conditions_;
         std::vector< SourceTerm > source_terms_;
+        std::vector< HeatSource > heat_sources_;
         Schedule schedule_;
         OutputSettings output_;
         Vector3D gravity_{ { 0., 0., -9.81 } };
@@ -416,6 +453,11 @@ namespace geode
     absl::Span< const SourceTerm > PhysicalProblem::source_terms() const
     {
         return impl_->source_terms();
+    }
+
+    absl::Span< const HeatSource > PhysicalProblem::heat_sources() const
+    {
+        return impl_->heat_sources();
     }
 
     const Schedule& PhysicalProblem::schedule() const
@@ -510,6 +552,18 @@ namespace geode
         index_t source_term_id, PhysicalProblemBuilderKey /*unused*/ )
     {
         impl_->remove_source_term( source_term_id );
+    }
+
+    index_t PhysicalProblem::add_heat_source(
+        HeatSource heat_source, PhysicalProblemBuilderKey /*unused*/ )
+    {
+        return impl_->add_heat_source( std::move( heat_source ) );
+    }
+
+    void PhysicalProblem::remove_heat_source(
+        index_t heat_source_id, PhysicalProblemBuilderKey /*unused*/ )
+    {
+        impl_->remove_heat_source( heat_source_id );
     }
 
     void PhysicalProblem::set_schedule(

@@ -28,6 +28,7 @@
 #include <geode/basic/uuid.hpp>
 
 #include <geode/geosciences/simulation/core/flow_model.hpp>
+#include <geode/geosciences/simulation/core/heat_source.hpp>
 #include <geode/geosciences/simulation/core/initial_condition.hpp>
 #include <geode/geosciences/simulation/core/material.hpp>
 #include <geode/geosciences/simulation/core/physical_problem.hpp>
@@ -128,6 +129,17 @@ namespace geode
     void PhysicalProblemBuilder::remove_source_term( index_t source_term_id )
     {
         problem_.remove_source_term( source_term_id, BuilderKey{} );
+    }
+
+    index_t PhysicalProblemBuilder::add_heat_source( HeatSource heat_source )
+    {
+        return problem_.add_heat_source(
+            std::move( heat_source ), BuilderKey{} );
+    }
+
+    void PhysicalProblemBuilder::remove_heat_source( index_t heat_source_id )
+    {
+        problem_.remove_heat_source( heat_source_id, BuilderKey{} );
     }
 
     void PhysicalProblemBuilder::set_schedule( const Schedule& schedule )

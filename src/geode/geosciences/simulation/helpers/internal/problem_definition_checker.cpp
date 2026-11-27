@@ -42,6 +42,7 @@
 
 #include <geode/geosciences/simulation/core/flow_model.hpp>
 #include <geode/geosciences/simulation/core/fluid.hpp>
+#include <geode/geosciences/simulation/core/heat_source.hpp>
 #include <geode/geosciences/simulation/core/initial_condition.hpp>
 #include <geode/geosciences/simulation/core/material.hpp>
 #include <geode/geosciences/simulation/core/physical_problem.hpp>
@@ -160,6 +161,7 @@ namespace
                 check_thermal();
                 check_poromechanics();
             }
+            check_heat_sources();
             check_gravity();
             check_schedule();
             check_output();
@@ -900,6 +902,49 @@ namespace
                     add_issue( subject, "several source terms of component ",
                         source.component );
                 }
+            }
+        }
+
+        void check_heat_sources()
+        {
+            const auto sources = problem_.heat_sources();
+            if( !sources.empty() && !problem_.thermal() )
+            {
+                add_issue( "Heat sources", "require thermal parameters" );
+            }
+            absl::flat_hash_set< std::string > names;
+            for( const auto& source : sources )
+            {
+                if( source.name.empty() )
+                {
+                    add_issue( "Heat sources", "a heat source has no name" );
+                }
+                else if( !names.insert( source.name ).second )
+                {
+                    add_issue( "Heat sources",
+                        "several heat sources are named ", source.name );
+                }
+                check_heat_source_power( source );
+            }
+        }
+
+        void check_heat_source_power( const geode::HeatSource& source )
+        {
+            const auto subject =
+                absl::StrCat( "Heat source \"", source.name, "\"" );
+            const auto expected_size =
+                source.times.empty() ? 1 : source.times.size();
+            if( source.powers.size() != expected_size )
+            {
+                add_issue( subject, "needs one power, or one power per time" );
+            }
+            if( !are_finite( source.times ) || !are_finite( source.powers ) )
+            {
+                add_issue( subject, "times and powers must be finite" );
+            }
+            else if( !is_strictly_increasing( source.times ) )
+            {
+                add_issue( subject, "times must be strictly increasing" );
             }
         }
 

@@ -42,6 +42,7 @@
 #include <geode/model/mixin/core/block.hpp>
 #include <geode/model/representation/core/brep.hpp>
 
+#include <geode/geosciences/simulation/core/heat_source.hpp>
 #include <geode/geosciences/simulation/core/initial_condition.hpp>
 #include <geode/geosciences/simulation/core/material.hpp>
 #include <geode/geosciences/simulation/core/physical_problem.hpp>
@@ -224,6 +225,22 @@ namespace
             }
         }
     }
+
+    void check_heat_source_blocks( const geode::PhysicalProblem& problem,
+        const geode::BRep& model,
+        geode::SimulationReport& report )
+    {
+        for( const auto& source : problem.heat_sources() )
+        {
+            if( source.block && !model.has_block( source.block.value() ) )
+            {
+                report.add_error( SIMULATION_CHECK_STAGE::regions,
+                    absl::StrCat( "Heat source \"", source.name, "\"" ),
+                    "block ", source.block->string(),
+                    " is not a Block of the model" );
+            }
+        }
+    }
 } // namespace
 
 namespace geode
@@ -239,6 +256,7 @@ namespace geode
                 "built for model ", problem.model_id()->string(),
                 ", not for model ", model.id().string() );
         }
+        check_heat_source_blocks( problem, model, report );
         if( !problem.has_flow() )
         {
             return;
